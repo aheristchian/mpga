@@ -5,6 +5,10 @@ export const mockModes = [
     minPlayers: 4,
     timeToTalk: 40,
     borrowedTimeToTalk: 25,
+    defenseTimeToTalk: 60,
+    challengesPerDay: 1,
+    nextDayShift: 2, // Shifts starting player by 2 each day
+    votingThresholdRounding: 'ceil', // 'ceil', 'floor', or 'half'
     // Data-driven rules for validation
     balanceRules: {
       warnIfSideExceedsRatio: {
@@ -19,6 +23,10 @@ export const mockModes = [
     minPlayers: 4,
     timeToTalk: 60,
     borrowedTimeToTalk: 30,
+    defenseTimeToTalk: 60,
+    challengesPerDay: 1,
+    nextDayShift: 1,
+    votingThresholdRounding: 'half',
     balanceRules: {
       warnIfSideExceedsRatio: {
         sideId: 'mafia',

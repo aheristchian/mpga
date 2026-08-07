@@ -1,127 +1,129 @@
 <template>
-  <div class="w-full max-w-5xl mx-auto">
-    <!-- Dashboard Header -->
+  <div class="space-y-6 max-w-6xl mx-auto">
+    <!-- TOP STATUS BAR -->
     <div
-      class="mb-8 flex justify-between items-center bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700"
+      class="bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700 flex justify-between items-center"
     >
       <div>
-        <h2 class="text-3xl font-bold text-green-500 mb-1">{{ $t('gameModerator.boardTitle') }}</h2>
-        <p class="text-gray-400">
-          {{ players.length }} {{ $t('playerEntry.currentPlayers') }} | {{ aliveCount }}
-          {{ $t('gameModerator.statusAlive') }}
-        </p>
-      </div>
-      <!-- Future: Day/Night Phase toggle could go here -->
-    </div>
-
-    <!-- The Player Grid (Seated Order) -->
-    <div class="mb-4">
-      <h3 class="text-xl font-bold text-gray-300 border-b border-gray-700 pb-2 mb-4">
-        {{ $t('gameModerator.seatedOrder') }}
-      </h3>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div
-          v-for="(player, index) in players"
-          :key="index"
-          class="relative p-5 rounded-lg border-l-4 shadow-md transition-all"
-          :class="[
-            getSideBorderColor(player.role.sideId),
-            player.isAlive !== false ? 'bg-gray-800' : 'bg-gray-900 opacity-60 grayscale',
-          ]"
-        >
-          <!-- Seat Number & Name -->
-          <div class="flex justify-between items-start mb-3">
-            <div class="flex items-center gap-2">
-              <span class="bg-gray-700 text-gray-300 text-xs font-black px-2 py-1 rounded-full">
-                #{{ index + 1 }}
-              </span>
-              <span
-                class="text-xl font-bold text-white"
-                :class="{ 'line-through text-gray-500': player.isAlive === false }"
-              >
-                {{ player.name }}
-              </span>
-            </div>
-
-            <!-- Alive/Dead Status -->
-            <span
-              v-if="player.isAlive === false"
-              class="text-xs font-bold text-red-500 uppercase bg-red-900/30 px-2 py-1 rounded"
-            >
-              {{ $t('gameModerator.statusEliminated') }}
-            </span>
-          </div>
-
-          <!-- Role Info -->
-          <div class="mb-4">
-            <span
-              class="inline-block px-3 py-1 bg-gray-900 rounded text-sm tracking-wider uppercase font-semibold"
-              :class="getSideTextColor(player.role.sideId)"
-            >
-              {{ player.role.name }}
-            </span>
-          </div>
-
-          <!-- Actions (Placeholder for future logic) -->
-          <div class="pt-3 border-t border-gray-700 flex justify-end">
-            <!-- We will build actual ability targeting later, for now just simple kill/revive -->
-            <button
-              v-if="player.isAlive !== false"
-              class="text-xs font-bold px-3 py-1.5 rounded bg-red-900/50 text-red-400 hover:bg-red-600 hover:text-white transition-colors"
-              @click="toggleLifeStatus(index)"
-            >
-              {{ $t('gameModerator.eliminate') }}
-            </button>
-            <button
-              v-else
-              class="text-xs font-bold px-3 py-1.5 rounded bg-green-900/50 text-green-400 hover:bg-green-600 hover:text-white transition-colors"
-              @click="toggleLifeStatus(index)"
-            >
-              {{ $t('gameModerator.revive') }}
-            </button>
-          </div>
+        <h2 class="text-2xl font-bold text-white">{{ $t('gameModerator.boardTitle') }}</h2>
+        <div class="flex gap-4 items-center mt-2">
+          <span class="text-gray-400 font-medium bg-gray-700 px-3 py-1 rounded"
+            >Day {{ store.currentDay }}</span
+          >
+          <span class="text-indigo-400 font-medium bg-indigo-900/30 px-3 py-1 rounded capitalize"
+            >{{ store.subPhase }} Phase</span
+          >
         </div>
       </div>
+
+      <button
+        class="bg-red-900 hover:bg-red-800 text-red-100 px-4 py-2 rounded text-sm font-bold transition-colors"
+        @click="showEndGameModal = true"
+      >
+        {{ $t('app.endGame') }}
+      </button>
     </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- LEFT COLUMN: PLAYER LIST -->
+      <div class="lg:col-span-1 bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700 h-fit">
+        <h3 class="text-lg font-bold text-white mb-4 border-b border-gray-700 pb-2">
+          {{ $t('gameModerator.seatedOrder') }}
+        </h3>
+        <ul class="space-y-3">
+          <li
+            v-for="(player, index) in store.livePlayers"
+            :key="index"
+            class="p-3 rounded border transition-all"
+            :class="[
+              player.isDead
+                ? 'bg-gray-900 border-gray-800 opacity-50 grayscale'
+                : 'bg-gray-700 border-gray-600',
+            ]"
+          >
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="text-white font-bold" :class="{ 'line-through': player.isDead }">
+                  {{ index + 1 }}. {{ player.name }}
+                </p>
+                <p
+                  class="text-sm font-semibold mt-1"
+                  :class="getSideColorClass(player.role?.sideId)"
+                >
+                  {{ player.role?.name || 'Unknown Role' }}
+                </p>
+              </div>
+              <span
+                v-if="player.isDead"
+                class="text-xs font-bold text-red-500 uppercase tracking-widest bg-red-900/30 px-2 py-1 rounded"
+              >
+                💀 Dead
+              </span>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- RIGHT COLUMN: MODERATOR ENGINE -->
+      <div class="lg:col-span-2">
+        <DayPhase v-if="store.subPhase === 'day'" />
+        <VotingPhase v-else-if="store.subPhase === 'voting'" />
+        <NightPhase v-else-if="store.subPhase === 'night'" />
+      </div>
+    </div>
+
+    <!-- END GAME CONFIRMATION -->
+    <BaseModal
+      :is-open="showEndGameModal"
+      :title="$t('app.endGameConfirmTitle')"
+      @close="showEndGameModal = false"
+    >
+      <div class="text-center space-y-4 py-2">
+        <div class="text-red-500 text-5xl mb-2">🛑</div>
+        <p class="text-lg">{{ $t('app.endGameWarning') }}</p>
+        <p class="text-sm text-gray-400">{{ $t('app.endGameSubWarning') }}</p>
+      </div>
+
+      <template #footer>
+        <button
+          class="px-5 py-2 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-lg transition-colors"
+          @click="showEndGameModal = false"
+        >
+          {{ $t('app.cancel') }}
+        </button>
+        <button
+          class="px-5 py-2 bg-red-600 hover:bg-red-500 text-white font-semibold rounded-lg transition-colors"
+          @click="endGame"
+        >
+          {{ $t('app.confirmEndGame') }}
+        </button>
+      </template>
+    </BaseModal>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { ref } from 'vue';
+import BaseModal from './BaseModal.vue';
+import DayPhase from './game/DayPhase.vue';
+import VotingPhase from './game/VotingPhase.vue';
+import NightPhase from './game/NightPhase.vue';
+import { useGameStore } from '../stores/gameStore';
 
-const props = defineProps({
-  players: {
-    type: Array,
-    required: true,
-  },
-});
+const store = useGameStore();
 
-// Calculate how many players are still alive
-const aliveCount = computed(() => {
-  return props.players.filter((p) => p.isAlive !== false).length;
-});
-
-// A simple mutation for now. In a full app, this might emit to the parent.
-const toggleLifeStatus = (index) => {
-  const player = props.players[index];
-  // If isAlive isn't explicitly set yet, assume they are alive, so make them dead (false)
-  if (player.isAlive === undefined) {
-    player.isAlive = false;
-  } else {
-    player.isAlive = !player.isAlive;
-  }
-};
-
-const getSideBorderColor = (sideId) => {
-  if (sideId === 'town') return 'border-town';
-  if (sideId === 'mafia') return 'border-mafia';
-  return 'border-thirdParty';
-};
-
-const getSideTextColor = (sideId) => {
+const getSideColorClass = (sideId) => {
   if (sideId === 'town') return 'text-town';
   if (sideId === 'mafia') return 'text-mafia';
-  return 'text-thirdParty';
+  if (sideId === 'third-party') return 'text-thirdParty';
+  return 'text-gray-400';
+};
+
+// End Game Modal State
+const showEndGameModal = ref(false);
+
+const endGame = () => {
+  store.resetGame();
+  window.location.reload();
 };
 </script>

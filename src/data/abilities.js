@@ -5,6 +5,7 @@ export const mockAbilities = [
     description: 'Sense danger',
     icon: 'sixth-sense-icon.png',
     target: { self: 0, others: -1, phaseLimit: 1 },
+    priority: 99, // Passive / Informational
   },
   {
     id: 'mafia-shot',
@@ -12,6 +13,7 @@ export const mockAbilities = [
     description: 'A deadly shot',
     icon: 'shot-icon.png',
     target: { self: 0, others: -1, phaseLimit: 1 },
+    priority: 2, // Kills after side selection, before blocks
   },
   {
     id: 'vigillante-shot',
@@ -19,6 +21,7 @@ export const mockAbilities = [
     description: 'Town justice',
     icon: 'shot-icon.png',
     target: { self: 0, others: 2, phaseLimit: 1 },
+    priority: 4, // Kills after blocks
   },
   {
     id: 'revive',
@@ -26,6 +29,7 @@ export const mockAbilities = [
     description: 'Bring a player back',
     icon: 'revive-icon.png',
     target: { self: 0, others: 1, phaseLimit: 1 },
+    priority: 6, // Happens at the very end
   },
   {
     id: 'investigate',
@@ -33,6 +37,7 @@ export const mockAbilities = [
     description: 'Check a player',
     icon: 'investigate-icon.png',
     target: { self: 0, others: 1, phaseLimit: 1 },
+    priority: 5, // Happens after kills are resolved
   },
   {
     id: 'block',
@@ -40,6 +45,7 @@ export const mockAbilities = [
     description: 'Stop an ability',
     icon: 'block-icon.png',
     target: { self: 0, others: 1, phaseLimit: 1 },
+    priority: 3, // Blocks happen after mafia shot, before vig/doc
   },
   {
     id: 'buy',
@@ -47,6 +53,7 @@ export const mockAbilities = [
     description: 'Bribe someone',
     icon: 'buy-icon.png',
     target: { self: 0, others: -1, phaseLimit: 1 },
+    priority: 3, // Similar timing to block
   },
   {
     id: 'choose-side',
@@ -54,6 +61,7 @@ export const mockAbilities = [
     description: 'Pick your allegiance',
     icon: 'choose-side-icon.png',
     target: { self: 0, others: 3, phaseLimit: 3 },
+    priority: 1, // Absolute highest priority
   },
   {
     id: 'treat',
@@ -61,6 +69,7 @@ export const mockAbilities = [
     description: 'Save someone',
     icon: 'treat-icon.png',
     target: { self: 0, others: 1, phaseLimit: 1 },
+    priority: 4, // Happens alongside vigilante shot (to prevent it)
   },
   {
     id: 'shield',
@@ -68,6 +77,7 @@ export const mockAbilities = [
     description: 'Immunity to shots',
     icon: 'shield-icon.png',
     target: { self: 0, others: 0, phaseLimit: -1 }, // Passive
+    priority: 0, // Always active
   },
   {
     id: 'unlimited-shield',
@@ -75,5 +85,6 @@ export const mockAbilities = [
     description: 'Complete immunity',
     icon: 'shield-icon.png',
     target: { self: -1, others: -1, phaseLimit: 1 }, // Passive
+    priority: 0, // Always active
   },
 ];

@@ -58,6 +58,44 @@
     "proceedAnyway": "Proceed Anyway",
     "sideSelected": "{count} Selected"
   },
+  "dayPhase": {
+    "title": "Day Phase",
+    "clockwise": "Clockwise",
+    "counterClockwise": "Counter-Clockwise",
+    "isSpeaking": "is speaking",
+    "start": "Start",
+    "pause": "Pause",
+    "nextPlayer": "Next Player",
+    "upNext": "Up Next",
+    "proceedToVote": "Proceed to Voting",
+    "forceEndDay": "Force End Day"
+  },
+  "votingPhase": {
+    "title": "Voting Phase",
+    "preVoteSubtitle": "Pre-vote Stage: Select who goes to defense. (Threshold is half + based on mode)",
+    "startDefense": "Start Defense Stage",
+    "defenseSubtitle": "Defense Stage: Players who reached the threshold must defend themselves.",
+    "noDefenders": "No player reached the voting threshold.",
+    "proceedToNight": "Proceed to Night Phase",
+    "isDefending": "is defending their role",
+    "proceedToFinalVote": "Proceed to Final Vote",
+    "finalVoteSubtitle": "Final Vote: Who should be eliminated from the town?",
+    "resolveTie": "Resolve Tie (Destiny Spin)",
+    "eliminate": "Eliminate {name}",
+    "nobodyDies": "Nobody Dies - End Day",
+    "destinyIsDeciding": "Destiny is deciding..."
+  },
+  "nightPhase": {
+    "title": "Night Phase",
+    "subtitle": "Wake up roles in priority order and record their actions.",
+    "noAction": "-- No Action / Skipped --",
+    "resolveNight": "Resolve Night Actions",
+    "publicAnnouncement": "Public Announcement",
+    "noDeaths": "Nobody died last night.",
+    "wasKilled": "was killed.",
+    "moderatorLog": "Moderator Private Log",
+    "startNextDay": "Wake up the Town (Start Next Day)"
+  },
   "gameModerator": {
     "boardTitle": "Live Game Board",
     "seatedOrder": "Seated Order",

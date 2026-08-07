@@ -54,6 +54,15 @@ graph TD
 
 ## TBC (To Be Continued / Future Work)
 
+### Technical Debt: TypeScript Migration
+- Migrate the codebase from Vanilla JavaScript to **TypeScript**.
+- Define strict interfaces (e.g., `Player`, `Role`, `Ability`) to prevent runtime errors as the state machine grows more complex.
+- Update Vue components to `<script setup lang="ts">`.
+
+### UI / UX Improvements (From Testing Feedback)
+- **Day Phase Timer Flexibility**: The moderator needs to see timers for *all* players during the Day Phase, allowing them to freely switch between players and keep track of everyone's remaining time, rather than a strict one-by-one queue.
+- **Dynamic Reordering**: The `GameModerator` live board must support drag-and-drop reordering of players (similar to `PlayerEntry`). In real life, people physically move seats during the game, and the app's seated order needs to update to reflect this.
+
 ### Auto-Win Detection Engine
 - Implement logic to automatically detect game-over states.
 - **Town Win**: All Mafia are eliminated.
