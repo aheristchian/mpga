@@ -64,25 +64,46 @@
 
     <div class="mt-6 flex justify-end">
       <button
-        v-if="players.length >= 3"
+        v-if="players.length >= minPlayers"
         class="bg-green-600 hover:bg-green-500 text-white px-6 py-2 rounded font-bold shadow-md transition-all"
         @click="finishAddingPlayers"
       >
         {{ $t('playerEntry.done') }}
       </button>
       <p v-else class="text-sm text-yellow-500">
-        {{ $t('playerEntry.needMore') }}
+        {{ $t('playerEntry.needMore', { min: minPlayers }) }}
       </p>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, watch } from 'vue';
+import { saveEncoded, loadEncoded } from '../utils/storage';
+
+defineProps({
+  minPlayers: {
+    type: Number,
+    default: 4,
+  },
+});
 
 const players = ref([]);
 const newPlayerName = ref('');
 const emit = defineEmits(['players-ready']);
+
+onMounted(() => {
+  const savedPlayers = loadEncoded('mpga_setup_players');
+  if (savedPlayers) players.value = savedPlayers;
+});
+
+watch(
+  players,
+  (newPlayers) => {
+    saveEncoded('mpga_setup_players', newPlayers);
+  },
+  { deep: true }
+);
 
 // Drag and Drop State
 const draggedIndex = ref(null);

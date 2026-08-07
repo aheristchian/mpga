@@ -1,4 +1,17 @@
 {
+  "modes": {
+    "godfather": {
+      "name": "Godfather"
+    },
+    "classic": {
+      "name": "Classic Mafia"
+    }
+  },
+  "modeSelection": {
+    "title": "Select Game Mode",
+    "subtitle": "Choose the ruleset for your game",
+    "continue": "Continue"
+  },
   "app": {
     "title": "Mafia Moderator",
     "subtitle": "Manage your game phases easily.",
@@ -24,7 +37,7 @@
     "remove": "Remove",
     "noPlayers": "No players added yet.",
     "done": "Done Adding Players",
-    "needMore": "Need at least 3 players to start."
+    "needMore": "Need at least {min} players to start."
   },
   "roleSelection": {
     "title": "Select Roles",

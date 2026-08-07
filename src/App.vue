@@ -10,7 +10,7 @@
 
       <!-- GLOBAL START OVER BUTTON -->
       <button
-        v-if="gamePhase !== 'setup'"
+        v-if="gamePhase !== 'mode-selection'"
         class="absolute top-0 right-0 mt-2 mr-2 px-4 py-2 bg-gray-800 hover:bg-red-900 border border-gray-700 hover:border-red-500 text-gray-300 hover:text-white rounded transition-colors text-sm font-semibold flex items-center gap-2"
         @click="showResetModal = true"
       >
@@ -19,8 +19,15 @@
     </header>
 
     <main class="container mx-auto pb-20">
+      <!-- MODE SELECTION PHASE -->
+      <ModeSelection v-if="gamePhase === 'mode-selection'" @mode-selected="handleModeSelected" />
+
       <!-- SETUP PHASE -->
-      <PlayerEntry v-if="gamePhase === 'setup'" @players-ready="handlePlayersReady" />
+      <PlayerEntry
+        v-else-if="gamePhase === 'setup'"
+        :min-players="gameMode?.minPlayers || 4"
+        @players-ready="handlePlayersReady"
+      />
 
       <!-- ROLE SELECTION PHASE -->
       <RoleSelection
@@ -32,6 +39,8 @@
       <!-- PLAYING PHASE -->
       <GameModerator v-else-if="gamePhase === 'playing'" :players="gamePlayers" />
     </main>
+
+    <footer class="mt-8 pb-4 text-center text-gray-500 text-sm">v{{ appVersion }}</footer>
 
     <!-- GLOBAL RESET MODAL -->
     <BaseModal
@@ -64,17 +73,58 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, watch } from 'vue';
+import ModeSelection from './components/ModeSelection.vue';
 import PlayerEntry from './components/PlayerEntry.vue';
 import RoleSelection from './components/RoleSelection.vue';
 import GameModerator from './components/GameModerator.vue';
 import BaseModal from './components/BaseModal.vue';
+import { saveEncoded, loadEncoded, clearGameStorage } from './utils/storage';
 
-const gamePhase = ref('setup');
+const gamePhase = ref('mode-selection');
+const gameMode = ref(null);
 const gamePlayers = ref([]);
+
+const appVersion = __APP_VERSION__;
+
+onMounted(() => {
+  const savedPhase = loadEncoded('mpga_gamePhase');
+  if (savedPhase) gamePhase.value = savedPhase;
+
+  const savedMode = loadEncoded('mpga_gameMode');
+  if (savedMode) gameMode.value = savedMode;
+
+  const savedPlayers = loadEncoded('mpga_gamePlayers');
+  if (savedPlayers) gamePlayers.value = savedPlayers;
+});
+
+watch(gamePhase, (newPhase) => {
+  saveEncoded('mpga_gamePhase', newPhase);
+});
+
+watch(
+  gameMode,
+  (newMode) => {
+    saveEncoded('mpga_gameMode', newMode);
+  },
+  { deep: true }
+);
+
+watch(
+  gamePlayers,
+  (newPlayers) => {
+    saveEncoded('mpga_gamePlayers', newPlayers);
+  },
+  { deep: true }
+);
 
 // Modal State
 const showResetModal = ref(false);
+
+const handleModeSelected = (mode) => {
+  gameMode.value = mode;
+  gamePhase.value = 'setup';
+};
 
 const handlePlayersReady = (playersArray) => {
   gamePlayers.value = playersArray;
@@ -93,8 +143,14 @@ const handleRolesConfirmed = (selectedRoles) => {
 };
 
 const confirmResetGame = () => {
+  // Clear all persisted keys so there is no lingering state (like draft player lists)
+  clearGameStorage();
+
+  // Reset the reactive state which will subsequently trigger watchers
+  // to save the fresh baseline state back to storage
   gamePlayers.value = [];
-  gamePhase.value = 'setup';
+  gameMode.value = null;
+  gamePhase.value = 'mode-selection';
   showResetModal.value = false;
 };
 </script>

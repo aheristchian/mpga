@@ -261,7 +261,7 @@ const getCardClasses = (role) => {
   let baseClass;
   if (role.sideId === 'town') baseClass = 'bg-town border-town';
   else if (role.sideId === 'mafia') baseClass = 'bg-mafia border-mafia';
-  else baseClass = 'bg-thirdParty border-thirdParty'; 
+  else baseClass = 'bg-thirdParty border-thirdParty';
 
   if (count > 0) {
     return `${baseClass} opacity-100 shadow-xl ring-2 ring-white scale-[1.02] cursor-pointer`;

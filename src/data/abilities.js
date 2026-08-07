@@ -69,4 +69,11 @@ export const mockAbilities = [
     icon: 'shield-icon.png',
     target: { self: 0, others: 0, phaseLimit: -1 }, // Passive
   },
+  {
+    id: 'unlimited-shield',
+    name: 'Unlimited Shield',
+    description: 'Complete immunity',
+    icon: 'shield-icon.png',
+    target: { self: -1, others: -1, phaseLimit: 1 }, // Passive
+  },
 ];

@@ -84,4 +84,43 @@ export const mockRoles = [
     abilityIds: [],
     passiveAbilityIds: [],
   },
+  {
+    id: 'nostradamus',
+    name: 'Nostradamus',
+    description:
+      'Nostradamus has the ability to choose a side, aligning with either the Town or the Mafia.',
+    image: 'nostradamus-image.png',
+    limit: 1,
+    order: 7,
+    sideId: 'third-party',
+    modeIds: ['godfather'],
+    abilityIds: ['choose-side'],
+    passiveAbilityIds: ['unlimited-shield'],
+  },
+  {
+    id: 'constantine',
+    name: 'Constantine',
+    description:
+      'Constantine has the power to revive dead players and bring them back into the game.',
+    image: 'constantine-image.png',
+    limit: 1,
+    order: 8,
+    sideId: 'town',
+    modeIds: ['godfather'],
+    abilityIds: ['revive'],
+    passiveAbilityIds: [],
+  },
+  {
+    id: 'leon',
+    name: 'Leon',
+    description:
+      'Leon is a vigilante who can take matters into their own hands and make deadly shots.',
+    image: 'leon-image.png',
+    limit: 1,
+    order: 9,
+    sideId: 'town',
+    modeIds: ['godfather'],
+    abilityIds: ['vigillante-shot'],
+    passiveAbilityIds: [],
+  },
 ];
