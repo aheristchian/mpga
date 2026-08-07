@@ -5,16 +5,14 @@ Handlebars.registerHelper('kebabCase', function (str) {
 });
 
 Handlebars.registerHelper('camelCase', function (str) {
-  return str
-    .toLowerCase()
-    .replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase());
+  return str.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase());
 });
 
-Handlebars.registerHelper('upperCase', function(str) {
+Handlebars.registerHelper('upperCase', function (str) {
   return str.toUpperCase();
 });
 
-Handlebars.registerHelper('lowerCase', function(str) {
+Handlebars.registerHelper('lowerCase', function (str) {
   return str.toLowerCase();
 });
 

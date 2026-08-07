@@ -1,0 +1,57 @@
+{
+  "app": {
+    "title": "Mafia Moderator",
+    "subtitle": "Manage your game phases easily.",
+    "startOver": "Start Over",
+    "startOverConfirmTitle": "Start Over?",
+    "startOverWarning": "Are you sure you want to start a completely new game?",
+    "startOverSubWarning": "All players and roles will be erased.",
+    "cancel": "Cancel",
+    "confirmStartOver": "Yes, Start Over",
+    "endGame": "End Game",
+    "endGameConfirmTitle": "Confirm Game Over",
+    "endGameWarning": "Are you sure you want to end the current game?",
+    "endGameSubWarning": "All current player roles and state will be lost.",
+    "confirmEndGame": "Yes, End Game",
+    "gameIsLive": "Game is Live!"
+  },
+  "playerEntry": {
+    "addPlayers": "Add Players",
+    "placeholder": "Enter player name...",
+    "add": "Add",
+    "currentPlayers": "Current Players",
+    "orderBySeating": "Drag to reorder",
+    "remove": "Remove",
+    "noPlayers": "No players added yet.",
+    "done": "Done Adding Players",
+    "needMore": "Need at least 3 players to start."
+  },
+  "roleSelection": {
+    "title": "Select Roles",
+    "playerCountText": "You have {count} players. Please select exactly {count} roles.",
+    "selectedCount": "{selected} / {total} Selected",
+    "loading": "Loading game configuration...",
+    "maxLimit": "Max: {limit}",
+    "clearAll": "Clear all",
+    "assignRandomly": "Assign Roles Randomly",
+    "limitReachedTitle": "Limit Reached",
+    "limitReachedWarning": "You have already selected all {count} roles for your players.",
+    "limitReachedSubWarning": "Please tap an active role to deselect it before choosing a different one.",
+    "gotIt": "Got it",
+    "balanceWarningTitle": "Game Balance Warning",
+    "balanceWarningMain": "This game might be unbalanced!",
+    "balanceWarningMessage": "You have selected {selectedCount} {sideName} players for a {totalPlayers} player game. It is recommended to have no more than {recommendedMax}.",
+    "adjustRoles": "Adjust Roles",
+    "proceedAnyway": "Proceed Anyway",
+    "sideSelected": "{count} Selected"
+  },
+  "gameModerator": {
+    "boardTitle": "Live Game Board",
+    "seatedOrder": "Seated Order",
+    "actions": "Actions",
+    "eliminate": "Eliminate",
+    "revive": "Revive",
+    "statusAlive": "Alive",
+    "statusEliminated": "Eliminated"
+  }
+}

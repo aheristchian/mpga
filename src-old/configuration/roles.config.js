@@ -5,14 +5,15 @@ import abilities from './abilities.config';
 const roles = {
   GODFATHER: {
     abilities: [abilities.SIXTH_SENSE, abilities.MAFIA_SHOT],
-    description: 'The Godfather is the leader of the Mafia. They have the power to sense danger and make deadly shots.',
+    description:
+      'The Godfather is the leader of the Mafia. They have the power to sense danger and make deadly shots.',
     image: 'godfather-image.png',
     limit: 1,
     modes: [modes.GODFATHER],
     name: 'Godfather',
     order: 0,
     side: sides.MAFIA,
-    passiveAbilities: [abilities.SHIELD]
+    passiveAbilities: [abilities.SHIELD],
   },
   MATADOR: {
     abilities: [abilities.BLOCK],
@@ -49,7 +50,8 @@ const roles = {
   },
   NOSTRADAMUS: {
     abilities: [abilities.CHOOSE_SIDE],
-    description: 'Nostradamus has the ability to choose a side, aligning with either the Town or the Mafia.',
+    description:
+      'Nostradamus has the ability to choose a side, aligning with either the Town or the Mafia.',
     image: 'nostradamus-image.png',
     limit: 1,
     modes: [modes.GODFATHER],
@@ -60,7 +62,8 @@ const roles = {
   },
   DR_WATSON: {
     abilities: [abilities.TREAT],
-    description: 'Dr Watson is a skilled doctor who can treat other players and save them from dying.',
+    description:
+      'Dr Watson is a skilled doctor who can treat other players and save them from dying.',
     image: 'dr-watson-image.png',
     limit: 1,
     modes: [modes.GODFATHER],
@@ -71,7 +74,8 @@ const roles = {
   },
   CITIZEN_KANE: {
     abilities: [abilities.INVESTIGATE],
-    description: 'Citizen Kane is an investigative role who can gather information to identify the Mafia members.',
+    description:
+      'Citizen Kane is an investigative role who can gather information to identify the Mafia members.',
     image: 'citizen-kane-image.png',
     limit: 1,
     modes: [modes.GODFATHER],
@@ -82,7 +86,8 @@ const roles = {
   },
   CONSTANTINE: {
     abilities: [abilities.REVIVE],
-    description: 'Constantine has the power to revive dead players and bring them back into the game.',
+    description:
+      'Constantine has the power to revive dead players and bring them back into the game.',
     image: 'constantine-image.png',
     limit: 1,
     modes: [modes.GODFATHER],
@@ -93,7 +98,8 @@ const roles = {
   },
   LEON: {
     abilities: [abilities.VIGILLANTE_SHOT],
-    description: 'Leon is a vigilante who can take matters into their own hands and make deadly shots.',
+    description:
+      'Leon is a vigilante who can take matters into their own hands and make deadly shots.',
     image: 'leon-image.png',
     limit: 1,
     modes: [modes.GODFATHER],
@@ -104,7 +110,8 @@ const roles = {
   },
   TOWNIE: {
     abilities: [],
-    description: 'The Townies are innocent players who must use their wits to identify and eliminate the Mafia members.',
+    description:
+      'The Townies are innocent players who must use their wits to identify and eliminate the Mafia members.',
     image: 'townie-image.png',
     limit: 1,
     modes: [modes.GODFATHER],

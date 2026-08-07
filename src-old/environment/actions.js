@@ -16,10 +16,7 @@ const assignRolesHandler = () => {
     return;
   }
   players.forEach((player) => {
-    player[1] = activeRoles.splice(
-      Math.floor(Math.random() * activeRoles.length),
-      1
-    )[0];
+    player[1] = activeRoles.splice(Math.floor(Math.random() * activeRoles.length), 1)[0];
   });
   console.log(players);
   // TODO: Clean the game field!
@@ -27,12 +24,7 @@ const assignRolesHandler = () => {
 
 const startGameHandler = () => {};
 
-const createActionButton = (
-  buttonCode,
-  buttonText,
-  clickHandler,
-  mafiaContainer
-) => {
+const createActionButton = (buttonCode, buttonText, clickHandler, mafiaContainer) => {
   let actionList = mafiaContainer.querySelector('.action-list');
   if (!actionList) {
     actionList = document.createElement('div');
@@ -52,21 +44,11 @@ const createActionButton = (
 const displayAction = (action, mafiaContainer) => {
   switch (action) {
     case 'ASSIGN_ROLES':
-      createActionButton(
-        'ASSIGN_ROLES',
-        'Assign roles',
-        assignRolesHandler,
-        mafiaContainer
-      );
+      createActionButton('ASSIGN_ROLES', 'Assign roles', assignRolesHandler, mafiaContainer);
       break;
 
     case 'START_GAME':
-      createActionButton(
-        'START_GAME',
-        'Start game',
-        startGameHandler,
-        mafiaContainer
-      );
+      createActionButton('START_GAME', 'Start game', startGameHandler, mafiaContainer);
       break;
 
     default:
@@ -75,9 +57,7 @@ const displayAction = (action, mafiaContainer) => {
 };
 
 const hideAction = (action, mafiaContainer) => {
-  const actionToBeRemoved = mafiaContainer.querySelector(
-    `.action-${camelCase(action)}`
-  );
+  const actionToBeRemoved = mafiaContainer.querySelector(`.action-${camelCase(action)}`);
   if (actionToBeRemoved) {
     actionToBeRemoved.remove();
   }

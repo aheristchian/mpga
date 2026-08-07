@@ -13,8 +13,7 @@ const setCookie = (name, value, days) => {
   const expirationDate = new Date();
   expirationDate.setDate(expirationDate.getDate() + days);
   const cookieValue =
-    encodeURIComponent(value) +
-    (days ? `; expires=${expirationDate.toUTCString()}` : '');
+    encodeURIComponent(value) + (days ? `; expires=${expirationDate.toUTCString()}` : '');
   document.cookie = `${name}=${cookieValue}`;
 };
 

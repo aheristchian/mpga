@@ -38,11 +38,11 @@ const receiveGameMode = async () => {
   return gameMode;
 };
 
-const startGame = async mafiaContainer => {
+const startGame = async (mafiaContainer) => {
   const selectedGameMode = await receiveGameMode();
   const gameModeInfo = modes[selectedGameMode];
   await addPlayer();
-  
+
   displayHeader(mafiaContainer, gameModeInfo);
   displayPlayers(mafiaContainer);
   displayRoles(mafiaContainer, players.length);
