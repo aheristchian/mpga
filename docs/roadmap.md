@@ -51,3 +51,21 @@ graph TD
 - **Restricted State**: The Host (Moderator) only sends the player their specific role, current game phase (Day/Night), and available targets. They do not receive the full game state.
 - **Interaction**: Players can cast votes or use abilities from their device. These actions are sent as JSON payloads over the WebRTC data channel back to the Moderator.
 - **Moderator Override**: The Moderator always retains the ability to manually override or log actions if a player's phone disconnects.
+
+## TBC (To Be Continued / Future Work)
+
+### Auto-Win Detection Engine
+- Implement logic to automatically detect game-over states.
+- **Town Win**: All Mafia are eliminated.
+- **Mafia Win**: Living Mafia equal or outnumber living Town.
+- **Third Party (Nostradamus)**: Shares the victory with whichever team they allied with on Night 1.
+
+### Enhanced Voting Phase (Eyes Closed)
+- Add a specific state during the Final Vote where players must close their eyes.
+- This allows players to secretly change their votes while the Moderator tallies the final count without the town seeing the exact moment of shifting alliances.
+
+### Game Cycles & Midday (Nim-Rouz)
+- Implement the strict repetition of the game cycle.
+- **Last Word Cards (کارت حرکت آخر)**: When a player is eliminated in the vote, they enter the Midday phase.
+  - Implement a visual spinner/arrow animation that rotates among available "Last Word" cards.
+  - Once a card is drawn by an eliminated player, it is removed from the game deck so subsequent eliminated players draw from the remaining cards.
