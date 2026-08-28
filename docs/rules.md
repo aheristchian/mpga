@@ -1,6 +1,6 @@
 # Mafia Rules & Mechanics
 
-This document provides a comprehensive reference for game mechanics, faction rules, role abilities, night resolution priority, and victory conditions in the Mafia Party Game Assistant (MPGA).
+This document provides a comprehensive reference for game mechanics, faction rules, role abilities, Last Word Cards, night resolution priority, and victory conditions in the Mafia Party Game Assistant (MPGA).
 
 ---
 
@@ -8,9 +8,17 @@ This document provides a comprehensive reference for game mechanics, faction rul
 
 | Faction | Objective | Win Condition | Color Theme |
 | :--- | :--- | :--- | :--- |
-| **Town (Citizens)** | Identify and eliminate all Mafia members. | All living Mafia players are eliminated. | `text-town` (Blue / `#3B82F6`) |
-| **Mafia** | Eliminate Town members and take control of the town. | The number of living Mafia players equals or exceeds the number of living Town players. | `text-mafia` (Red / `#EF4444`) |
-| **Third Party (Nostradamus)** | Align with a chosen faction on Night 1 and survive/assist them. | Wins alongside whichever team (Town or Mafia) they pledged allegiance to on Night 1. | `text-thirdParty` (Purple / `#A855F7`) |
+| **Town (Citizens)** | Identify and eliminate all Mafia members. | All living Mafia players are eliminated (`livingMafia === 0`). | `text-town` (Blue / `#3B82F6`) |
+| **Mafia** | Eliminate Town members and take control of the town. | The number of living Mafia players equals or exceeds the number of living Town players (`livingMafia >= livingTown`). | `text-mafia` (Red / `#EF4444`) |
+| **Third Party (Nostradamus)** | Align with a chosen faction on Night 1 and survive/assist them. | Wins alongside whichever team (`town` or `mafia`) they pledged allegiance to on Night 1. | `text-thirdParty` (Purple / `#A855F7`) |
+
+### Automatic Win Calculation Logic
+The calculation engine in [`src/services/useWinCondition.js`](file:///Users/ali.heristchian/Documents/learning/mpga/src/services/useWinCondition.js) evaluates live player states on every status change:
+1. **Town Victory (`winner: 'town'`):** Triggered when `livingMafiaCount === 0 && livingTownCount > 0`.
+2. **Mafia Victory (`winner: 'mafia'`):** Triggered when `livingMafiaCount >= livingTownCount && livingMafiaCount > 0`.
+3. **Draw / Stalemate (`winner: 'draw'`):** Triggered if both living counts reach `0`.
+4. **Nostradamus Co-Victory (`nostradamusWon: true`):** If a Nostradamus is in play and their recorded Night 1 choice matches the calculated `winner`, Nostradamus is credited with a co-victory.
+5. **Match Statistics Aggregation:** When game over occurs, the engine automatically collates metrics from `gameLogs` (total Doctor saves, Detective positive hits, total eliminations, total match days, and surviving player list).
 
 ---
 
@@ -55,7 +63,22 @@ This document provides a comprehensive reference for game mechanics, faction rul
 
 ---
 
-## 3. Night Action Resolution & Priority Engine
+## 3. Last Word Cards (*کارت حرکت آخر*)
+
+When a player is eliminated during the daytime Voting phase, they enter the **Midday (*Nim-Rouz*) Phase** where they give an exit speech and draw one random card from the remaining deck. Drawn cards are permanently retired.
+
+| Card Name | Identifier | Effect & Peripheral Rules |
+| :--- | :--- | :--- |
+| **Mind Inquiry (ذهن‌زیبا)** | `mind-inquiry` | The eliminated player can guess the exact roles of up to 2 living players. If correct, special tournament points/rewards apply. |
+| **Silence of the Lambs (سکوت بره)** | `silence` | The eliminated player selects one living player who cannot speak during the next Day phase. |
+| **Redemption (فرش قرمز)** | `redemption` | The eliminated player designates a candidate who will be automatically brought to the defense stage on the next day's voting. |
+| **Final Shot / Double Vote (شلیک نهایی)** | `double-vote` | Grants the player's faction or chosen ally an extra voting point in the next voting phase. |
+| **Identity Reveal (افشای هویت)** | `revealed-alignment` | The moderator publicly announces the exact role and alignment of the eliminated player to the town. |
+| **Golden Inquiry (ذهن طلایی)** | `beautiful-mind` | The eliminated player asks the moderator whether a specific faction holds a majority in a chosen section of the table. |
+
+---
+
+## 4. Night Action Resolution & Priority Engine
 
 Night actions cannot be resolved simultaneously because dependencies exist (e.g., a **Block** must occur before a **Heal** or **Shot**, and **Heals** prevent **Deaths**).
 
@@ -91,7 +114,7 @@ flowchart TD
 
 ---
 
-## 4. Game Modes & Balance Rules
+## 5. Game Modes & Balance Rules
 
 Modes are configured in [`src/data/modes.js`](file:///Users/ali.heristchian/Documents/learning/mpga/src/data/modes.js):
 
@@ -111,3 +134,21 @@ Modes are configured in [`src/data/modes.js`](file:///Users/ali.heristchian/Docu
   * Daily Turn Shift: 1 seat
   * Voting Rounding: `half` (standard `Math.round`)
   * Balance Constraint: Maximum Mafia ratio is 33% of total player count.
+
+---
+
+## 6. Voting Mechanics & Candidate Caps
+
+Voting calculations and constraints are handled by [`src/services/useVotingService.js`](file:///Users/ali.heristchian/Documents/learning/mpga/src/services/useVotingService.js):
+
+1. **Self-Voting Prohibition & Maximum Vote Cap:**
+   * In standard Mafia rules, a player under accusation/vote cannot vote to eliminate or qualify themselves.
+   * Consequently, the maximum number of votes any single candidate can receive in either Pre-Vote or Final Vote stages is strictly bounded by:
+     $$\text{Max Votes} = \max(0, N_{\text{alive}} - 1)$$
+   * UI increment controls automatically disable when this ceiling is reached, and vote inputs are clamped within $[0, \text{Max Votes}]$.
+2. **Pre-Vote Qualification Threshold:**
+   * A player qualifies for the defense stage if their pre-vote tally reaches the mode-defined threshold:
+     $$\text{Threshold}_{\text{ceil}} = \lceil N_{\text{alive}} / 2 \rceil \quad \text{or} \quad \text{Threshold}_{\text{round}} = \text{round}(N_{\text{alive}} / 2)$$
+3. **Closed-Eye Final Vote:**
+   * Defenders who reach the threshold enter defense speeches followed by closed-eye town voting.
+   * The defender receiving the highest final vote count is eliminated. Ties trigger the Destiny Spin tie-breaker roulette.

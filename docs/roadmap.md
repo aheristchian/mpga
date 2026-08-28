@@ -1,6 +1,6 @@
 # Project Roadmap & Future Todos
 
-This document tracks planned architecture milestones, feature enhancements, and technical debt tasks for the **Mafia Party Game Assistant (MPGA)**.
+This document tracks completed milestones, current capabilities, and upcoming features for the **Mafia Party Game Assistant (MPGA)**.
 
 ---
 
@@ -8,19 +8,20 @@ This document tracks planned architecture milestones, feature enhancements, and 
 
 ```mermaid
 graph TD
-    subgraph Current Architecture
+    subgraph Core Architecture Completed
         A[Vue 3 Orchestrator: App.vue] --> B[ModeSelection.vue]
         A --> C[PlayerEntry.vue]
         A --> D[RoleSelection.vue]
         A --> E[GameModerator.vue]
-        E --> F[Day / Voting / Night Sub-Phases]
-        E -.-> G[(LocalStorage Auto-Sync)]
-    end
-
-    subgraph Phase 1 : Historical Event Logging
-        E --> H[useGameLog Composable / Store]
-        H -.-> G
-        H --> I[Moderator Log Drawer UI]
+        E --> F1[DayPhase.vue: Spotlight Wizard & Hero Banner]
+        E --> F2[VotingPhase.vue: Pre-Vote & Defense Wizard]
+        E --> F3[MiddayPhase.vue: Exit Speech & Last Word Deck]
+        E --> F4[NightPhase.vue: Teleprompter Wizard]
+        E --> H[PlayerStatusModal.vue: Anytime Overrides]
+        E --> I[GameLogDrawer.vue: Historical Timeline]
+        E --> GO[GameOverModal.vue: Victory Fanfare & Match Analytics]
+        E -.-> WC[useWinCondition: Automatic Win Engine]
+        E -.-> G[(LocalStorage Base64 Sync)]
     end
 
     subgraph Phase 2 : Serverless P2P Multiplayer
@@ -35,77 +36,63 @@ graph TD
 
 ---
 
-## Upcoming Milestones
+## ✅ Completed Milestones
 
-### 1. Centralized Action & Event Logging
-**Goal:** Provide the moderator with a complete, searchable timeline of all in-game actions and phase transitions.
-* **Implementation:** Create a dedicated composable ([`useGameLog.js`](file:///Users/ali.heristchian/Documents/learning/mpga/src/services/useGameLog.js)) and Pinia log store.
-* **Tracked Events:**
-  * Day Phase: Speaker turns, challenge time usage, elapsed speaking seconds.
-  * Voting Phase: Pre-vote tallies, defenders qualified, final votes, tie-break results.
-  * Night Phase: Ability choices (targets selected), blocks, saves, and death causes.
-* **UI:** Collapsible sliding sidebar / event drawer on the moderator board.
-* **Persistence:** Serialized into `localStorage` alongside active game state.
+### 1. Anytime Moderator State Overrides & Player Management
+* Added quick Kill/Revive actions on all seated players in the live dashboard.
+* Added [`PlayerStatusModal.vue`](file:///Users/ali.heristchian/Documents/learning/mpga/src/components/PlayerStatusModal.vue) allowing the moderator to adjust living/dead state, issue warning cards, apply silence penalties, and log custom/preset reasons.
 
-### 2. Serverless P2P Multiplayer (WebRTC / PeerJS)
-**Goal:** Enable players to join the moderator's session from their personal mobile devices without requiring an expensive backend server or database.
-* **Technology:** WebRTC data channels via `PeerJS` or raw WebRTC signaling.
-* **Workflow:**
-  1. Moderator creates game $\rightarrow$ App generates unique Room ID & QR Code (via `qrcode.vue`).
-  2. Players scan the QR code with their mobile browsers.
-  3. Direct P2P data channels establish between the Moderator (Host) and connected Player devices.
-  4. The Moderator device maintains authoritative master state; disconnected players can be operated manually by the moderator.
+### 2. Centralized Game Action & Historical Event Logging
+* Added persistent logging engine in [`gameStore.js`](file:///Users/ali.heristchian/Documents/learning/mpga/src/stores/gameStore.js) recording all speaker turns, challenges, pre-vote qualifications, final votes, tie-breaks, night targets, shields, blocks, saves, revives, and moderator overrides.
+* Added sliding [`GameLogDrawer.vue`](file:///Users/ali.heristchian/Documents/learning/mpga/src/components/GameLogDrawer.vue) allowing the moderator to review past events filtered by Day, Phase, or player name.
 
-### 3. Restricted Player Client View
-**Goal:** Deliver a privacy-focused mobile interface for connected players.
-* **Data Isolation:** Host only transmits the player's personal role, ability prompts when active, and voting ballot. Full game state (other roles, night targets) is never leaked over the wire.
-* **Interactions:**
-  * View private role description and active night ability.
-  * Submit night ability target selections directly from mobile device.
-  * Cast votes during Day/Voting phases.
+### 3. Step-by-Step Guided Phase Wizards
+* **Day Phase (`DayPhase.vue`):** Flow setup with direction shift $\rightarrow$ single-speaker spotlight countdown timer $\rightarrow$ challenge bonus time $\rightarrow$ wrap-up.
+* **Voting Phase (`VotingPhase.vue`):** Interactive pre-vote tally with automatic threshold indicator ($\lceil \text{Alive}/2 \rceil$) $\rightarrow$ sequential defender countdown timers $\rightarrow$ closed-eye final vote $\rightarrow$ Destiny Spin tie-breaker.
+* **Midday Phase (`MiddayPhase.vue`):** Exit speech countdown $\rightarrow$ animated Last Word Card draw roulette with deck retirement.
+* **Night Phase (`NightPhase.vue`):** Sleep town call $\rightarrow$ step-by-step role wakeup teleprompter wizard with instant detective inquiry feedback $\rightarrow$ priority engine resolution $\rightarrow$ morning announcement script.
+
+### 4. Atmospheric Visual Theming & Character Art System
+* Implemented distinct color themes and ambient styling for Day (Solar Amber), Voting (Courtroom Crimson), Midday (Twilight Purple), and Night (Midnight Indigo).
+* Created [`PhaseHeroBanner.vue`](file:///Users/ali.heristchian/Documents/learning/mpga/src/components/PhaseHeroBanner.vue) with vector SVG scenery for all sub-phases.
+* Created [`roleIllustrations.js`](file:///Users/ali.heristchian/Documents/learning/mpga/src/data/roleIllustrations.js) with scalable SVG vector character artwork for all 9 game roles.
+* Enhanced [`RoleAvatar.vue`](file:///Users/ali.heristchian/Documents/learning/mpga/src/components/RoleAvatar.vue) with scalable vector graphics, faction borders, and death state grayscale filters.
+
+### 5. Automatic Win Condition Engine & Victory Celebration Modal
+* Implemented pure evaluation service [`useWinCondition.js`](file:///Users/ali.heristchian/Documents/learning/mpga/src/services/useWinCondition.js) automatically checking Town victory (`livingMafia === 0`), Mafia parity victory (`livingMafia >= livingTown`), and Nostradamus co-victory.
+* Created [`GameOverModal.vue`](file:///Users/ali.heristchian/Documents/learning/mpga/src/components/GameOverModal.vue) featuring victory fanfare, survivor roster with character art, match metrics summary tiles (Doctor saves, Detective inquiries, total eliminations, total match days), and decisive timeline highlights.
+* Embedded non-destructive board inspection with top-bar victory badge in [`GameModerator.vue`](file:///Users/ali.heristchian/Documents/learning/mpga/src/components/GameModerator.vue).
+
+### 6. Voting Limits & Rule Bounds Engine
+* Created [`useVotingService.js`](file:///Users/ali.heristchian/Documents/learning/mpga/src/services/useVotingService.js) enforcing standard Mafia voting constraints (self-voting prohibition bounding votes per candidate to $\max(0, N_{\text{alive}} - 1)$).
+* Enforced UI bounds and disabled state for pre-vote qualification and closed-eye final vote counters.
+* Full test coverage with 7 dedicated unit tests in [`useVotingService.spec.js`](file:///Users/ali.heristchian/Documents/learning/mpga/src/services/useVotingService.spec.js).
+
+### 7. Serverless P2P Multiplayer & Mobile Player Client
+* Built using `PeerJS` over WebRTC direct data channels without backend servers.
+* **Host Pairing (`MultiplayerHostModal.vue`):** Generates 4-character Room ID, direct join URL, and sharp SVG QR code (`qrcode.vue`) with connected device indicators.
+* **Privacy-First Mobile Client (`PlayerClient.vue`):** Standalone mobile interface with seat claiming, tap-to-reveal secret role card, live speaker spotlight synchronization, night action console with real-time detective inquiry feedback, and voting ballots.
+* **Strict Payload Sanitization:** `sanitizePlayerPayload` and `sanitizePublicGameState` ensure zero role leakage to foreign player clients.
+
+### 8. Web Audio Procedural Sound Engine
+* Implemented zero-asset Web Audio API tone synthesis in [`useAudioService.js`](file:///Users/ali.heristchian/Documents/learning/mpga/src/services/useAudioService.js).
+* Synthesizes countdown warning ticks ($\le 10$s, $\le 3$s), resonant end-of-turn gongs, night fall & dawn rise chord progressions, roulette wheel mechanical ticks, and victory fanfares.
+* Global sound mute toggle with persistence to `localStorage`.
 
 ---
 
-## Future Todos & Immediate Enhancements
+## 🚀 Upcoming Milestones
 
-### 1. 🚨 Architecture Fix: Harmonize Component-Store Contracts
-* **Problem:** Currently, [`DayPhase.vue`](file:///Users/ali.heristchian/Documents/learning/mpga/src/components/game/DayPhase.vue) and [`VotingPhase.vue`](file:///Users/ali.heristchian/Documents/learning/mpga/src/components/game/VotingPhase.vue) define local props and custom emits that [`GameModerator.vue`](file:///Users/ali.heristchian/Documents/learning/mpga/src/components/GameModerator.vue) does not bind.
-* **Solution:** Refactor all phase components to interface directly with [`useGameStore`](file:///Users/ali.heristchian/Documents/learning/mpga/src/stores/gameStore.js) for phase transitions and player state updates.
+### 1. Offline PWA (Progressive Web App) & Service Worker Support
+**Goal:** Enable complete offline playability and home screen installability on mobile devices and tablets during tournaments with intermittent connectivity.
+* Add web app manifest, custom icons, and Workbox caching for all assets.
 
-### 2. 🎛️ Moderator Cockpit (Day Phase UI Refinement)
-* **All-Player Overview:** Replace single-player isolated timer cards with a **circular or grid live dashboard** showing all seated players, active speaker indicators, remaining times, and challenge count badges.
-* **Flexible Speaker Switching:** Allow the moderator to jump between speakers, award borrowed/challenge time on the fly, and apply penalty cards.
-* **Dynamic Table Reordering:** Enable live drag-and-drop seating adjustments if players physically swap seats during the game.
+### 2. Audio Customization & Thematic Soundpacks
+**Goal:** Allow hosts to select alternative sound packs or customize tone frequencies and timer thresholds.
 
-### 3. 🗳️ Enhanced Multi-Stage Voting & Closed-Eye Protocol
-* **Pre-Vote Stage:** Automatic visual indicator when a player meets or exceeds the required threshold ($\lceil \text{Alive} / 2 \rceil$).
-* **Defense Stage:** Sequential individual defense countdown timers for each defender.
-* **Closed-Eye Final Vote:** Dedicated UI step where the moderator directs town players to close their eyes while counting final votes.
-* **Tie-Breaker Roulette:** Smooth animated Destiny Spin with configurable outcomes.
+### 3. Tournament Bracket & Multi-Table Management
+**Goal:** Support tournament organizers managing multi-table events with master standings and aggregated player statistics.
 
-### 4. 🃏 Midday Phase & Last Word Cards Deck (Nim-Rouz / کارت حرکت آخر)
-* **Midday Sub-Phase:** Introduce `midday` in `gameStore.subPhase` when a player is voted out.
-* **Exit Speech Timer:** Countdown timer for the eliminated player's farewell statement.
-* **Last Word Deck Spinner:** Visual roulette animation that draws from available Last Word cards (e.g., *Mind Inquiry*, *Silence*, *Double Vote*, *Redemption*). Drawn cards are permanently removed from the remaining deck.
-
-### 5. 📜 Night Phase Script / Teleprompter Wizard
-* **Sequential Wakeup Flow:** Replace bulk static dropdowns with a step-by-step teleprompter wizard tailored for moderators speaking in the dark (e.g., *"Wake up Mafia $\rightarrow$ Input shot $\rightarrow$ Put Mafia to sleep $\rightarrow$ Wake up Doctor"*).
-* **Instant Inquiry Feedback:** Display instant visual validation for Detective investigations (thumbs up for Town, thumbs down for Mafia).
-
-### 6. 🏆 Automatic Win Condition Engine (`useWinCondition`)
-* Automatically compute game-over status after each phase transition:
-  * **Town Victory:** All Mafia members dead.
-  * **Mafia Victory:** Living Mafia $\ge$ Living Town.
-  * **Third-Party Victory:** Nostradamus wins if their Night 1 allied faction wins.
-* Render a celebratory Game-Over victory modal with statistics and event replay.
-
-### 7. 🧩 Composable Refactoring
-* Extract shared reactive logic into reusable composables:
-  * `useTimer(initialSeconds, onFinish)` — shared countdown interval logic.
-  * `useVoting(modeConfig)` — threshold calculation and ballot handling.
-  * `useWinCondition(livePlayers)` — victory checks.
-
-### 8. 🛡️ Technical Debt: TypeScript Migration
+### 4. Technical Debt: TypeScript Migration
 * Migrate from Vanilla JS to **TypeScript** (`<script setup lang="ts">`).
-* Define strict TypeScript interfaces:
-  * `Player`, `Role`, `Ability`, `GameMode`, `NightAction`, `GameEventLog`.
+* Define strict TypeScript interfaces (`Player`, `Role`, `Ability`, `GameMode`, `NightAction`, `GameEventLog`, `LastWordCard`, `GameStatusResult`).

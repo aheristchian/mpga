@@ -170,6 +170,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useGameService } from '../services/useGameService';
+import { useGameStore } from '../stores/gameStore';
 import BaseModal from './BaseModal.vue';
 
 const props = defineProps({
@@ -288,9 +289,8 @@ const confirmRoles = () => {
   }
 
   // --- VALIDATION INTERCEPTOR ---
-  // In a real app, you might let the user pick the game mode first.
-  // Here we just grab the first mode (Godfather) from our data.
-  const currentMode = modes.value[0];
+  const store = useGameStore();
+  const currentMode = store.gameMode || modes.value[0];
   const rules = currentMode?.balanceRules?.warnIfSideExceedsRatio;
 
   if (rules) {

@@ -1,21 +1,59 @@
 <template>
-  <div class="min-h-screen bg-gray-900 text-white font-sans p-6">
-    <header class="mb-10 relative flex flex-col items-center">
+  <!-- PLAYER MOBILE CLIENT VIEW -->
+  <div v-if="isPlayerMode" class="min-h-screen bg-gray-950">
+    <PlayerClient />
+  </div>
+
+  <!-- MODERATOR HOST VIEW -->
+  <div v-else class="min-h-screen bg-gray-900 text-white font-sans p-4 sm:p-6">
+    <header class="mb-8 relative flex flex-col items-center">
+      <!-- TOP ACTION BAR -->
+      <div class="w-full flex justify-between items-center mb-4">
+        <!-- SOUND TOGGLE BUTTON -->
+        <button
+          class="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 hover:text-white rounded-xl transition-colors text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow"
+          :title="audio.isMuted.value ? $t('audio.unmute') : $t('audio.mute')"
+          @click="audio.toggleMute"
+        >
+          <span>{{ audio.isMuted.value ? '🔇' : '🔊' }}</span>
+          <span class="hidden sm:inline">{{
+            audio.isMuted.value ? $t('audio.unmute') : $t('audio.soundOn')
+          }}</span>
+        </button>
+
+        <!-- MULTIPLAYER CONNECT PHONES BUTTON -->
+        <div class="flex items-center gap-2">
+          <button
+            class="px-3.5 py-1.5 bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 border border-blue-500/50 text-white rounded-xl transition-all text-xs font-bold flex items-center gap-1.5 shadow-md cursor-pointer"
+            @click="openMultiplayerModal"
+          >
+            <span>📱</span>
+            <span>{{ $t('multiplayer.connectDevices') }}</span>
+            <span
+              v-if="multiplayer.connectedPeers.value.length > 0"
+              class="bg-blue-900 text-blue-200 px-1.5 py-0.2 rounded-full text-[10px]"
+            >
+              {{ multiplayer.connectedPeers.value.length }}
+            </span>
+          </button>
+
+          <!-- GLOBAL START OVER BUTTON -->
+          <button
+            v-if="store.gamePhase !== 'mode-selection'"
+            class="px-3 py-1.5 bg-gray-800 hover:bg-red-900 border border-gray-700 hover:border-red-500 text-gray-300 hover:text-white rounded-xl transition-colors text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow"
+            @click="showResetModal = true"
+          >
+            <span>↺</span> {{ $t('app.startOver') }}
+          </button>
+        </div>
+      </div>
+
       <h1
-        class="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-yellow-500 drop-shadow-md tracking-wider text-center"
+        class="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-yellow-500 drop-shadow-md tracking-wider text-center"
       >
         {{ $t('app.title') }}
       </h1>
-      <p class="text-gray-400 mt-2 text-center">{{ $t('app.subtitle') }}</p>
-
-      <!-- GLOBAL START OVER BUTTON -->
-      <button
-        v-if="store.gamePhase !== 'mode-selection'"
-        class="absolute top-0 right-0 mt-2 mr-2 px-4 py-2 bg-gray-800 hover:bg-red-900 border border-gray-700 hover:border-red-500 text-gray-300 hover:text-white rounded transition-colors text-sm font-semibold flex items-center gap-2"
-        @click="showResetModal = true"
-      >
-        <span>↺</span> {{ $t('app.startOver') }}
-      </button>
+      <p class="text-gray-400 mt-2 text-center text-sm">{{ $t('app.subtitle') }}</p>
     </header>
 
     <main class="container mx-auto pb-20">
@@ -43,7 +81,15 @@
       <GameModerator v-else-if="store.gamePhase === 'playing'" />
     </main>
 
-    <footer class="mt-8 pb-4 text-center text-gray-500 text-sm">v{{ appVersion }}</footer>
+    <footer
+      class="mt-8 pb-4 text-center text-gray-500 text-xs flex justify-center items-center gap-4"
+    >
+      <span>v{{ appVersion }}</span>
+      <span>•</span>
+      <button class="text-blue-400 hover:underline cursor-pointer" @click="isPlayerMode = true">
+        {{ $t('playerClient.switchPlayerMode') }}
+      </button>
+    </footer>
 
     <!-- GLOBAL RESET MODAL -->
     <BaseModal
@@ -72,23 +118,67 @@
         </button>
       </template>
     </BaseModal>
+
+    <!-- MULTIPLAYER HOST MODAL -->
+    <MultiplayerHostModal :is-open="showMultiplayerModal" @close="showMultiplayerModal = false" />
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useGameStore } from './stores/gameStore';
+import { useAudio } from './services/useAudioService';
+import { useMultiplayer } from './services/useMultiplayerService';
 import { saveEncoded } from './utils/storage';
 import ModeSelection from './components/ModeSelection.vue';
 import PlayerEntry from './components/PlayerEntry.vue';
 import RoleSelection from './components/RoleSelection.vue';
 import GameModerator from './components/GameModerator.vue';
 import BaseModal from './components/BaseModal.vue';
+import MultiplayerHostModal from './components/multiplayer/MultiplayerHostModal.vue';
+import PlayerClient from './components/player/PlayerClient.vue';
 
 const store = useGameStore();
+const audio = useAudio();
+const multiplayer = useMultiplayer();
 const appVersion = __APP_VERSION__;
 
-// Setup Pinia subscriptions to automatically save state
+// Detection for player client view
+const isPlayerMode = ref(false);
+const showMultiplayerModal = ref(false);
+const showResetModal = ref(false);
+
+onMounted(() => {
+  if (typeof window !== 'undefined') {
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('join') || params.has('room') || params.has('player')) {
+      isPlayerMode.value = true;
+    }
+  }
+
+  // Setup multiplayer listener for host
+  multiplayer.setOnPlayerAction((actionData) => {
+    if (actionData.action === 'CLAIM_SEAT') {
+      multiplayer.broadcastHostState(store);
+    } else if (actionData.type === 'NIGHT_ACTION') {
+      store.addLog(
+        'night',
+        `📱 Mobile Action: ${actionData.actorRole || 'Player'} (${actionData.actorName})`,
+        `Submitted target: ${actionData.targetPlayerName} via mobile phone.`,
+        { player: actionData.actorName, target: actionData.targetPlayerName }
+      );
+    } else if (actionData.type === 'CAST_VOTE') {
+      store.addLog(
+        'voting',
+        `📱 Mobile Vote: ${actionData.voterName}`,
+        `Cast vote for candidate: ${actionData.candidateName}.`,
+        { voter: actionData.voterName, candidate: actionData.candidateName }
+      );
+    }
+  });
+});
+
+// Setup Pinia subscriptions to automatically save state & broadcast to peers
 store.$subscribe((mutation, state) => {
   saveEncoded('mpga_gamePhase', state.gamePhase);
   saveEncoded('mpga_gameMode', state.gameMode);
@@ -96,10 +186,26 @@ store.$subscribe((mutation, state) => {
   saveEncoded('mpga_livePlayers', state.livePlayers);
   saveEncoded('mpga_subPhase', state.subPhase);
   saveEncoded('mpga_currentDay', state.currentDay);
+  saveEncoded('mpga_gameLogs', state.gameLogs);
+  saveEncoded('mpga_lastWordDeck', state.lastWordDeck);
+  saveEncoded('mpga_drawnLastWordCards', state.drawnLastWordCards);
+  saveEncoded('mpga_eliminatedPlayer', state.eliminatedPlayer);
+  saveEncoded('mpga_isGameOver', state.isGameOver);
+  saveEncoded('mpga_winner', state.winner);
+  saveEncoded('mpga_nostradamusChoice', state.nostradamusChoice);
+
+  // Live broadcast to connected mobile players
+  if (multiplayer.isHost.value) {
+    multiplayer.broadcastHostState(state);
+  }
 });
 
-// Modal State
-const showResetModal = ref(false);
+const openMultiplayerModal = () => {
+  if (!multiplayer.isHost.value) {
+    multiplayer.startHost();
+  }
+  showMultiplayerModal.value = true;
+};
 
 const handleModeSelected = (mode) => {
   store.setGameMode(mode);

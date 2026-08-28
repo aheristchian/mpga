@@ -96,8 +96,53 @@ The voting phase consists of three structured stages:
 
 ---
 
-## 3. Game Over & Victory Conditions
+## 3. Atmospheric Scenery & Visual Phase Art
 
-* **Town Win:** All Mafia members have been successfully identified and eliminated.
-* **Mafia Win:** The number of living Mafia members equals or exceeds the number of living Town members.
-* **Nostradamus:** Wins alongside the faction chosen on Night 1.
+Every phase is topped with an **Atmospheric Phase Scenery Banner** (`PhaseHeroBanner.vue`) providing immersive visual aesthetics:
+* **Day:** Rising sun over city skyline (Golden Dawn).
+* **Voting:** Scales of justice & courthouse pillars (Court of Truth).
+* **Midday:** Hourglass & twilight horizon (Moment of Reflection).
+* **Night:** Crescent moon, starry midnight sky & streetlamps (Midnight Intrigue).
+
+---
+
+## 4. Game Over & Victory Celebration
+
+When a win condition is fulfilled:
+1. **Celebration Fanfare:** The **Game Over Celebration Modal** (`GameOverModal.vue`) appears automatically with faction-themed fanfare, banners, and victory badges.
+2. **Nostradamus Callout:** If Nostradamus predicted the winning faction correctly on Night 1, their co-victory is prominently celebrated.
+3. **Survivor Roster:** All surviving players are showcased with their custom vector character artwork (`RoleAvatar.vue`).
+4. **Match Analytics:** Summary tiles display total Doctor Saves, Detective Inquiries, Total Eliminations, and Match Duration (Days).
+5. **Decisive Logs:** Highlights decisive turning points and actions from the match history.
+6. **Non-Destructive Review:** The moderator can close the modal to review the final table state, inspect individual player statuses, or review historical logs via the top-bar button (`🏆 Match Ended`), or click **Start New Game** to reset and start fresh.
+
+---
+
+## 5. Serverless P2P Multiplayer (Connecting Player Phones)
+
+Players can connect their mobile devices directly to the host's screen without installing any apps or registering accounts:
+
+1. **Host Pairing:**
+   * The moderator clicks the **📱 Connect Devices** button in the top navigation bar.
+   * A dynamic modal presents a 4-character Room Code (e.g. `MPGA-A8F2`), a direct join link, and a QR code.
+2. **Player Join & Seat Claim:**
+   * Players scan the QR code with their mobile cameras or enter the room code at `/?join=MPGA-XXXX`.
+   * Players select their name from the seating roster to claim their device seat.
+3. **Secret Privacy Card:**
+   * Players tap their personal blurred identity card to view their secret role and faction alignment in private.
+4. **Live Synchronization:**
+   * Player screens highlight the active speaker during the Day phase.
+   * When their role wakes up during the Night phase, an interactive console lets them select their night ability target silently.
+   * Voting ballots allow players to record their votes directly on their phones.
+
+---
+
+## 6. Procedural Sound Effects & Audio Cues
+
+MPGA features a zero-asset procedural sound engine powered by the Web Audio API:
+* **Countdown Warning Ticks:** Cues players at $\le 10$ seconds and $\le 3$ seconds remaining on their speaking or defense turns.
+* **Resonant Gong:** Signals when a speaking turn or defense timer reaches 0:00.
+* **Night Fall & Dawn Rise Chimes:** Plays atmospheric sleep and wake-up chord progressions during night transitions.
+* **Roulette Wheel Ticks:** Provides tactile audio feedback while spinning for tie-breakers and Last Word cards.
+* **Victory Fanfare:** Triumphant fanfare upon game over and card draws.
+* **Sound Toggle:** A dedicated mute button (🔊 / 🔇) in the top navigation bar allows silencing sound effects at any time.

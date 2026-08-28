@@ -4,20 +4,24 @@
   <Teleport to="body">
     <!-- Transition adds fade/scale animations when v-if changes -->
     <Transition name="modal">
-      <div v-if="isOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+      <div
+        v-if="isOpen"
+        class="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-hidden"
+      >
         <!-- Backdrop (Clicking it closes the modal) -->
         <div
-          class="absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity"
+          class="absolute inset-0 bg-black/75 backdrop-blur-sm transition-opacity"
           @click="closeModal"
         ></div>
 
-        <!-- Modal Panel -->
+        <!-- Modal Panel with Viewport Height Constraints -->
         <div
-          class="relative bg-gray-800 border border-gray-700 rounded-xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all"
+          class="relative bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl w-full max-h-[90vh] flex flex-col overflow-hidden transform transition-all z-10"
+          :class="maxWidth"
         >
-          <!-- Header -->
+          <!-- Header (Sticky / Shrink-0) -->
           <div
-            class="px-6 py-4 border-b border-gray-700 flex justify-between items-center bg-gray-800/50"
+            class="px-6 py-4 border-b border-gray-700 flex justify-between items-center bg-gray-800/95 backdrop-blur-sm shrink-0"
           >
             <h3 class="text-xl font-bold text-white">
               <!-- SLOT: Allows parent to pass in custom title -->
@@ -38,16 +42,18 @@
             </button>
           </div>
 
-          <!-- Body -->
-          <div class="px-6 py-6 text-gray-300">
+          <!-- Body (Scrollable with min-h-0) -->
+          <div class="px-6 py-5 text-gray-300 flex-1 min-h-0 overflow-y-auto overscroll-contain">
             <!-- DEFAULT SLOT: This is where the main content goes -->
             <slot>
               <p>Default modal content. Pass something into the slot!</p>
             </slot>
           </div>
 
-          <!-- Footer / Actions -->
-          <div class="px-6 py-4 border-t border-gray-700 bg-gray-800/50 flex justify-end gap-3">
+          <!-- Footer / Actions (Sticky / Shrink-0) -->
+          <div
+            class="px-6 py-4 border-t border-gray-700 bg-gray-800/95 backdrop-blur-sm shrink-0 flex justify-end gap-3"
+          >
             <!-- FOOTER SLOT: For custom buttons. Falls back to a default "Close" button -->
             <slot name="footer">
               <button
@@ -76,6 +82,10 @@ const props = defineProps({
   title: {
     type: String,
     default: 'Notice',
+  },
+  maxWidth: {
+    type: String,
+    default: 'max-w-lg',
   },
 });
 
