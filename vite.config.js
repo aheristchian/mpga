@@ -5,6 +5,7 @@ import fs from 'fs';
 const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf-8'));
 
 export default defineConfig({
+  base: './',
   plugins: [vue()],
   server: {
     host: true,

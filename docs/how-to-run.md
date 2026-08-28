@@ -63,3 +63,17 @@ Preview the production build locally:
 ```bash
 npm run preview
 ```
+
+---
+
+## Deployment (GitHub Pages)
+
+The repository is configured for automatic deployment to **GitHub Pages** via GitHub Actions:
+
+1. **Automatic Trigger:** Every push to the `develop` or `main` branch automatically runs automated unit tests, builds the production bundle, and publishes to GitHub Pages.
+2. **GitHub Settings Setup (One-time):**
+   * In the GitHub repository, navigate to **Settings** $\rightarrow$ **Pages**.
+   * Under **Build and deployment** $\rightarrow$ **Source**, select **GitHub Actions**.
+3. **Live URL:** The app will be permanently available at:
+   👉 `https://aheristchian.github.io/mpga/`
+
