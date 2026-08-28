@@ -8,18 +8,23 @@
   <div v-else class="min-h-screen bg-gray-900 text-white font-sans p-4 sm:p-6">
     <header class="mb-8 relative flex flex-col items-center">
       <!-- TOP ACTION BAR -->
-      <div class="w-full flex justify-between items-center mb-4">
-        <!-- SOUND TOGGLE BUTTON -->
-        <button
-          class="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 hover:text-white rounded-xl transition-colors text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow"
-          :title="audio.isMuted.value ? $t('audio.unmute') : $t('audio.mute')"
-          @click="audio.toggleMute"
-        >
-          <span>{{ audio.isMuted.value ? '🔇' : '🔊' }}</span>
-          <span class="hidden sm:inline">{{
-            audio.isMuted.value ? $t('audio.unmute') : $t('audio.soundOn')
-          }}</span>
-        </button>
+      <div class="w-full flex justify-between items-center mb-4 gap-2">
+        <div class="flex items-center gap-2">
+          <!-- LANGUAGE SWITCHER -->
+          <LanguageSwitcher />
+
+          <!-- SOUND TOGGLE BUTTON -->
+          <button
+            class="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 active:scale-95 border border-gray-700 text-gray-300 hover:text-white rounded-xl transition-all text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow"
+            :title="audio.isMuted.value ? $t('audio.unmute') : $t('audio.mute')"
+            @click="audio.toggleMute"
+          >
+            <span>{{ audio.isMuted.value ? '🔇' : '🔊' }}</span>
+            <span class="hidden sm:inline">{{
+              audio.isMuted.value ? $t('audio.unmute') : $t('audio.soundOn')
+            }}</span>
+          </button>
+        </div>
 
         <!-- MULTIPLAYER CONNECT PHONES BUTTON -->
         <div class="flex items-center gap-2">
@@ -137,6 +142,7 @@ import GameModerator from './components/GameModerator.vue';
 import BaseModal from './components/BaseModal.vue';
 import MultiplayerHostModal from './components/multiplayer/MultiplayerHostModal.vue';
 import PlayerClient from './components/player/PlayerClient.vue';
+import LanguageSwitcher from './components/LanguageSwitcher.vue';
 
 const store = useGameStore();
 const audio = useAudio();

@@ -7,12 +7,12 @@
       <button
         v-for="mode in availableModes"
         :key="mode.id"
-        class="w-full text-left bg-gray-700 hover:bg-gray-600 border border-gray-600 hover:border-town p-4 rounded-lg transition-all"
-        :class="{ 'ring-2 ring-town bg-gray-600': selectedModeId === mode.id }"
+        class="w-full text-left bg-gray-700 hover:bg-gray-650 active:scale-95 border border-gray-600 hover:border-town p-4 rounded-xl transition-all cursor-pointer min-h-[44px] select-none"
+        :class="{ 'ring-2 ring-town bg-gray-650 border-town': selectedModeId === mode.id }"
         @click="selectedModeId = mode.id"
       >
         <h3 class="text-lg font-bold text-white">{{ $t(mode.nameKey) }}</h3>
-        <div class="text-sm text-gray-400 mt-1 flex gap-4">
+        <div class="text-sm text-gray-400 mt-1 flex gap-4 font-mono">
           <span>⏱️ {{ mode.timeToTalk }}s</span>
           <span>🔄 {{ mode.borrowedTimeToTalk }}s</span>
         </div>
@@ -22,7 +22,7 @@
     <div class="mt-8 flex justify-end">
       <button
         :disabled="!selectedModeId"
-        class="bg-town hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2 rounded font-bold shadow-md transition-all"
+        class="bg-town hover:bg-blue-600 active:scale-95 active:brightness-90 disabled:opacity-50 disabled:cursor-not-allowed text-white px-8 py-3 rounded-xl font-bold shadow-md transition-all cursor-pointer min-h-[44px] select-none"
         @click="confirmMode"
       >
         {{ $t('modeSelection.continue') }}

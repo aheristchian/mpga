@@ -7,12 +7,12 @@
         v-model="newPlayerName"
         type="text"
         :placeholder="$t('playerEntry.placeholder')"
-        class="flex-1 bg-gray-700 text-white px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-town transition-all"
+        class="flex-1 bg-gray-700 text-white px-4 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-town transition-all min-h-[44px]"
       />
       <button
         type="submit"
         :disabled="!newPlayerName.trim()"
-        class="bg-town hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 rounded font-semibold transition-colors"
+        class="bg-town hover:bg-blue-600 active:scale-95 active:brightness-90 disabled:opacity-50 disabled:cursor-not-allowed text-white px-5 py-2.5 rounded-xl font-semibold transition-all cursor-pointer min-h-[44px] select-none"
       >
         {{ $t('playerEntry.add') }}
       </button>
@@ -32,7 +32,7 @@
           v-for="(player, index) in players"
           :key="index"
           draggable="true"
-          class="flex justify-between items-center bg-gray-700 px-3 py-2 rounded group cursor-grab active:cursor-grabbing transition-transform"
+          class="flex justify-between items-center bg-gray-700 px-3.5 py-2.5 rounded-xl group cursor-grab active:cursor-grabbing transition-transform min-h-[44px]"
           :class="{
             'opacity-50 border-dashed border-2 border-town': draggedIndex === index,
             'border-t-2 border-town': dropTargetIndex === index && draggedIndex !== index,
@@ -44,12 +44,12 @@
           @dragend="onDragEnd"
         >
           <div class="flex items-center gap-3">
-            <span class="text-gray-500 cursor-grab px-1">☰</span>
+            <span class="text-gray-500 cursor-grab px-1 select-none">☰</span>
             <span class="text-white font-medium">{{ index + 1 }}. {{ player.name }}</span>
           </div>
 
           <button
-            class="text-red-400 hover:text-red-300 text-sm font-medium px-2 py-1 bg-gray-800 rounded hover:bg-gray-600 transition-colors"
+            class="text-red-400 hover:text-red-300 active:scale-95 text-xs font-medium px-3 py-1.5 bg-gray-800 rounded-lg hover:bg-gray-600 transition-all cursor-pointer min-h-[36px] select-none"
             @click="removePlayer(index)"
           >
             {{ $t('playerEntry.remove') }}
@@ -65,7 +65,7 @@
     <div class="mt-6 flex justify-end">
       <button
         v-if="players.length >= minPlayers"
-        class="bg-green-600 hover:bg-green-500 text-white px-6 py-2 rounded font-bold shadow-md transition-all"
+        class="bg-green-600 hover:bg-green-500 active:scale-95 active:brightness-90 text-white px-7 py-3 rounded-xl font-bold shadow-md transition-all cursor-pointer min-h-[44px] select-none"
         @click="finishAddingPlayers"
       >
         {{ $t('playerEntry.done') }}

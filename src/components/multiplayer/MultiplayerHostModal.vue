@@ -154,7 +154,9 @@
               <div class="truncate">
                 <span class="font-bold text-white truncate block">{{ player.name }}</span>
                 <span class="text-[10px] text-gray-400 truncate block">{{
-                  player.role?.name || 'Citizen'
+                  $te('roles.' + player.role?.id + '.name')
+                    ? $t('roles.' + player.role?.id + '.name')
+                    : player.role?.name || 'Citizen'
                 }}</span>
               </div>
             </div>
@@ -184,7 +186,7 @@
           {{ $t('multiplayer.offlineNote') }}
         </span>
         <button
-          class="px-5 py-2 bg-gray-700 hover:bg-gray-600 text-white font-semibold text-xs rounded-xl transition-colors"
+          class="px-5 py-2.5 bg-gray-700 hover:bg-gray-600 active:scale-95 text-white font-semibold text-xs rounded-xl transition-all cursor-pointer min-h-[44px] select-none"
           @click="$emit('close')"
         >
           {{ $t('gameModerator.close') }}

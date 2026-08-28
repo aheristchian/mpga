@@ -4,14 +4,20 @@ import { createPinia } from 'pinia';
 import './style.css';
 import App from './App.vue';
 import en from './locales/en.json';
+import fa from './locales/fa.json';
+
+const savedLocale = localStorage.getItem('mpga_locale') || 'en';
+document.documentElement.dir = savedLocale === 'fa' ? 'rtl' : 'ltr';
+document.documentElement.lang = savedLocale;
 
 // Setup i18n instance
-const i18n = createI18n({
+export const i18n = createI18n({
   legacy: false, // Must be false to use Vue 3 Composition API
-  locale: 'en', // Default language
+  locale: savedLocale,
   fallbackLocale: 'en',
   messages: {
-    en: en,
+    en,
+    fa,
   },
 });
 

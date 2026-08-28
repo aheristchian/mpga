@@ -54,14 +54,19 @@ stateDiagram-v2
 
 ## 2. In-Game Phases (The Daily Cycle)
 
-### Phase A: Day Phase (Speaking Turns)
+### Phase A: Day Phase (Speaking Turns & Challenges)
 1. **Starting Speaker Shift:** Each new day, the first speaker shifts according to the game mode (`nextDayShift = 2` for Godfather, `1` for Classic).
 2. **Direction:** The moderator selects **Clockwise** or **Counter-Clockwise** speaking flow.
 3. **Timer Management:**
    * Each player receives their speaking timer (e.g., 40s).
    * The moderator can pause, resume, or fast-forward to the next speaker.
-   * Players may request "Challenge" time (interjections) as permitted by mode rules.
-4. Once all living players have spoken, the moderator proceeds to the **Voting Phase**.
+4. **Challenge Time Transfer (وقت چالش):**
+   * While a speaker is talking, another player may ask to take challenge time.
+   * Tapping **⚡ Challenge** opens the player selection modal. Only players who have not yet used challenge time today can be chosen.
+   * The active speaker's remaining seconds are paused and saved.
+   * The spotlight transfers to the challenger for their borrowed time (e.g., 25s).
+   * Once the challenge finishes or is closed, the moderator clicks **Resume Speaker** and the original speaker finishes their remaining speech time.
+5. Once all living players have spoken, the moderator proceeds to the **Voting Phase**.
 
 ### Phase B: Voting Phase
 The voting phase consists of three structured stages:
@@ -69,6 +74,7 @@ The voting phase consists of three structured stages:
 1. **Stage 1 — Pre-Vote (Defense Qualification):**
    * The moderator calls for votes for each player in order.
    * Players raise their hands; the moderator inputs the vote counts.
+   * Candidate vote counts are capped at $\max(0, N_{\text{alive}} - 1)$ to enforce the self-voting prohibition rule.
    * Any player whose vote count meets or exceeds the **Voting Threshold** ($\lceil \text{Alive} / 2 \rceil$) enters the Defense stage.
 2. **Stage 2 — Defense Stage:**
    * Each qualified player receives a designated defense timer (typically 60s) to plead their case to the town.
@@ -84,19 +90,32 @@ The voting phase consists of three structured stages:
 
 ### Phase D: Night Phase (Abilities & Action Resolution)
 1. **Sleep Call:** The town goes to sleep (all players close eyes).
-2. **Sequential Wake-Ups:** The moderator wakes up active roles one by one in order:
-   * **Godfather / Mafia:** Chooses a target for the night kill.
-   * **Matador:** Selects a target to block.
-   * **Doctor:** Selects a player to protect/treat.
-   * **Detective:** Investigates a player (moderator confirms thumbs up/down).
-   * **Leon (Vigilante):** Takes an optional town shot.
+2. **Step 0 — Night 1 Mafia Team Introduction:**
+   * On Night 1, all living Mafia members wake up together silently to recognize their teammates. No shots or kills take place.
+3. **Sequential Role Wake-Ups:** The moderator wakes up active roles one by one in order:
+   * **Nostradamus (Night 1 only):** Selects up to 3 living players. The app calculates how many are Mafia, prompting the moderator to show the number on fingers. Nostradamus also secretly chooses their allegiance (Town or Mafia).
+   * **Godfather / Mafia:** Chooses a target for the night kill (self-targeting disabled).
+   * **Matador:** Selects a target to block (self-targeting disabled).
+   * **Doctor:** Selects a player to protect/treat (self-targeting allowed).
+   * **Detective:** Investigates a player (self-targeting disabled; moderator confirms thumbs up/down).
+   * **Leon (Vigilante):** Takes a town shot (self-targeting disabled; guilt penalty kills Leon if shooting Town).
    * **Constantine:** Chooses whether to revive a dead player.
-3. **Night Resolution Engine:** The app resolves all actions according to [priority order](rules.md#3-night-action-resolution--priority-engine), accounting for shields, blocks, and saves.
-4. **Morning Report:** The moderator wakes the town, announces the night's public outcome (who died, or "Nobody died"), and advances to Day $N+1$.
+4. **Night Resolution Engine:** The app resolves all actions according to priority order, accounting for shields, blocks, saves, and Leon guilt penalties.
+5. **Morning Report:** The moderator wakes the town, announces the night's public outcome (who died, or "Nobody died"), and advances to Day $N+1$.
 
 ---
 
-## 3. Atmospheric Scenery & Visual Phase Art
+## 3. Localization & Language Switcher
+
+MPGA features full internationalization (i18n) with dedicated dictionaries for English and Persian (Farsi):
+* **Language Switcher (`LanguageSwitcher.vue`):** A top-bar button lets users toggle instantly between **English (EN)** and **فارسی (FA)**.
+* **Automatic RTL Layout:** Selecting Persian automatically sets `dir="rtl"` on the document, adapting margins, alignments, and text flow.
+* **Pure Clean Dictionaries:** English translations are clean and natural; Persian translations provide authentic Iranian Mafia terms (*تیم مافیا*, *تیم شهروند*, *شب معارفه*, *وقت چالش*, *حرکت آخر*).
+* **Persistent Preference:** Selected language is saved to `localStorage` and automatically restored on future visits.
+
+---
+
+## 4. Atmospheric Scenery & Visual Phase Art
 
 Every phase is topped with an **Atmospheric Phase Scenery Banner** (`PhaseHeroBanner.vue`) providing immersive visual aesthetics:
 * **Day:** Rising sun over city skyline (Golden Dawn).
@@ -106,7 +125,7 @@ Every phase is topped with an **Atmospheric Phase Scenery Banner** (`PhaseHeroBa
 
 ---
 
-## 4. Game Over & Victory Celebration
+## 5. Game Over & Victory Celebration
 
 When a win condition is fulfilled:
 1. **Celebration Fanfare:** The **Game Over Celebration Modal** (`GameOverModal.vue`) appears automatically with faction-themed fanfare, banners, and victory badges.
@@ -118,7 +137,7 @@ When a win condition is fulfilled:
 
 ---
 
-## 5. Serverless P2P Multiplayer (Connecting Player Phones)
+## 6. Serverless P2P Multiplayer (Connecting Player Phones)
 
 Players can connect their mobile devices directly to the host's screen without installing any apps, registering accounts, or routing through external database servers:
 
@@ -139,6 +158,8 @@ Players can connect their mobile devices directly to the host's screen without i
    * Player screens highlight the active speaker during the Day phase.
    * When their role wakes up during the Night phase, an interactive console lets them select their night ability target silently.
    * Voting ballots allow players to record their votes directly on their phones.
+6. **Mobile Touch Feedback:**
+   * All mobile buttons, controls, and candidate cards feature tactile active touch states (`active:scale-95 active:brightness-90`) and meet accessibility standards ($\ge 44\text{px}$ touch targets).
 
 ---
 

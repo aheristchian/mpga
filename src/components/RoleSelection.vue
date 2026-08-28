@@ -50,7 +50,7 @@
             class="text-2xl font-bold uppercase tracking-widest"
             :class="getTextColorClass(group.side.id)"
           >
-            {{ group.side.name }}
+            {{ $te('sides.' + group.side.id + '.name') ? $t('sides.' + group.side.id + '.name') : group.side.name }}
           </h3>
           <span class="ml-4 text-sm font-semibold text-gray-400 bg-gray-900 px-3 py-1 rounded-full">
             {{ $t('roleSelection.sideSelected', { count: getSideSelectedCount(group.side.id) }) }}
@@ -61,18 +61,22 @@
           <div
             v-for="role in group.roles"
             :key="role.id"
-            class="relative transition-all duration-300 rounded-lg p-4 border-4 select-none flex flex-col justify-between"
+            class="relative transition-all duration-300 rounded-xl p-4 border-4 select-none flex flex-col justify-between active:scale-95"
             :class="getCardClasses(role)"
             @click="incrementRole(role)"
           >
             <div>
               <div class="flex justify-between items-start mb-1">
-                <h4 class="text-xl font-bold shadow-sm">{{ role.name }}</h4>
+                <h4 class="text-xl font-bold shadow-sm">
+                  {{ $te('roles.' + role.id + '.name') ? $t('roles.' + role.id + '.name') : role.name }}
+                </h4>
                 <span class="text-xs font-bold opacity-50 bg-black/30 px-2 py-1 rounded">
                   {{ $t('roleSelection.maxLimit', { limit: role.limit || 1 }) }}
                 </span>
               </div>
-              <p class="text-sm opacity-90 line-clamp-3 mb-2">{{ role.description }}</p>
+              <p class="text-sm opacity-90 line-clamp-3 mb-2">
+                {{ $te('roles.' + role.id + '.description') ? $t('roles.' + role.id + '.description') : role.description }}
+              </p>
             </div>
 
             <div
@@ -85,7 +89,7 @@
                 {{ getCount(role.id) }}
               </div>
               <button
-                class="bg-red-500 hover:bg-red-600 text-white rounded-r-full h-8 px-2 flex items-center justify-center font-bold text-sm border-2 border-l-0 border-white transition-colors"
+                class="bg-red-500 hover:bg-red-600 active:scale-90 text-white rounded-r-full h-8 px-2 flex items-center justify-center font-bold text-sm border-2 border-l-0 border-white transition-all cursor-pointer select-none"
                 :title="$t('roleSelection.clearAll')"
                 @click.stop="clearRole(role.id)"
               >
@@ -100,10 +104,10 @@
     <div class="mt-8 flex justify-end border-t border-gray-700 pt-6">
       <button
         :disabled="totalSelected !== playerCount"
-        class="px-8 py-3 rounded-lg font-bold text-lg transition-all shadow-lg"
+        class="px-8 py-3.5 rounded-xl font-bold text-lg transition-all shadow-lg min-h-[44px] select-none"
         :class="
           totalSelected === playerCount
-            ? 'bg-town hover:bg-blue-600 text-white cursor-pointer'
+            ? 'bg-town hover:bg-blue-600 active:scale-95 active:brightness-90 text-white cursor-pointer'
             : 'bg-gray-700 text-gray-500 cursor-not-allowed'
         "
         @click="confirmRoles"

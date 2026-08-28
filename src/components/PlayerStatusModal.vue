@@ -11,7 +11,11 @@
         <div>
           <h4 class="text-xl font-bold text-white">{{ player.name }}</h4>
           <p class="text-sm font-semibold" :class="getSideColorClass(player.role?.sideId)">
-            {{ player.role?.name || 'Unknown Role' }} ({{ player.role?.sideId || 'town' }})
+            {{
+              $te('roles.' + player.role?.id + '.name')
+                ? $t('roles.' + player.role?.id + '.name')
+                : player.role?.name || 'Unknown Role'
+            }}
           </p>
           <div class="flex gap-2 mt-2">
             <span
@@ -50,7 +54,7 @@
         <div class="grid grid-cols-2 gap-3">
           <button
             type="button"
-            class="p-3 rounded-lg border font-bold flex items-center justify-center gap-2 transition-all"
+            class="p-3.5 rounded-xl border font-bold flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 min-h-[44px] select-none"
             :class="
               isDeadLocal
                 ? 'bg-red-700 border-red-500 text-white shadow-lg ring-2 ring-red-400'
@@ -62,7 +66,7 @@
           </button>
           <button
             type="button"
-            class="p-3 rounded-lg border font-bold flex items-center justify-center gap-2 transition-all"
+            class="p-3.5 rounded-xl border font-bold flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 min-h-[44px] select-none"
             :class="
               !isDeadLocal
                 ? 'bg-green-700 border-green-500 text-white shadow-lg ring-2 ring-green-400'
@@ -89,7 +93,7 @@
           <div class="flex gap-2">
             <button
               type="button"
-              class="px-3 py-1 bg-gray-600 hover:bg-gray-500 text-white rounded font-bold text-sm"
+              class="px-3.5 py-2 bg-gray-600 hover:bg-gray-500 active:scale-95 text-white rounded-lg font-bold text-sm cursor-pointer min-h-[40px] select-none"
               :disabled="warningsLocal <= 0"
               @click="warningsLocal = Math.max(0, warningsLocal - 1)"
             >
@@ -97,7 +101,7 @@
             </button>
             <button
               type="button"
-              class="px-3 py-1 bg-yellow-600 hover:bg-yellow-500 text-white rounded font-bold text-sm"
+              class="px-3.5 py-2 bg-yellow-600 hover:bg-yellow-500 active:scale-95 text-white rounded-lg font-bold text-sm cursor-pointer min-h-[40px] select-none"
               @click="warningsLocal++"
             >
               {{ $t('playerStatusModal.addWarning') }}
@@ -111,7 +115,7 @@
           <span class="text-purple-300 font-semibold">🤫 Silence Next Day</span>
           <button
             type="button"
-            class="px-4 py-1.5 rounded-lg font-bold text-sm transition-colors"
+            class="px-4 py-2 rounded-lg font-bold text-sm transition-all cursor-pointer active:scale-95 select-none min-h-[40px]"
             :class="
               isSilencedLocal
                 ? 'bg-purple-600 hover:bg-purple-500 text-white'
@@ -131,7 +135,7 @@
         </h5>
         <select
           v-model="selectedReasonPreset"
-          class="w-full bg-gray-700 text-white p-2.5 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-town"
+          class="w-full bg-gray-700 text-white p-3 rounded-xl border border-gray-600 focus:outline-none focus:ring-2 focus:ring-town min-h-[44px]"
         >
           <option value="modKill">{{ $t('playerStatusModal.reasonPresets.modKill') }}</option>
           <option value="modRevive">{{ $t('playerStatusModal.reasonPresets.modRevive') }}</option>
@@ -148,20 +152,20 @@
           v-model="customReason"
           type="text"
           :placeholder="$t('playerStatusModal.customReasonPlaceholder')"
-          class="w-full bg-gray-700 text-white px-3 py-2 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-town text-sm"
+          class="w-full bg-gray-700 text-white px-3 py-2.5 rounded-xl border border-gray-600 focus:outline-none focus:ring-2 focus:ring-town text-sm min-h-[44px]"
         />
       </div>
     </div>
 
     <template #footer>
       <button
-        class="px-5 py-2 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-lg transition-colors"
+        class="px-5 py-2.5 bg-gray-700 hover:bg-gray-600 active:scale-95 text-white font-semibold rounded-xl transition-all cursor-pointer min-h-[44px] select-none"
         @click="$emit('close')"
       >
         {{ $t('playerStatusModal.cancel') }}
       </button>
       <button
-        class="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow-md transition-colors"
+        class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-bold rounded-xl shadow-md transition-all cursor-pointer min-h-[44px] select-none"
         @click="applyChanges"
       >
         {{ $t('playerStatusModal.saveChanges') }}

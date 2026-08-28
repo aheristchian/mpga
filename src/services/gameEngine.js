@@ -81,10 +81,23 @@ export const resolveNight = (players, actionMap) => {
         break;
 
       case 'mafia-shot':
-      case 'vigillante-shot':
-        // Note: Treat happens at the same priority level as Vigilante.
-        // We evaluate deaths at the end to allow for saves.
         killedThisNight.add(target.name);
+        break;
+
+      case 'vigillante-shot':
+        // If Leon shoots Town citizen, Leon dies from penalty/guilt and the innocent target survives
+        if (target.role?.sideId === 'town') {
+          log.push(
+            `[LEON_PENALTY] ${actor.name} (Leon) shot innocent Town citizen ${target.name}. Leon suffers fatal penalty/guilt, and ${target.name} survives.`
+          );
+          killedThisNight.add(actor.name);
+        } else {
+          // Leon shot Mafia or Third-Party
+          log.push(
+            `[VIGILANTE_HIT] ${actor.name} (Leon) successfully shot suspect ${target.name} (${target.role?.sideId || 'mafia'}).`
+          );
+          killedThisNight.add(target.name);
+        }
         break;
 
       case 'investigate':

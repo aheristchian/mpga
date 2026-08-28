@@ -80,6 +80,16 @@ graph TD
 * Synthesizes countdown warning ticks ($\le 10$s, $\le 3$s), resonant end-of-turn gongs, night fall & dawn rise chord progressions, roulette wheel mechanical ticks, and victory fanfares.
 * Global sound mute toggle with persistence to `localStorage`.
 
+### 9. Persian Localization, Language Switcher & Tournament Rule Polish
+* **Pure Bilingual Architecture:** Added comprehensive Persian translation dictionary ([`src/locales/fa.json`](file:///Users/ali.heristchian/Documents/learning/mpga/src/locales/fa.json)) and cleaned English dictionary ([`src/locales/en.json`](file:///Users/ali.heristchian/Documents/learning/mpga/src/locales/en.json)), removing mixed parenthetical terms.
+* **Dynamic Language Switcher (`LanguageSwitcher.vue`):** Instant EN / FA toggle with automatic document RTL/LTR layout switching and `localStorage` persistence.
+* **Day Challenge Transfer System (`DayPhase.vue`):** Active speaker timer pause, spotlight handoff to challenger for borrowed time (`borrowedTimeToTalk`), single-challenge daily quota enforcement, and speaker resume.
+* **Night 1 Mafia Introduction (`NightPhase.vue`):** Dedicated silent team familiarization step on Night 1 before individual role wake-ups.
+* **Leon Guilt Penalty Resolution (`gameEngine.js`):** Leon shooting Town kills Leon at sunrise while sparing the Town target; Leon shooting Mafia eliminates the Mafia player.
+* **Nostradamus 3-Player Inquiry (`NightPhase.vue`):** Multi-target selection with live Mafia count calculation and silent finger-signal cue.
+* **Self-Targeting Guardrails:** Blocked self-targeting for Leon, Detective, Godfather, Matador, and Saul Goodman (Doctor self-target allowed).
+* **Tactile Mobile Touch Styling:** Added `active:scale-95 active:brightness-90` tactile feedback and $\ge 44\text{px}$ touch targets across all mobile views.
+
 ---
 
 ## 🚀 Upcoming Milestones
@@ -88,12 +98,15 @@ graph TD
 **Goal:** Enable complete offline playability and home screen installability on mobile devices and tablets during tournaments with intermittent connectivity.
 * Add web app manifest, custom icons, and Workbox caching for all assets.
 
-### 2. Audio Customization & Thematic Soundpacks
-**Goal:** Allow hosts to select alternative sound packs or customize tone frequencies and timer thresholds.
+### 2. Spectator Mode & Public Display View
+**Goal:** Provide a dedicated projector / spectator display URL (`/?view=spectator` or `/?view=projector`) showing live speaker spotlights, vote tallies, and phase art without revealing secret roles.
 
-### 3. Tournament Bracket & Multi-Table Management
-**Goal:** Support tournament organizers managing multi-table events with master standings and aggregated player statistics.
+### 3. Audio Customization, TTS Moderator Prompts & Soundpacks
+**Goal:** Allow hosts to select alternative sound packs or enable Web Speech synthesis for automated night teleprompter announcements.
 
-### 4. Technical Debt: TypeScript Migration
+### 4. Tournament Bracket & Multi-Table Management
+**Goal:** Support tournament organizers managing multi-table events with master standings, player ranking points, and aggregated tournament statistics.
+
+### 5. Technical Debt: TypeScript Migration
 * Migrate from Vanilla JS to **TypeScript** (`<script setup lang="ts">`).
 * Define strict TypeScript interfaces (`Player`, `Role`, `Ability`, `GameMode`, `NightAction`, `GameEventLog`, `LastWordCard`, `GameStatusResult`).

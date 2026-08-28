@@ -73,29 +73,29 @@
           </div>
 
           <!-- Controls -->
-          <div class="flex justify-center gap-3 mb-4">
+          <div class="flex flex-wrap justify-center gap-3 mb-4">
             <button
               v-if="!isSpeechRunning && speechTimeLeft > 0"
-              class="bg-green-600 hover:bg-green-500 text-white px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg transition-all"
+              class="bg-green-600 hover:bg-green-500 active:scale-95 active:brightness-90 text-white px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg transition-all cursor-pointer min-h-[44px] select-none"
               @click="startSpeechTimer"
             >
               <span>▶</span> {{ $t('dayPhase.start') }}
             </button>
             <button
               v-if="isSpeechRunning"
-              class="bg-yellow-600 hover:bg-yellow-500 text-white px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg transition-all"
+              class="bg-yellow-600 hover:bg-yellow-500 active:scale-95 active:brightness-90 text-white px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg transition-all cursor-pointer min-h-[44px] select-none"
               @click="pauseSpeechTimer"
             >
               <span>⏸</span> {{ $t('dayPhase.pause') }}
             </button>
             <button
-              class="bg-gray-700 hover:bg-gray-600 text-gray-200 px-4 py-2.5 rounded-xl font-bold transition-all"
+              class="bg-gray-700 hover:bg-gray-600 active:scale-95 text-gray-200 px-4 py-2.5 rounded-xl font-bold transition-all cursor-pointer min-h-[44px] select-none"
               @click="resetSpeechTimer"
             >
               ↺ {{ $t('dayPhase.reset') }}
             </button>
             <button
-              class="bg-gray-700 hover:bg-gray-600 text-gray-200 px-4 py-2.5 rounded-xl font-bold transition-all"
+              class="bg-gray-700 hover:bg-gray-600 active:scale-95 text-gray-200 px-4 py-2.5 rounded-xl font-bold transition-all cursor-pointer min-h-[44px] select-none"
               @click="speechTimeLeft = Math.max(0, speechTimeLeft + 10)"
             >
               +10s
@@ -105,7 +105,7 @@
 
         <div class="flex justify-end pt-2">
           <button
-            class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-purple-600/30 flex items-center gap-2 transition-all cursor-pointer"
+            class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 active:scale-95 active:brightness-90 text-white px-8 py-3.5 rounded-xl font-bold shadow-lg shadow-purple-600/30 flex items-center gap-2 transition-all cursor-pointer min-h-[44px] select-none"
             @click="proceedToCardStage"
           >
             <span>{{ $t('middayPhase.proceedToCardDraw') }}</span>

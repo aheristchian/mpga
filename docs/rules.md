@@ -40,25 +40,26 @@ The calculation engine in [`src/services/useWinCondition.js`](file:///Users/ali.
   * *Rules:* Target must be currently dead. The revived player re-enters as an active living player.
 * **Leon / Vigilante (`leon`)**
   * *Active Ability (`vigillante-shot`):* Can take a night shot to eliminate a suspected Mafia player.
-  * *Rules:* High risk; eliminating an innocent town member harms the Town's majority.
+  * *Rules & Penalty:* High risk. If Leon targets an innocent Town citizen, Leon dies from guilt at sunrise while the innocent citizen survives unharmed. If Leon targets a Mafia player, the Mafia member is eliminated. Leon cannot target themselves.
 
 ### Mafia Faction (`sideId: 'mafia'`)
 
 * **Godfather (`godfather`)**
-  * *Active Ability (`mafia-shot`):* Directs the Mafia's deadly night shot.
+  * *Active Ability (`mafia-shot`):* Directs the Mafia's deadly night shot. Cannot target themselves.
   * *Passive Ability (`shield`):* Possesses a bulletproof shield that absorbs one night shot before breaking.
 * **Matador (`matador`)**
-  * *Active Ability (`block`):* Blocks one player per night, preventing them from using their active night ability.
+  * *Active Ability (`block`):* Blocks one player per night, preventing them from using their active night ability. Cannot target themselves.
   * *Rules:* If the Matador blocks a Doctor, Detective, or Vigilante, their action for that night fails.
 * **Saul Goodman (`saul-goodman`)**
-  * *Active Ability (`buy`):* Can bribe or influence players, creating strategic advantages for the Mafia.
+  * *Active Ability (`buy`):* Can bribe or influence players, creating strategic advantages for the Mafia. Cannot target themselves.
 * **Mafia Grunt (`mafia`)**
   * *Description:* Regular Mafia member who participates in team deliberations and voting during the day.
+  * *Night 1 Familiarization:* On Night 1, all Mafia members wake up together silently to recognize their teammates.
 
 ### Third Party (`sideId: 'third-party'`)
 
 * **Nostradamus (`nostradamus`)**
-  * *Active Ability (`choose-side`):* On Night 1, Nostradamus secretly chooses which team (Town or Mafia) they want to align with.
+  * *Active Ability (`choose-side`):* On Night 1, Nostradamus chooses up to 3 living players; the moderator calculates how many of those 3 are Mafia and silently signals the count on fingers. Nostradamus also secretly chooses which team (Town or Mafia) they want to align with.
   * *Passive Ability (`unlimited-shield`):* Permanent night-shot immunity to ensure fair third-party gameplay.
 
 ---
@@ -82,34 +83,34 @@ When a player is eliminated during the daytime Voting phase, they enter the **Mi
 
 Night actions cannot be resolved simultaneously because dependencies exist (e.g., a **Block** must occur before a **Heal** or **Shot**, and **Heals** prevent **Deaths**).
 
-The engine in [`src/services/gameEngine.js`](file:///Users/ali.heristchian/Documents/learning/mpga/src/services/gameEngine.js) processes actions in strict ascending numerical priority:
-
 ```mermaid
 flowchart TD
+    N1["Night 1 Introduction: Mafia Team Familiarization Wake-Up"]
     P0["Priority 0: Passive Shields Active (Godfather / Nostradamus)"]
-    P1["Priority 1: Alignment Choice (Nostradamus 'choose-side')"]
+    P1["Priority 1: Alignment Choice & Inquiry (Nostradamus 'choose-side')"]
     P2["Priority 2: Mafia Night Shot (Godfather 'mafia-shot')"]
     P3["Priority 3: Role Block & Bribe (Matador 'block', Saul 'buy')"]
     P4["Priority 4: Doctor Heal & Vigilante Shot ('treat', 'vigillante-shot')"]
     P5["Priority 5: Detective Investigation ('investigate')"]
     P6["Priority 6: Constantine Revive ('revive')"]
-    DEATHS["Final Calculation: Passive Shields & Doctor Saves evaluated -> Actual Deaths Logged"]
+    DEATHS["Final Calculation: Passive Shields, Saves & Leon Penalty -> Actual Deaths Logged"]
 
-    P0 --> P1 --> P2 --> P3 --> P4 --> P5 --> P6 --> DEATHS
+    N1 --> P0 --> P1 --> P2 --> P3 --> P4 --> P5 --> P6 --> DEATHS
 ```
 
 ### Resolution Order Table
 
 | Priority | Action / Ability | Actor | Target Restrictions | Effect / Logic |
 | :---: | :--- | :--- | :--- | :--- |
+| **N/A** | *Mafia Introduction* | All Living Mafia | Self Team (Night 1 only) | Familiarization wake-up (no shot/kill). |
 | **0** | `shield` / `unlimited-shield` | Godfather, Nostradamus | Self (Passive) | Protects bearer against deadly shots. |
-| **1** | `choose-side` | Nostradamus | Town or Mafia player | Records Nostradamus's chosen win condition. |
-| **2** | `mafia-shot` | Godfather | Any other living player | Marks target for elimination unless protected or shielded. |
-| **3** | `block` | Matador | Any other living player | Cancels the target's ability if priority > 3. |
-| **3** | `buy` | Saul Goodman | Any other living player | Applies bribe effect for the night/day. |
-| **4** | `treat` | Doctor | Any living player | Saves target from elimination if shot on the same night. |
-| **4** | `vigillante-shot` | Leon (Vigilante) | Any other living player | Marks target for elimination unless healed or shielded. |
-| **5** | `investigate` | Detective | Any other living player | Reveals target's faction (`town` vs. `mafia`) in moderator log. |
+| **1** | `choose-side` | Nostradamus | Up to 3 players + Town/Mafia choice | Moderator signals Mafia count; records chosen win condition. |
+| **2** | `mafia-shot` | Godfather | Other living players | Marks target for elimination unless protected or shielded. |
+| **3** | `block` | Matador | Other living players | Cancels the target's ability if priority > 3. |
+| **3** | `buy` | Saul Goodman | Other living players | Applies bribe effect for the night/day. |
+| **4** | `treat` | Doctor | Any living player (self-target allowed) | Saves target from elimination if shot on the same night. |
+| **4** | `vigillante-shot` | Leon (Vigilante) | Other living players | If target is Town: Leon dies, target safe. If target is Mafia: Mafia dies. |
+| **5** | `investigate` | Detective | Other living players | Reveals target's faction (`town` vs. `mafia`) in moderator log. |
 | **6** | `revive` | Constantine | Dead players only | Restores a dead player back to life (`isDead: false`). |
 
 ---
@@ -152,3 +153,18 @@ Voting calculations and constraints are handled by [`src/services/useVotingServi
 3. **Closed-Eye Final Vote:**
    * Defenders who reach the threshold enter defense speeches followed by closed-eye town voting.
    * The defender receiving the highest final vote count is eliminated. Ties trigger the Destiny Spin tie-breaker roulette.
+
+---
+
+## 7. Day Phase Speaking & Challenge Time Protocol
+
+1. **Spotlight Speaking Turns:**
+   * Each living player receives an uninterrupted timed speaking turn (e.g., 40s in Godfather mode, 60s in Classic mode).
+2. **Challenge Time Request & Transfer:**
+   * While a player is speaking, another living player can request "Challenge Time" (وقت چالش) from the active speaker.
+   * If granted, the speaker's main countdown timer is paused, and the challenger is placed in the spotlight for a shorter speech duration (`borrowedTimeToTalk`, e.g., 25s).
+3. **Single-Use Daily Constraint:**
+   * **One Challenge Per Speaker:** At most one challenge can be granted per speaker turn.
+   * **One Challenge Per Player Per Day:** Once a player takes challenge time, they are marked as having used their challenge quota for that Day phase and cannot request or take challenge time again until the next day.
+4. **Speaker Resume:**
+   * When the challenger's time expires or the moderator ends the challenge early, the spotlight returns to the original speaker who finishes their exact remaining paused seconds.

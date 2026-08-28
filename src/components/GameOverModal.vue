@@ -69,7 +69,11 @@
                 class="text-[10px] font-semibold truncate"
                 :class="getSideColorClass(player.role?.sideId)"
               >
-                {{ player.role?.name || 'Citizen' }}
+                {{
+                  $te('roles.' + player.role?.id + '.name')
+                    ? $t('roles.' + player.role?.id + '.name')
+                    : player.role?.name || 'Citizen'
+                }}
               </p>
             </div>
           </div>
@@ -143,13 +147,13 @@
     <template #footer>
       <div class="flex flex-wrap justify-between items-center w-full gap-3">
         <button
-          class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 font-semibold text-xs rounded-xl transition-colors"
+          class="px-5 py-2.5 bg-gray-700 hover:bg-gray-600 active:scale-95 text-gray-200 font-semibold text-xs rounded-xl transition-all cursor-pointer min-h-[44px] select-none"
           @click="handleClose"
         >
           {{ $t('gameOver.reviewBoard') }}
         </button>
         <button
-          class="px-6 py-2.5 bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white font-bold text-sm rounded-xl shadow-lg transition-all cursor-pointer"
+          class="px-6 py-3 bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 active:scale-95 active:brightness-90 text-white font-bold text-sm rounded-xl shadow-lg transition-all cursor-pointer min-h-[44px] select-none"
           @click="startNewGame"
         >
           {{ $t('gameOver.newGame') }}

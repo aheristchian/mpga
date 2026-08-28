@@ -97,14 +97,14 @@
 
             <div class="flex items-center gap-2">
               <button
-                class="w-8 h-8 rounded-lg bg-gray-700 hover:bg-gray-600 text-white font-bold disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                class="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-gray-700 hover:bg-gray-600 active:scale-95 active:brightness-90 text-white font-bold disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer select-none"
                 :disabled="!preVotes[player.name]"
                 @click="updatePreVote(player, -1)"
               >
                 -
               </button>
               <span
-                class="w-8 text-center text-lg font-black font-mono"
+                class="w-8 text-center text-lg font-black font-mono select-none"
                 :class="
                   (preVotes[player.name] || 0) >= votingThreshold ? 'text-orange-400' : 'text-white'
                 "
@@ -112,7 +112,7 @@
                 {{ preVotes[player.name] || 0 }}
               </span>
               <button
-                class="w-8 h-8 rounded-lg bg-gray-700 hover:bg-gray-600 text-white font-bold disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                class="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-gray-700 hover:bg-gray-600 active:scale-95 active:brightness-90 text-white font-bold disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer select-none"
                 :disabled="(preVotes[player.name] || 0) >= maxVotesPerCandidate"
                 @click="updatePreVote(player, 1)"
               >
@@ -130,17 +130,17 @@
 
           <button
             v-if="qualifiedDefenders.length > 0"
-            class="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-orange-600/30 transition-all cursor-pointer"
+            class="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 active:scale-95 active:brightness-90 text-white px-8 py-3.5 rounded-xl font-bold shadow-lg shadow-orange-600/30 transition-all cursor-pointer min-h-[44px] select-none"
             @click="startDefenseStage"
           >
             {{ $t('votingPhase.startDefense', { count: qualifiedDefenders.length }) }} ▶
           </button>
           <button
             v-else
-            class="bg-gray-700 hover:bg-gray-600 text-gray-300 px-6 py-2.5 rounded-xl font-bold text-sm transition-all"
+            class="bg-gray-700 hover:bg-gray-600 active:scale-95 text-gray-300 px-6 py-3 rounded-xl font-bold text-sm transition-all cursor-pointer min-h-[44px] select-none"
             @click="skipDefenseToNight"
           >
-            {{ $t('votingPhase.proceedToNight') }} (No Defenders)
+            {{ $t('votingPhase.proceedToNight') }}
           </button>
         </div>
       </div>

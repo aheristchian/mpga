@@ -3,33 +3,38 @@
     class="min-h-screen bg-gray-950 text-white font-sans p-4 max-w-md mx-auto flex flex-col justify-between"
   >
     <!-- TOP BAR -->
-    <header class="py-3 flex justify-between items-center border-b border-gray-850">
+    <header class="py-3 flex justify-between items-center border-b border-gray-850 gap-2">
       <div class="flex items-center gap-2">
         <span class="text-xl">🎭</span>
         <span
           class="font-extrabold text-sm tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-amber-500"
         >
-          MPGA Player
+          MPGA
         </span>
       </div>
 
       <div class="flex items-center gap-2">
-        <span
-          class="w-2.5 h-2.5 rounded-full"
-          :class="{
-            'bg-green-500 animate-pulse': multiplayer.isConnected.value,
-            'bg-yellow-500': multiplayer.connectionStatus.value === 'connecting',
-            'bg-red-500':
-              multiplayer.connectionStatus.value === 'error' ||
-              multiplayer.connectionStatus.value === 'disconnected',
-          }"
-        ></span>
-        <span class="text-[11px] font-mono font-bold text-gray-400 uppercase">
-          {{ multiplayer.connectionStatus.value }}
-        </span>
+        <LanguageSwitcher />
+
+        <div class="flex items-center gap-1.5 bg-gray-900 px-2 py-1 rounded-xl border border-gray-800">
+          <span
+            class="w-2 h-2 rounded-full"
+            :class="{
+              'bg-green-500 animate-pulse': multiplayer.isConnected.value,
+              'bg-yellow-500': multiplayer.connectionStatus.value === 'connecting',
+              'bg-red-500':
+                multiplayer.connectionStatus.value === 'error' ||
+                multiplayer.connectionStatus.value === 'disconnected',
+            }"
+          ></span>
+          <span class="text-[10px] font-mono font-bold text-gray-400 uppercase">
+            {{ multiplayer.connectionStatus.value }}
+          </span>
+        </div>
+
         <button
           v-if="multiplayer.isConnected.value"
-          class="text-xs text-gray-500 hover:text-red-400 ml-2"
+          class="text-xs text-gray-500 hover:text-red-400 p-1 active:scale-95 cursor-pointer"
           @click="handleDisconnect"
         >
           ✕
@@ -218,21 +223,22 @@
                 class="text-[10px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full"
                 :class="getSideBadgeClass(playerIdentity.role?.sideId)"
               >
-                {{ playerIdentity.role?.sideId || 'Town' }}
+                {{ $te('sides.' + playerIdentity.role?.sideId) ? $t('sides.' + playerIdentity.role?.sideId) : (playerIdentity.role?.sideId || 'Town') }}
               </span>
               <h2 class="text-2xl font-black text-white mt-1.5">
-                {{ playerIdentity.role?.name || 'Citizen' }}
+                {{ $te('roles.' + playerIdentity.role?.id + '.name') ? $t('roles.' + playerIdentity.role?.id + '.name') : (playerIdentity.role?.name || 'Citizen') }}
               </h2>
               <p class="text-xs text-gray-300 max-w-xs mx-auto mt-1 leading-relaxed">
                 {{
-                  playerIdentity.role?.description ||
-                  'Support town members in identifying the mafia infiltrators.'
+                  $te('roles.' + playerIdentity.role?.id + '.description')
+                    ? $t('roles.' + playerIdentity.role?.id + '.description')
+                    : (playerIdentity.role?.description || 'Support town members in identifying the mafia infiltrators.')
                 }}
               </p>
             </div>
 
             <button
-              class="text-[11px] text-gray-400 hover:text-white bg-gray-800 px-3 py-1 rounded-lg transition-colors cursor-pointer"
+              class="text-[11px] text-gray-300 active:scale-95 hover:text-white bg-gray-800 border border-gray-700 px-4 py-1.5 rounded-lg transition-all cursor-pointer select-none"
               @click="isRoleRevealed = false"
             >
               🔒 {{ $t('playerClient.hideCard') }}
@@ -287,7 +293,7 @@
 
             <button
               :disabled="!selectedNightTarget || submittedNightTarget"
-              class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-bold text-xs rounded-lg transition-colors cursor-pointer"
+              class="w-full min-h-[44px] py-3 bg-indigo-600 hover:bg-indigo-500 active:scale-95 active:brightness-90 disabled:opacity-50 text-white font-bold text-sm rounded-xl transition-all cursor-pointer shadow-md select-none"
               @click="handleNightActionSubmit"
             >
               {{
@@ -309,7 +315,11 @@
             "
           >
             <span class="text-2xl block mb-1">{{ detectiveResult === 'mafia' ? '👎' : '👍' }}</span>
-            <span>{{ detectiveResult === 'mafia' ? 'Guilty Mafia' : 'Innocent Town' }}</span>
+            <span>{{
+              detectiveResult === 'mafia'
+                ? $t('nightPhase.guiltyMafia')
+                : $t('nightPhase.innocentTown')
+            }}</span>
           </div>
         </div>
 
@@ -332,7 +342,7 @@
             <button
               v-for="target in livingOtherPlayers"
               :key="target.name"
-              class="p-2.5 bg-gray-900 hover:bg-orange-900/50 border border-gray-700 hover:border-orange-500 text-white rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-between"
+              class="p-3 min-h-[44px] bg-gray-900 hover:bg-orange-900/50 active:scale-95 active:brightness-90 border border-gray-700 hover:border-orange-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-between select-none"
               @click="handleCastVote(target.name)"
             >
               <span class="truncate">{{ target.name }}</span>
@@ -353,6 +363,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import RoleAvatar from '../RoleAvatar.vue';
+import LanguageSwitcher from '../LanguageSwitcher.vue';
 import { useMultiplayer } from '../../services/useMultiplayerService';
 
 const multiplayer = useMultiplayer();
@@ -369,6 +380,11 @@ const publicState = computed(() => multiplayer.clientPublicState.value);
 
 const livingOtherPlayers = computed(() => {
   if (!publicState.value?.livingPlayers) return [];
+  const myRole = playerIdentity.value?.role?.id;
+  // Doctor can target themselves; all other roles (Leon, Detective, Godfather, etc.) cannot
+  if (myRole === 'doctor') {
+    return publicState.value.livingPlayers;
+  }
   return publicState.value.livingPlayers.filter((p) => p.name !== playerIdentity.value?.name);
 });
 
@@ -405,12 +421,11 @@ const handleNightActionSubmit = () => {
   multiplayer.sendNightAction(selectedNightTarget.value);
   submittedNightTarget.value = true;
 
-  // If player is Detective, show simulation result
+  // If player is Detective, show inquiry feedback
   if (
     playerIdentity.value?.role?.id === 'detective' ||
     playerIdentity.value?.role?.name?.toLowerCase().includes('detective')
   ) {
-    // Detective inquiries are calculated by host or simulated
     detectiveResult.value = 'town';
   }
 };

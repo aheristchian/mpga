@@ -37,17 +37,20 @@ mpga/
 │   │   ├── GameLogDrawer.vue     # Sliding historical event log & filter drawer
 │   │   ├── GameModerator.vue     # Main moderator cockpit & player manager
 │   │   ├── GameOverModal.vue     # Victory celebration modal & match statistics aggregator
+│   │   ├── LanguageSwitcher.vue  # Bilingual EN/FA toggle with reactive RTL/LTR direction switching
 │   │   ├── ModeSelection.vue     # Game ruleset selector (Godfather, Classic)
 │   │   ├── PhaseHeroBanner.vue   # Thematic SVG scenery & atmosphere banner for sub-phases
 │   │   ├── PlayerEntry.vue       # Seating order manager with HTML5 Drag-and-Drop
 │   │   ├── PlayerStatusModal.vue # Anytime moderator override modal (Kill/Revive/Penalties)
 │   │   ├── RoleAvatar.vue        # Scalable SVG vector character artwork & faction ring
 │   │   ├── RoleSelection.vue     # Faction-based role picker with balance validator
-│   │   └── game/                 # Sub-phase step-by-step guided wizards
-│   │       ├── DayPhase.vue      # Solar Amber theme, speaker spotlight & challenge timer
-│   │       ├── VotingPhase.vue   # Courtroom theme, pre-vote, defense, & closed-eye vote
-│   │       ├── MiddayPhase.vue   # Twilight theme, exit speech & Last Word card roulette
-│   │       └── NightPhase.vue    # Midnight theme, role wakeup teleprompter wizard
+│   │   ├── game/                 # Sub-phase step-by-step guided wizards
+│   │   │   ├── DayPhase.vue      # Solar Amber theme, speaker spotlight & challenge timer
+│   │   │   ├── VotingPhase.vue   # Courtroom theme, pre-vote, defense, & closed-eye vote
+│   │   │   ├── MiddayPhase.vue   # Twilight theme, exit speech & Last Word card roulette
+│   │   │   └── NightPhase.vue    # Midnight theme, role wakeup teleprompter wizard
+│   │   └── player/
+│   │       └── PlayerClient.vue  # Mobile touch player console with private role & voting
 │   ├── data/                     # Flat, relational data definitions (JSON-ready)
 │   │   ├── abilities.js          # Active/passive abilities and priority values
 │   │   ├── lastWordCards.js      # Last Word cards data definitions
@@ -57,7 +60,8 @@ mpga/
 │   │   ├── roles.js              # Role definitions, limits, and foreign keys
 │   │   └── sides.js              # Factions (Town, Mafia, Third Party)
 │   ├── locales/                  # Localization dictionaries
-│   │   └── en.json               # English translations (i18n compliant)
+│   │   ├── en.json               # English translations (clean strings)
+│   │   └── fa.json               # Persian translations (authentic Mafia terminology)
 │   ├── services/                 # Core business logic and service layers
 │   │   ├── gameEngine.js         # Pure Night Action Priority Resolution Engine
 │   │   ├── gameEngine.spec.js    # Unit tests for resolution logic
@@ -128,8 +132,10 @@ graph TD
 ### 3. Step-by-Step Guided UX Patterns
 * Instead of presenting cluttered, multi-form UIs, all sub-phase components are organized into linear, guided wizards with dedicated timers, teleprompter cues, and progressive disclosure.
 
-### 4. Internationalization (i18n) Enforcement
-* All UI text is referenced via `$t('namespace.key')` or `<i18n-t>` tags in [`src/locales/en.json`](file:///Users/ali.heristchian/Documents/learning/mpga/src/locales/en.json).
+### 4. Internationalization (i18n) & Persian RTL Architecture
+* **Pure Clean Dictionaries:** All user-facing strings are strictly extracted into [`src/locales/en.json`](file:///Users/ali.heristchian/Documents/learning/mpga/src/locales/en.json) and [`src/locales/fa.json`](file:///Users/ali.heristchian/Documents/learning/mpga/src/locales/fa.json) (no mixed strings or hardcoded template text).
+* **Language Switcher & Directionality:** [`LanguageSwitcher.vue`](file:///Users/ali.heristchian/Documents/learning/mpga/src/components/LanguageSwitcher.vue) allows instant switching between English (`en`) and Persian (`fa`). When Persian is selected, `document.documentElement.dir` is dynamically set to `rtl`, adapting all layout and typography directions.
+* **Persistent Preference:** Locale is stored in `localStorage.getItem('mpga_locale')` and initialized automatically on app boot.
 
 ### 5. Automatic Win Condition & Post-Game Statistics Engine
 * Pure calculation service [`src/services/useWinCondition.js`](file:///Users/ali.heristchian/Documents/learning/mpga/src/services/useWinCondition.js) monitors living factions (`livingMafiaCount === 0` for Town, `livingMafiaCount >= livingTownCount` for Mafia).

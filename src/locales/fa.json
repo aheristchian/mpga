@@ -1,0 +1,395 @@
+{
+  "modes": {
+    "godfather": {
+      "name": "پدرخوانده",
+      "description": "سناریوی رقابتی و استاندارد ۱۰ نفره شامل پدرخوانده، ماتادور، سال گوودمن، دکتر، کارآگاه، لئون، کنستانتین، نوستراداموس و شهروندان ساده."
+    },
+    "classic": {
+      "name": "مافیای کلاسیک",
+      "description": "قوانین سنتی مافیا شامل پدرخوانده، پزشک، کارآگاه و شهروندان."
+    }
+  },
+  "sides": {
+    "mafia": "مافیا",
+    "town": "شهروند",
+    "third-party": "مستقل"
+  },
+  "roles": {
+    "godfather": {
+      "name": "پدرخوانده",
+      "description": "رئیس مافیا. دارای جلیقه ضدگلوله (مصونیت در برابر یک شلیک شب) و استعلام منفی (شهروندی) نزد کارآگاه."
+    },
+    "matador": {
+      "name": "ماتادور",
+      "description": "عضو مافیا که هر شب می‌تواند توانایی یک بازیکن را مسدود (بلاک) کند."
+    },
+    "saul-goodman": {
+      "name": "سال گوودمن",
+      "description": "وکیل مافیا که طبق قوانین تورنمنت می‌تواند یک شهروند ساده را خریداری کند."
+    },
+    "mafia": {
+      "name": "مافیای ساده",
+      "description": "عضو تیم مافیا که در تصمیم‌گیری‌های شب و شلیک‌ها با تیم همکاری می‌کند."
+    },
+    "doctor": {
+      "name": "پزشک",
+      "description": "می‌تواند هر شب یک نفر (از جمله خودش) را نجات دهد و از شلیک‌های مرگبار محافظت کند."
+    },
+    "detective": {
+      "name": "کارآگاه",
+      "description": "هر شب استعلام هویت یک بازیکن را می‌گیرد (استعلام پدرخوانده منفی اعلام می‌شود)."
+    },
+    "citizen": {
+      "name": "شهروند ساده",
+      "description": "عضو عادی شهر. وظیفه شناسایی و رای‌گیری برای خروج مافیا در طول روز را بر عهده دارد."
+    },
+    "nostradamus": {
+      "name": "نوستراداموس",
+      "description": "پیشگوی مستقل. در شب اول ۳ بازیکن را استعلام می‌کند تا تعداد مافیا بین آن‌ها را بداند و سپس سمت پیروز را انتخاب می‌کند."
+    },
+    "constantine": {
+      "name": "کنستانتین",
+      "description": "دارای توانایی یک‌باره احیای یکی از بازیکنان کشته شده و بازگرداندن او به بازی."
+    },
+    "leon": {
+      "name": "لئون (تک‌تیرانداز / حرفه‌ای)",
+      "description": "تیرانداز شهر. اگر به مافیا شلیک کند، مافیا کشته می‌شود؛ اما اگر به اشتباه به شهروند شلیک کند، خودش کشته خواهد شد!"
+    }
+  },
+  "language": {
+    "selectLanguage": "زبان",
+    "en": "English",
+    "fa": "فارسی"
+  },
+  "modeSelection": {
+    "title": "انتخاب سناریوی بازی",
+    "subtitle": "مجموعه قوانین و سناریوی مورد نظر خود را انتخاب کنید",
+    "continue": "ادامه"
+  },
+  "app": {
+    "title": "گرداننده مافیا",
+    "subtitle": "مدیریت آسان و هوشمند فازهای بازی مافیا",
+    "startOver": "شروع مجدد",
+    "startOverConfirmTitle": "شروع مجدد بازی؟",
+    "startOverWarning": "آیا مطمئن هستید که می‌خواهید بازی جدیدی را آغاز کنید؟",
+    "startOverSubWarning": "تمام بازیکنان، نقش‌ها و سوابق بازی فعلی پاک خواهند شد.",
+    "cancel": "انصراف",
+    "confirmStartOver": "بله، بازی جدید",
+    "endGame": "پایان بازی",
+    "endGameConfirmTitle": "تأیید پایان بازی",
+    "endGameWarning": "آیا مطمئن هستید که می‌خواهید این بازی را پایان دهید؟",
+    "endGameSubWarning": "وضعیت تمام نقش‌ها و رویدادهای جاری خاتمه می‌یابد.",
+    "confirmEndGame": "بله، پایان بازی",
+    "gameIsLive": "بازی در جریان است!",
+    "openLogs": "گزارش رویدادها",
+    "logsCount": "{count} رویداد"
+  },
+  "playerEntry": {
+    "addPlayers": "افزودن بازیکنان",
+    "placeholder": "نام بازیکن را وارد کنید...",
+    "add": "افزودن",
+    "currentPlayers": "بازیکنان حاضر",
+    "orderBySeating": "برای تغییر چیدمان صندلی‌ها بکشید",
+    "remove": "حذف",
+    "noPlayers": "هنوز بازیکنی اضافه نشده است.",
+    "done": "تأیید و پایان ورود اسامی",
+    "needMore": "حداقل به {min} بازیکن برای شروع نیاز است."
+  },
+  "roleSelection": {
+    "title": "انتخاب نقش‌ها",
+    "playerCountText": "شما {count} بازیکن دارید. لطفاً دقیقاً {count} نقش انتخاب نمایید.",
+    "selectedCount": "{selected} از {total} انتخاب شده",
+    "loading": "در حال بارگذاری نقش‌ها...",
+    "maxLimit": "حداکثر: {limit}",
+    "clearAll": "پاک کردن همه",
+    "assignRandomly": "تقسیم تصادفی کارت‌ها",
+    "limitReachedTitle": "تکمیل ظرفیت نقش‌ها",
+    "limitReachedWarning": "شما تمام {count} نقش مورد نیاز را انتخاب کرده‌اید.",
+    "limitReachedSubWarning": "برای انتخاب یک نقش دیگر، لطفاً یکی از نقش‌های قبلی را غیرفعال کنید.",
+    "gotIt": "متوجه شدم",
+    "balanceWarningTitle": "هشدار تعادل بازی",
+    "balanceWarningMain": "ممکن است تعادل بازی به هم بخورد!",
+    "balanceWarningMessage": "شما {selectedCount} بازیکن تیم {sideName} برای یک بازی {totalPlayers} نفره انتخاب کرده‌اید. پیشنهاد می‌شود حداکثر {recommendedMax} نفر باشد.",
+    "adjustRoles": "تنظیم مجدد نقش‌ها",
+    "proceedAnyway": "ادامه به هر حال",
+    "sideSelected": "{count} انتخاب شده"
+  },
+  "dayPhase": {
+    "title": "فاز روز",
+    "step1Badge": "۱. چینش نوبت",
+    "step2Badge": "۲. صحبت بازیکنان",
+    "step3Badge": "۳. جمع‌بندی",
+    "step1Title": "تنظیم ترتیب صحبت و جهت چرخش",
+    "step2Title": "تریبون صحبت بازیکن",
+    "step3Title": "پایان صحبت‌های روز",
+    "clockwise": "در جهت عقربه‌های ساعت",
+    "counterClockwise": "در خلاف جهت عقربه‌های ساعت",
+    "speakingOrderPreview": "پیش‌نمایش ترتیب نوبت صحبت:",
+    "shiftNotice": "چرخش روز {day}: شروع از صندلی {seat} ({name})",
+    "isSpeaking": "در حال صحبت است",
+    "start": "شروع تایمر",
+    "pause": "توقف",
+    "reset": "ریست تایمر",
+    "plus10": "+۱۰ ثانیه",
+    "minus10": "-۱۰ ثانیه",
+    "challengeTime": "اعطای وقت چالش ({seconds} ثانیه)",
+    "challengeActive": "وقت چالش فعال است",
+    "challengeFrom": "⚡ وقت چالش: {challenger} (از تریبون {speaker})",
+    "selectChallenger": "انتخاب بازیکن چالش‌کننده",
+    "selectChallengerPrompt": "کدام بازیکن حاضر وقت چالش را دریافت می‌کند؟",
+    "noEligibleChallengers": "هیچ بازیکنی برای چالش باقی نمانده است (همه بازیکنان واجد شرایط امروز چالش خود را استفاده کرده‌اند).",
+    "endChallenge": "پایان چالش و بازگشت به {speaker}",
+    "challengeUsedBadge": "چالش امروز استفاده شد",
+    "nextPlayer": "نفر بعدی",
+    "upNext": "نفرات بعدی",
+    "proceedToVote": "ورود به رای‌گیری",
+    "forceEndDay": "پایان زودهنگام روز",
+    "speakerProgress": "گوینده {current} از {total}",
+    "speakingTimeElapsed": "{seconds} ثانیه صحبت کرد",
+    "challengeUsed": "از وقت چالش استفاده کرد ({seconds} ثانیه)",
+    "allSpoken": "تمام بازیکنان زنده در روز {day} صحبت کردند.",
+    "confirmProceedVoting": "ورود به فاز رای‌گیری",
+    "startDayFlow": "شروع نوبت‌های صحبت روز"
+  },
+  "votingPhase": {
+    "title": "فاز رای‌گیری",
+    "step1Badge": "۱. رای‌گیری اولیه",
+    "step2Badge": "۲. دفاعیه",
+    "step3Badge": "۳. رای نهایی",
+    "preVoteTitle": "مرحله ۱: رای‌گیری اولیه (ورود به دفاع)",
+    "preVoteSubtitle": "شمارش دست‌های بالا برای مشخص شدن مدافعان روز.",
+    "voteThresholdInfo": "حدنصاب: {threshold} رای · سقف: {maxVotes} برای هر بازیکن ({alive} نفر زنده)",
+    "maxVotesReached": "حداکثر سقف آرا تکمیل شد ({max})",
+    "thresholdMetBadge": "ورود به دفاع ({votes}/{threshold})",
+    "startDefense": "ورود به مرحله دفاع ({count} نفر واجد شرایط)",
+    "defenseTitle": "مرحله ۲: نوبت دفاعیه",
+    "defenseSubtitle": "هر یک از متهمان به نوبت از خود دفاع می‌کنند.",
+    "defenderProgress": "مدافع {current} از {total}",
+    "noDefenders": "هیچ بازیکنی به حدنصاب ورود به دفاع نرسید.",
+    "proceedToNight": "ورود به فاز شب",
+    "isDefending": "در حال دفاع از خود است",
+    "proceedToFinalVote": "ورود به رای‌گیری نهایی",
+    "finalVoteTitle": "مرحله ۳: رای‌گیری نهایی با چشم‌های بسته",
+    "finalVoteSubtitle": "شهروندان در مورد خروج متهمان رای می‌دهند (حداکثر {maxVotes} رای به هر کاندیدا).",
+    "closedEyeNotice": "قانون چشم‌های بسته",
+    "closedEyeTownPrompt": "اعلام گرداننده: 'همه بازیکنان چشم‌ها را ببندند و سرها پایین باشد. فقط هنگام خواندن نام مدافع دست خود را بالا ببرید.'",
+    "resolveTie": "حل تساوی (قرعه سرنوشت / شانس)",
+    "eliminate": "خروج {name}",
+    "nobodyDies": "هیچ‌کس خارج نمی‌شود - پایان روز",
+    "destinyIsDeciding": "گردونه شانس در حال تصمیم‌گیری است...",
+    "tieBetween": "تساوی آرا بین: {names}",
+    "eliminatedAnnouncement": "{name} با رأی شهر از بازی خارج شد.",
+    "proceedToMidday": "ورود به فاز نیم‌روز (صحبت آخر و کارت حرکت آخر)",
+    "proceedStraightToNight": "ورود مستقیم به فاز شب (کسی خارج نشد)"
+  },
+  "middayPhase": {
+    "title": "فاز نیم‌روز",
+    "step1Badge": "۱. کلام آخر",
+    "step2Badge": "۲. کارت حرکت آخر",
+    "eliminatedFromTown": "خارج شده از شهر",
+    "roleLabel": "نقش",
+    "subtitle": "وصیت و صحبت پایانی بازیکن اخراجی و کشیدن کارت حرکت آخر",
+    "eliminatedPlayer": "بازیکن خارج شده: {name} ({role})",
+    "exitSpeechTitle": "مرحله ۱: وصیت و کلام آخر",
+    "exitSpeechSubtitle": "بازیکن خارج شده زمان مشخصی برای صحبت پایانی خود دریافت می‌کند.",
+    "isGivingExitSpeech": "در حال بیان وصیت و صحبت پایانی است",
+    "proceedToCardDraw": "رفتن به مرحله کارت حرکت آخر",
+    "drawCardTitle": "مرحله ۲: کشیدن کارت حرکت آخر",
+    "drawCardSubtitle": "قرعه‌کشی و انتخاب یکی از کارت‌های ویژه باقیمانده برای بازیکن اخراجی.",
+    "spinRoulette": "چرخش گردونه کارت حرکت آخر 🎲",
+    "drawingCard": "در حال قرعه‌کشی از بین {count} کارت باقیمانده...",
+    "cardDrawnTitle": "کارت قرعه‌کشی شده: {name}",
+    "remainingCards": "تعداد کارت‌های باقیمانده: {count}",
+    "proceedToNight": "پایان نیم‌روز و ورود به شب",
+    "noCardsLeft": "کارت حرکت آخری در دسته کارت‌ها باقی نمانده است."
+  },
+  "nightPhase": {
+    "title": "فاز شب",
+    "step0Badge": "۰. معارفه مافیا",
+    "step1Badge": "۱. خواب شهر",
+    "step2Badge": "۲. بیدارباش نقش‌ها",
+    "step3Badge": "۳. بیدارباش صبح",
+    "subtitle": "اعمال نقش‌ها به ترتیب اولویت و محاسبه نتایج شب",
+    "mafiaIntroTitle": "بیدارباش و معارفه تیم مافیا",
+    "mafiaIntroPrompt": "اعلام گرداننده: 'اعضای مافیا در سکوت چشم‌ها را باز کنند و یکدیگر را بشناسند. پدرخوانده، خودت را به یارانت نشان بده.'",
+    "mafiaSleepPrompt": "اعلام گرداننده: 'تیم مافیا، چشم‌ها بسته و بخوابید.'",
+    "livingMafiaRoster": "اعضای زنده تیم مافیا:",
+    "continueToIndividualRoles": "ادامه به بیدارباش نقش‌های فردی ▶",
+    "sleepTownPrompt": "اعلام گرداننده: 'شهر به خواب می‌رود. همه بازیکنان چشم‌ها را ببندند و سرها پایین باشد.'",
+    "wakeRolePrompt": "اعلام گرداننده: '{role} ({player}) بیدار شو. هدف خود را در سکوت انتخاب کن.'",
+    "putToSleepPrompt": "اعلام گرداننده: '{role}، چشم‌ها بسته و بخواب.'",
+    "stepProgress": "نقش {current} از {total}: {role}",
+    "noActiveRoles": "هیچ نقش زنده‌ای با توانایی شبانه فعال وجود ندارد.",
+    "noAction": "-- بدون اقدام / رد شدن --",
+    "priority": "اولویت {priority}",
+    "nextRole": "نقش بعدی",
+    "prevRole": "نقش قبلی",
+    "reviewActions": "بررسی و محاسبه نتایج شب",
+    "resolveNight": "محاسبه وقایع شب",
+    "publicAnnouncement": "اعلام عمومی وقایع شب به شهر",
+    "morningTownPrompt": "اعلام گرداننده: 'شهروندان بیدار شوید و چشم‌ها را باز کنید!'",
+    "noDeaths": "دیشب هیچ‌کس کشته نشد.",
+    "wasKilled": "در طول شب کشته شد.",
+    "wasRevived": "به بازی بازگشت و احیا شد.",
+    "moderatorLog": "گزارش محرمانه و محاسبات گرداننده",
+    "startNextDay": "ورود به روز {day}",
+    "investigationResult": "نتیجه استعلام کارآگاه:",
+    "innocentTown": "شهروند (لایک / شست رو به بالا 👍)",
+    "guiltyMafia": "مافیا (دیس‌لایک / شست رو به پایین 👎)",
+    "nostradamusInquiryTitle": "استعلام ۳ نفره نوستراداموس",
+    "nostradamusInquiryPrompt": "۳ بازیکن را برای استعلام نوستراداموس انتخاب کنید:",
+    "nostradamusMafiaCount": "تعداد مافیا در ۳ انتخاب: {count} از {selected}",
+    "nostradamusSignalPrompt": "اعلام گرداننده: با انگشتان دست عدد {count} را به نوستراداموس نشان دهید (تعداد مافیا بین ۳ نفر انتخابی)."
+  },
+  "audio": {
+    "mute": "بی‌صدا کردن جلوه‌های صوتی",
+    "unmute": "وصل کردن صدا",
+    "soundOn": "صدا روشن"
+  },
+  "multiplayer": {
+    "connectDevices": "اتصال گوشی بازیکنان",
+    "hostTitle": "اتصال و همگام‌سازی گوشی‌ها",
+    "roomCodeLabel": "کد اتاق",
+    "scanPrompt": "بازیکنان این کد QR را با گوشی اسکن کنند تا صندلی خود را انتخاب نمایند:",
+    "copyLink": "کپی لینک ورود",
+    "copied": "در کلیپ‌بورد کپی شد!",
+    "connectedDevices": "گوشی‌های متصل ({count})",
+    "liveSyncActive": "همگام‌سازی زنده فعال است",
+    "connected": "متصل",
+    "offline": "سرور ارتباطی آفلاین است",
+    "offlineNote": "کانال ارتباط مستقیم WebRTC با رله‌های کمکی STUN/TURN.",
+    "hostStatusReady": "میزبان آماده و در حال گوش دادن",
+    "hostStatusConnecting": "در حال اتصال به سرور ارتباطی...",
+    "hostStatusError": "سرور سیگنالینگ قطع است",
+    "regenerateCode": "کد جدید",
+    "lanWarning": "دسترسی از طریق localhost: گوشی‌ها نمی‌توانند به localhost متصل شوند.",
+    "lanInstruction": "آدرس IP وای‌فای کامپیوتر خود را وارد کنید یا صفحه را با آدرس http://{ip}:5173 باز نمایید:",
+    "customHostPlaceholder": "آدرس IP یا دامنه میزبان (مثلاً 192.168.1.30:5173)",
+    "applyHost": "بروزرسانی کد QR",
+    "useCurrentOrigin": "بازگشت به پیش‌فرض"
+  },
+  "playerClient": {
+    "joinTitle": "ورود به میز مافیا",
+    "joinSubtitle": "اتصال به عنوان بازیکن به اتاق بازی",
+    "roomCodeLabel": "کد اتاق (مثلاً 53FH)",
+    "playerNameLabel": "نام شما (اختیاری)",
+    "playerNamePlaceholder": "مثلاً علی (یا در صفحه بعد از لیست انتخاب کنید)",
+    "playerNameHelp": "می‌توانید این فیلد را خالی بگذارید و بعد از اتصال نام خود را لمس کنید.",
+    "joinButton": "اتصال به بازی",
+    "connecting": "در حال اتصال به میزبان...",
+    "retryButton": "تلاش مجدد",
+    "changeRoomButton": "تغییر کد اتاق",
+    "claimSeatTitle": "صندلی / نام خود را انتخاب کنید",
+    "claimSeatSubtitle": "نام خود را از لیست بازیکنان لمس کنید:",
+    "imThisPlayer": "این صندلی من است",
+    "waitingForHostSetup": "در انتظار تخصیص کارت‌ها توسط گرداننده...",
+    "tapToReveal": "برای مشاهده کارت خود لمس کنید",
+    "privacyNotice": "صفحه نمایش خود را از دید بازیکنان کناری مخفی نگه دارید!",
+    "hideCard": "برای پنهان کردن کارت لمس کنید",
+    "currentPhase": "فاز جاری",
+    "nightActionPrompt": "کنسول اقدام شبانه",
+    "chooseTargetPrompt": "هدف اقدام خود را انتخاب کنید:",
+    "selectPlayerOption": "-- انتخاب بازیکن --",
+    "submitAction": "ثبت اقدام شب",
+    "actionSubmitted": "اقدام با موفقیت برای گرداننده ثبت شد",
+    "votingBallot": "برگه رای‌گیری",
+    "castYourVote": "رای به این بازیکن",
+    "switchPlayerMode": "تغییر بازیکن / انتخاب مجدد صندلی"
+  },
+  "gameModerator": {
+    "boardTitle": "میز زنده بازی",
+    "seatedOrder": "ترتیب صندلی‌ها و وضعیت بازیکنان",
+    "actions": "عملیات",
+    "adjustStatus": "تنظیم وضعیت / خطاها",
+    "quickKill": "حذف",
+    "quickRevive": "احیا",
+    "statusAlive": "زنده",
+    "statusEliminated": "حذف شده",
+    "warningsCount": "{count} اخطار",
+    "silencedBadge": "سکوت (سایلنت)",
+    "filterAll": "همه",
+    "searchPlaceholder": "جستجوی بازیکنان، رویدادها یا لاگ‌ها...",
+    "filterDay": "روز {day}",
+    "filterPhase": "فاز",
+    "noLogsFound": "رویدادی مطابق با این فیلتر یافت نشد.",
+    "drawerTitle": "دفترچه جامع رویدادهای گرداننده",
+    "drawerSubtitle": "گاه‌شمار کامل تمام اتفاقات و تصمیمات بازی",
+    "clearFilters": "پاک کردن فیلترها",
+    "close": "بستن"
+  },
+  "playerStatusModal": {
+    "title": "تنظیم وضعیت بازیکن: {name}",
+    "subtitle": "نقش فعلی: {role} ({side})",
+    "statusSection": "وضعیت حیات",
+    "markDead": "ثبت به عنوان حذف شده / مرده",
+    "markAlive": "احیا و بازگرداندن به بازی",
+    "penaltiesSection": "اخطارها و وضعیت انضباطی",
+    "addWarning": "+۱ کارت زرد / اخطار",
+    "removeWarning": "-۱ اخطار",
+    "toggleSilence": "سکوت (سایلنت) برای روز بعد",
+    "reasonSection": "دلیل تغییر وضعیت",
+    "reasonPresets": {
+      "label": "انتخاب دلیل پیش‌فرض",
+      "modKill": "کیک انضباطی گرداننده / اخراج مستقیم",
+      "modRevive": "اصلاح خطای گرداننده / احیای دستی",
+      "cardEffect": "اثر کارت حرکت آخر",
+      "ruleBreach": "نقض قوانین / صحبت خارج از نوبت",
+      "voluntaryExit": "ترک میز / انصراف بازیکن",
+      "custom": "دلیل سفارشی"
+    },
+    "customReasonPlaceholder": "یادداشت یا دلیل سفارشی را بنویسید...",
+    "saveChanges": "اعمال و ثبت در گزارش",
+    "cancel": "انصراف"
+  },
+  "lastWordCards": {
+    "mindInquiry": {
+      "name": "ذهن زیبا",
+      "description": "بازیکن اخراجی می‌تواند نقش دقیق ۲ نفر از بازیکنان زنده را حدس بزند. در صورت حدس درست، پاداش ویژه طبق قوانین به او تعلق می‌گیرد."
+    },
+    "silence": {
+      "name": "سکوت بره",
+      "description": "بازیکن اخراجی یک نفر از بازیکنان زنده را انتخاب می‌کند که در تمام طول روز بعد سایلنت خواهد بود و حق صحبت ندارد."
+    },
+    "redemption": {
+      "name": "فرش قرمز",
+      "description": "بازیکن اخراجی یک نفر را مشخص می‌کند که در رای‌گیری روز بعد، مستقیماً و بدون نیاز به رای اولیه به مرحله دفاع می‌رود."
+    },
+    "doubleVote": {
+      "name": "شلیک نهایی",
+      "description": "به تیم یا بازیکن منتخبِ بازیکن اخراجی یک حق رای اضافه در رای‌گیری بعدی اعطا می‌کند."
+    },
+    "revealedAlignment": {
+      "name": "افشای هویت",
+      "description": "گرداننده نقش دقیق و ساید بازیکن اخراج شده را به طور علنی به تمام شهر اعلام می‌کند."
+    },
+    "beautifulMind": {
+      "name": "ذهن طلایی",
+      "description": "بازیکن اخراجی از گرداننده استعلام می‌گیرد که آیا در بخش مشخصی از میز، اکثریت با مافیا است یا شهروندان."
+    }
+  },
+  "gameOver": {
+    "title": "پایان بازی",
+    "townVictoryTitle": "پیروزی شهروندان!",
+    "townVictorySubtitle": "شهروندان هوشیار موفق شدند تمام اعضای مافیا را شناسایی و حذف کنند. آرامش به شهر بازگشت.",
+    "mafiaVictoryTitle": "پیروزی مافیا!",
+    "mafiaVictorySubtitle": "مافیا کنترل کامل شهر را به دست گرفت و شهروندان باقیمانده قدرت دفاع را از دست دادند.",
+    "nostradamusVictory": "نوستراداموس نیز برنده شد!",
+    "nostradamusSubtitle": "نوستراداموس در شب اول ساید برنده ({side}) را به درستی پیش‌بینی کرده بود.",
+    "survivingHeroes": "بازیکنان باقیمانده و زنده",
+    "allRoster": "ترکیب نهایی نقش‌ها و سایدها",
+    "matchStats": "آمار مسابقه",
+    "totalDays": "تعداد روزها",
+    "totalEliminated": "تعداد کشته‌ها",
+    "doctorSaves": "نجات‌های پزشک",
+    "detectiveHits": "مافیاهای کشف شده",
+    "timelineHighlights": "نقاط عطف بازی",
+    "newGame": "شروع بازی جدید",
+    "reviewBoard": "مشاهده میز بازی"
+  },
+  "phaseHero": {
+    "daySlogan": "استدلال، چالش، و کشف حقیقت پنهان در میان نقاب‌ها.",
+    "votingSlogan": "صدای خود را به گوش شهر برسانید و متهمان را به پای میز محاکمه بکشانید.",
+    "middaySlogan": "آخرین وصیت و گردش چرخ سرنوشت با کارت حرکت آخر.",
+    "nightSlogan": "در سکوت و تاریکی شب، تصمیم‌های حیاتی و شلیک‌های سرنوشت‌ساز رقم می‌خورند."
+  }
+}

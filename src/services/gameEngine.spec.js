@@ -64,13 +64,46 @@ describe('Game Engine - resolveNight', () => {
     expect(result.log.some((l) => l.includes('[BLOCKED] DoctorPlayer'))).toBe(true);
   });
 
-  it('should save a player if they have a passive shield', () => {
+  it('should eliminate Mafia when Vigilante shoots Mafia', () => {
     const players = [
       createMockPlayer('VigilantePlayer', 'vigillante-shot', [], 'town'),
-      createMockPlayer('ShieldedPlayer', null, ['shield'], 'mafia'),
+      createMockPlayer('MafiaTarget', null, [], 'mafia'),
     ];
     const actionMap = {
-      VigilantePlayer: 'ShieldedPlayer',
+      VigilantePlayer: 'MafiaTarget',
+    };
+
+    const result = resolveNight(players, actionMap);
+
+    expect(result.deaths).toContain('MafiaTarget');
+    expect(result.deaths).not.toContain('VigilantePlayer');
+    expect(result.log.some((l) => l.includes('[VIGILANTE_HIT]'))).toBe(true);
+  });
+
+  it('should penalize and eliminate Vigilante (Leon) when shooting an innocent Town citizen', () => {
+    const players = [
+      createMockPlayer('VigilanteLeon', 'vigillante-shot', [], 'town'),
+      createMockPlayer('InnocentCitizen', null, [], 'town'),
+    ];
+    const actionMap = {
+      VigilanteLeon: 'InnocentCitizen',
+    };
+
+    const result = resolveNight(players, actionMap);
+
+    // Leon dies from penalty, innocent citizen survives!
+    expect(result.deaths).toContain('VigilanteLeon');
+    expect(result.deaths).not.toContain('InnocentCitizen');
+    expect(result.log.some((l) => l.includes('[LEON_PENALTY]'))).toBe(true);
+  });
+
+  it('should save a player if they have a passive shield', () => {
+    const players = [
+      createMockPlayer('GodfatherPlayer', 'mafia-shot', [], 'mafia'),
+      createMockPlayer('ShieldedPlayer', null, ['shield'], 'town'),
+    ];
+    const actionMap = {
+      GodfatherPlayer: 'ShieldedPlayer',
     };
 
     const result = resolveNight(players, actionMap);
