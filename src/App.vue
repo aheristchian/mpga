@@ -153,12 +153,15 @@ onMounted(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.has('join') || params.has('room') || params.has('player')) {
       isPlayerMode.value = true;
+    } else {
+      // Auto-start host listener so host is always ready for mobile scans
+      multiplayer.startHost();
     }
   }
 
   // Setup multiplayer listener for host
   multiplayer.setOnPlayerAction((actionData) => {
-    if (actionData.action === 'CLAIM_SEAT') {
+    if (actionData.action === 'CLAIM_SEAT' || actionData.action === 'PEER_CONNECTED') {
       multiplayer.broadcastHostState(store);
     } else if (actionData.type === 'NIGHT_ACTION') {
       store.addLog(

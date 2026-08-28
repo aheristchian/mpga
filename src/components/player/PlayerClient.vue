@@ -71,9 +71,12 @@
             <input
               v-model="inputPlayerName"
               type="text"
-              placeholder="Enter your name..."
+              :placeholder="$t('playerClient.playerNamePlaceholder')"
               class="w-full bg-gray-800 border border-gray-700 text-white text-sm py-2.5 px-3 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none mt-1"
             />
+            <p class="text-[10px] text-gray-500 mt-1">
+              {{ $t('playerClient.playerNameHelp') }}
+            </p>
           </div>
 
           <p

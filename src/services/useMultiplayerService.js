@@ -80,17 +80,44 @@ export function generateRoomCode() {
   return result;
 }
 
+const PEER_CONFIG = {
+  debug: 1,
+  config: {
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' },
+      { urls: 'stun:stun2.l.google.com:19302' },
+      { urls: 'stun:stun3.l.google.com:19302' },
+      { urls: 'stun:stun4.l.google.com:19302' },
+    ],
+  },
+};
+
 export function useMultiplayer() {
   const isConnected = computed(() => connectionStatus.value === 'connected');
 
   // --- HOST METHODS ---
   const startHost = (code) => {
-    if (hostPeer) {
+    if (hostPeer && !hostPeer.destroyed) {
+      if (!code || roomCode.value === code) {
+        return; // Already hosting
+      }
       hostPeer.destroy();
     }
 
-    const hostCode = code || generateRoomCode();
+    let hostCode = code;
+    if (!hostCode && typeof localStorage !== 'undefined') {
+      hostCode = localStorage.getItem('mpga_room_code') || '';
+    }
+    if (!hostCode) {
+      hostCode = generateRoomCode();
+    }
+
     roomCode.value = hostCode;
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('mpga_room_code', hostCode);
+    }
+
     const fullPeerId = `mpga-host-${hostCode.toLowerCase()}`;
     connectionStatus.value = 'connecting';
     isHost.value = true;
@@ -98,9 +125,7 @@ export function useMultiplayer() {
     errorMessage.value = '';
 
     try {
-      hostPeer = new Peer(fullPeerId, {
-        debug: 1,
-      });
+      hostPeer = new Peer(fullPeerId, PEER_CONFIG);
 
       hostPeer.on('open', () => {
         connectionStatus.value = 'connected';
@@ -113,6 +138,14 @@ export function useMultiplayer() {
             playerName: '',
             conn,
           });
+
+          // Immediate handshake broadcast to newly joined device
+          if (onPlayerActionCallback) {
+            onPlayerActionCallback({
+              action: 'PEER_CONNECTED',
+              peerId: conn.peer,
+            });
+          }
         });
 
         conn.on('data', (data) => {
@@ -129,6 +162,12 @@ export function useMultiplayer() {
       });
 
       hostPeer.on('error', (err) => {
+        if (err.type === 'unavailable-id') {
+          // ID in use (e.g. from previous tab session); generate a fresh code
+          const freshCode = generateRoomCode();
+          startHost(freshCode);
+          return;
+        }
         errorMessage.value = err.message || 'Failed to initialize Host peer';
         connectionStatus.value = 'error';
       });
@@ -201,13 +240,21 @@ export function useMultiplayer() {
     connectionStatus.value = 'connecting';
     errorMessage.value = '';
 
+    let connectTimeout = setTimeout(() => {
+      if (connectionStatus.value === 'connecting') {
+        connectionStatus.value = 'error';
+        errorMessage.value = 'Connecting timed out. Please check that the host room code is active on the moderator screen.';
+      }
+    }, 12000);
+
     try {
-      clientPeer = new Peer({ debug: 1 });
+      clientPeer = new Peer(PEER_CONFIG);
 
       clientPeer.on('open', () => {
         clientConn = clientPeer.connect(targetHostPeerId, { reliable: true });
 
         clientConn.on('open', () => {
+          clearTimeout(connectTimeout);
           connectionStatus.value = 'connected';
           if (preferredPlayerName) {
             claimSeat(preferredPlayerName);
@@ -222,22 +269,26 @@ export function useMultiplayer() {
         });
 
         clientConn.on('close', () => {
+          clearTimeout(connectTimeout);
           connectionStatus.value = 'disconnected';
           errorMessage.value = 'Disconnected from host room.';
         });
 
         clientConn.on('error', (err) => {
+          clearTimeout(connectTimeout);
           connectionStatus.value = 'error';
           errorMessage.value = err.message || 'Connection error with host';
         });
       });
 
       clientPeer.on('error', (err) => {
+        clearTimeout(connectTimeout);
         connectionStatus.value = 'error';
         errorMessage.value =
           err.type === 'peer-unavailable' ? 'Room not found. Check room code.' : err.message;
       });
     } catch (e) {
+      clearTimeout(connectTimeout);
       connectionStatus.value = 'error';
       errorMessage.value = e.message;
     }
