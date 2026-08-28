@@ -11,6 +11,9 @@ const errorMessage = ref('');
 // Host State
 let hostPeer = null;
 const connectedPeers = ref([]); // [{ peerId, playerName, conn }]
+const roomPasscode = ref(
+  typeof localStorage !== 'undefined' ? localStorage.getItem('mpga_room_passcode') || '' : ''
+);
 
 // Client State
 let clientPeer = null;
@@ -19,7 +22,9 @@ const clientPlayerName = ref(
   typeof localStorage !== 'undefined' ? localStorage.getItem('mpga_player_name') || '' : ''
 );
 const clientPlayerIdentity = ref(null); // { name, role, isDead, isSilenced, warnings }
-const clientPublicState = ref(null); // { gamePhase, subPhase, currentDay, livingPlayers, allPlayers, activeNightRole, isGameOver, winner }
+const clientPublicState = ref(null); // { gamePhase, subPhase, currentDay, livingPlayers, allPlayers, setupPlayers, isGameOver, winner }
+const isInLobby = ref(false);
+const lobbyPlayers = ref([]);
 
 // Event callbacks (for host to hook into store)
 let onPlayerActionCallback = null;
@@ -56,12 +61,18 @@ export function sanitizePublicGameState(store) {
     isSilenced: !!p.isSilenced,
   }));
 
+  const setupPlayers = (store.players || []).map((p, idx) => ({
+    name: p.name,
+    seat: idx + 1,
+  }));
+
   return {
     gamePhase: store.gamePhase,
     subPhase: store.subPhase,
     currentDay: store.currentDay,
     livingPlayers: living,
-    allPlayers: all,
+    allPlayers: all.length > 0 ? all : setupPlayers,
+    setupPlayers: setupPlayers,
     eliminatedPlayer: store.eliminatedPlayer
       ? { name: store.eliminatedPlayer.name, role: store.eliminatedPlayer.role?.name }
       : null,
@@ -231,6 +242,18 @@ export function useMultiplayer() {
     }
   };
 
+  const setRoomPasscode = (code) => {
+    const trimmed = (code || '').trim();
+    roomPasscode.value = trimmed;
+    if (typeof localStorage !== 'undefined') {
+      if (trimmed) {
+        localStorage.setItem('mpga_room_passcode', trimmed);
+      } else {
+        localStorage.removeItem('mpga_room_passcode');
+      }
+    }
+  };
+
   const regenerateRoomCode = () => {
     const freshCode = generateRoomCode();
     if (typeof localStorage !== 'undefined') {
@@ -246,7 +269,56 @@ export function useMultiplayer() {
   const handleHostIncomingData = (conn, data) => {
     if (!data || typeof data !== 'object') return;
 
-    if (data.type === 'CLAIM_SEAT') {
+    if (data.type === 'JOIN_LOBBY') {
+      // Validate Passcode if host has a passcode set
+      if (roomPasscode.value && data.passcode !== roomPasscode.value) {
+        try {
+          conn.send({
+            type: 'LOBBY_ERROR',
+            message: 'INVALID_PASSCODE',
+          });
+        } catch {
+          // ignore
+        }
+        return;
+      }
+
+      const playerName = (data.playerName || '').trim();
+      if (!playerName) {
+        try {
+          conn.send({
+            type: 'LOBBY_ERROR',
+            message: 'INVALID_NAME',
+          });
+        } catch {
+          // ignore
+        }
+        return;
+      }
+
+      const peerEntry = connectedPeers.value.find((p) => p.peerId === conn.peer);
+      if (peerEntry) {
+        peerEntry.playerName = playerName;
+      }
+
+      if (onPlayerActionCallback) {
+        onPlayerActionCallback({
+          action: 'JOIN_LOBBY',
+          playerName,
+          peerId: conn.peer,
+        });
+      }
+
+      try {
+        conn.send({
+          type: 'LOBBY_JOINED',
+          playerName,
+          roomCode: roomCode.value,
+        });
+      } catch {
+        // ignore
+      }
+    } else if (data.type === 'CLAIM_SEAT') {
       const peerEntry = connectedPeers.value.find((p) => p.peerId === conn.peer);
       if (peerEntry) {
         peerEntry.playerName = data.playerName;
@@ -292,7 +364,7 @@ export function useMultiplayer() {
   };
 
   // --- CLIENT (PLAYER) METHODS ---
-  const joinRoom = (targetRoomCode, preferredPlayerName = '') => {
+  const joinRoom = (targetRoomCode, preferredPlayerName = '', passcode = '') => {
     if (clientPeer) {
       clientPeer.destroy();
     }
@@ -325,7 +397,7 @@ export function useMultiplayer() {
           clearTimeout(connectTimeout);
           connectionStatus.value = 'connected';
           if (preferredPlayerName) {
-            claimSeat(preferredPlayerName);
+            joinLobby(preferredPlayerName, passcode);
           }
         });
 
@@ -333,6 +405,22 @@ export function useMultiplayer() {
           if (data && data.type === 'STATE_UPDATE') {
             clientPlayerIdentity.value = data.player;
             clientPublicState.value = data.public;
+            if (data.public?.setupPlayers) {
+              lobbyPlayers.value = data.public.setupPlayers;
+            }
+            if (data.public?.gamePhase === 'playing' && data.player) {
+              isInLobby.value = false;
+            }
+          } else if (data && data.type === 'LOBBY_JOINED') {
+            isInLobby.value = true;
+            clientPlayerName.value = data.playerName;
+            errorMessage.value = '';
+          } else if (data && data.type === 'LOBBY_ERROR') {
+            if (data.message === 'INVALID_PASSCODE') {
+              errorMessage.value = 'WRONG_PASSCODE';
+            } else {
+              errorMessage.value = data.message || 'Lobby error';
+            }
           }
         });
 
@@ -340,6 +428,7 @@ export function useMultiplayer() {
           clearTimeout(connectTimeout);
           connectionStatus.value = 'disconnected';
           errorMessage.value = 'Disconnected from host room.';
+          isInLobby.value = false;
         });
 
         clientConn.on('error', (err) => {
@@ -367,6 +456,22 @@ export function useMultiplayer() {
       clearTimeout(connectTimeout);
       connectionStatus.value = 'error';
       errorMessage.value = e.message;
+    }
+  };
+
+  const joinLobby = (playerName, passcode = '') => {
+    const trimmed = (playerName || '').trim();
+    if (!trimmed) return;
+    clientPlayerName.value = trimmed;
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('mpga_player_name', trimmed);
+    }
+    if (clientConn && clientConn.open) {
+      clientConn.send({
+        type: 'JOIN_LOBBY',
+        playerName: trimmed,
+        passcode,
+      });
     }
   };
 
@@ -418,24 +523,32 @@ export function useMultiplayer() {
     connectedPeers.value = [];
     isHost.value = false;
     isClient.value = false;
+    isInLobby.value = false;
+    lobbyPlayers.value = [];
+    clientPlayerIdentity.value = null;
   };
 
   return {
     isHost,
     isClient,
     roomCode,
+    roomPasscode,
     connectionStatus,
     errorMessage,
     connectedPeers,
     clientPlayerName,
     clientPlayerIdentity,
     clientPublicState,
+    isInLobby,
+    lobbyPlayers,
     isConnected,
     startHost,
+    setRoomPasscode,
     regenerateRoomCode,
     broadcastHostState,
     setOnPlayerAction,
     joinRoom,
+    joinLobby,
     claimSeat,
     sendNightAction,
     sendVote,

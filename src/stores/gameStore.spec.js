@@ -174,6 +174,36 @@ describe('Game Store (gameStore.js)', () => {
     expect(store.gameLogs[0].title).toBe('Nostradamus Side Chosen');
   });
 
+  it('supports reactive lobby player management (add, deduplicate, remove, reorder)', () => {
+    const store = useGameStore();
+    expect(store.players).toEqual([]);
+
+    // Add first player
+    const added1 = store.addSetupPlayer('Ali', 'peer-123');
+    expect(added1).toBe(true);
+    expect(store.players.length).toBe(1);
+    expect(store.players[0]).toEqual({ name: 'Ali', role: null, peerId: 'peer-123' });
+
+    // Deduplicate case-insensitive
+    const addedDuplicate = store.addSetupPlayer('ali');
+    expect(addedDuplicate).toBe(false);
+    expect(store.players.length).toBe(1);
+
+    // Add second & third players
+    store.addSetupPlayer('Reza');
+    store.addSetupPlayer('Sara');
+    expect(store.players.length).toBe(3);
+    expect(store.players.map((p) => p.name)).toEqual(['Ali', 'Reza', 'Sara']);
+
+    // Reorder players (move Sara from index 2 to index 0)
+    store.reorderSetupPlayers(2, 0);
+    expect(store.players.map((p) => p.name)).toEqual(['Sara', 'Ali', 'Reza']);
+
+    // Remove player at index 1 (Ali)
+    store.removeSetupPlayer(1);
+    expect(store.players.map((p) => p.name)).toEqual(['Sara', 'Reza']);
+  });
+
   it('transitions subPhase and resets game completely', () => {
     const store = useGameStore();
     store.startPlaying([

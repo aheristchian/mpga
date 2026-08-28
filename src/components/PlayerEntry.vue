@@ -1,109 +1,290 @@
 <template>
-  <div class="w-full max-w-md mx-auto bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700">
-    <h2 class="text-2xl font-bold text-white mb-4">{{ $t('playerEntry.addPlayers') }}</h2>
+  <div class="w-full max-w-2xl mx-auto space-y-6">
+    <!-- MODE TOGGLE HEADER -->
+    <div class="bg-gray-800 rounded-2xl p-6 border border-gray-700 shadow-xl space-y-5">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 class="text-2xl font-black text-white flex items-center gap-2">
+            <span>👥</span>
+            <span>{{ $t('playerEntry.addPlayers') }}</span>
+          </h2>
+          <p class="text-xs text-gray-400 mt-1">{{ $t('playerEntry.lobbySubtitle') }}</p>
+        </div>
 
-    <form class="flex gap-2 mb-6" @submit.prevent="addPlayer">
-      <input
-        v-model="newPlayerName"
-        type="text"
-        :placeholder="$t('playerEntry.placeholder')"
-        class="flex-1 bg-gray-700 text-white px-4 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-town transition-all min-h-[44px]"
-      />
-      <button
-        type="submit"
-        :disabled="!newPlayerName.trim()"
-        class="bg-town hover:bg-blue-600 active:scale-95 active:brightness-90 disabled:opacity-50 disabled:cursor-not-allowed text-white px-5 py-2.5 rounded-xl font-semibold transition-all cursor-pointer min-h-[44px] select-none"
-      >
-        {{ $t('playerEntry.add') }}
-      </button>
-    </form>
+        <!-- TAB SWITCHER: LOBBY vs MANUAL -->
+        <div class="flex bg-gray-900 p-1 rounded-xl border border-gray-700 shrink-0">
+          <button
+            class="px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1.5 select-none"
+            :class="
+              activeTab === 'lobby'
+                ? 'bg-blue-600 text-white shadow'
+                : 'text-gray-400 hover:text-white'
+            "
+            @click="activeTab = 'lobby'"
+          >
+            <span>📱</span>
+            <span>{{ $t('playerEntry.modeLobby') }}</span>
+          </button>
+          <button
+            class="px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1.5 select-none"
+            :class="
+              activeTab === 'manual'
+                ? 'bg-blue-600 text-white shadow'
+                : 'text-gray-400 hover:text-white'
+            "
+            @click="activeTab = 'manual'"
+          >
+            <span>⌨️</span>
+            <span>{{ $t('playerEntry.modeManual') }}</span>
+          </button>
+        </div>
+      </div>
 
-    <div v-if="players.length > 0">
-      <h3
-        class="text-lg font-semibold text-gray-300 mb-2 border-b border-gray-700 pb-1 flex justify-between"
+      <!-- TAB 1: LIVE ROOM LOBBY (QR + ROOM CODE + PASSCODE) -->
+      <div
+        v-if="activeTab === 'lobby'"
+        class="bg-gradient-to-r from-blue-950/60 via-gray-900 to-indigo-950/60 p-5 rounded-2xl border border-blue-500/30 space-y-4"
       >
-        <span>{{ $t('playerEntry.currentPlayers') }} ({{ players.length }})</span>
-        <span class="text-sm font-normal text-gray-500">{{
-          $t('playerEntry.orderBySeating')
-        }}</span>
-      </h3>
-      <ul class="space-y-2 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
-        <li
-          v-for="(player, index) in players"
-          :key="index"
-          draggable="true"
-          class="flex justify-between items-center bg-gray-700 px-3.5 py-2.5 rounded-xl group cursor-grab active:cursor-grabbing transition-transform min-h-[44px]"
-          :class="{
-            'opacity-50 border-dashed border-2 border-town': draggedIndex === index,
-            'border-t-2 border-town': dropTargetIndex === index && draggedIndex !== index,
-          }"
-          @dragstart="onDragStart($event, index)"
-          @dragover.prevent
-          @dragenter.prevent="onDragEnter($event, index)"
-          @drop="onDrop($event, index)"
-          @dragend="onDragEnd"
-        >
-          <div class="flex items-center gap-3">
-            <span class="text-gray-500 cursor-grab px-1 select-none">☰</span>
-            <span class="text-white font-medium">{{ index + 1 }}. {{ player.name }}</span>
+        <div class="flex flex-col md:flex-row items-center gap-6">
+          <!-- QR Code Canvas -->
+          <div class="bg-white p-2.5 rounded-2xl shadow-xl shrink-0 flex flex-col items-center">
+            <QrcodeVue :value="joinUrl" :size="130" level="M" render-as="svg" />
           </div>
 
-          <button
-            class="text-red-400 hover:text-red-300 active:scale-95 text-xs font-medium px-3 py-1.5 bg-gray-800 rounded-lg hover:bg-gray-600 transition-all cursor-pointer min-h-[36px] select-none"
-            @click="removePlayer(index)"
+          <!-- Room Code & Passcode Controls -->
+          <div class="flex-1 space-y-3 text-center md:text-left w-full">
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-widest text-blue-400">
+                {{ $t('playerEntry.roomCode') }}
+              </span>
+              <div class="flex items-center justify-center md:justify-start gap-2 mt-0.5">
+                <span class="text-3xl font-black text-white font-mono tracking-widest">
+                  {{ multiplayer.roomCode.value || '----' }}
+                </span>
+                <button
+                  class="p-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-xs cursor-pointer"
+                  :title="$t('playerEntry.regenerateCode')"
+                  @click="multiplayer.regenerateRoomCode()"
+                >
+                  🔄
+                </button>
+              </div>
+            </div>
+
+            <!-- OPTIONAL ROOM PIN/PASSCODE SETTING -->
+            <div class="bg-gray-900/80 p-3 rounded-xl border border-gray-700/60 space-y-1.5">
+              <label class="text-[11px] font-bold text-gray-300 flex items-center gap-1.5">
+                <span>🔒</span>
+                <span>{{ $t('playerEntry.enablePasscode') }}</span>
+              </label>
+              <div class="flex gap-2">
+                <input
+                  v-model="passcodeInput"
+                  type="text"
+                  maxlength="8"
+                  :placeholder="$t('playerEntry.passcodePlaceholder')"
+                  class="bg-gray-800 border border-gray-700 text-white text-xs px-3 py-1.5 rounded-lg font-mono focus:ring-2 focus:ring-blue-500 focus:outline-none flex-1 max-w-[160px]"
+                  @input="handlePasscodeChange"
+                />
+                <span class="text-[10px] text-gray-400 flex items-center">
+                  {{ passcodeInput ? '🔒 PIN Protected' : '🔓 Open Room' }}
+                </span>
+              </div>
+            </div>
+
+            <!-- COPY JOIN LINK -->
+            <div class="flex items-center gap-2">
+              <button
+                class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 active:scale-95 text-white text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shadow"
+                @click="copyJoinUrl"
+              >
+                <span>🔗</span>
+                <span>{{ copied ? $t('playerEntry.linkCopied') : $t('playerEntry.copyLink') }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: MANUAL QUICK ADD FORM -->
+      <form v-else class="flex gap-2" @submit.prevent="addPlayer">
+        <input
+          v-model="newPlayerName"
+          type="text"
+          :placeholder="$t('playerEntry.placeholder')"
+          class="flex-1 bg-gray-700 text-white px-4 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-town transition-all min-h-[44px]"
+        />
+        <button
+          type="submit"
+          :disabled="!newPlayerName.trim()"
+          class="bg-town hover:bg-blue-600 active:scale-95 active:brightness-90 disabled:opacity-50 disabled:cursor-not-allowed text-white px-5 py-2.5 rounded-xl font-semibold transition-all cursor-pointer min-h-[44px] select-none"
+        >
+          {{ $t('playerEntry.add') }}
+        </button>
+      </form>
+    </div>
+
+    <!-- SEATED PLAYERS ROSTER -->
+    <div class="bg-gray-800 rounded-2xl p-6 border border-gray-700 shadow-xl space-y-4">
+      <div class="flex justify-between items-center border-b border-gray-700 pb-2">
+        <div class="flex items-center gap-2">
+          <h3 class="text-lg font-bold text-gray-200">
+            {{ $t('playerEntry.currentPlayers') }}
+          </h3>
+          <span class="bg-blue-900/60 border border-blue-700 text-blue-200 text-xs px-2 py-0.5 rounded-full font-bold">
+            {{ players.length }}
+          </span>
+        </div>
+        <span class="text-xs text-gray-400 font-normal">
+          {{ $t('playerEntry.orderBySeating') }}
+        </span>
+      </div>
+
+      <div v-if="players.length > 0">
+        <ul class="space-y-2 max-h-72 overflow-y-auto pr-1 custom-scrollbar">
+          <li
+            v-for="(player, index) in players"
+            :key="index"
+            draggable="true"
+            class="flex justify-between items-center bg-gray-750 px-3.5 py-2.5 rounded-xl group cursor-grab active:cursor-grabbing transition-transform min-h-[44px] border border-gray-700/60"
+            :class="{
+              'opacity-50 border-dashed border-2 border-town': draggedIndex === index,
+              'border-t-2 border-town': dropTargetIndex === index && draggedIndex !== index,
+            }"
+            @dragstart="onDragStart($event, index)"
+            @dragover.prevent
+            @dragenter.prevent="onDragEnter($event, index)"
+            @drop="onDrop($event, index)"
+            @dragend="onDragEnd"
           >
-            {{ $t('playerEntry.remove') }}
-          </button>
-        </li>
-      </ul>
-    </div>
+            <div class="flex items-center gap-3">
+              <span class="text-gray-500 cursor-grab px-1 select-none">☰</span>
+              <span class="text-white font-medium text-sm">{{ index + 1 }}. {{ player.name }}</span>
+              <span
+                v-if="isPeerConnected(player.name)"
+                class="bg-green-950/80 border border-green-500/60 text-green-300 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1"
+              >
+                <span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
+                <span>{{ $t('playerEntry.playerConnectedBadge') }}</span>
+              </span>
+            </div>
 
-    <div v-else class="text-center text-gray-500 py-4 italic">
-      {{ $t('playerEntry.noPlayers') }}
-    </div>
+            <button
+              class="text-red-400 hover:text-red-300 active:scale-95 text-xs font-medium px-3 py-1.5 bg-gray-800 rounded-lg hover:bg-gray-700 transition-all cursor-pointer min-h-[36px] select-none"
+              @click="removePlayer(index)"
+            >
+              {{ $t('playerEntry.remove') }}
+            </button>
+          </li>
+        </ul>
+      </div>
 
-    <div class="mt-6 flex justify-end">
-      <button
-        v-if="players.length >= minPlayers"
-        class="bg-green-600 hover:bg-green-500 active:scale-95 active:brightness-90 text-white px-7 py-3 rounded-xl font-bold shadow-md transition-all cursor-pointer min-h-[44px] select-none"
-        @click="finishAddingPlayers"
-      >
-        {{ $t('playerEntry.done') }}
-      </button>
-      <p v-else class="text-sm text-yellow-500">
-        {{ $t('playerEntry.needMore', { min: minPlayers }) }}
-      </p>
+      <div v-else class="text-center text-gray-500 py-6 italic text-sm">
+        {{ activeTab === 'lobby' ? $t('playerEntry.waitingForPlayers') : $t('playerEntry.noPlayers') }}
+      </div>
+
+      <!-- PROCEED TO ROLES BUTTON -->
+      <div class="mt-4 pt-3 border-t border-gray-700/60 flex justify-between items-center">
+        <p v-if="players.length < minPlayers" class="text-xs text-yellow-500">
+          ⚠️ {{ $t('playerEntry.needMore', { min: minPlayers }) }}
+        </p>
+        <div v-else></div>
+
+        <button
+          :disabled="players.length < minPlayers"
+          class="bg-green-600 hover:bg-green-500 active:scale-95 active:brightness-90 disabled:opacity-50 disabled:cursor-not-allowed text-white px-7 py-3 rounded-xl font-bold shadow-md transition-all cursor-pointer min-h-[44px] select-none"
+          @click="finishAddingPlayers"
+        >
+          {{ $t('playerEntry.done') }} →
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
+import { useGameStore } from '../stores/gameStore';
+import { useMultiplayer } from '../services/useMultiplayerService';
 import { saveEncoded, loadEncoded } from '../utils/storage';
+import QrcodeVue from 'qrcode.vue';
 
-defineProps({
+const props = defineProps({
   minPlayers: {
     type: Number,
     default: 4,
   },
 });
 
-const players = ref([]);
-const newPlayerName = ref('');
 const emit = defineEmits(['players-ready']);
+const store = useGameStore();
+const multiplayer = useMultiplayer();
+
+const activeTab = ref('lobby');
+const newPlayerName = ref('');
+const passcodeInput = ref(multiplayer.roomPasscode.value || '');
+const copied = ref(false);
+
+const players = computed({
+  get: () => store.players,
+  set: (val) => {
+    store.players = val;
+  },
+});
 
 onMounted(() => {
   const savedPlayers = loadEncoded('mpga_setup_players');
-  if (savedPlayers) players.value = savedPlayers;
+  if (savedPlayers && Array.isArray(savedPlayers) && savedPlayers.length > 0 && store.players.length === 0) {
+    store.players = savedPlayers;
+  }
+  if (!multiplayer.isHost.value) {
+    multiplayer.startHost();
+  }
 });
 
 watch(
-  players,
+  () => store.players,
   (newPlayers) => {
     saveEncoded('mpga_setup_players', newPlayers);
+    if (multiplayer.isHost.value) {
+      multiplayer.broadcastHostState(store);
+    }
   },
   { deep: true }
 );
+
+const joinUrl = computed(() => {
+  if (typeof window === 'undefined') return '';
+  const origin = window.location.origin;
+  const path = window.location.pathname;
+  let url = `${origin}${path}?join=${multiplayer.roomCode.value}`;
+  if (passcodeInput.value.trim()) {
+    url += `&pin=${encodeURIComponent(passcodeInput.value.trim())}`;
+  }
+  return url;
+});
+
+const handlePasscodeChange = () => {
+  multiplayer.setRoomPasscode(passcodeInput.value);
+};
+
+const copyJoinUrl = async () => {
+  try {
+    if (navigator?.clipboard?.writeText) {
+      await navigator.clipboard.writeText(joinUrl.value);
+      copied.value = true;
+      setTimeout(() => {
+        copied.value = false;
+      }, 2500);
+    }
+  } catch {
+    // ignore
+  }
+};
+
+const isPeerConnected = (playerName) => {
+  return multiplayer.connectedPeers.value.some((p) => p.playerName === playerName);
+};
 
 // Drag and Drop State
 const draggedIndex = ref(null);
@@ -112,69 +293,59 @@ const dropTargetIndex = ref(null);
 const addPlayer = () => {
   const name = newPlayerName.value.trim();
   if (name) {
-    players.value.push({ name: name, role: null });
+    store.addSetupPlayer(name);
     newPlayerName.value = '';
   }
 };
 
 const removePlayer = (index) => {
-  players.value.splice(index, 1);
+  store.removeSetupPlayer(index);
 };
 
 // --- DRAG AND DROP LOGIC ---
-
-// 1. User clicks and holds an item
 const onDragStart = (event, index) => {
   draggedIndex.value = index;
-  // Required for Firefox to allow dragging
   event.dataTransfer.effectAllowed = 'move';
   event.dataTransfer.setData('text/plain', index);
 };
 
-// 2. User drags item over another item (visual feedback only)
 const onDragEnter = (event, index) => {
   if (draggedIndex.value !== null && draggedIndex.value !== index) {
     dropTargetIndex.value = index;
   }
 };
 
-// 3. User lets go of the mouse button
 const onDrop = (event, index) => {
   if (draggedIndex.value !== null && draggedIndex.value !== index) {
-    // Standard Javascript trick to move an item within an array
-    const itemToMove = players.value.splice(draggedIndex.value, 1)[0];
-    players.value.splice(index, 0, itemToMove);
+    store.reorderSetupPlayers(draggedIndex.value, index);
   }
-  // Reset state
   draggedIndex.value = null;
   dropTargetIndex.value = null;
 };
 
-// 4. Cleanup if drag is cancelled (e.g. hitting Escape)
 const onDragEnd = () => {
   draggedIndex.value = null;
   dropTargetIndex.value = null;
 };
 
 const finishAddingPlayers = () => {
-  emit('players-ready', players.value);
+  emit('players-ready', store.players);
 };
 </script>
 
 <style scoped>
-/* Custom scrollbar for the player list */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #374151; /* gray-700 */
+  background: #374151;
   border-radius: 4px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #4b5563; /* gray-600 */
+  background: #4b5563;
   border-radius: 4px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #6b7280; /* gray-500 */
+  background: #6b7280;
 }
 </style>

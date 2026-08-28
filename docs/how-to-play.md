@@ -41,14 +41,22 @@ stateDiagram-v2
 * Choose between **Godfather** or **Classic Mafia** modes.
 * Modes dictate the default speaking time (e.g., 40s vs. 60s), defense time (60s), daily player turn shift, and voting threshold rounding rule (`ceil` or `half`).
 
-### Step 2: Player Setup & Seating Order
-* Add all participating players (minimum 4).
-* **Physical Seating Arrangement:** Drag and drop player names to match their physical, circular seating order in the room. This ensures speaking turns and turn shifts mirror the real-life table correctly.
+### Step 2: Player Setup & Seating Order (Live Lobby or Manual Entry)
+* **📱 Live Room Lobby Mode:**
+  * The moderator creates a game room with an optional **Room PIN / Passcode** for access control.
+  * Displays a live QR code and room join link on the moderator screen.
+  * Players scan the QR code or visit the link on their phones, enter their name and the optional PIN, and join the lobby.
+  * The moderator's roster updates in real-time as player devices connect (🟢).
+  * The moderator can drag-and-drop player cards to match physical seating or remove players.
+  * Once all players are in, the moderator clicks **Proceed to Role Selection**. When the game starts, all connected devices in the lobby automatically receive their secret role assignments.
+* **⌨️ Manual Entry Mode:**
+  * For offline games without player phones, the moderator types player names manually or loads demo rosters.
+  * Drag and drop player names to match physical circular seating in the room.
 
 ### Step 3: Role Selection & Balancing
 * Select the exact number of roles to match the player count.
 * **Balance Validator:** The app checks the ratio of Mafia to Town. If the Mafia ratio exceeds mode limits (e.g., $> 34\%$), a balance warning is displayed before proceeding.
-* **Random Assignment:** The app securely shuffles and assigns roles to the seated players.
+* **Random Assignment & Auto-Dispatch:** The app securely shuffles and assigns roles. Connected player phones immediately update to display their private role card with tap-to-reveal privacy shielding.
 
 ---
 

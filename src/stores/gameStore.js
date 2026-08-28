@@ -81,6 +81,37 @@ export const useGameStore = defineStore('game', () => {
     addLog('system', 'Players Registered', `${newPlayers.length} players added in seated order.`);
   };
 
+  const addSetupPlayer = (name, peerId = null) => {
+    const trimmed = name.trim();
+    if (!trimmed) return false;
+    const exists = players.value.some((p) => p.name.toLowerCase() === trimmed.toLowerCase());
+    if (exists) return false;
+    players.value.push({ name: trimmed, role: null, peerId });
+    addLog('system', 'Player Joined Lobby', `${trimmed} joined the lobby.`);
+    return true;
+  };
+
+  const removeSetupPlayer = (index) => {
+    if (index >= 0 && index < players.value.length) {
+      const removed = players.value.splice(index, 1)[0];
+      if (removed) {
+        addLog('system', 'Player Left Lobby', `${removed.name} was removed from the roster.`);
+      }
+    }
+  };
+
+  const reorderSetupPlayers = (fromIndex, toIndex) => {
+    if (
+      fromIndex >= 0 &&
+      fromIndex < players.value.length &&
+      toIndex >= 0 &&
+      toIndex < players.value.length
+    ) {
+      const item = players.value.splice(fromIndex, 1)[0];
+      players.value.splice(toIndex, 0, item);
+    }
+  };
+
   const startPlaying = (playersWithRoles) => {
     players.value = playersWithRoles;
     livePlayers.value = playersWithRoles.map((p) => ({
@@ -273,6 +304,9 @@ export const useGameStore = defineStore('game', () => {
     checkWinCondition,
     setGameMode,
     setPlayers,
+    addSetupPlayer,
+    removeSetupPlayer,
+    reorderSetupPlayers,
     startPlaying,
     setPlayerDeathStatus,
     applyPenalty,

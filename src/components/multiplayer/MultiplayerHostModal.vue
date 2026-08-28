@@ -262,7 +262,11 @@ const joinUrl = computed(() => {
     origin = `${protocol}//${customHost.value}`;
   }
   const base = origin + window.location.pathname;
-  return `${base}?join=${multiplayer.roomCode.value}`;
+  let url = `${base}?join=${multiplayer.roomCode.value}`;
+  if (multiplayer.roomPasscode.value) {
+    url += `&pin=${encodeURIComponent(multiplayer.roomPasscode.value)}`;
+  }
+  return url;
 });
 
 const isPlayerConnected = (playerName) => {

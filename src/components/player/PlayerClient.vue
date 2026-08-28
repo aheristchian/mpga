@@ -84,12 +84,29 @@
             </p>
           </div>
 
+          <div>
+            <label class="text-[11px] font-bold text-gray-400 uppercase">{{
+              $t('playerClient.passcodeLabel')
+            }}</label>
+            <input
+              v-model="inputPasscode"
+              type="text"
+              maxlength="8"
+              :placeholder="$t('playerClient.passcodePlaceholder')"
+              class="w-full bg-gray-800 border border-gray-700 text-white text-sm font-mono py-2.5 px-3 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none mt-1"
+            />
+          </div>
+
           <div
             v-if="multiplayer.errorMessage.value"
             class="bg-red-950/60 border border-red-800 p-3 rounded-xl space-y-2 text-center"
           >
             <p class="text-xs text-red-300 font-bold">
-              {{ multiplayer.errorMessage.value }}
+              {{
+                multiplayer.errorMessage.value === 'WRONG_PASSCODE'
+                  ? $t('playerClient.wrongPasscode')
+                  : multiplayer.errorMessage.value
+              }}
             </p>
             <button
               class="px-4 py-1.5 bg-red-800 hover:bg-red-700 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer"
@@ -118,42 +135,73 @@
         </div>
       </div>
 
-      <!-- 2. CONNECTED BUT NO SEAT CLAIMED YET -->
+      <!-- 2. CONNECTED: LOBBY WAITING SCREEN (Setup phase or waiting for role assignment) -->
       <div
-        v-else-if="!playerIdentity"
-        class="bg-gray-900 border border-gray-800 p-6 rounded-2xl shadow-xl space-y-4"
+        v-else-if="!playerIdentity?.role"
+        class="bg-gray-900 border border-gray-800 p-6 rounded-2xl shadow-xl space-y-5"
       >
-        <div class="text-center">
-          <span class="text-3xl">🪑</span>
-          <h3 class="text-lg font-black text-white mt-2">
-            {{ $t('playerClient.claimSeatTitle') }}
+        <div class="text-center space-y-2">
+          <div class="inline-block p-3 bg-blue-950/80 border border-blue-500/50 rounded-2xl">
+            <span class="text-3xl">🎉</span>
+          </div>
+          <h3 class="text-lg font-black text-white">
+            {{ $t('playerClient.inLobbyTitle') }}
           </h3>
-          <p class="text-xs text-gray-400">{{ $t('playerClient.claimSeatSubtitle') }}</p>
+          <p class="text-xs text-blue-400 font-medium">
+            {{
+              $t('playerClient.inLobbySubtitle', {
+                code: multiplayer.roomCode.value,
+                name: multiplayer.clientPlayerName.value || inputPlayerName || 'Player',
+              })
+            }}
+          </p>
+          <div class="bg-gray-800/80 p-3 rounded-xl border border-gray-700/60 mt-3">
+            <p class="text-xs text-amber-300 font-semibold flex items-center justify-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+              <span>{{ $t('playerClient.waitingForHostToStart') }}</span>
+            </p>
+          </div>
         </div>
 
-        <div v-if="publicState?.allPlayers?.length" class="space-y-2 max-h-64 overflow-y-auto pr-1">
-          <button
-            v-for="p in publicState.allPlayers"
-            :key="p.name"
-            class="w-full p-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-amber-500 rounded-xl flex items-center justify-between text-left transition-all"
-            @click="handleClaimSeat(p.name)"
-          >
-            <div class="flex items-center gap-2.5">
-              <span class="font-mono text-gray-500 text-xs font-bold">#{{ p.seat }}</span>
-              <span class="text-white font-bold text-sm">{{ p.name }}</span>
-            </div>
-            <span class="text-xs text-amber-400 font-semibold"
-              >{{ $t('playerClient.imThisPlayer') }} →</span
+        <!-- LOBBY ROSTER -->
+        <div v-if="publicState?.allPlayers?.length" class="space-y-2">
+          <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">
+            {{ $t('playerClient.lobbyPlayersList', { count: publicState.allPlayers.length }) }}
+          </h4>
+          <div class="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+            <div
+              v-for="p in publicState.allPlayers"
+              :key="p.name"
+              class="p-2.5 bg-gray-800 rounded-xl flex items-center justify-between border"
+              :class="
+                p.name === (multiplayer.clientPlayerName.value || inputPlayerName)
+                  ? 'border-blue-500 bg-blue-950/30 font-bold text-white'
+                  : 'border-gray-700 text-gray-300'
+              "
             >
-          </button>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-mono text-gray-500">#{{ p.seat }}</span>
+                <span class="text-sm">{{ p.name }}</span>
+              </div>
+              <span
+                v-if="p.name === (multiplayer.clientPlayerName.value || inputPlayerName)"
+                class="text-[10px] bg-blue-900/80 text-blue-300 px-2 py-0.5 rounded-full font-bold"
+              >
+                YOU
+              </span>
+            </div>
+          </div>
         </div>
 
-        <div v-else class="text-center py-6 text-gray-400 text-xs">
-          {{ $t('playerClient.waitingForHostSetup') }}
-        </div>
+        <button
+          class="w-full py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-semibold rounded-xl transition-all cursor-pointer"
+          @click="handleDisconnect"
+        >
+          ← {{ $t('playerClient.switchPlayerMode') }}
+        </button>
       </div>
 
-      <!-- 3. CONNECTED & SEAT CLAIMED (ACTIVE IN-GAME SCREEN) -->
+      <!-- 3. CONNECTED & ROLE ASSIGNED (ACTIVE IN-GAME SCREEN) -->
       <div v-else class="space-y-4">
         <!-- PLAYER HEADER & STATUS -->
         <div
@@ -370,6 +418,7 @@ const multiplayer = useMultiplayer();
 
 const inputRoomCode = ref('');
 const inputPlayerName = ref('');
+const inputPasscode = ref('');
 const isRoleRevealed = ref(false);
 const selectedNightTarget = ref('');
 const submittedNightTarget = ref(false);
@@ -392,20 +441,28 @@ onMounted(() => {
   if (typeof window !== 'undefined') {
     const urlParams = new URLSearchParams(window.location.search);
     const joinCode = urlParams.get('join') || urlParams.get('room');
+    const pin = urlParams.get('pin') || '';
+    if (pin) {
+      inputPasscode.value = pin;
+    }
     if (joinCode) {
       inputRoomCode.value = joinCode.toUpperCase();
       const savedName = localStorage.getItem('mpga_player_name') || '';
       if (savedName) {
         inputPlayerName.value = savedName;
       }
-      multiplayer.joinRoom(joinCode, savedName);
+      multiplayer.joinRoom(joinCode, savedName, pin);
     }
   }
 });
 
 const handleJoin = () => {
   if (!inputRoomCode.value.trim()) return;
-  multiplayer.joinRoom(inputRoomCode.value, inputPlayerName.value.trim());
+  multiplayer.joinRoom(
+    inputRoomCode.value,
+    inputPlayerName.value.trim(),
+    inputPasscode.value.trim()
+  );
 };
 
 const handleClaimSeat = (name) => {

@@ -67,4 +67,28 @@ describe('useMultiplayerService', () => {
     expect(publicState.allPlayers[0].role).toBeUndefined();
     expect(publicState.allPlayers[0].sideId).toBeUndefined();
   });
+
+  it('sanitizes public state with setupPlayers during setup phase', () => {
+    const store = {
+      gamePhase: 'setup',
+      subPhase: 'day',
+      currentDay: 1,
+      players: [
+        { name: 'Ali', role: null },
+        { name: 'Sara', role: null },
+      ],
+      livePlayers: [],
+      eliminatedPlayer: null,
+      drawnLastWordCards: [],
+      isGameOver: false,
+      winner: null,
+    };
+
+    const publicState = sanitizePublicGameState(store);
+    expect(publicState.gamePhase).toBe('setup');
+    expect(publicState.setupPlayers.length).toBe(2);
+    expect(publicState.setupPlayers[0]).toEqual({ name: 'Ali', seat: 1 });
+    expect(publicState.setupPlayers[1]).toEqual({ name: 'Sara', seat: 2 });
+    expect(publicState.allPlayers.length).toBe(2);
+  });
 });

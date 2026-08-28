@@ -147,7 +147,7 @@ graph TD
 * Zero external asset dependencies: scalable, lightweight vector SVGs defined in [`src/data/roleIllustrations.js`](file:///Users/ali.heristchian/Documents/learning/mpga/src/data/roleIllustrations.js) and [`src/components/PhaseHeroBanner.vue`](file:///Users/ali.heristchian/Documents/learning/mpga/src/components/PhaseHeroBanner.vue).
 * Dynamic faction lighting glows, death state overlays, and responsive sizing across all screen widths.
 
-### 7. Serverless P2P Multiplayer Architecture
+### 7. Serverless P2P Multiplayer Architecture & Live Room Lobby
 * **Zero Backend Hosting:** Built using PeerJS over WebRTC direct data channels.
 * **STUN/TURN Relay Network:**
   * Configured with Google STUN (`stun.l.google.com:19302`) and OpenRelay TURN relays (`openrelay.metered.ca`) over UDP and TCP (ports 80 and 443).
@@ -157,15 +157,16 @@ graph TD
   * **Auto-Reconnection:** Dedicated handlers for `disconnected` peer states automatically reconnect to the broker without losing game state.
   * **Clean Teardown:** `beforeunload` lifecycle hooks cleanly destroy signaling registrations on tab close to prevent stale ID collisions.
   * **Persistent Host Listening:** Host automatically starts listening on page load with a persistent Room Code stored in `localStorage`.
-* **Host Synchronization (`useMultiplayerService.js`):**
-  * Moderator acts as the WebRTC Room Host (`mpga-host-${roomCode.toLowerCase()}`).
-  * Emits an SVG QR code (`qrcode.vue`) and shareable link (`?join=CODE`) for one-tap mobile pairing.
-  * Immediately pushes a full state handshake to newly connecting devices upon connection open.
+* **Live Room Lobby & Passcode Protocol:**
+  * **Room PIN / Passcode Verification:** Host can configure an optional PIN (`roomPasscode`). When a player connects with `{ type: 'JOIN_LOBBY', playerName, passcode }`, the host validates the passcode before registering the player.
+  * **Dual Entry Modes:** Moderator can use **Live Room Lobby** (where player phones join dynamically to populate the roster) or **Manual Entry** (traditional text input).
+  * **Live Setup Synchronization:** `sanitizePublicGameState(store)` includes `setupPlayers` during the setup phase, so players in the lobby see other connected peers in real time.
+  * **Seamless Role Auto-Dispatch:** When the moderator finalizes roles and starts the game, role assignments are automatically pushed to connected peer devices, smoothly transitioning players from the lobby waiting screen to their private secret role reveal card.
 * **Strict Privacy Isolation & Sanitization:**
   * `sanitizePlayerPayload(player)` transmits secret role info only to the specific connected device that claimed that seat.
   * `sanitizePublicGameState(store)` strips all foreign secret roles and internal notes, broadcasting only public roster statuses and speaker cues.
 * **Mobile Client View (`PlayerClient.vue`):**
-  * Standalone mobile interface featuring one-tap seat claiming from the live roster, tap-to-reveal secret role cards, live speaker spotlight synchronization, night action target selection with immediate detective feedback, voting ballots, and timeout/retry recovery actions.
+  * Standalone mobile interface featuring Room PIN authentication, Lobby Waiting Room with live player roster, tap-to-reveal secret role cards, live speaker spotlight synchronization, night action target selection with immediate detective feedback, voting ballots, and timeout/retry recovery actions.
 
 ### 8. Procedural Web Audio Sound FX Engine
 * Zero audio files or external CDN dependencies implemented in [`src/services/useAudioService.js`](file:///Users/ali.heristchian/Documents/learning/mpga/src/services/useAudioService.js).

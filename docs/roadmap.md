@@ -90,6 +90,13 @@ graph TD
 * **Self-Targeting Guardrails:** Blocked self-targeting for Leon, Detective, Godfather, Matador, and Saul Goodman (Doctor self-target allowed).
 * **Tactile Mobile Touch Styling:** Added `active:scale-95 active:brightness-90` tactile feedback and $\ge 44\text{px}$ touch targets across all mobile views.
 
+### 10. Live Player Lobby, Room PIN Passcode & Automated Role Reveal
+* **Live Room Lobby Setup (`PlayerEntry.vue`):** Host can generate a Room PIN passcode and display dynamic QR codes. Player phones join the lobby with their name and PIN, automatically populating the moderator roster in real time.
+* **Drag-and-Drop Seating & Management:** Moderator can re-order players via HTML5 drag-and-drop to match the physical circle or remove disconnected peers.
+* **Dedicated Mobile Lobby Screen (`PlayerClient.vue`):** Clean waiting room UI displaying room code, player's name, pulsing host-wait status, and a live roster of peers who joined the lobby.
+* **Seamless Role Auto-Dispatch:** Once the moderator assigns roles and starts the game, connected player phones in the lobby instantly transition to their secret role reveal cards with privacy shielding.
+* **Antigravity Customization Framework (`AGENTS.md`):** Configured repository instructions for Antigravity AI pair programming.
+
 ---
 
 ## 🚀 Upcoming Milestones

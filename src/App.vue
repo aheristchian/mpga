@@ -167,7 +167,12 @@ onMounted(() => {
 
   // Setup multiplayer listener for host
   multiplayer.setOnPlayerAction((actionData) => {
-    if (actionData.action === 'CLAIM_SEAT' || actionData.action === 'PEER_CONNECTED') {
+    if (actionData.action === 'JOIN_LOBBY') {
+      if (store.gamePhase === 'setup') {
+        store.addSetupPlayer(actionData.playerName, actionData.peerId);
+      }
+      multiplayer.broadcastHostState(store);
+    } else if (actionData.action === 'CLAIM_SEAT' || actionData.action === 'PEER_CONNECTED') {
       multiplayer.broadcastHostState(store);
     } else if (actionData.type === 'NIGHT_ACTION') {
       store.addLog(
