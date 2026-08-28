@@ -29,7 +29,7 @@
         </p>
 
         <!-- DIRECT LINK COPY BAR -->
-        <div class="flex items-center justify-center gap-2 max-w-md mx-auto">
+        <div class="flex items-center justify-center gap-2 max-w-md mx-auto mb-3">
           <input
             type="text"
             readonly
@@ -42,6 +42,42 @@
           >
             {{ copied ? $t('multiplayer.copied') : $t('multiplayer.copyLink') }}
           </button>
+        </div>
+
+        <!-- LOCALHOST LAN HELPER -->
+        <div
+          v-if="isLocalhost"
+          class="bg-amber-950/40 border border-amber-500/40 rounded-xl p-3 max-w-md mx-auto text-left text-[11px] text-amber-200/90 space-y-2"
+        >
+          <div class="flex items-start gap-1.5 font-semibold text-amber-300">
+            <span>💡</span>
+            <span>{{ $t('multiplayer.lanWarning') }}</span>
+          </div>
+          <p class="text-amber-200/70 text-[10px]">
+            {{ $t('multiplayer.lanInstruction', { ip: '192.168.x.x' }) }}
+          </p>
+          <div class="flex gap-1.5">
+            <input
+              v-model="customHostInput"
+              type="text"
+              :placeholder="$t('multiplayer.customHostPlaceholder')"
+              class="bg-gray-900 border border-amber-500/40 text-amber-100 px-2.5 py-1.5 rounded-lg flex-1 text-xs font-mono"
+              @keydown.enter="saveCustomHost"
+            />
+            <button
+              class="px-2.5 py-1.5 bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold rounded-lg transition-colors"
+              @click="saveCustomHost"
+            >
+              {{ $t('multiplayer.applyHost') }}
+            </button>
+            <button
+              v-if="customHost"
+              class="px-2 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs rounded-lg transition-colors"
+              @click="resetCustomHost"
+            >
+              ✕
+            </button>
+          </div>
         </div>
       </div>
 
@@ -138,9 +174,51 @@ const store = useGameStore();
 const multiplayer = useMultiplayer();
 const copied = ref(false);
 
+const customHost = ref(
+  typeof localStorage !== 'undefined' ? localStorage.getItem('mpga_custom_host') || '' : ''
+);
+const customHostInput = ref(customHost.value);
+
+const isLocalhost = computed(() => {
+  if (typeof window === 'undefined') return false;
+  return (
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1' ||
+    window.location.hostname === '0.0.0.0'
+  );
+});
+
+const saveCustomHost = () => {
+  let val = customHostInput.value.trim();
+  if (val.startsWith('http://') || val.startsWith('https://')) {
+    val = val.replace(/^https?:\/\//, '');
+  }
+  customHost.value = val;
+  if (typeof localStorage !== 'undefined') {
+    if (val) {
+      localStorage.setItem('mpga_custom_host', val);
+    } else {
+      localStorage.removeItem('mpga_custom_host');
+    }
+  }
+};
+
+const resetCustomHost = () => {
+  customHost.value = '';
+  customHostInput.value = '';
+  if (typeof localStorage !== 'undefined') {
+    localStorage.removeItem('mpga_custom_host');
+  }
+};
+
 const joinUrl = computed(() => {
   if (typeof window === 'undefined') return '';
-  const base = window.location.origin + window.location.pathname;
+  let origin = window.location.origin;
+  if (customHost.value) {
+    const protocol = window.location.protocol;
+    origin = `${protocol}//${customHost.value}`;
+  }
+  const base = origin + window.location.pathname;
   return `${base}?join=${multiplayer.roomCode.value}`;
 });
 

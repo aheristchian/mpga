@@ -187,7 +187,12 @@
     "liveSyncActive": "Live P2P Sync Active",
     "connected": "Connected",
     "offline": "P2P Broker Offline",
-    "offlineNote": "Connecting to serverless WebRTC broker..."
+    "offlineNote": "Connecting to serverless WebRTC broker...",
+    "lanWarning": "Accessing via localhost: Phones cannot connect to 'localhost'.",
+    "lanInstruction": "Enter your computer's Wi-Fi IP below or open this dashboard at http://{ip}:5173:",
+    "customHostPlaceholder": "Host IP or Domain (e.g. 192.168.1.30:5173)",
+    "applyHost": "Update QR Code",
+    "useCurrentOrigin": "Reset to Default"
   },
   "playerClient": {
     "joinTitle": "Join Mafia Table",
