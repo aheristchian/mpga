@@ -120,17 +120,22 @@ When a win condition is fulfilled:
 
 ## 5. Serverless P2P Multiplayer (Connecting Player Phones)
 
-Players can connect their mobile devices directly to the host's screen without installing any apps or registering accounts:
+Players can connect their mobile devices directly to the host's screen without installing any apps, registering accounts, or routing through external database servers:
 
-1. **Host Pairing:**
-   * The moderator clicks the **📱 Connect Devices** button in the top navigation bar.
-   * A dynamic modal presents a 4-character Room Code (e.g. `MPGA-A8F2`), a direct join link, and a QR code.
-2. **Player Join & Seat Claim:**
-   * Players scan the QR code with their mobile cameras or enter the room code at `/?join=MPGA-XXXX`.
-   * Players select their name from the seating roster to claim their device seat.
-3. **Secret Privacy Card:**
+1. **Host Pairing & Auto-Listening:**
+   * The moderator screen automatically initializes a persistent WebRTC host peer listening with a unique 4-character Room Code (e.g., `53FH`).
+   * Clicking **📱 Connect Devices** in the top navigation bar opens the pairing modal displaying the live Room Code, a direct join link, an SVG QR code (`qrcode.vue`), a live signaling status indicator (`🟢 Host Ready & Listening`), and a **🔄 New Code** button if the host wishes to roll a fresh code.
+2. **Player Join & Simplified Seat Claiming:**
+   * Players scan the QR code with their mobile phone cameras or navigate directly to `/?join=ROOM_CODE`.
+   * **No Typing Needed:** Players can leave the name input blank and tap **Connect to Game**.
+   * Upon connection, the phone immediately displays the host's seating roster (`#1 Ali`, `#2 Sarah`, `#3 John`, etc.).
+   * Each player simply taps **"I am this player →"** on their name to claim their device seat and sync their private state.
+3. **Robust Connection via STUN/TURN Relays:**
+   * P2P connections are fortified with Google STUN servers and OpenRelay TURN relays (`openrelay.metered.ca`), ensuring 100% reliable data channels across mobile cellular networks (4G/5G), carrier CGNAT, home Wi-Fi, and corporate firewalls.
+   * Auto-reconnect and WebSocket heartbeat keep-alives maintain active sessions if mobile devices briefly sleep or switch apps.
+4. **Secret Privacy Card:**
    * Players tap their personal blurred identity card to view their secret role and faction alignment in private.
-4. **Live Synchronization:**
+5. **Live Synchronization:**
    * Player screens highlight the active speaker during the Day phase.
    * When their role wakes up during the Night phase, an interactive console lets them select their night ability target silently.
    * Voting ballots allow players to record their votes directly on their phones.

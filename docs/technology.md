@@ -142,15 +142,24 @@ graph TD
 * Dynamic faction lighting glows, death state overlays, and responsive sizing across all screen widths.
 
 ### 7. Serverless P2P Multiplayer Architecture
-* **Zero Backend Hosting:** Built using PeerJS over WebRTC data channels.
+* **Zero Backend Hosting:** Built using PeerJS over WebRTC direct data channels.
+* **STUN/TURN Relay Network:**
+  * Configured with Google STUN (`stun.l.google.com:19302`) and OpenRelay TURN relays (`openrelay.metered.ca`) over UDP and TCP (ports 80 and 443).
+  * Guarantees reliable NAT traversal across mobile carrier CGNAT (4G/5G), home routers, and strict corporate firewalls.
+* **Connection Resilience & Lifecycle:**
+  * **Keep-Alive Heartbeats:** Periodic 20-second ping frames prevent cloud signaling WebSocket drops.
+  * **Auto-Reconnection:** Dedicated handlers for `disconnected` peer states automatically reconnect to the broker without losing game state.
+  * **Clean Teardown:** `beforeunload` lifecycle hooks cleanly destroy signaling registrations on tab close to prevent stale ID collisions.
+  * **Persistent Host Listening:** Host automatically starts listening on page load with a persistent Room Code stored in `localStorage`.
 * **Host Synchronization (`useMultiplayerService.js`):**
-  * Moderator acts as the WebRTC Room Host (`mpga-host-${roomCode}`).
-  * Emits an SVG QR code (`qrcode.vue`) and shareable link (`?join=MPGA-XXXX`) for one-tap mobile pairing.
+  * Moderator acts as the WebRTC Room Host (`mpga-host-${roomCode.toLowerCase()}`).
+  * Emits an SVG QR code (`qrcode.vue`) and shareable link (`?join=CODE`) for one-tap mobile pairing.
+  * Immediately pushes a full state handshake to newly connecting devices upon connection open.
 * **Strict Privacy Isolation & Sanitization:**
   * `sanitizePlayerPayload(player)` transmits secret role info only to the specific connected device that claimed that seat.
   * `sanitizePublicGameState(store)` strips all foreign secret roles and internal notes, broadcasting only public roster statuses and speaker cues.
 * **Mobile Client View (`PlayerClient.vue`):**
-  * Standalone mobile interface featuring tap-to-reveal secret role cards, live speaker spotlight synchronization, night action target selection with immediate detective feedback, and voting ballots.
+  * Standalone mobile interface featuring one-tap seat claiming from the live roster, tap-to-reveal secret role cards, live speaker spotlight synchronization, night action target selection with immediate detective feedback, voting ballots, and timeout/retry recovery actions.
 
 ### 8. Procedural Web Audio Sound FX Engine
 * Zero audio files or external CDN dependencies implemented in [`src/services/useAudioService.js`](file:///Users/ali.heristchian/Documents/learning/mpga/src/services/useAudioService.js).

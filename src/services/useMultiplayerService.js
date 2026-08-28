@@ -87,11 +87,53 @@ const PEER_CONFIG = {
       { urls: 'stun:stun.l.google.com:19302' },
       { urls: 'stun:stun1.l.google.com:19302' },
       { urls: 'stun:stun2.l.google.com:19302' },
-      { urls: 'stun:stun3.l.google.com:19302' },
-      { urls: 'stun:stun4.l.google.com:19302' },
+      { urls: 'stun:stun.relay.metered.ca:80' },
+      {
+        urls: 'turn:global.relay.metered.ca:80',
+        username: 'openrelayproject',
+        credential: 'openrelayproject',
+      },
+      {
+        urls: 'turn:global.relay.metered.ca:443',
+        username: 'openrelayproject',
+        credential: 'openrelayproject',
+      },
+      {
+        urls: 'turn:global.relay.metered.ca:443?transport=tcp',
+        username: 'openrelayproject',
+        credential: 'openrelayproject',
+      },
     ],
   },
 };
+
+let heartbeatInterval = null;
+const setupPeerKeepAlive = (peer) => {
+  if (heartbeatInterval) clearInterval(heartbeatInterval);
+  if (typeof window === 'undefined') return;
+  heartbeatInterval = setInterval(() => {
+    if (peer && !peer.destroyed && !peer.disconnected) {
+      if (peer.socket && typeof peer.socket._send === 'function') {
+        try {
+          peer.socket._send({ type: 'HEARTBEAT' });
+        } catch {
+          // ignore
+        }
+      }
+    }
+  }, 20000);
+};
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => {
+    if (hostPeer && !hostPeer.destroyed) {
+      hostPeer.destroy();
+    }
+    if (clientPeer && !clientPeer.destroyed) {
+      clientPeer.destroy();
+    }
+  });
+}
 
 export function useMultiplayer() {
   const isConnected = computed(() => connectionStatus.value === 'connected');
@@ -103,6 +145,7 @@ export function useMultiplayer() {
         return; // Already hosting
       }
       hostPeer.destroy();
+      hostPeer = null;
     }
 
     let hostCode = code;
@@ -126,9 +169,16 @@ export function useMultiplayer() {
 
     try {
       hostPeer = new Peer(fullPeerId, PEER_CONFIG);
+      setupPeerKeepAlive(hostPeer);
 
       hostPeer.on('open', () => {
         connectionStatus.value = 'connected';
+      });
+
+      hostPeer.on('disconnected', () => {
+        if (hostPeer && !hostPeer.destroyed) {
+          hostPeer.reconnect();
+        }
       });
 
       hostPeer.on('connection', (conn) => {
@@ -165,6 +215,10 @@ export function useMultiplayer() {
         if (err.type === 'unavailable-id') {
           // ID in use (e.g. from previous tab session); generate a fresh code
           const freshCode = generateRoomCode();
+          roomCode.value = freshCode;
+          if (typeof localStorage !== 'undefined') {
+            localStorage.setItem('mpga_room_code', freshCode);
+          }
           startHost(freshCode);
           return;
         }
@@ -175,6 +229,18 @@ export function useMultiplayer() {
       errorMessage.value = e.message;
       connectionStatus.value = 'error';
     }
+  };
+
+  const regenerateRoomCode = () => {
+    const freshCode = generateRoomCode();
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('mpga_room_code', freshCode);
+    }
+    if (hostPeer && !hostPeer.destroyed) {
+      hostPeer.destroy();
+      hostPeer = null;
+    }
+    startHost(freshCode);
   };
 
   const handleHostIncomingData = (conn, data) => {
@@ -243,12 +309,14 @@ export function useMultiplayer() {
     let connectTimeout = setTimeout(() => {
       if (connectionStatus.value === 'connecting') {
         connectionStatus.value = 'error';
-        errorMessage.value = 'Connecting timed out. Please check that the host room code is active on the moderator screen.';
+        errorMessage.value =
+          'Connecting timed out. Please check that the host room code is active on the moderator screen.';
       }
     }, 12000);
 
     try {
       clientPeer = new Peer(PEER_CONFIG);
+      setupPeerKeepAlive(clientPeer);
 
       clientPeer.on('open', () => {
         clientConn = clientPeer.connect(targetHostPeerId, { reliable: true });
@@ -281,11 +349,19 @@ export function useMultiplayer() {
         });
       });
 
+      clientPeer.on('disconnected', () => {
+        if (clientPeer && !clientPeer.destroyed) {
+          clientPeer.reconnect();
+        }
+      });
+
       clientPeer.on('error', (err) => {
         clearTimeout(connectTimeout);
         connectionStatus.value = 'error';
         errorMessage.value =
-          err.type === 'peer-unavailable' ? 'Room not found. Check room code.' : err.message;
+          err.type === 'peer-unavailable'
+            ? `Room '${cleanCode.toUpperCase()}' not found on server. Please check the moderator screen code.`
+            : err.message;
       });
     } catch (e) {
       clearTimeout(connectTimeout);
@@ -356,6 +432,7 @@ export function useMultiplayer() {
     clientPublicState,
     isConnected,
     startHost,
+    regenerateRoomCode,
     broadcastHostState,
     setOnPlayerAction,
     joinRoom,

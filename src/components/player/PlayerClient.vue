@@ -79,23 +79,36 @@
             </p>
           </div>
 
-          <p
+          <div
             v-if="multiplayer.errorMessage.value"
-            class="text-xs text-red-400 text-center font-bold"
+            class="bg-red-950/60 border border-red-800 p-3 rounded-xl space-y-2 text-center"
           >
-            {{ multiplayer.errorMessage.value }}
-          </p>
+            <p class="text-xs text-red-300 font-bold">
+              {{ multiplayer.errorMessage.value }}
+            </p>
+            <button
+              class="px-4 py-1.5 bg-red-800 hover:bg-red-700 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer"
+              @click="handleJoin"
+            >
+              🔄 {{ $t('playerClient.retryButton') }}
+            </button>
+          </div>
 
           <button
+            v-if="multiplayer.connectionStatus.value !== 'error'"
             :disabled="!inputRoomCode.trim() || multiplayer.connectionStatus.value === 'connecting'"
-            class="w-full py-3 bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 disabled:opacity-50 text-white font-black text-sm rounded-xl shadow-lg transition-all cursor-pointer"
+            class="w-full py-3 bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 disabled:opacity-50 text-white font-black text-sm rounded-xl shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2"
             @click="handleJoin"
           >
-            {{
+            <span
+              v-if="multiplayer.connectionStatus.value === 'connecting'"
+              class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
+            ></span>
+            <span>{{
               multiplayer.connectionStatus.value === 'connecting'
                 ? $t('playerClient.connecting')
                 : $t('playerClient.joinButton')
-            }}
+            }}</span>
           </button>
         </div>
       </div>

@@ -10,11 +10,52 @@
       <div
         class="bg-gradient-to-r from-blue-950 via-gray-900 to-indigo-950 p-6 rounded-2xl border border-blue-500/40 text-center shadow-xl relative overflow-hidden"
       >
+        <!-- HOST STATUS BADGE -->
+        <div class="flex items-center justify-center gap-2 mb-3">
+          <span
+            class="text-[11px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5"
+            :class="{
+              'bg-green-950/80 border border-green-500/60 text-green-300':
+                multiplayer.connectionStatus.value === 'connected',
+              'bg-amber-950/80 border border-amber-500/60 text-amber-300':
+                multiplayer.connectionStatus.value === 'connecting',
+              'bg-red-950/80 border border-red-500/60 text-red-300':
+                multiplayer.connectionStatus.value === 'error',
+            }"
+          >
+            <span
+              class="w-2 h-2 rounded-full"
+              :class="{
+                'bg-green-400 animate-pulse': multiplayer.connectionStatus.value === 'connected',
+                'bg-amber-400 animate-pulse': multiplayer.connectionStatus.value === 'connecting',
+                'bg-red-400': multiplayer.connectionStatus.value === 'error',
+              }"
+            ></span>
+            <span>{{
+              multiplayer.connectionStatus.value === 'connected'
+                ? $t('multiplayer.hostStatusReady')
+                : multiplayer.connectionStatus.value === 'connecting'
+                  ? $t('multiplayer.hostStatusConnecting')
+                  : $t('multiplayer.hostStatusError')
+            }}</span>
+          </span>
+        </div>
+
         <p class="text-xs font-bold uppercase tracking-widest text-blue-400 mb-1">
           {{ $t('multiplayer.roomCodeLabel') }}
         </p>
-        <div class="text-4xl font-black text-white tracking-widest font-mono mb-4">
-          {{ multiplayer.roomCode.value || '----' }}
+        <div class="flex items-center justify-center gap-3 mb-4">
+          <div class="text-4xl font-black text-white tracking-widest font-mono">
+            {{ multiplayer.roomCode.value || '----' }}
+          </div>
+          <button
+            class="px-2.5 py-1 bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-300 text-xs font-semibold rounded-lg flex items-center gap-1 transition-colors cursor-pointer"
+            :title="$t('multiplayer.regenerateCode')"
+            @click="multiplayer.regenerateRoomCode()"
+          >
+            <span>🔄</span>
+            <span>{{ $t('multiplayer.regenerateCode') }}</span>
+          </button>
         </div>
 
         <!-- QR CODE -->
