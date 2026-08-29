@@ -154,5 +154,12 @@ export function resolveSunoAudioUrl(inputUrl) {
     return `https://cdn1.suno.ai/${trimmed}.mp3`;
   }
 
+  // Handle local root-relative paths for GitHub Pages subpaths (e.g. /mpga/ -> ./audio/...)
+  if (trimmed.startsWith('/') && !trimmed.startsWith('//')) {
+    const baseUrl = (typeof import.meta !== 'undefined' && import.meta.env?.BASE_URL) || './';
+    const cleanBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+    return `${cleanBase}${trimmed.slice(1)}`;
+  }
+
   return trimmed;
 }
