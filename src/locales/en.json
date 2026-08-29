@@ -62,9 +62,17 @@
     "fa": "فارسی"
   },
   "modeSelection": {
-    "title": "Select Game Mode",
-    "subtitle": "Choose the ruleset for your game",
-    "continue": "Continue"
+    "title": "Select Game Scenario",
+    "subtitle": "Choose your tournament ruleset, timings, and gameplay configuration",
+    "continue": "Select & Proceed to Player Setup",
+    "speechTime": "Speech",
+    "challengeTime": "Challenge",
+    "defenseTime": "Defense",
+    "minPlayers": "Min Players",
+    "tournamentStandardBadge": "🏆 Tournament Standard",
+    "classicStandardBadge": "⚖️ Timeless Classic",
+    "includedRoles": "Included Roles",
+    "selected": "Selected Scenario"
   },
   "app": {
     "title": "Mafia Moderator",

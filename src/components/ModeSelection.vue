@@ -1,31 +1,132 @@
 <template>
-  <div class="w-full max-w-md mx-auto bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700">
-    <h2 class="text-2xl font-bold text-white mb-4 text-center">{{ $t('modeSelection.title') }}</h2>
-    <p class="text-gray-400 mb-6 text-center text-sm">{{ $t('modeSelection.subtitle') }}</p>
-
-    <div class="space-y-4">
-      <button
-        v-for="mode in availableModes"
-        :key="mode.id"
-        class="w-full text-left bg-gray-700 hover:bg-gray-650 active:scale-95 border border-gray-600 hover:border-town p-4 rounded-xl transition-all cursor-pointer min-h-[44px] select-none"
-        :class="{ 'ring-2 ring-town bg-gray-650 border-town': selectedModeId === mode.id }"
-        @click="selectedModeId = mode.id"
-      >
-        <h3 class="text-lg font-bold text-white">{{ $t(mode.nameKey) }}</h3>
-        <div class="text-sm text-gray-400 mt-1 flex gap-4 font-mono">
-          <span>⏱️ {{ mode.timeToTalk }}s</span>
-          <span>🔄 {{ mode.borrowedTimeToTalk }}s</span>
-        </div>
-      </button>
+  <div class="w-full max-w-5xl mx-auto space-y-6">
+    <!-- HEADER -->
+    <div class="text-center space-y-2 mb-8">
+      <div class="inline-flex items-center gap-2 px-3 py-1 bg-gray-800/90 border border-gray-700/80 rounded-full text-xs font-semibold text-gray-300 shadow-sm">
+        <span>🎭</span>
+        <span>{{ $t('app.badge') }}</span>
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+        {{ $t('modeSelection.title') }}
+      </h2>
+      <p class="text-gray-400 text-sm sm:text-base max-w-xl mx-auto">
+        {{ $t('modeSelection.subtitle') }}
+      </p>
     </div>
 
-    <div class="mt-8 flex justify-end">
+    <!-- MODE CARDS GRID -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div
+        v-for="mode in availableModes"
+        :key="mode.id"
+        class="relative flex flex-col justify-between bg-gray-900/90 hover:bg-gray-850 border-2 rounded-2xl p-5 sm:p-6 transition-all duration-300 cursor-pointer select-none group shadow-xl"
+        :class="getCardClasses(mode.id)"
+        @click="selectedModeId = mode.id"
+      >
+        <!-- ACTIVE CHECKMARK BADGE -->
+        <div
+          v-if="selectedModeId === mode.id"
+          class="absolute -top-3.5 -right-3.5 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-black text-sm shadow-lg shadow-green-500/30 border-2 border-gray-900 z-10 animate-bounce-short"
+        >
+          ✓
+        </div>
+
+        <div class="space-y-4">
+          <!-- VECTOR ILLUSTRATION BANNER -->
+          <div
+            class="w-full h-32 sm:h-36 rounded-xl overflow-hidden border transition-transform duration-300 group-hover:scale-[1.02] shadow-inner flex items-center justify-center"
+            :class="mode.id === 'godfather' ? 'border-red-900/50 bg-red-950/20' : 'border-blue-900/50 bg-blue-950/20'"
+          >
+            <div
+              v-if="getSvg(mode.id)"
+              class="w-full h-full"
+              v-html="getSvg(mode.id)"
+            ></div>
+            <div v-else class="text-4xl">
+              {{ mode.id === 'godfather' ? '🎩' : '⚖️' }}
+            </div>
+          </div>
+
+          <!-- BADGE & TITLE -->
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-1.5">
+              <span
+                class="px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide uppercase border shadow-sm"
+                :class="
+                  mode.id === 'godfather'
+                    ? 'bg-red-950/80 text-red-400 border-red-800/80'
+                    : 'bg-blue-950/80 text-blue-400 border-blue-800/80'
+                "
+              >
+                {{ mode.id === 'godfather' ? $t('modeSelection.tournamentStandardBadge') : $t('modeSelection.classicStandardBadge') }}
+              </span>
+              <span class="text-xs font-mono font-bold text-gray-400">
+                {{ $t('modeSelection.minPlayers') }}: {{ mode.minPlayers }}
+              </span>
+            </div>
+
+            <h3 class="text-xl sm:text-2xl font-black text-white group-hover:text-amber-400 transition-colors">
+              {{ $t('modes.' + mode.id + '.name') }}
+            </h3>
+            <p class="text-xs sm:text-sm text-gray-300 mt-2 leading-relaxed">
+              {{ $t('modes.' + mode.id + '.description') }}
+            </p>
+          </div>
+
+          <!-- CORE ROLES PREVIEW -->
+          <div class="pt-2 border-t border-gray-800/80">
+            <span class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-2">
+              {{ $t('modeSelection.includedRoles') }}
+            </span>
+            <div class="flex flex-wrap gap-1.5">
+              <span
+                v-for="role in getModeRoles(mode.id)"
+                :key="role.id"
+                class="px-2 py-0.5 rounded-lg text-xs font-medium border"
+                :class="getRoleBadgeClass(role.sideId)"
+              >
+                {{ role.icon }} {{ $te('roles.' + role.id + '.name') ? $t('roles.' + role.id + '.name') : role.name }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- TIMINGS & STATS BAR -->
+        <div class="mt-5 pt-3 border-t border-gray-800 grid grid-cols-3 gap-2 text-center">
+          <div class="bg-gray-800/60 p-2 rounded-xl border border-gray-750">
+            <span class="block text-[10px] uppercase font-bold text-gray-400">{{ $t('modeSelection.speechTime') }}</span>
+            <span class="text-sm font-mono font-black text-white">⏱️ {{ mode.timeToTalk }}s</span>
+          </div>
+          <div class="bg-gray-800/60 p-2 rounded-xl border border-gray-750">
+            <span class="block text-[10px] uppercase font-bold text-gray-400">{{ $t('modeSelection.challengeTime') }}</span>
+            <span class="text-sm font-mono font-black text-white">🔄 {{ mode.borrowedTimeToTalk }}s</span>
+          </div>
+          <div class="bg-gray-800/60 p-2 rounded-xl border border-gray-750">
+            <span class="block text-[10px] uppercase font-bold text-gray-400">{{ $t('modeSelection.defenseTime') }}</span>
+            <span class="text-sm font-mono font-black text-white">🛡️ {{ mode.defenseTimeToTalk }}s</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROCEED ACTION BAR -->
+    <div class="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 bg-gray-900/80 border border-gray-800 p-4 rounded-2xl shadow-xl">
+      <div class="text-center sm:text-left">
+        <p class="text-xs text-gray-400 font-medium">
+          {{ $t('modeSelection.selected') }}:
+          <strong class="text-white text-sm font-bold ml-1">
+            {{ selectedModeId ? $t('modes.' + selectedModeId + '.name') : '---' }}
+          </strong>
+        </p>
+      </div>
+
       <button
         :disabled="!selectedModeId"
-        class="bg-town hover:bg-blue-600 active:scale-95 active:brightness-90 disabled:opacity-50 disabled:cursor-not-allowed text-white px-8 py-3 rounded-xl font-bold shadow-md transition-all cursor-pointer min-h-[44px] select-none"
+        class="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed text-white px-8 py-3.5 rounded-xl font-black text-sm shadow-lg shadow-blue-500/20 transition-all cursor-pointer flex items-center justify-center gap-2"
         @click="confirmMode"
       >
-        {{ $t('modeSelection.continue') }}
+        <span>{{ $t('modeSelection.continue') }}</span>
+        <span>➔</span>
       </button>
     </div>
   </div>
@@ -34,16 +135,66 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useGameService } from '../services/useGameService';
+import { getModeIllustration } from '../data/modeIllustrations';
 
 const emit = defineEmits(['mode-selected']);
 const { modes, fetchGameData } = useGameService();
 const availableModes = ref([]);
-const selectedModeId = ref(null);
+const selectedModeId = ref('godfather');
 
 onMounted(async () => {
   await fetchGameData();
   availableModes.value = modes.value;
+  if (availableModes.value.length > 0 && !selectedModeId.value) {
+    selectedModeId.value = availableModes.value[0].id;
+  }
 });
+
+const getSvg = (modeId) => {
+  return getModeIllustration(modeId);
+};
+
+const getCardClasses = (modeId) => {
+  if (selectedModeId.value === modeId) {
+    if (modeId === 'godfather') {
+      return 'border-red-500 ring-2 ring-red-500/40 bg-gradient-to-b from-red-950/30 to-gray-900 shadow-red-900/20';
+    }
+    return 'border-blue-500 ring-2 ring-blue-500/40 bg-gradient-to-b from-blue-950/30 to-gray-900 shadow-blue-900/20';
+  }
+  return 'border-gray-800 hover:border-gray-700 bg-gray-900/80';
+};
+
+const getModeRoles = (modeId) => {
+  if (modeId === 'godfather') {
+    return [
+      { id: 'godfather', name: 'Godfather', icon: '🎩', sideId: 'mafia' },
+      { id: 'matador', name: 'Matador', icon: '🧣', sideId: 'mafia' },
+      { id: 'saul-goodman', name: 'Saul Goodman', icon: '💼', sideId: 'mafia' },
+      { id: 'doctor', name: 'Doctor', icon: '💉', sideId: 'town' },
+      { id: 'detective', name: 'Detective', icon: '🔍', sideId: 'town' },
+      { id: 'leon', name: 'Leon', icon: '🎯', sideId: 'town' },
+      { id: 'constantine', name: 'Constantine', icon: '✨', sideId: 'town' },
+      { id: 'nostradamus', name: 'Nostradamus', icon: '🔮', sideId: 'third-party' },
+    ];
+  }
+  return [
+    { id: 'godfather', name: 'Godfather', icon: '🎩', sideId: 'mafia' },
+    { id: 'mafia', name: 'Mafia', icon: '🕶️', sideId: 'mafia' },
+    { id: 'doctor', name: 'Doctor', icon: '💉', sideId: 'town' },
+    { id: 'detective', name: 'Detective', icon: '🔍', sideId: 'town' },
+    { id: 'citizen', name: 'Citizen', icon: '👤', sideId: 'town' },
+  ];
+};
+
+const getRoleBadgeClass = (sideId) => {
+  if (sideId === 'mafia') {
+    return 'bg-red-950/60 text-red-300 border-red-800/60';
+  }
+  if (sideId === 'third-party') {
+    return 'bg-purple-950/60 text-purple-300 border-purple-800/60';
+  }
+  return 'bg-blue-950/60 text-blue-300 border-blue-800/60';
+};
 
 const confirmMode = () => {
   if (selectedModeId.value) {
@@ -52,3 +203,4 @@ const confirmMode = () => {
   }
 };
 </script>
+
