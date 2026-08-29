@@ -84,6 +84,9 @@ export function useAudio() {
   const playTrack = (track, options = { fade: true }) => {
     if (!track || !track.url || isMuted.value) return;
 
+    // Disabled tracks (ending with underscore to prevent bandwidth/traffic consumption)
+    if (typeof track.url === 'string' && track.url.endsWith('_')) return;
+
     if (currentTrack.value?.id === track.id && isPlayingMusic.value && currentAudioEl && !currentAudioEl.paused) {
       return;
     }
@@ -166,8 +169,8 @@ export function useAudio() {
     const phasePlaylist = playlists.value[phaseKey] || [];
     if (phasePlaylist.length === 0) return;
 
-    // Pick first track with a valid URL
-    const playableTrack = phasePlaylist.find((t) => Boolean(t.url));
+    // Pick first track with a valid, non-disabled URL
+    const playableTrack = phasePlaylist.find((t) => Boolean(t.url) && !t.url.endsWith('_'));
     if (playableTrack) {
       playTrack(playableTrack, options);
     }
@@ -186,7 +189,7 @@ export function useAudio() {
       currentAudioEl.play().then(() => {
         isPlayingMusic.value = true;
       }).catch(() => {});
-    } else if (currentTrack.value) {
+    } else if (currentTrack.value && !currentTrack.value.url?.endsWith('_')) {
       playTrack(currentTrack.value);
     } else {
       playPhaseMusic(activePhase.value);
@@ -212,7 +215,7 @@ export function useAudio() {
   };
 
   const nextTrack = () => {
-    const list = playlists.value[activePhase.value] || [];
+    const list = (playlists.value[activePhase.value] || []).filter((t) => Boolean(t.url) && !t.url.endsWith('_'));
     if (list.length === 0) return;
 
     const currentIndex = list.findIndex((t) => t.id === currentTrack.value?.id);
