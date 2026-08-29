@@ -13,7 +13,7 @@
           <!-- LANGUAGE SWITCHER -->
           <LanguageSwitcher />
 
-          <!-- SOUND TOGGLE BUTTON -->
+          <!-- SOUND FX TOGGLE BUTTON -->
           <button
             class="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 active:scale-95 border border-gray-700 text-gray-300 hover:text-white rounded-xl transition-all text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow"
             :title="audio.isMuted.value ? $t('audio.unmute') : $t('audio.mute')"
@@ -23,6 +23,18 @@
             <span class="hidden sm:inline">{{
               audio.isMuted.value ? $t('audio.unmute') : $t('audio.soundOn')
             }}</span>
+          </button>
+
+          <!-- SOUNDTRACK & SUNO MUSIC CONSOLE BUTTON -->
+          <button
+            class="px-3 py-1.5 bg-gray-800 hover:bg-purple-950/80 active:scale-95 border border-gray-700 hover:border-purple-500/60 text-gray-300 hover:text-white rounded-xl transition-all text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow"
+            :title="$t('audio.musicConsole')"
+            @click="showSoundtrackModal = true"
+          >
+            <span :class="{ 'animate-pulse text-purple-400': audio.isPlayingMusic.value }">🎵</span>
+            <span class="hidden sm:inline max-w-[140px] truncate">
+              {{ audio.isPlayingMusic.value ? audio.currentTrack.value?.title || $t('audio.musicConsole') : $t('audio.musicConsole') }}
+            </span>
           </button>
         </div>
 
@@ -165,11 +177,14 @@
 
     <!-- MULTIPLAYER HOST MODAL -->
     <MultiplayerHostModal :is-open="showMultiplayerModal" @close="showMultiplayerModal = false" />
+
+    <!-- SOUNDTRACK & SUNO MUSIC CONSOLE MODAL -->
+    <SoundtrackConsole :is-open="showSoundtrackModal" @close="showSoundtrackModal = false" />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import { useGameStore } from './stores/gameStore';
 import { useAudio } from './services/useAudioService';
 import { useMultiplayer } from './services/useMultiplayerService';
@@ -182,6 +197,7 @@ import BaseModal from './components/BaseModal.vue';
 import MultiplayerHostModal from './components/multiplayer/MultiplayerHostModal.vue';
 import PlayerClient from './components/player/PlayerClient.vue';
 import LanguageSwitcher from './components/LanguageSwitcher.vue';
+import SoundtrackConsole from './components/SoundtrackConsole.vue';
 
 const store = useGameStore();
 const audio = useAudio();
@@ -192,6 +208,26 @@ const appVersion = __APP_VERSION__;
 const isPlayerMode = ref(false);
 const showMultiplayerModal = ref(false);
 const showResetModal = ref(false);
+const showSoundtrackModal = ref(false);
+
+// Auto-DJ watcher for phase transitions
+watch(
+  () => store.gamePhase,
+  (newPhase) => {
+    if (!audio.autoPlayOnPhaseChange.value || audio.isMuted.value) return;
+    if (newPhase === 'night') {
+      audio.playPhaseMusic('night');
+    } else if (newPhase === 'day') {
+      audio.playPhaseMusic('day');
+    } else if (newPhase === 'voting') {
+      audio.playPhaseMusic('voting');
+    } else if (newPhase === 'game-over') {
+      audio.playPhaseMusic('victory');
+    } else if (newPhase === 'mode-selection' || newPhase === 'setup' || newPhase === 'role-selection') {
+      audio.playPhaseMusic('lobby');
+    }
+  }
+);
 
 onMounted(() => {
   if (typeof window !== 'undefined') {

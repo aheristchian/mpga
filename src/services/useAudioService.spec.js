@@ -51,4 +51,51 @@ describe('useAudioService', () => {
       audio.playVoteClick();
     }).not.toThrow();
   });
+
+  it('correctly resolves Suno song web URLs to direct playable CDN stream URLs', () => {
+    const audio = useAudio();
+
+    // Standard suno.com/song/<id>
+    expect(audio.resolveSunoAudioUrl('https://suno.com/song/0712a149-2b4a-466d-b8d9-1365c71a3e6f')).toBe(
+      'https://cdn1.suno.ai/0712a149-2b4a-466d-b8d9-1365c71a3e6f.mp3'
+    );
+
+    // Direct CDN URL remains intact
+    expect(audio.resolveSunoAudioUrl('https://cdn1.suno.ai/0712a149-2b4a-466d-b8d9-1365c71a3e6f.mp3')).toBe(
+      'https://cdn1.suno.ai/0712a149-2b4a-466d-b8d9-1365c71a3e6f.mp3'
+    );
+
+    // Empty or non-string input
+    expect(audio.resolveSunoAudioUrl('')).toBe('');
+    expect(audio.resolveSunoAudioUrl(null)).toBe('');
+  });
+
+  it('manages music volume and autoplay settings with localStorage persistence', () => {
+    const audio = useAudio();
+
+    audio.setMusicVolume(0.65);
+    expect(audio.musicVolume.value).toBe(0.65);
+    expect(localStorage.getItem('mpga_music_volume')).toBe('0.65');
+
+    audio.setAutoPlay(false);
+    expect(audio.autoPlayOnPhaseChange.value).toBe(false);
+    expect(localStorage.getItem('mpga_music_autoplay')).toBe('false');
+
+    audio.setAutoPlay(true);
+    expect(audio.autoPlayOnPhaseChange.value).toBe(true);
+  });
+
+  it('handles phase music and track navigation without errors', () => {
+    const audio = useAudio();
+    audio.isMuted.value = false;
+
+    expect(() => {
+      audio.playPhaseMusic('night');
+      audio.nextTrack();
+      audio.previousTrack();
+      audio.pauseMusic();
+      audio.resumeMusic();
+      audio.stopMusic();
+    }).not.toThrow();
+  });
 });

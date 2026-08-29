@@ -1,9 +1,33 @@
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { soundtrackConfig, resolveSunoAudioUrl } from '../data/soundtracks';
 
+// Persisted audio states
 const isMuted = ref(
   typeof localStorage !== 'undefined' ? localStorage.getItem('mpga_audio_muted') === 'true' : false
 );
+
+const musicVolume = ref(
+  typeof localStorage !== 'undefined' && localStorage.getItem('mpga_music_volume') !== null
+    ? parseFloat(localStorage.getItem('mpga_music_volume'))
+    : soundtrackConfig.settings.defaultVolume
+);
+
+const autoPlayOnPhaseChange = ref(
+  typeof localStorage !== 'undefined' && localStorage.getItem('mpga_music_autoplay') !== null
+    ? localStorage.getItem('mpga_music_autoplay') === 'true'
+    : soundtrackConfig.settings.autoPlayOnPhaseChange
+);
+
+// Current Track & Playback Status
+const currentTrack = ref(null);
+const isPlayingMusic = ref(false);
+const activePhase = ref('night');
+const playlists = ref(JSON.parse(JSON.stringify(soundtrackConfig.playlists)));
+
+// Audio Elements & Web Audio Context
 let audioCtx = null;
+let currentAudioEl = null;
+let fadeInterval = null;
 
 function getAudioContext() {
   if (typeof window === 'undefined') return null;
@@ -25,7 +49,189 @@ export function useAudio() {
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem('mpga_audio_muted', isMuted.value ? 'true' : 'false');
     }
+    if (isMuted.value && currentAudioEl) {
+      currentAudioEl.pause();
+      isPlayingMusic.value = false;
+    } else if (!isMuted.value && currentTrack.value && !isPlayingMusic.value) {
+      resumeMusic();
+    }
   };
+
+  const setMusicVolume = (vol) => {
+    const clamped = Math.max(0, Math.min(1, parseFloat(vol) || 0));
+    musicVolume.value = clamped;
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('mpga_music_volume', String(clamped));
+    }
+    if (currentAudioEl && !isMuted.value) {
+      const multiplier = currentTrack.value?.volumeMultiplier || 1.0;
+      currentAudioEl.volume = clamped * multiplier;
+    }
+  };
+
+  const setAutoPlay = (enabled) => {
+    autoPlayOnPhaseChange.value = Boolean(enabled);
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('mpga_music_autoplay', String(autoPlayOnPhaseChange.value));
+    }
+  };
+
+  /**
+   * Plays a specific track object with smooth volume crossfade
+   * @param {Object} track - { id, title, artist, url, volumeMultiplier }
+   * @param {Object} options - { fade: boolean }
+   */
+  const playTrack = (track, options = { fade: true }) => {
+    if (!track || !track.url || isMuted.value) return;
+
+    const streamUrl = resolveSunoAudioUrl(track.url);
+    if (!streamUrl) return;
+
+    if (typeof window === 'undefined' || typeof window.Audio === 'undefined') {
+      currentTrack.value = track;
+      isPlayingMusic.value = true;
+      return;
+    }
+
+    try {
+      if (fadeInterval) {
+        clearInterval(fadeInterval);
+        fadeInterval = null;
+      }
+
+      // Stop previous audio if playing
+      if (currentAudioEl) {
+        currentAudioEl.pause();
+        currentAudioEl.src = '';
+        currentAudioEl = null;
+      }
+
+      const audio = new Audio(streamUrl);
+      audio.crossOrigin = 'anonymous';
+      audio.loop = false;
+
+      const targetVol = musicVolume.value * (track.volumeMultiplier || 1.0);
+      audio.volume = options.fade ? 0.01 : targetVol;
+
+      audio.addEventListener('ended', () => {
+        nextTrack();
+      });
+
+      audio.addEventListener('error', (err) => {
+        console.warn(`[MPGA Audio] Error playing track ${track.title}:`, err);
+        isPlayingMusic.value = false;
+      });
+
+      audio.play().then(() => {
+        currentTrack.value = track;
+        isPlayingMusic.value = true;
+
+        if (options.fade) {
+          let step = 0;
+          const steps = 15;
+          const stepTime = (soundtrackConfig.settings.crossfadeDuration * 1000) / steps;
+          fadeInterval = setInterval(() => {
+            step++;
+            if (audio) {
+              audio.volume = Math.min(targetVol, (targetVol * step) / steps);
+            }
+            if (step >= steps) {
+              clearInterval(fadeInterval);
+              fadeInterval = null;
+            }
+          }, stepTime);
+        }
+      }).catch((e) => {
+        console.warn('[MPGA Audio] Playback prevented by browser autoplay policy:', e);
+        isPlayingMusic.value = false;
+      });
+
+      currentAudioEl = audio;
+    } catch (e) {
+      console.warn('[MPGA Audio] Audio instantiation failed:', e);
+    }
+  };
+
+  /**
+   * Plays music for a given phase (e.g. 'night', 'day', 'voting', 'victory', 'lobby')
+   */
+  const playPhaseMusic = (phaseKey, options = { fade: true }) => {
+    if (!phaseKey) return;
+    activePhase.value = phaseKey;
+
+    const phasePlaylist = playlists.value[phaseKey] || [];
+    if (phasePlaylist.length === 0) return;
+
+    // Pick first track with a valid URL
+    const playableTrack = phasePlaylist.find((t) => Boolean(t.url));
+    if (playableTrack) {
+      playTrack(playableTrack, options);
+    }
+  };
+
+  const pauseMusic = () => {
+    if (currentAudioEl) {
+      currentAudioEl.pause();
+    }
+    isPlayingMusic.value = false;
+  };
+
+  const resumeMusic = () => {
+    if (isMuted.value) return;
+    if (currentAudioEl && currentAudioEl.src) {
+      currentAudioEl.play().then(() => {
+        isPlayingMusic.value = true;
+      }).catch(() => {});
+    } else if (currentTrack.value) {
+      playTrack(currentTrack.value);
+    } else {
+      playPhaseMusic(activePhase.value);
+    }
+  };
+
+  const toggleMusic = () => {
+    if (isPlayingMusic.value) {
+      pauseMusic();
+    } else {
+      resumeMusic();
+    }
+  };
+
+  const stopMusic = () => {
+    if (currentAudioEl) {
+      currentAudioEl.pause();
+      currentAudioEl.src = '';
+      currentAudioEl = null;
+    }
+    currentTrack.value = null;
+    isPlayingMusic.value = false;
+  };
+
+  const nextTrack = () => {
+    const list = playlists.value[activePhase.value] || [];
+    if (list.length === 0) return;
+
+    const currentIndex = list.findIndex((t) => t.id === currentTrack.value?.id);
+    const nextIndex = (currentIndex + 1) % list.length;
+    const nextItem = list[nextIndex];
+    if (nextItem && nextItem.url) {
+      playTrack(nextItem);
+    }
+  };
+
+  const previousTrack = () => {
+    const list = playlists.value[activePhase.value] || [];
+    if (list.length === 0) return;
+
+    const currentIndex = list.findIndex((t) => t.id === currentTrack.value?.id);
+    const prevIndex = (currentIndex - 1 + list.length) % list.length;
+    const prevItem = list[prevIndex];
+    if (prevItem && prevItem.url) {
+      playTrack(prevItem);
+    }
+  };
+
+  // --- SOUND EFFECTS (Web Audio Synthesis) ---
 
   const playTone = (freq, duration = 0.1, type = 'sine', gainLevel = 0.15) => {
     if (isMuted.value) return;
@@ -52,17 +258,14 @@ export function useAudio() {
     }
   };
 
-  /** Normal countdown tick (for last 10 seconds) */
   const playTick = () => {
     playTone(800, 0.05, 'triangle', 0.12);
   };
 
-  /** Urgent fast tick (for last 3 seconds) */
   const playUrgentTick = () => {
     playTone(1200, 0.06, 'triangle', 0.2);
   };
 
-  /** Deep resonant gong when time is up (0s) */
   const playGong = () => {
     if (isMuted.value) return;
     const ctx = getAudioContext();
@@ -92,10 +295,9 @@ export function useAudio() {
     }
   };
 
-  /** Ethereal descending chords for Night Phase sleep call */
   const playNightFall = () => {
     if (isMuted.value) return;
-    const notes = [440, 349.23, 293.66]; // A4 -> F4 -> D4 (D minor)
+    const notes = [440, 349.23, 293.66];
     notes.forEach((note, index) => {
       setTimeout(() => {
         playTone(note, 0.6, 'sine', 0.18);
@@ -103,10 +305,9 @@ export function useAudio() {
     });
   };
 
-  /** Bright ascending chords for Morning wake-up call */
   const playDawnRise = () => {
     if (isMuted.value) return;
-    const notes = [261.63, 329.63, 392.0, 523.25]; // C4 -> E4 -> G4 -> C5 (C major)
+    const notes = [261.63, 329.63, 392.0, 523.25];
     notes.forEach((note, index) => {
       setTimeout(() => {
         playTone(note, 0.5, 'sine', 0.18);
@@ -114,12 +315,10 @@ export function useAudio() {
     });
   };
 
-  /** Mechanical click for roulette wheel rotations */
   const playRouletteTick = () => {
     playTone(950, 0.03, 'triangle', 0.08);
   };
 
-  /** Fanfare for card reveal or victory */
   const playFanfare = () => {
     if (isMuted.value) return;
     const notes = [261.63, 329.63, 392.0, 523.25, 659.25, 783.99];
@@ -130,7 +329,6 @@ export function useAudio() {
     });
   };
 
-  /** Subtle UI click for vote button presses */
   const playVoteClick = () => {
     playTone(600, 0.04, 'sine', 0.08);
   };
@@ -138,6 +336,23 @@ export function useAudio() {
   return {
     isMuted,
     toggleMute,
+    musicVolume,
+    setMusicVolume,
+    autoPlayOnPhaseChange,
+    setAutoPlay,
+    currentTrack,
+    isPlayingMusic,
+    activePhase,
+    playlists,
+    playTrack,
+    playPhaseMusic,
+    pauseMusic,
+    resumeMusic,
+    toggleMusic,
+    stopMusic,
+    nextTrack,
+    previousTrack,
+    // SFX
     playTick,
     playUrgentTick,
     playGong,
@@ -146,5 +361,6 @@ export function useAudio() {
     playRouletteTick,
     playFanfare,
     playVoteClick,
+    resolveSunoAudioUrl,
   };
 }

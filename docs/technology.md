@@ -54,11 +54,13 @@ mpga/
 │   ├── data/                     # Flat, relational data definitions (JSON-ready)
 │   │   ├── abilities.js          # Active/passive abilities and priority values
 │   │   ├── lastWordCards.js      # Last Word cards data definitions
+│   │   ├── modeIllustrations.js  # Vector SVG artwork for game modes
 │   │   ├── modes.js              # Mode configurations and balance rules
 │   │   ├── phases.js             # Phase IDs and metadata
-│   │   ├── roleIllustrations.js  # Scalable vector SVG illustrations for all 9 character roles
+│   │   ├── roleIllustrations.js  # Scalable vector SVG illustrations for character roles
 │   │   ├── roles.js              # Role definitions, limits, and foreign keys
-│   │   └── sides.js              # Factions (Town, Mafia, Third Party)
+│   │   ├── sides.js              # Factions (Town, Mafia, Third Party)
+│   │   └── soundtracks.js        # Suno AI & Phase background music playlists & stream resolver
 │   ├── locales/                  # Localization dictionaries
 │   │   ├── en.json               # English translations (clean strings)
 │   │   └── fa.json               # Persian translations (authentic Mafia terminology)
@@ -174,9 +176,8 @@ graph TD
 * **Mobile Client View (`PlayerClient.vue`):**
   - Standalone mobile interface featuring Room PIN authentication, live transport badge, latency indicator (ms), Lobby Waiting Room with live player roster, tap-to-reveal secret role cards, live speaker spotlight synchronization, night action target selection with immediate detective feedback, voting ballots, and timeout/retry recovery actions.
 
-### 8. Procedural Web Audio Sound FX Engine
-* Zero audio files or external CDN dependencies implemented in [`src/services/useAudioService.js`](file:///Users/ali.heristchian/Documents/learning/mpga/src/services/useAudioService.js).
-* Synthesizes rich procedural sound effects using the browser's native `AudioContext`:
+### 8. Procedural Web Audio Sound FX & Suno Music Engine
+* **Sound FX Engine:** Synthesizes procedural sound cues directly via the browser's native Web `AudioContext`:
   * **Countdown Ticks:** Subtle 800 Hz sine clicks for the final 10 seconds of a speaking/defense turn.
   * **Urgent Ticks:** 1200 Hz alert clicks for the final 3 seconds.
   * **Gong:** Multi-harmonic gong (110 Hz fundamental, 220 Hz, 330 Hz, 440 Hz) with exponential decay on timer expiration.
@@ -184,7 +185,12 @@ graph TD
   * **Dawn Rise:** Ascending C-major chord arpeggio (C4 $\rightarrow$ E4 $\rightarrow$ G4 $\rightarrow$ C5) on morning wake-up.
   * **Roulette Wheel:** Mechanical tick sound during Destiny Spin and Last Word Card selection.
   * **Victory Fanfare:** Triumphant brass-like major chord fanfare upon match conclusion.
-* **Persistent Mute:** Reactive global audio toggle (`useAudio().isMuted`) synchronized across sessions with `localStorage`.
+* **Soundtrack Configuration & Suno AI Music Playback ([`src/data/soundtracks.js`](file:///Users/ali.heristchian/Documents/learning/mpga/src/data/soundtracks.js)):**
+  * **Phase Playlists:** Dedicated music playlists for each game phase (`night`, `day`, `voting`, `victory`, `lobby`).
+  * **Smart Suno URL Resolver (`resolveSunoAudioUrl`):** Automatically detects and parses Suno song URLs (`https://suno.com/song/<id>`) into direct playable CDN audio streams (`https://cdn1.suno.ai/<id>.mp3`).
+  * **Auto-DJ Crossfading:** Seamlessly switches and crossfades background tracks when transitioning between game phases.
+  * **Moderator Music Console (`SoundtrackConsole.vue`):** Dedicated UI for testing tracks, managing volume, toggling Auto-DJ, and pasting live Suno URLs on the fly.
+* **Persistent Preferences:** Reactive volume and mute states (`useAudio().musicVolume`, `useAudio().autoPlayOnPhaseChange`, `useAudio().isMuted`) synchronized with `localStorage`.
 
 ---
 
