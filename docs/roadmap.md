@@ -1,14 +1,14 @@
-# Project Roadmap & Future Todos
+# Project Roadmap & Future Architecture
 
-This document tracks completed milestones, current capabilities, and upcoming features for the **Mafia Party Game Assistant (MPGA)**.
+This document tracks completed milestones, current capabilities, and upcoming architectural evolutions for the **Mafia Party Game Assistant (MPGA)**.
 
 ---
 
-## Architecture Evolution
+## 🏛️ Architecture Evolution
 
 ```mermaid
 graph TD
-    subgraph Core Architecture Completed
+    subgraph Core Architecture (Completed)
         A[Vue 3 Orchestrator: App.vue] --> B[ModeSelection.vue]
         A --> C[PlayerEntry.vue]
         A --> D[RoleSelection.vue]
@@ -24,13 +24,20 @@ graph TD
         E -.-> G[(LocalStorage Base64 Sync)]
     end
 
-    subgraph Phase 2 : Serverless P2P Multiplayer
-        J[Moderator Host Client] -->|Generates Session & Room ID| K[QR Code / Join Link]
-        L1[Player Phone 1] -->|Scans QR / Connects| M((WebRTC P2P Data Channels))
-        L2[Player Phone 2] -->|Scans QR / Connects| M
+    subgraph Phase 2 : Serverless & Dual-Transport Multiplayer
+        J[Moderator Host Cockpit] -->|Generates Session & Room PIN| K[QR Code / Direct Link]
+        L1[Player Client 1] -->|Scans QR / Connects| M((Cloud MQTT Relay / WebRTC P2P))
+        L2[Player Client 2] -->|Scans QR / Connects| M
         J <-->|Master State & Validation| M
         M <-->|Private Role Info & Prompts| L1
         M <-->|Private Role Info & Prompts| L2
+    end
+
+    subgraph Phase 3 : Universal Declarative Modding & Import/Export (Next)
+        CFG[Universal JSON/YAML Rulepack] -->|Loads / Imports| ENGINE[Universal Game Engine]
+        ENGINE -->|Dynamic Actions Schema| ACTIONS[Action Buttons & Target Selectors]
+        ENGINE -->|Descending Numerical Priority| PRIORITY[Standardized Priority Ladder]
+        ENGINE -->|Exports Custom Games| EXPORT[Shareable Game Config .json]
     end
 ```
 
@@ -75,10 +82,9 @@ graph TD
 * **Privacy-First Mobile Client (`PlayerClient.vue`):** Standalone mobile interface with visual roster seat claiming, tap-to-reveal secret role card, live speaker spotlight synchronization, night action console with real-time detective inquiry feedback, voting ballots, and timeout/retry recovery actions.
 * **Strict Payload Sanitization:** `sanitizePlayerPayload` and `sanitizePublicGameState` ensure zero role leakage to foreign player clients.
 
-### 8. Web Audio Procedural Sound Engine
-* Implemented zero-asset Web Audio API tone synthesis in [`useAudioService.js`](file:///Users/ali.heristchian/Documents/learning/mpga/src/services/useAudioService.js).
+### 8. Web Audio Procedural Sound Engine & Suno Custom Soundtrack Loader
 * Synthesizes countdown warning ticks ($\le 10$s, $\le 3$s), resonant end-of-turn gongs, night fall & dawn rise chord progressions, roulette wheel mechanical ticks, and victory fanfares.
-* Global sound mute toggle with persistence to `localStorage`.
+* Added phase-based custom soundtrack loader supporting Suno-generated AI music tracks with zero-bandwidth preservation controls.
 
 ### 9. Persian Localization, Language Switcher & Tournament Rule Polish
 * **Pure Bilingual Architecture:** Added comprehensive Persian translation dictionary ([`src/locales/fa.json`](file:///Users/ali.heristchian/Documents/learning/mpga/src/locales/fa.json)) and cleaned English dictionary ([`src/locales/en.json`](file:///Users/ali.heristchian/Documents/learning/mpga/src/locales/en.json)), removing mixed parenthetical terms.
@@ -88,14 +94,12 @@ graph TD
 * **Leon Guilt Penalty Resolution (`gameEngine.js`):** Leon shooting Town kills Leon at sunrise while sparing the Town target; Leon shooting Mafia eliminates the Mafia player.
 * **Nostradamus 3-Player Inquiry (`NightPhase.vue`):** Multi-target selection with live Mafia count calculation and silent finger-signal cue.
 * **Self-Targeting Guardrails:** Blocked self-targeting for Leon, Detective, Godfather, Matador, and Saul Goodman (Doctor self-target allowed).
-* **Tactile Mobile Touch Styling:** Added `active:scale-95 active:brightness-90` tactile feedback and $\ge 44\text{px}$ touch targets across all mobile views.
 
 ### 10. Live Player Lobby, Room PIN Passcode & Automated Role Reveal
 * **Live Room Lobby Setup (`PlayerEntry.vue`):** Host can generate a Room PIN passcode and display dynamic QR codes. Player phones join the lobby with their name and PIN, automatically populating the moderator roster in real time.
 * **Drag-and-Drop Seating & Management:** Moderator can re-order players via HTML5 drag-and-drop to match the physical circle or remove disconnected peers.
 * **Dedicated Mobile Lobby Screen (`PlayerClient.vue`):** Clean waiting room UI displaying room code, player's name, pulsing host-wait status, and a live roster of peers who joined the lobby.
 * **Seamless Role Auto-Dispatch:** Once the moderator assigns roles and starts the game, connected player phones in the lobby instantly transition to their secret role reveal cards with privacy shielding.
-* **Antigravity Customization Framework (`AGENTS.md`):** Configured repository instructions for Antigravity AI pair programming.
 
 ### 11. Dual-Transport Multiplayer (Cloud MQTT Relay & Hardened WebRTC) + Proprietary License
 * **Dual Transport Selector:** Moderator can choose between **☁️ Cloud Relay** (high-availability MQTT over Secure WebSockets via `broker.hivemq.com` with zero disconnects and live latency badge) and **⚡ WebRTC P2P** (direct browser-to-browser data channels with 3s keep-alive heartbeats and stable room codes).
@@ -107,19 +111,65 @@ graph TD
 
 ## 🚀 Upcoming Milestones
 
-### 1. Offline PWA (Progressive Web App) & Service Worker Support
-**Goal:** Enable complete offline playability and home screen installability on mobile devices and tablets during tournaments with intermittent connectivity.
-* Add web app manifest, custom icons, and Workbox caching for all assets.
+### 1. 100% Declarative Config-Driven Game Engine & Universal Modding Architecture
+**Goal:** Eliminate all hardcoded role `if` conditions (e.g. `if (role.id === 'godfather')` or `if (role.id === 'nostradamus')`) and replace them with a pure, declarative ability and scenario engine.
+* **Declarative Character Schema:**
+  - Every role definition in `roles.json` / `roles.js` will fully declare its:
+    - `actions: []` (List of active abilities with execution priority, target filter, charge limits, and night teleprompter prompts).
+    - `passives: []` (Shields, immunity, bulletproof counts, investigative immunity).
+    - `inquiryResponse: 'town' | 'mafia' | 'custom'` (What the detective sees).
+    - `winConditions: []` (Faction win condition definitions).
+* **Universal Action Dispatcher (`executeAction(actionConfig, actor, targets)`):**
+  - Pure execution engine that processes actions without knowing character names or specific hardcoded identities.
+* **Game Pack Import & Export (Community Modding):**
+  - Allow players and tournament hosts to export custom game modes, custom role configurations, and rule packs as `.json` or `.yaml` files.
+  - One-click import button allowing players to load custom community scenarios without modifying the source code.
 
-### 2. Spectator Mode & Public Display View
+### 2. Dynamic Two-Step Action Selection UX (Action Button $\rightarrow$ Target Selection)
+**Goal:** Replace single raw target dropdowns with explicit, labeled action buttons and dynamic candidate targeting.
+* **Action Button Selector:**
+  - When a character wakes up (e.g., Godfather, Silencer, Doctor), the UI displays clear, icon-labeled action buttons:
+    - *Godfather:* `[🔫 Order Mafia Shot]` | `[🚫 Pass Shot]`
+    - *Silencer:* `[🔇 Silence Player]` | `[🔫 Direct Shot]` | `[🚫 Pass]`
+    - *Doctor:* `[💉 Treat Teammate]` | `[🛡️ Self-Heal (1 Charge)]`
+* **Dynamic Target Filtering:**
+  - Clicking an action button dynamically filters the target roster based on that specific action's rules (e.g. `allowSelf: false`, `onlyDead: true`, `maxTargets: 3`, `onlyUnshielded: true`).
+  - Supports multi-target selection (e.g. Nostradamus 3-target inquiry) with validation before applying.
+
+### 3. Standardized Descending Numerical Priority Engine
+**Goal:** Unify the night resolution priority system into a standardized descending order (`99 > 90 > 50 > 10 > 1`) and align all role wake-ups with tournament standards.
+* **Standard Priority Ladder:**
+  1. **Priority 99 - Passive Shields & Immunity:** Godfather bulletproof, Nostradamus immunity.
+  2. **Priority 90 - Role Blocking & Bribes:** Matador blocks, Saul Goodman bribes.
+  3. **Priority 80 - Healing & Protection:** Doctor saves, Bodyguard guards.
+  4. **Priority 70 - Lethal Shots:** Godfather shot, Vigilante (Leon) shot.
+  5. **Priority 50 - Inquiries & Information:** Detective investigations, Nostradamus alignment reading.
+  6. **Priority 10 - Post-Night Revivals & Dawn Announcements:** Constantine revive.
+* **Unified Resolution Pipeline:**
+  - `gameEngine.js` will sort actions strictly in descending numerical priority (`a.priority - b.priority` reversed to descending `b.priority - a.priority`).
+
+### 4. Multiplayer State Reactivity, Connected Player Roster Sync & Presence Healing
+**Goal:** Ensure 100% reactive player connection lists, active device badges, and live seat assignments across both Cloud MQTT and WebRTC.
+* **Live Connected Device Roster:**
+  - Live player count badge in header and lobby automatically updates when players join, disconnect, or switch seats.
+  - Active presence heartbeat prevents phantom disconnected sessions.
+* **Multiplayer Cockpit Controls:**
+  - Reactive action buttons in `MultiplayerHostModal` and `PlayerEntry` reflect real-time network states (`Connecting...`, `Connected (Cloud MQTT)`, `P2P Mesh Active`).
+
+### 5. Offline PWA (Progressive Web App) & Service Worker Support
+**Goal:** Enable complete offline playability and home screen installability on mobile devices and tablets during tournaments with intermittent connectivity.
+* Add web app manifest, custom icons, and Workbox caching for all application assets and audio files.
+
+### 6. Spectator Mode & Public Display View
 **Goal:** Provide a dedicated projector / spectator display URL (`/?view=spectator` or `/?view=projector`) showing live speaker spotlights, vote tallies, and phase art without revealing secret roles.
 
-### 3. Audio Customization, TTS Moderator Prompts & Soundpacks
+### 7. Audio DJ Console, Custom Soundtracks & TTS Moderator Prompts
 **Goal:** Allow hosts to select alternative sound packs or enable Web Speech synthesis for automated night teleprompter announcements.
 
-### 4. Tournament Bracket & Multi-Table Management
+### 8. Tournament Bracket & Multi-Table League Management
 **Goal:** Support tournament organizers managing multi-table events with master standings, player ranking points, and aggregated tournament statistics.
 
-### 5. Technical Debt: TypeScript Migration
+### 9. TypeScript 5 Strict Schema Migration
 * Migrate from Vanilla JS to **TypeScript** (`<script setup lang="ts">`).
 * Define strict TypeScript interfaces (`Player`, `Role`, `Ability`, `GameMode`, `NightAction`, `GameEventLog`, `LastWordCard`, `GameStatusResult`).
+

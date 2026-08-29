@@ -92,32 +92,31 @@ Night actions cannot be resolved simultaneously because dependencies exist (e.g.
 ```mermaid
 flowchart TD
     N1["Night 1 Introduction: Mafia Team Familiarization Wake-Up"]
-    P0["Priority 0: Passive Shields Active (Godfather / Nostradamus)"]
-    P1["Priority 1: Alignment Choice & Inquiry (Nostradamus 'choose-side')"]
-    P2["Priority 2: Mafia Night Shot (Godfather 'mafia-shot')"]
-    P3["Priority 3: Role Block & Bribe (Matador 'block', Saul 'buy')"]
-    P4["Priority 4: Doctor Heal & Vigilante Shot ('treat', 'vigillante-shot')"]
-    P5["Priority 5: Detective Investigation ('investigate')"]
-    P6["Priority 6: Constantine Revive ('revive')"]
-    DEATHS["Final Calculation: Passive Shields, Saves & Leon Penalty -> Actual Deaths Logged"]
+    P99["Priority 99: Passive Shields Active (Godfather / Nostradamus)"]
+    P90["Priority 90: Role Block & Bribe (Matador 'block', Saul 'buy')"]
+    P80["Priority 80: Doctor Save / Treat ('treat')"]
+    P70["Priority 70: Lethal Night Shots (Godfather 'mafia-shot', Leon 'vigillante-shot')"]
+    P50["Priority 50: Inquiries & Information (Detective 'investigate', Nostradamus 'choose-side')"]
+    P10["Priority 10: Constantine Revive ('revive')"]
+    DEATHS["Dawn Resolution: Passive Shields, Saves & Leon Penalty -> Actual Deaths Logged"]
 
-    N1 --> P0 --> P1 --> P2 --> P3 --> P4 --> P5 --> P6 --> DEATHS
+    N1 --> P99 --> P90 --> P80 --> P70 --> P50 --> P10 --> DEATHS
 ```
 
-### Resolution Order Table
+### Standardized Descending Priority Ladder (Higher Number = Executes First)
 
 | Priority | Action / Ability | Actor | Target Restrictions | Effect / Logic |
 | :---: | :--- | :--- | :--- | :--- |
 | **N/A** | *Mafia Introduction* | All Living Mafia | Self Team (Night 1 only) | Familiarization wake-up (no shot/kill). |
-| **0** | `shield` / `unlimited-shield` | Godfather, Nostradamus | Self (Passive) | Protects bearer against deadly shots. |
-| **1** | `choose-side` | Nostradamus | Up to 3 players + Town/Mafia choice | Moderator signals Mafia count; records chosen win condition. |
-| **2** | `mafia-shot` | Godfather | Other living players | Marks target for elimination unless protected or shielded. |
-| **3** | `block` | Matador | Other living players | Cancels the target's ability if priority > 3. |
-| **3** | `buy` | Saul Goodman | Other living players | Applies bribe effect for the night/day. |
-| **4** | `treat` | Doctor | Any living player (self-target allowed) | Saves target from elimination if shot on the same night. |
-| **4** | `vigillante-shot` | Leon (Vigilante) | Other living players | If target is Town: Leon dies, target safe. If target is Mafia: Mafia dies. |
-| **5** | `investigate` | Detective | Other living players | Reveals target's faction (`town` vs. `mafia`) in moderator log. |
-| **6** | `revive` | Constantine | Dead players only | Restores a dead player back to life (`isDead: false`). |
+| **99** | `shield` / `unlimited-shield` | Godfather, Nostradamus | Self (Passive) | Protects bearer against deadly shots. |
+| **90** | `block` | Matador | Other living players | Cancels the target's ability execution for the night. |
+| **90** | `buy` | Saul Goodman | Other living players | Applies bribe effect for the night/day. |
+| **80** | `treat` | Doctor | Any living player (self-target allowed) | Saves target from elimination if shot on the same night. |
+| **70** | `mafia-shot` | Godfather | Other living players | Marks target for elimination unless saved or shielded. |
+| **70** | `vigillante-shot` | Leon (Vigilante) | Other living players | If target is Town: Leon dies, target safe. If target is Mafia: Mafia dies. |
+| **50** | `investigate` | Detective | Other living players | Reveals target's faction (`town` vs. `mafia`) in moderator log. |
+| **50** | `choose-side` | Nostradamus | Up to 3 players + Town/Mafia choice | Moderator signals Mafia count; records chosen win condition. |
+| **10** | `revive` | Constantine | Dead players only | Restores a dead player back to life (`isDead: false`). |
 
 ---
 
