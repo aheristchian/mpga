@@ -25,9 +25,12 @@ For in-depth explanations tailored for players, moderators, developers, and AI a
 
 * 📖 **[How to Play & Game Flow Guide](docs/how-to-play.md)** — Comprehensive step-by-step walkthrough of all game phases and cycles.
 * ⚖️ **[Mafia Rules & Mechanics](docs/rules.md)** — Detailed role catalog, abilities, faction win conditions, and night action priority resolution tables.
+* 🌐 **[Multiplayer Architecture](docs/multiplayer.md)** — Dual-transport engine (Cloud MQTT Relay vs WebRTC P2P), QR pairing, and client sync protocol.
+* 🌿 **[Git Workflow & Commit Standards](docs/git-workflow.md)** — Branch strategy, Conventional Commits specification, and CI/CD deployment rules.
+* 🌍 **[Localization & i18n](docs/localization.md)** — Bilingual English/Persian dictionaries, dynamic RTL directionality, and translation guidelines.
 * 🛠️ **[Technology & Architecture](docs/technology.md)** — Technical design, Pinia state patterns, relational data models, and directory maps.
 * 🚀 **[How to Run & Developer Guide](docs/how-to-run.md)** — Installation, development server, Vitest testing, and build scripts.
-* 🗺️ **[Roadmap & Future Todos](docs/roadmap.md)** — Architecture milestones (Dual-transport multiplayer, action logging, Midday Last Word cards, and TypeScript migration).
+* 🗺️ **[Roadmap & Future Todos](docs/roadmap.md)** — Architecture milestones (action logging, Midday Last Word cards, and TypeScript migration).
 
 ---
 
