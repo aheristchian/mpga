@@ -61,6 +61,16 @@
           <p class="text-xs text-gray-400 mt-1">{{ $t('playerClient.joinSubtitle') }}</p>
         </div>
 
+        <!-- Scanned Room Banner -->
+        <div
+          v-if="inputRoomCode"
+          class="p-2.5 bg-amber-950/40 border border-amber-500/40 rounded-xl text-center"
+        >
+          <p class="text-xs text-amber-300 font-bold">
+            {{ $t('playerClient.scannedRoomPrompt', { code: inputRoomCode }) }}
+          </p>
+        </div>
+
         <div class="space-y-3">
           <div>
             <label class="text-[11px] font-bold text-gray-400 uppercase">{{
@@ -80,10 +90,13 @@
               $t('playerClient.playerNameLabel')
             }}</label>
             <input
+              ref="nameInputRef"
               v-model="inputPlayerName"
               type="text"
+              autofocus
               :placeholder="$t('playerClient.playerNamePlaceholder')"
               class="w-full bg-gray-800 border border-gray-700 text-white text-sm py-2.5 px-3 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none mt-1"
+              @keyup.enter="handleJoin"
             />
             <p class="text-[10px] text-gray-500 mt-1">
               {{ $t('playerClient.playerNameHelp') }}
@@ -176,11 +189,11 @@
       <!-- 2. CONNECTED: LOBBY WAITING SCREEN (Setup phase or waiting for role assignment) -->
       <div
         v-else-if="!playerIdentity?.role"
-        class="bg-gray-900 border border-gray-800 p-6 rounded-2xl shadow-xl space-y-5"
+        class="bg-gray-900 border border-gray-800 p-5 rounded-2xl shadow-xl space-y-4"
       >
-        <div class="text-center space-y-2">
-          <div class="inline-block p-3 bg-blue-950/80 border border-blue-500/50 rounded-2xl">
-            <span class="text-3xl">🎉</span>
+        <div class="text-center space-y-1.5">
+          <div class="inline-block p-2.5 bg-blue-950/80 border border-blue-500/50 rounded-2xl">
+            <span class="text-2xl">🎉</span>
           </div>
           <h3 class="text-lg font-black text-white">
             {{ $t('playerClient.inLobbyTitle') }}
@@ -189,31 +202,117 @@
             {{
               $t('playerClient.inLobbySubtitle', {
                 code: multiplayer.roomCode.value,
-                name: multiplayer.clientPlayerName.value || inputPlayerName || 'Player',
+                name: effectivePlayerName || 'Player',
               })
             }}
           </p>
-          <div class="bg-gray-800/80 p-3 rounded-xl border border-gray-700/60 mt-3">
-            <p class="text-xs text-amber-300 font-semibold flex items-center justify-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
-              <span>{{ $t('playerClient.waitingForHostToStart') }}</span>
-            </p>
+        </div>
+
+        <!-- 2A. UNNAMED PLAYER PROMPT (If connected without a name) -->
+        <div
+          v-if="!effectivePlayerName"
+          class="p-4 bg-amber-950/40 border border-amber-500/60 rounded-2xl space-y-2.5"
+        >
+          <div class="flex items-center gap-2">
+            <span class="text-xl">✍️</span>
+            <div>
+              <h4 class="text-xs font-bold text-amber-300">
+                {{ $t('playerClient.enterNameToJoinPrompt') }}
+              </h4>
+              <p class="text-[10px] text-gray-400">{{ $t('playerClient.playerNameHelp') }}</p>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <input
+              v-model="lobbyNameInput"
+              type="text"
+              :placeholder="$t('playerClient.playerNamePlaceholder')"
+              class="flex-1 bg-gray-800 border border-gray-700 text-white text-xs py-2 px-3 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none"
+              @keyup.enter="submitLobbyName"
+            />
+            <button
+              :disabled="!lobbyNameInput.trim()"
+              class="px-3.5 py-2 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow cursor-pointer transition-all"
+              @click="submitLobbyName"
+            >
+              {{ $t('playerClient.addToRoster') }}
+            </button>
           </div>
         </div>
 
-        <!-- LOBBY ROSTER -->
-        <div v-if="publicState?.allPlayers?.length" class="space-y-2">
-          <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">
-            {{ $t('playerClient.lobbyPlayersList', { count: publicState.allPlayers.length }) }}
-          </h4>
-          <div class="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+        <!-- 2B. REGISTERED PLAYER CARD -->
+        <div
+          v-else
+          class="p-3.5 bg-blue-950/30 border border-blue-500/40 rounded-2xl space-y-2"
+        >
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="text-xl">👤</span>
+              <div>
+                <p class="text-[10px] uppercase font-bold text-blue-400">
+                  {{ $t('playerClient.registeredAs') }}
+                </p>
+                <h4 class="text-sm font-black text-white">{{ effectivePlayerName }}</h4>
+              </div>
+            </div>
+            <button
+              class="text-xs bg-gray-800 hover:bg-gray-700 text-blue-300 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+              @click="toggleEditName"
+            >
+              {{ isEditingName ? $t('app.cancel') : '✏️ ' + $t('playerClient.changeName') }}
+            </button>
+          </div>
+
+          <!-- Inline Edit Input -->
+          <div v-if="isEditingName" class="flex gap-2 pt-1">
+            <input
+              v-model="lobbyNameInput"
+              type="text"
+              :placeholder="$t('playerClient.playerNamePlaceholder')"
+              class="flex-1 bg-gray-800 border border-gray-700 text-white text-xs py-1.5 px-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              @keyup.enter="submitLobbyName"
+            />
+            <button
+              :disabled="!lobbyNameInput.trim()"
+              class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-bold text-xs rounded-lg cursor-pointer transition-all"
+              @click="submitLobbyName"
+            >
+              {{ $t('playerEntry.save') }}
+            </button>
+          </div>
+        </div>
+
+        <!-- STATUS NOTICE -->
+        <div class="bg-gray-800/80 p-2.5 rounded-xl border border-gray-700/60">
+          <p class="text-xs text-amber-300 font-semibold flex items-center justify-center gap-1.5 text-center">
+            <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+            <span>{{ $t('playerClient.waitingForHostToStart') }}</span>
+          </p>
+        </div>
+
+        <!-- LOBBY ROSTER LIST -->
+        <div class="space-y-2">
+          <div class="flex justify-between items-center">
+            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">
+              {{ $t('playerClient.lobbyPlayersList', { count: lobbyPlayersList.length }) }}
+            </h4>
+            <span class="text-[10px] text-gray-500 font-medium flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+              <span>Live</span>
+            </span>
+          </div>
+
+          <div
+            v-if="lobbyPlayersList.length > 0"
+            class="space-y-1.5 max-h-56 overflow-y-auto pr-1"
+          >
             <div
-              v-for="p in publicState.allPlayers"
+              v-for="p in lobbyPlayersList"
               :key="p.name"
               class="p-2.5 bg-gray-800 rounded-xl flex items-center justify-between border"
               :class="
-                p.name === (multiplayer.clientPlayerName.value || inputPlayerName)
-                  ? 'border-blue-500 bg-blue-950/30 font-bold text-white'
+                p.name.toLowerCase() === effectivePlayerName.toLowerCase()
+                  ? 'border-blue-500 bg-blue-950/40 font-bold text-white shadow'
                   : 'border-gray-700 text-gray-300'
               "
             >
@@ -221,13 +320,31 @@
                 <span class="text-xs font-mono text-gray-500">#{{ p.seat }}</span>
                 <span class="text-sm">{{ p.name }}</span>
               </div>
-              <span
-                v-if="p.name === (multiplayer.clientPlayerName.value || inputPlayerName)"
-                class="text-[10px] bg-blue-900/80 text-blue-300 px-2 py-0.5 rounded-full font-bold"
-              >
-                YOU
-              </span>
+              <div class="flex items-center gap-2">
+                <span
+                  v-if="p.name.toLowerCase() === effectivePlayerName.toLowerCase()"
+                  class="text-[10px] bg-blue-900/90 text-blue-300 border border-blue-500/50 px-2 py-0.5 rounded-full font-extrabold tracking-wider"
+                >
+                  {{ $t('playerClient.youBadge') }}
+                </span>
+                <button
+                  v-else-if="!effectivePlayerName"
+                  class="text-[11px] bg-amber-600/80 hover:bg-amber-500 text-white font-medium px-2 py-0.5 rounded-lg transition-colors cursor-pointer"
+                  @click="handleClaimSeat(p.name)"
+                >
+                  {{ $t('playerClient.imThisPlayer') }} →
+                </button>
+              </div>
             </div>
+          </div>
+
+          <div
+            v-else
+            class="text-center py-5 bg-gray-800/40 border border-dashed border-gray-700 rounded-xl p-3"
+          >
+            <p class="text-xs text-gray-400">
+              {{ $t('playerClient.noPlayersInLobby') }}
+            </p>
           </div>
         </div>
 
@@ -454,9 +571,12 @@ import { useMultiplayer } from '../../services/useMultiplayerService';
 
 const multiplayer = useMultiplayer();
 
+const nameInputRef = ref(null);
 const inputRoomCode = ref('');
 const inputPlayerName = ref('');
 const inputPasscode = ref('');
+const lobbyNameInput = ref('');
+const isEditingName = ref(false);
 const isRoleRevealed = ref(false);
 const selectedNightTarget = ref('');
 const submittedNightTarget = ref(false);
@@ -464,6 +584,17 @@ const detectiveResult = ref(null);
 
 const playerIdentity = computed(() => multiplayer.clientPlayerIdentity.value);
 const publicState = computed(() => multiplayer.clientPublicState.value);
+
+const effectivePlayerName = computed(() => {
+  return multiplayer.clientPlayerName.value || inputPlayerName.value || '';
+});
+
+const lobbyPlayersList = computed(() => {
+  if (publicState.value?.allPlayers?.length) return publicState.value.allPlayers;
+  if (publicState.value?.setupPlayers?.length) return publicState.value.setupPlayers;
+  if (multiplayer.lobbyPlayers.value?.length) return multiplayer.lobbyPlayers.value;
+  return [];
+});
 
 const livingOtherPlayers = computed(() => {
   if (!publicState.value?.livingPlayers) return [];
@@ -490,11 +621,11 @@ onMounted(() => {
     }
     if (joinCode) {
       inputRoomCode.value = joinCode.toUpperCase();
-      const savedName = localStorage.getItem('mpga_player_name') || '';
+      const savedName = (localStorage.getItem('mpga_player_name') || '').trim();
       if (savedName) {
         inputPlayerName.value = savedName;
+        multiplayer.joinRoom(joinCode, savedName, pin, transport || multiplayer.transportMode.value);
       }
-      multiplayer.joinRoom(joinCode, savedName, pin, transport || multiplayer.transportMode.value);
     }
   }
 });
@@ -509,7 +640,23 @@ const handleJoin = () => {
   );
 };
 
+const submitLobbyName = () => {
+  const name = lobbyNameInput.value.trim();
+  if (!name) return;
+  inputPlayerName.value = name;
+  multiplayer.joinLobby(name, inputPasscode.value);
+  isEditingName.value = false;
+};
+
+const toggleEditName = () => {
+  isEditingName.value = !isEditingName.value;
+  if (isEditingName.value) {
+    lobbyNameInput.value = effectivePlayerName.value;
+  }
+};
+
 const handleClaimSeat = (name) => {
+  inputPlayerName.value = name;
   multiplayer.claimSeat(name);
 };
 

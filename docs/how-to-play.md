@@ -45,8 +45,8 @@ stateDiagram-v2
 * **📱 Live Room Lobby Mode:**
   * The moderator creates a game room with an optional **Room PIN / Passcode** for access control.
   * Displays a live QR code and room join link on the moderator screen.
-  * Players scan the QR code or visit the link on their phones, enter their name and the optional PIN, and join the lobby.
-  * The moderator's roster updates in real-time as player devices connect (🟢).
+  * Players scan the QR code on their phones. If it's their first time, they enter their display name and tap **Join Lobby** (or if already saved, reconnect automatically). Players can edit their name directly inside the lobby and see the real-time roster of all joined players.
+  * The moderator's roster updates in real-time as player devices connect and register their names (🟢).
   * The moderator can drag-and-drop player cards to match physical seating or remove players.
   * Once all players are in, the moderator clicks **Proceed to Role Selection**. When the game starts, all connected devices in the lobby automatically receive their secret role assignments.
 * **⌨️ Manual Entry Mode:**

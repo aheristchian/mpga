@@ -316,7 +316,18 @@ export function useMultiplayer() {
       if (data.playerName) existing.playerName = data.playerName;
     }
 
-    // Ping / Pong Latency Check
+    // Request State / Ping
+    if (data.type === 'GET_STATE') {
+      if (onPlayerActionCallback) {
+        onPlayerActionCallback({
+          action: 'CLIENT_REQUESTED_STATE',
+          senderId,
+          playerName: data.playerName,
+        });
+      }
+      return;
+    }
+
     if (data.type === 'PING') {
       sendCloudDirect(hostCode, senderId, {
         type: 'PONG',
@@ -502,7 +513,16 @@ export function useMultiplayer() {
   };
 
   const handleWebRTCHostIncomingData = (conn, data) => {
-    if (!data || typeof data !== 'object') return;
+    if (data.type === 'GET_STATE') {
+      if (onPlayerActionCallback) {
+        onPlayerActionCallback({
+          action: 'CLIENT_REQUESTED_STATE',
+          peerId: conn.peer,
+          playerName: data.playerName,
+        });
+      }
+      return;
+    }
 
     if (data.type === 'PONG') {
       const p = connectedPeers.value.find((peer) => peer.peerId === conn.peer);
@@ -698,6 +718,17 @@ export function useMultiplayer() {
         clientMqttClient.subscribe(topicPublic, { qos: 0 });
         clientMqttClient.subscribe(topicDirect, { qos: 0 });
 
+        // Request initial state from host
+        clientMqttClient.publish(
+          topicHost,
+          JSON.stringify({
+            type: 'GET_STATE',
+            senderId: clientMqttId,
+            playerName: preferredPlayerName || clientPlayerName.value,
+          }),
+          { qos: 0 }
+        );
+
         if (preferredPlayerName) {
           joinLobby(preferredPlayerName, passcode);
         }
@@ -794,6 +825,14 @@ export function useMultiplayer() {
         clientConn.on('open', () => {
           clearTimeout(connectTimeout);
           connectionStatus.value = 'connected';
+          try {
+            clientConn.send({
+              type: 'GET_STATE',
+              playerName: preferredPlayerName || clientPlayerName.value,
+            });
+          } catch {
+            // ignore
+          }
           if (preferredPlayerName) {
             joinLobby(preferredPlayerName, passcode);
           }

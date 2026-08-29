@@ -172,7 +172,11 @@ onMounted(() => {
         store.addSetupPlayer(actionData.playerName, actionData.peerId);
       }
       multiplayer.broadcastHostState(store);
-    } else if (actionData.action === 'CLAIM_SEAT' || actionData.action === 'PEER_CONNECTED') {
+    } else if (
+      actionData.action === 'CLAIM_SEAT' ||
+      actionData.action === 'PEER_CONNECTED' ||
+      actionData.action === 'CLIENT_REQUESTED_STATE'
+    ) {
       multiplayer.broadcastHostState(store);
     } else if (actionData.type === 'NIGHT_ACTION') {
       store.addLog(
