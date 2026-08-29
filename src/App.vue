@@ -114,7 +114,7 @@
       >
         <span class="inline-flex items-center gap-1.5">
           <span>{{ $t('app.createdBy') }}</span>
-          <span class="font-bold text-gray-200">Ali Heristchian</span>
+          <span class="font-bold text-gray-200">{{ $t('app.authorName') }}</span>
         </span>
         <span class="text-gray-600">•</span>
         <span

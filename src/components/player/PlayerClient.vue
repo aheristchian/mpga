@@ -568,7 +568,7 @@
         </span>
       </div>
       <p class="text-[10px] text-gray-400">
-        {{ $t('app.createdBy') }} <strong class="text-gray-300">Ali Heristchian</strong>
+        {{ $t('app.createdBy') }} <strong class="text-gray-300">{{ $t('app.authorName') }}</strong>
       </p>
     </footer>
   </div>

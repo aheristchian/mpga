@@ -36,6 +36,9 @@ graph TD
    * Switching to Persian automatically sets `document.documentElement.setAttribute('dir', 'rtl')`.
    * Switching to English automatically sets `document.documentElement.setAttribute('dir', 'ltr')`.
    * UI components should utilize logical Tailwind CSS classes (e.g. `start-`, `end-`, `text-start`, `text-end`) or symmetric flexbox alignments to ensure flawless rendering in both directions.
+5. **Dedicated Google Fonts Typography:**
+   * **Persian (RTL):** Uses **`Vazirmatn`** (Google Fonts variable font designed by Saber Rastikerdar) for pristine Persian glyph connections, rhythm, and numeral legibility.
+   * **English (LTR):** Uses **`Inter`** & **`Roboto`** (Google Fonts) for ultra-clean, modern UI legibility and tall x-height.
 
 ---
 
