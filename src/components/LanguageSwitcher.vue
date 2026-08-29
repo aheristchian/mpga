@@ -2,7 +2,7 @@
   <div class="flex items-center gap-1 bg-gray-900/80 p-1 rounded-xl border border-gray-700 select-none shadow-sm">
     <button
       type="button"
-      class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+      class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center justify-center cursor-pointer active:scale-95 min-w-[32px]"
       :class="
         currentLocale === 'en'
           ? 'bg-blue-600 text-white shadow-md'
@@ -11,12 +11,11 @@
       @click="setLanguage('en')"
       :title="$t('language.en')"
     >
-      <span>🇺🇸</span>
-      <span>EN</span>
+      EN
     </button>
     <button
       type="button"
-      class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+      class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center justify-center cursor-pointer active:scale-95 min-w-[32px]"
       :class="
         currentLocale === 'fa'
           ? 'bg-emerald-600 text-white shadow-md'
@@ -25,8 +24,7 @@
       @click="setLanguage('fa')"
       :title="$t('language.fa')"
     >
-      <span>🇮🇷</span>
-      <span>فا</span>
+      فا
     </button>
   </div>
 </template>
