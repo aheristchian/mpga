@@ -10,8 +10,8 @@
       <div
         class="bg-gradient-to-r from-blue-950 via-gray-900 to-indigo-950 p-6 rounded-2xl border border-blue-500/40 text-center shadow-xl relative overflow-hidden"
       >
-        <!-- HOST STATUS BADGE -->
-        <div class="flex items-center justify-center gap-2 mb-3">
+        <!-- HOST STATUS & TRANSPORT BADGE -->
+        <div class="flex flex-wrap items-center justify-center gap-2 mb-3">
           <span
             class="text-[11px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5"
             :class="{
@@ -39,6 +39,32 @@
                   : $t('multiplayer.hostStatusError')
             }}</span>
           </span>
+
+          <!-- TRANSPORT TOGGLE PILL -->
+          <div class="flex bg-gray-900 p-0.5 rounded-lg border border-gray-700 text-[10px]">
+            <button
+              class="px-2 py-0.5 rounded cursor-pointer transition-colors"
+              :class="
+                multiplayer.transportMode.value === 'cloud'
+                  ? 'bg-blue-600 text-white font-bold'
+                  : 'text-gray-400 hover:text-white'
+              "
+              @click="multiplayer.setTransportMode('cloud')"
+            >
+              {{ $t('multiplayer.cloudRelay') }}
+            </button>
+            <button
+              class="px-2 py-0.5 rounded cursor-pointer transition-colors"
+              :class="
+                multiplayer.transportMode.value === 'webrtc'
+                  ? 'bg-blue-600 text-white font-bold'
+                  : 'text-gray-400 hover:text-white'
+              "
+              @click="multiplayer.setTransportMode('webrtc')"
+            >
+              {{ $t('multiplayer.webrtcP2p') }}
+            </button>
+          </div>
         </div>
 
         <p class="text-xs font-bold uppercase tracking-widest text-blue-400 mb-1">
@@ -262,7 +288,7 @@ const joinUrl = computed(() => {
     origin = `${protocol}//${customHost.value}`;
   }
   const base = origin + window.location.pathname;
-  let url = `${base}?join=${multiplayer.roomCode.value}`;
+  let url = `${base}?join=${multiplayer.roomCode.value}&t=${multiplayer.transportMode.value}`;
   if (multiplayer.roomPasscode.value) {
     url += `&pin=${encodeURIComponent(multiplayer.roomPasscode.value)}`;
   }

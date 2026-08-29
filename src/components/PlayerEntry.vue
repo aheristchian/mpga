@@ -40,11 +40,69 @@
         </div>
       </div>
 
-      <!-- TAB 1: LIVE ROOM LOBBY (QR + ROOM CODE + PASSCODE) -->
+      <!-- TAB 1: LIVE ROOM LOBBY (QR + ROOM CODE + PASSCODE + TRANSPORT) -->
       <div
         v-if="activeTab === 'lobby'"
         class="bg-gradient-to-r from-blue-950/60 via-gray-900 to-indigo-950/60 p-5 rounded-2xl border border-blue-500/30 space-y-4"
       >
+        <!-- TRANSPORT ENGINE SELECTOR -->
+        <div class="bg-gray-900/90 p-3 rounded-xl border border-blue-500/20 space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="text-[11px] font-bold text-gray-300 flex items-center gap-1.5">
+              <span>🌐</span>
+              <span>{{ $t('multiplayer.transportMode') }}</span>
+            </span>
+            <span
+              class="text-[10px] font-mono px-2 py-0.5 rounded-full flex items-center gap-1"
+              :class="
+                multiplayer.connectionStatus.value === 'connected'
+                  ? 'bg-green-950/80 text-green-300 border border-green-500/50'
+                  : 'bg-amber-950/80 text-amber-300 border border-amber-500/50'
+              "
+            >
+              <span
+                class="w-1.5 h-1.5 rounded-full"
+                :class="
+                  multiplayer.connectionStatus.value === 'connected'
+                    ? 'bg-green-400 animate-pulse'
+                    : 'bg-amber-400 animate-pulse'
+                "
+              ></span>
+              <span>{{ multiplayer.connectionStatus.value }}</span>
+            </span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              class="p-2 rounded-lg border text-left transition-all cursor-pointer flex flex-col justify-between select-none"
+              :class="
+                multiplayer.transportMode.value === 'cloud'
+                  ? 'bg-blue-950/80 border-blue-400 text-white shadow-md'
+                  : 'bg-gray-800/60 border-gray-700 text-gray-400 hover:text-white'
+              "
+              @click="multiplayer.setTransportMode('cloud')"
+            >
+              <span class="text-xs font-bold">{{ $t('multiplayer.cloudRelay') }}</span>
+              <span class="text-[10px] opacity-75 mt-0.5 leading-tight">{{ $t('multiplayer.cloudRelayDesc') }}</span>
+            </button>
+
+            <button
+              type="button"
+              class="p-2 rounded-lg border text-left transition-all cursor-pointer flex flex-col justify-between select-none"
+              :class="
+                multiplayer.transportMode.value === 'webrtc'
+                  ? 'bg-blue-950/80 border-blue-400 text-white shadow-md'
+                  : 'bg-gray-800/60 border-gray-700 text-gray-400 hover:text-white'
+              "
+              @click="multiplayer.setTransportMode('webrtc')"
+            >
+              <span class="text-xs font-bold">{{ $t('multiplayer.webrtcP2p') }}</span>
+              <span class="text-[10px] opacity-75 mt-0.5 leading-tight">{{ $t('multiplayer.webrtcP2pDesc') }}</span>
+            </button>
+          </div>
+        </div>
+
         <div class="flex flex-col md:flex-row items-center gap-6">
           <!-- QR Code Canvas -->
           <div class="bg-white p-2.5 rounded-2xl shadow-xl shrink-0 flex flex-col items-center">
@@ -257,7 +315,7 @@ const joinUrl = computed(() => {
   if (typeof window === 'undefined') return '';
   const origin = window.location.origin;
   const path = window.location.pathname;
-  let url = `${origin}${path}?join=${multiplayer.roomCode.value}`;
+  let url = `${origin}${path}?join=${multiplayer.roomCode.value}&t=${multiplayer.transportMode.value}`;
   if (passcodeInput.value.trim()) {
     url += `&pin=${encodeURIComponent(passcodeInput.value.trim())}`;
   }

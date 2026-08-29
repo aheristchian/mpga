@@ -13,10 +13,11 @@
     "format": "prettier --write src/"
   },
   "author": "Ali Heristchian",
-  "license": "ISC",
+  "license": "UNLICENSED",
   "dependencies": {
     "axios": "^1.4.0",
     "domready": "^1.0.8",
+    "mqtt": "^5.15.2",
     "peerjs": "^1.5.5",
     "pinia": "^4.0.2",
     "qrcode.vue": "^3.10.0",

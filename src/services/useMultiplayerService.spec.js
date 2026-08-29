@@ -91,4 +91,19 @@ describe('useMultiplayerService', () => {
     expect(publicState.setupPlayers[1]).toEqual({ name: 'Sara', seat: 2 });
     expect(publicState.allPlayers.length).toBe(2);
   });
+
+  it('manages transportMode switching and passcode settings via composable', async () => {
+    const { useMultiplayer } = await import('./useMultiplayerService');
+    const mp = useMultiplayer();
+
+    expect(mp.transportMode.value).toBe('cloud');
+    mp.setTransportMode('webrtc');
+    expect(mp.transportMode.value).toBe('webrtc');
+
+    mp.setTransportMode('cloud');
+    expect(mp.transportMode.value).toBe('cloud');
+
+    mp.setRoomPasscode('9988');
+    expect(mp.roomPasscode.value).toBe('9988');
+  });
 });

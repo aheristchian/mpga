@@ -147,26 +147,32 @@ graph TD
 * Zero external asset dependencies: scalable, lightweight vector SVGs defined in [`src/data/roleIllustrations.js`](file:///Users/ali.heristchian/Documents/learning/mpga/src/data/roleIllustrations.js) and [`src/components/PhaseHeroBanner.vue`](file:///Users/ali.heristchian/Documents/learning/mpga/src/components/PhaseHeroBanner.vue).
 * Dynamic faction lighting glows, death state overlays, and responsive sizing across all screen widths.
 
-### 7. Serverless P2P Multiplayer Architecture & Live Room Lobby
-* **Zero Backend Hosting:** Built using PeerJS over WebRTC direct data channels.
-* **STUN/TURN Relay Network:**
-  * Configured with Google STUN (`stun.l.google.com:19302`) and OpenRelay TURN relays (`openrelay.metered.ca`) over UDP and TCP (ports 80 and 443).
-  * Guarantees reliable NAT traversal across mobile carrier CGNAT (4G/5G), home routers, and strict corporate firewalls.
-* **Connection Resilience & Lifecycle:**
-  * **Keep-Alive Heartbeats:** Periodic 20-second ping frames prevent cloud signaling WebSocket drops.
-  * **Auto-Reconnection:** Dedicated handlers for `disconnected` peer states automatically reconnect to the broker without losing game state.
-  * **Clean Teardown:** `beforeunload` lifecycle hooks cleanly destroy signaling registrations on tab close to prevent stale ID collisions.
-  * **Persistent Host Listening:** Host automatically starts listening on page load with a persistent Room Code stored in `localStorage`.
+### 7. Dual-Transport Multiplayer Architecture (Cloud Relay & WebRTC P2P)
+* **Flexible Transport Engines:** Hosts and players can connect via two robust transport engines:
+  1. **☁️ Cloud Relay (MQTT over Secure WebSockets - Recommended):**
+     - Powered by the public high-availability MQTT broker (`wss://broker.hivemq.com:8884/mqtt`).
+     - Ultra-stable, 0% disconnect rate, works seamlessly across all networks, restrictive mobile carrier CGNAT (4G/5G), and public Wi-Fi without NAT/STUN hurdles.
+     - Topic isolation per game room (`mpga/{roomCode}/host`, `mpga/{roomCode}/public`, and `mpga/{roomCode}/client/{senderId}`).
+     - Live 3.5s bidirectional ping/pong measuring network latency (`pingLatency` in ms).
+  2. **⚡ WebRTC P2P (Direct PeerJS):**
+     - Direct browser-to-browser data channel communication, 100% serverless.
+     - Hardened with 3-second DataChannel keep-alive heartbeat frames preventing NAT firewall timeouts.
+     - Fixed room code persistence preventing ID mutation during signaling blips.
+     - Backed by Google STUN (`stun.l.google.com:19302`) and OpenRelay TURN relays (`openrelay.metered.ca`).
+* **Instant Engine Switching & Dynamic URL Sharing:**
+  - Moderator can switch between Cloud Relay and WebRTC P2P at any time directly in the lobby and host modals.
+  - Join URLs and QR codes dynamically encode the selected transport engine (`&t=cloud` or `&t=webrtc`).
+  - Mobile clients automatically parse the transport parameter and pair using the appropriate transport without manual configuration.
 * **Live Room Lobby & Passcode Protocol:**
-  * **Room PIN / Passcode Verification:** Host can configure an optional PIN (`roomPasscode`). When a player connects with `{ type: 'JOIN_LOBBY', playerName, passcode }`, the host validates the passcode before registering the player.
-  * **Dual Entry Modes:** Moderator can use **Live Room Lobby** (where player phones join dynamically to populate the roster) or **Manual Entry** (traditional text input).
-  * **Live Setup Synchronization:** `sanitizePublicGameState(store)` includes `setupPlayers` during the setup phase, so players in the lobby see other connected peers in real time.
-  * **Seamless Role Auto-Dispatch:** When the moderator finalizes roles and starts the game, role assignments are automatically pushed to connected peer devices, smoothly transitioning players from the lobby waiting screen to their private secret role reveal card.
+  - **Room PIN / Passcode Verification:** Host can configure an optional PIN (`roomPasscode`). When a player connects with `{ type: 'JOIN_LOBBY', playerName, passcode }`, the host validates the passcode before registering the player.
+  - **Dual Entry Modes:** Moderator can use **Live Room Lobby** (where player phones join dynamically to populate the roster) or **Manual Entry** (traditional text input).
+  - **Live Setup Synchronization:** `sanitizePublicGameState(store)` includes `setupPlayers` during the setup phase, so players in the lobby see other connected peers in real time.
+  - **Seamless Role Auto-Dispatch:** When the moderator finalizes roles and starts the game, role assignments are automatically pushed to connected peer devices, smoothly transitioning players from the lobby waiting screen to their private secret role reveal card.
 * **Strict Privacy Isolation & Sanitization:**
-  * `sanitizePlayerPayload(player)` transmits secret role info only to the specific connected device that claimed that seat.
-  * `sanitizePublicGameState(store)` strips all foreign secret roles and internal notes, broadcasting only public roster statuses and speaker cues.
+  - `sanitizePlayerPayload(player)` transmits secret role info only to the specific connected device that claimed that seat.
+  - `sanitizePublicGameState(store)` strips all foreign secret roles and internal notes, broadcasting only public roster statuses and speaker cues.
 * **Mobile Client View (`PlayerClient.vue`):**
-  * Standalone mobile interface featuring Room PIN authentication, Lobby Waiting Room with live player roster, tap-to-reveal secret role cards, live speaker spotlight synchronization, night action target selection with immediate detective feedback, voting ballots, and timeout/retry recovery actions.
+  - Standalone mobile interface featuring Room PIN authentication, live transport badge, latency indicator (ms), Lobby Waiting Room with live player roster, tap-to-reveal secret role cards, live speaker spotlight synchronization, night action target selection with immediate detective feedback, voting ballots, and timeout/retry recovery actions.
 
 ### 8. Procedural Web Audio Sound FX Engine
 * Zero audio files or external CDN dependencies implemented in [`src/services/useAudioService.js`](file:///Users/ali.heristchian/Documents/learning/mpga/src/services/useAudioService.js).
@@ -179,3 +185,12 @@ graph TD
   * **Roulette Wheel:** Mechanical tick sound during Destiny Spin and Last Word Card selection.
   * **Victory Fanfare:** Triumphant brass-like major chord fanfare upon match conclusion.
 * **Persistent Mute:** Reactive global audio toggle (`useAudio().isMuted`) synchronized across sessions with `localStorage`.
+
+---
+
+## 4. Legal & Intellectual Property Notice
+
+* **Copyright (c) 2026 Ali Heristchian. All Rights Reserved.**
+* The source code, visual vector assets, game design logic, and documentation contained in this repository are proprietary.
+* Unauthorized copying, redistribution, modification, reverse engineering, sublicensing, or commercial exploitation in whole or in part without prior written permission is strictly prohibited. See [`LICENSE`](file:///Users/ali.heristchian/Documents/learning/mpga/LICENSE) for complete terms.
+

@@ -16,7 +16,7 @@
       <div class="flex items-center gap-2">
         <LanguageSwitcher />
 
-        <div class="flex items-center gap-1.5 bg-gray-900 px-2 py-1 rounded-xl border border-gray-800">
+        <div class="flex items-center gap-1.5 bg-gray-900 px-2.5 py-1 rounded-xl border border-gray-800 text-[10px]">
           <span
             class="w-2 h-2 rounded-full"
             :class="{
@@ -27,8 +27,14 @@
                 multiplayer.connectionStatus.value === 'disconnected',
             }"
           ></span>
-          <span class="text-[10px] font-mono font-bold text-gray-400 uppercase">
-            {{ multiplayer.connectionStatus.value }}
+          <span class="font-mono font-bold text-gray-300 uppercase">
+            {{ multiplayer.transportMode.value === 'cloud' ? '☁️ Cloud' : '⚡ P2P' }}
+          </span>
+          <span
+            v-if="multiplayer.isConnected.value && multiplayer.pingLatency.value !== null"
+            class="text-[9px] font-mono text-gray-400 border-l border-gray-700 pl-1.5"
+          >
+            {{ multiplayer.pingLatency.value }}ms
           </span>
         </div>
 
@@ -82,6 +88,38 @@
             <p class="text-[10px] text-gray-500 mt-1">
               {{ $t('playerClient.playerNameHelp') }}
             </p>
+          </div>
+
+          <div>
+            <label class="text-[11px] font-bold text-gray-400 uppercase">{{
+              $t('playerClient.transportLabel')
+            }}</label>
+            <div class="grid grid-cols-2 gap-2 mt-1">
+              <button
+                type="button"
+                class="py-2 px-2.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer select-none text-center"
+                :class="
+                  multiplayer.transportMode.value === 'cloud'
+                    ? 'bg-amber-950/80 border-amber-500 text-amber-200 shadow'
+                    : 'bg-gray-800 border-gray-700 text-gray-400 hover:text-white'
+                "
+                @click="multiplayer.setTransportMode('cloud')"
+              >
+                {{ $t('playerClient.cloudMode') }}
+              </button>
+              <button
+                type="button"
+                class="py-2 px-2.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer select-none text-center"
+                :class="
+                  multiplayer.transportMode.value === 'webrtc'
+                    ? 'bg-amber-950/80 border-amber-500 text-amber-200 shadow'
+                    : 'bg-gray-800 border-gray-700 text-gray-400 hover:text-white'
+                "
+                @click="multiplayer.setTransportMode('webrtc')"
+              >
+                {{ $t('playerClient.p2pMode') }}
+              </button>
+            </div>
           </div>
 
           <div>
@@ -442,6 +480,11 @@ onMounted(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const joinCode = urlParams.get('join') || urlParams.get('room');
     const pin = urlParams.get('pin') || '';
+    const transport = urlParams.get('t') || '';
+
+    if (transport === 'cloud' || transport === 'webrtc') {
+      multiplayer.setTransportMode(transport);
+    }
     if (pin) {
       inputPasscode.value = pin;
     }
@@ -451,7 +494,7 @@ onMounted(() => {
       if (savedName) {
         inputPlayerName.value = savedName;
       }
-      multiplayer.joinRoom(joinCode, savedName, pin);
+      multiplayer.joinRoom(joinCode, savedName, pin, transport || multiplayer.transportMode.value);
     }
   }
 });
@@ -461,7 +504,8 @@ const handleJoin = () => {
   multiplayer.joinRoom(
     inputRoomCode.value,
     inputPlayerName.value.trim(),
-    inputPasscode.value.trim()
+    inputPasscode.value.trim(),
+    multiplayer.transportMode.value
   );
 };
 

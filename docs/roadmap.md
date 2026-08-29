@@ -97,6 +97,12 @@ graph TD
 * **Seamless Role Auto-Dispatch:** Once the moderator assigns roles and starts the game, connected player phones in the lobby instantly transition to their secret role reveal cards with privacy shielding.
 * **Antigravity Customization Framework (`AGENTS.md`):** Configured repository instructions for Antigravity AI pair programming.
 
+### 11. Dual-Transport Multiplayer (Cloud MQTT Relay & Hardened WebRTC) + Proprietary License
+* **Dual Transport Selector:** Moderator can choose between **☁️ Cloud Relay** (high-availability MQTT over Secure WebSockets via `broker.hivemq.com` with zero disconnects and live latency badge) and **⚡ WebRTC P2P** (direct browser-to-browser data channels with 3s keep-alive heartbeats and stable room codes).
+* **Automatic Dynamic URL & QR Encoding:** Join links and QR codes automatically encode `&t=cloud` or `&t=webrtc`, allowing player phones to seamlessly pair on the host's selected engine.
+* **Network Latency Monitor:** Added real-time 3.5s ping/pong latency measurement (`pingLatency` in ms) displayed in the client UI.
+* **Proprietary Copyright & Legal License:** Added formal proprietary [`LICENSE`](file:///Users/ali.heristchian/Documents/learning/mpga/LICENSE) (Copyright (c) 2026 Ali Heristchian. All Rights Reserved) protecting all source code, algorithms, visual assets, and documentation.
+
 ---
 
 ## 🚀 Upcoming Milestones

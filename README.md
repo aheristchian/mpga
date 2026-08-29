@@ -13,8 +13,9 @@ A modern Vue 3 web application designed to assist game moderators (hosts and nar
   * **Day Phase:** Speaking timers with clockwise and counter-clockwise flow and shift offsets.
   * **Voting Phase:** Pre-vote threshold calculation, defense stage timers, and final elimination voting.
   * **Night Phase:** Priority-ordered ability resolution engine (accounting for blocks, heals, shields, investigations, and revives).
+* **Dual-Transport Multiplayer Sync:** Connect player phones seamlessly via **☁️ Cloud Relay (MQTT WebSockets)** or **⚡ WebRTC P2P (Direct)**. Live latency indicator, QR code instant pairing, and secret tap-to-reveal role cards.
 * **LocalStorage Auto-Sync:** State is serialized continuously to prevent accidental data loss.
-* **Full Localization (i18n):** Extracted strings ready for multi-language support.
+* **Full Localization (i18n):** Bilingual support for English and Persian (فارسی) with dynamic RTL/LTR directionality.
 
 ---
 
@@ -26,7 +27,7 @@ For in-depth explanations tailored for players, moderators, developers, and AI a
 * ⚖️ **[Mafia Rules & Mechanics](docs/rules.md)** — Detailed role catalog, abilities, faction win conditions, and night action priority resolution tables.
 * 🛠️ **[Technology & Architecture](docs/technology.md)** — Technical design, Pinia state patterns, relational data models, and directory maps.
 * 🚀 **[How to Run & Developer Guide](docs/how-to-run.md)** — Installation, development server, Vitest testing, and build scripts.
-* 🗺️ **[Roadmap & Future Todos](docs/roadmap.md)** — Architecture milestones (P2P WebRTC multiplayer, action logging, Midday Last Word cards, and TypeScript migration).
+* 🗺️ **[Roadmap & Future Todos](docs/roadmap.md)** — Architecture milestones (Dual-transport multiplayer, action logging, Midday Last Word cards, and TypeScript migration).
 
 ---
 
@@ -42,3 +43,11 @@ npm run dev
 # 3. Run unit tests
 npm run test
 ```
+
+---
+
+## 📄 License & Intellectual Property
+
+Copyright (c) 2026 Ali Heristchian. All Rights Reserved.  
+Proprietary software. Unauthorized copying, distribution, modification, or commercial use is strictly prohibited. See [LICENSE](LICENSE) for details.
+

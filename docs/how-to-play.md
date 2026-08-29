@@ -145,29 +145,31 @@ When a win condition is fulfilled:
 
 ---
 
-## 6. Serverless P2P Multiplayer (Connecting Player Phones)
+## 6. Dual-Transport Multiplayer (Connecting Player Phones)
 
-Players can connect their mobile devices directly to the host's screen without installing any apps, registering accounts, or routing through external database servers:
+Players can connect their mobile devices directly to the host's screen without installing any apps or registering accounts:
 
-1. **Host Pairing & Auto-Listening:**
-   * The moderator screen automatically initializes a persistent WebRTC host peer listening with a unique 4-character Room Code (e.g., `53FH`).
-   * Clicking **📱 Connect Devices** in the top navigation bar opens the pairing modal displaying the live Room Code, a direct join link, an SVG QR code (`qrcode.vue`), a live signaling status indicator (`🟢 Host Ready & Listening`), and a **🔄 New Code** button if the host wishes to roll a fresh code.
-2. **Player Join & Simplified Seat Claiming:**
-   * Players scan the QR code with their mobile phone cameras or navigate directly to `/?join=ROOM_CODE`.
+1. **Dual Transport Selection (Cloud Relay vs. WebRTC P2P):**
+   * **☁️ Cloud Relay (Recommended):** Uses high-availability MQTT WebSockets (`broker.hivemq.com`). Delivers zero disconnects across mobile carrier 4G/5G, public Wi-Fi, and home routers. Includes real-time ping latency display.
+   * **⚡ WebRTC P2P (Direct):** Direct browser-to-browser communication backed by STUN/TURN relays and 3s DataChannel keep-alives.
+   * Moderators can toggle between modes in the lobby or host modal; QR codes and join URLs update automatically (`&t=cloud` or `&t=webrtc`).
+2. **Host Pairing & Auto-Listening:**
+   * The moderator screen automatically initializes a persistent host listening with a unique 4-character Room Code (e.g., `53FH`).
+   * Clicking **📱 Connect Devices** in the top navigation bar opens the pairing modal displaying the live Room Code, a direct join link, an SVG QR code (`qrcode.vue`), live connection status, transport engine toggle, and a **🔄 New Code** button.
+3. **Player Join & Simplified Seat Claiming:**
+   * Players scan the QR code with their mobile phone cameras or navigate directly to `/?join=ROOM_CODE&t=cloud`.
    * **No Typing Needed:** Players can leave the name input blank and tap **Connect to Game**.
    * Upon connection, the phone immediately displays the host's seating roster (`#1 Ali`, `#2 Sarah`, `#3 John`, etc.).
    * Each player simply taps **"I am this player →"** on their name to claim their device seat and sync their private state.
-3. **Robust Connection via STUN/TURN Relays:**
-   * P2P connections are fortified with Google STUN servers and OpenRelay TURN relays (`openrelay.metered.ca`), ensuring 100% reliable data channels across mobile cellular networks (4G/5G), carrier CGNAT, home Wi-Fi, and corporate firewalls.
-   * Auto-reconnect and WebSocket heartbeat keep-alives maintain active sessions if mobile devices briefly sleep or switch apps.
 4. **Secret Privacy Card:**
    * Players tap their personal blurred identity card to view their secret role and faction alignment in private.
 5. **Live Synchronization:**
    * Player screens highlight the active speaker during the Day phase.
    * When their role wakes up during the Night phase, an interactive console lets them select their night ability target silently.
    * Voting ballots allow players to record their votes directly on their phones.
-6. **Mobile Touch Feedback:**
+6. **Mobile Touch Feedback & Ping Indicator:**
    * All mobile buttons, controls, and candidate cards feature tactile active touch states (`active:scale-95 active:brightness-90`) and meet accessibility standards ($\ge 44\text{px}$ touch targets).
+   * Live latency badge displays real-time connection responsiveness (e.g., `🟢 42ms`).
 
 ---
 
