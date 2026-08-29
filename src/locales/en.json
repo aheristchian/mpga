@@ -70,9 +70,10 @@
     "title": "Mafia Moderator",
     "subtitle": "Intelligent Game Master & Tournament Assistant",
     "badge": "Tournament Cockpit",
-    "createdBy": "Created by",
+    "createdBy": "Designed with love & curiosity by",
     "authorName": "Ali Heristchian",
-    "copyright": "© 2026 Ali Heristchian. All Rights Reserved.",
+    "copyright": "© 2026 MPGA. All Rights Reserved.",
+    "switchToPlayerView": "🎮 Switch to Player View",
     "startOver": "Start Over",
     "startOverConfirmTitle": "Start Over?",
     "startOverWarning": "Are you sure you want to start a completely new game?",
@@ -344,7 +345,9 @@
     "actionSubmitted": "Action registered with Moderator",
     "votingBallot": "Voting Ballot",
     "castYourVote": "Vote for this player",
-    "switchPlayerMode": "Switch Player / Leave Room"
+    "switchPlayerMode": "Leave Lobby / Disconnect",
+    "leaveRoom": "Leave Lobby / Disconnect",
+    "returnToModerator": "👑 Return to Moderator Cockpit"
   },
   "gameModerator": {
     "boardTitle": "Live Game Board",

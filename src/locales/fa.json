@@ -70,9 +70,10 @@
     "title": "گرداننده مافیا",
     "subtitle": "دستیار هوشمند و حرفه‌ای گردانندگی تورنمنت مافیا",
     "badge": "پنل گردانندگی مسابقه",
-    "createdBy": "طراحی و توسعه توسط",
+    "createdBy": "طراحی‌شده با عشق و کنجکاوی توسط",
     "authorName": "علی هریسچیان",
-    "copyright": "© ۲۰۲۶ علی هریسچیان. کلیه حقوق محفوظ است.",
+    "copyright": "© ۲۰۲۶ MPGA. تمامی حقوق محفوظ است.",
+    "switchToPlayerView": "🎮 ورود به نمای بازیکن",
     "startOver": "شروع مجدد",
     "startOverConfirmTitle": "شروع مجدد بازی؟",
     "startOverWarning": "آیا مطمئن هستید که می‌خواهید بازی جدیدی را آغاز کنید؟",
@@ -344,7 +345,9 @@
     "actionSubmitted": "اقدام با موفقیت برای گرداننده ثبت شد",
     "votingBallot": "برگه رای‌گیری",
     "castYourVote": "رای به این بازیکن",
-    "switchPlayerMode": "تغییر بازیکن / خروج از اتاق"
+    "switchPlayerMode": "خروج از اتاق / قطع اتصال",
+    "leaveRoom": "خروج از اتاق / قطع اتصال",
+    "returnToModerator": "👑 بازگشت به پنل گرداننده"
   },
   "gameModerator": {
     "boardTitle": "میز زنده بازی",

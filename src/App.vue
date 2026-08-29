@@ -1,7 +1,7 @@
 <template>
   <!-- PLAYER MOBILE CLIENT VIEW -->
   <div v-if="isPlayerMode" class="min-h-screen bg-gray-950">
-    <PlayerClient />
+    <PlayerClient @return-to-moderator="isPlayerMode = false" />
   </div>
 
   <!-- MODERATOR HOST VIEW -->
@@ -127,7 +127,7 @@
           class="text-blue-400 hover:text-blue-300 hover:underline cursor-pointer font-medium transition-colors"
           @click="isPlayerMode = true"
         >
-          {{ $t('playerClient.switchPlayerMode') }}
+          {{ $t('app.switchToPlayerView') }}
         </button>
       </div>
       <p class="text-[11px] text-gray-400">

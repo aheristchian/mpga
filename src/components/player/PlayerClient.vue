@@ -38,9 +38,21 @@
           </span>
         </div>
 
+        <!-- RETURN TO MODERATOR BUTTON -->
+        <button
+          type="button"
+          class="px-2.5 py-1 bg-gray-900 hover:bg-gray-800 border border-gray-750 text-indigo-300 hover:text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer active:scale-95 shadow-sm"
+          :title="$t('playerClient.returnToModerator')"
+          @click="emit('returnToModerator')"
+        >
+          <span>👑</span>
+          <span class="hidden sm:inline">{{ $t('playerClient.returnToModerator') }}</span>
+        </button>
+
         <button
           v-if="multiplayer.isConnected.value"
           class="text-xs text-gray-500 hover:text-red-400 p-1 active:scale-95 cursor-pointer"
+          :title="$t('playerClient.leaveRoom')"
           @click="handleDisconnect"
         >
           ✕
@@ -352,7 +364,7 @@
           class="w-full py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-semibold rounded-xl transition-all cursor-pointer"
           @click="handleDisconnect"
         >
-          ← {{ $t('playerClient.switchPlayerMode') }}
+          ← {{ $t('playerClient.leaveRoom') }}
         </button>
       </div>
 
@@ -557,18 +569,29 @@
     </main>
 
     <!-- FOOTER -->
-    <footer class="py-3 text-center text-xs text-gray-400 space-y-1">
-      <div class="flex items-center justify-center gap-2">
-        <span>{{ $t('app.title') }}</span>
+    <footer class="py-4 text-center text-xs text-gray-400 space-y-2 border-t border-gray-900/80">
+      <div class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+        <span class="inline-flex items-center gap-1.5">
+          <span>{{ $t('app.createdBy') }}</span>
+          <strong class="text-gray-200">{{ $t('app.authorName') }}</strong>
+        </span>
         <span class="text-gray-600">•</span>
         <span
           class="px-1.5 py-0.2 bg-gray-900 border border-gray-800 rounded text-[10px] font-mono font-bold text-gray-400"
         >
           v{{ appVersion }}
         </span>
+        <span class="text-gray-600">•</span>
+        <button
+          type="button"
+          class="text-blue-400 hover:text-blue-300 hover:underline cursor-pointer font-medium text-xs transition-colors"
+          @click="emit('returnToModerator')"
+        >
+          {{ $t('playerClient.returnToModerator') }}
+        </button>
       </div>
-      <p class="text-[10px] text-gray-400">
-        {{ $t('app.createdBy') }} <strong class="text-gray-300">{{ $t('app.authorName') }}</strong>
+      <p class="text-[11px] text-gray-500">
+        {{ $t('app.copyright') }}
       </p>
     </footer>
   </div>
@@ -580,6 +603,7 @@ import RoleAvatar from '../RoleAvatar.vue';
 import LanguageSwitcher from '../LanguageSwitcher.vue';
 import { useMultiplayer } from '../../services/useMultiplayerService';
 
+const emit = defineEmits(['returnToModerator']);
 const appVersion = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '1.1.0';
 const multiplayer = useMultiplayer();
 
