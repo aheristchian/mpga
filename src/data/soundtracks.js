@@ -2,12 +2,12 @@
  * MPGA Soundtrack & Suno Music Configuration.
  *
  * This configuration file defines the playlists for each game phase and scenario.
- * You can add your own Suno AI generated tracks, direct MP3 URLs, or audio streams.
+ * You can add your downloaded Suno MP3s, public CDN streams, or any MP3 files.
  *
  * Supported URL formats:
- * - Direct Suno Song URL: "https://suno.com/song/0712a149-2b4a-466d-b8d9-1365c71a3e6f"
- * - Direct Suno CDN MP3: "https://cdn1.suno.ai/0712a149-2b4a-466d-b8d9-1365c71a3e6f.mp3"
+ * - Local MP3 in public directory: "/audio/soundtracks/speakeasy.mp3" (Recommended for offline & instant play)
  * - Any standard MP3 / AAC / WAV stream URL: "https://my-server.com/music/track.mp3"
+ * - Public CDN or GitHub Raw audio stream
  */
 
 export const soundtrackConfig = {
