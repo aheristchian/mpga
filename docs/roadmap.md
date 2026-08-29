@@ -125,7 +125,21 @@ graph TD
   - Allow players and tournament hosts to export custom game modes, custom role configurations, and rule packs as `.json` or `.yaml` files.
   - One-click import button allowing players to load custom community scenarios without modifying the source code.
 
-### 2. Dynamic Two-Step Action Selection UX (Action Button $\rightarrow$ Target Selection)
+### 2. In-Game Interactive Role Chart, Hierarchy Tree & Game Guide (`GameGuideModal.vue`)
+**Goal:** Provide an interactive in-game visual reference and flowchart explaining the current game mode, active roles, and their abilities.
+* **Visual Role Hierarchy & Faction Tree:**
+  - Interactive diagram categorizing all seated roles by faction (**Town 🟢**, **Mafia 🔴**, **Neutral/Third-Party 🟣**).
+  - Clicking any role reveals its character art, story, alignment, and full breakdown of abilities ($a_1, a_2, \dots$):
+    - Ability type (Kill, Save, Block, Inquire, Revive, Passive Shield).
+    - Priority rank ($99 \rightarrow 10$).
+    - Target constraints (Self-target permitted, living-only, charge limits).
+    - Strategic advice and tournament ruling notes.
+* **Night Resolution Flowchart:**
+  - Visual timeline diagram showing the exact sequence of night wake-ups and ability resolutions for the current scenario.
+* **Anytime In-Game Access:**
+  - Accessible via top-bar `[❓ Guide]` icon on both moderator cockpit and mobile player screens (with secret role privacy shielding on player clients).
+
+### 3. Dynamic Two-Step Action Selection UX (Action Button $\rightarrow$ Target Selection)
 **Goal:** Replace single raw target dropdowns with explicit, labeled action buttons and dynamic candidate targeting.
 * **Action Button Selector:**
   - When a character wakes up (e.g., Godfather, Silencer, Doctor), the UI displays clear, icon-labeled action buttons:
@@ -136,7 +150,7 @@ graph TD
   - Clicking an action button dynamically filters the target roster based on that specific action's rules (e.g. `allowSelf: false`, `onlyDead: true`, `maxTargets: 3`, `onlyUnshielded: true`).
   - Supports multi-target selection (e.g. Nostradamus 3-target inquiry) with validation before applying.
 
-### 3. Standardized Descending Numerical Priority Engine
+### 4. Standardized Descending Numerical Priority Engine
 **Goal:** Unify the night resolution priority system into a standardized descending order (`99 > 90 > 50 > 10 > 1`) and align all role wake-ups with tournament standards.
 * **Standard Priority Ladder:**
   1. **Priority 99 - Passive Shields & Immunity:** Godfather bulletproof, Nostradamus immunity.
@@ -146,9 +160,9 @@ graph TD
   5. **Priority 50 - Inquiries & Information:** Detective investigations, Nostradamus alignment reading.
   6. **Priority 10 - Post-Night Revivals & Dawn Announcements:** Constantine revive.
 * **Unified Resolution Pipeline:**
-  - `gameEngine.js` will sort actions strictly in descending numerical priority (`a.priority - b.priority` reversed to descending `b.priority - a.priority`).
+  - `gameEngine.js` will sort actions strictly in descending numerical priority (`b.priority - a.priority`).
 
-### 4. Multiplayer State Reactivity, Connected Player Roster Sync & Presence Healing
+### 5. Multiplayer State Reactivity, Connected Player Roster Sync & Presence Healing
 **Goal:** Ensure 100% reactive player connection lists, active device badges, and live seat assignments across both Cloud MQTT and WebRTC.
 * **Live Connected Device Roster:**
   - Live player count badge in header and lobby automatically updates when players join, disconnect, or switch seats.
@@ -156,20 +170,53 @@ graph TD
 * **Multiplayer Cockpit Controls:**
   - Reactive action buttons in `MultiplayerHostModal` and `PlayerEntry` reflect real-time network states (`Connecting...`, `Connected (Cloud MQTT)`, `P2P Mesh Active`).
 
-### 5. Offline PWA (Progressive Web App) & Service Worker Support
+### 6. Headless Core State Machine (`@mpga/core`) & Time-Travel Event Sourcing
+**Goal:** Decouple the game engine into a pure, headless state machine with deterministic event sourcing.
+* **Pure Domain Engine:**
+  - Zero dependencies on Vue, DOM, or browser APIs.
+  - Enables mathematical balance simulations (simulating 10,000 matches in seconds).
+* **Time-Travel Event Sourcing:**
+  - Every game event is logged as an immutable delta.
+  - Enables instant **1-step Undo / Moderator Misclick Rewind** and an interactive post-match **Time-Travel Match Replay Viewer**.
+
+### 7. Stealth OLED Night Mode, Screen WakeLock & Tactile Haptic Feedback
+**Goal:** Optimize physical party gameplay and eliminate inadvertent "screen glow" tells.
+* **OLED Stealth Dark Mode:**
+  - Deep pitch-black theme with ultra-low luminescence to prevent face illumination in dark rooms during the night phase.
+* **Screen WakeLock API:**
+  - Keeps moderator and player screens active during active speaking and defense timers without sleeping in pockets.
+* **Tactile Haptic Vibrations (`navigator.vibrate`):**
+  - Distinct vibration pulses for speaking turn start, 5-second defense warning, and elimination notices.
+
+### 8. In-Browser Visual "Role Studio" & Scenario Builder
+**Goal:** Allow users to build, test, and share custom characters and rulepacks in an intuitive visual studio.
+* Drag-and-drop avatar, faction, abilities ($a_1, a_2$), priorities, and prompts.
+* Instant generation of shareable QR codes and scenario pack links (`?pack=custom-scenario-id`).
+
+### 9. Post-Match Infographics & Elo Tournament Leaderboards
+**Goal:** Generate shareable visual recap story cards and track competitive rankings.
+* **Dynamic Infographic Generator:** Canvas-rendered summary card for social sharing (Instagram / WhatsApp) highlighting MVPs, key saves, and match timeline.
+* **Tournament Elo & Leaderboards:** Aggregate win rates and performance ratings across tournament rounds.
+
+### 10. Automated Multi-Device E2E Simulation (Playwright)
+**Goal:** Continuous quality verification with automated multi-client simulations.
+* Playwright test suite spinning up 1 Host + 10 virtual Player mobile browsers executing full match lifecycles automatically on CI.
+
+### 11. Offline PWA (Progressive Web App) & Service Worker Support
 **Goal:** Enable complete offline playability and home screen installability on mobile devices and tablets during tournaments with intermittent connectivity.
 * Add web app manifest, custom icons, and Workbox caching for all application assets and audio files.
 
-### 6. Spectator Mode & Public Display View
+### 12. Spectator Mode & Public Display View
 **Goal:** Provide a dedicated projector / spectator display URL (`/?view=spectator` or `/?view=projector`) showing live speaker spotlights, vote tallies, and phase art without revealing secret roles.
 
-### 7. Audio DJ Console, Custom Soundtracks & TTS Moderator Prompts
+### 13. Audio DJ Console, Custom Soundtracks & TTS Moderator Prompts
 **Goal:** Allow hosts to select alternative sound packs or enable Web Speech synthesis for automated night teleprompter announcements.
 
-### 8. Tournament Bracket & Multi-Table League Management
+### 14. Tournament Bracket & Multi-Table League Management
 **Goal:** Support tournament organizers managing multi-table events with master standings, player ranking points, and aggregated tournament statistics.
 
-### 9. TypeScript 5 Strict Schema Migration
+### 15. TypeScript 5 Strict Schema Migration
 * Migrate from Vanilla JS to **TypeScript** (`<script setup lang="ts">`).
 * Define strict TypeScript interfaces (`Player`, `Role`, `Ability`, `GameMode`, `NightAction`, `GameEventLog`, `LastWordCard`, `GameStatusResult`).
+
 
