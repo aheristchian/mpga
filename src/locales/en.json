@@ -95,7 +95,9 @@
     "confirmEndGame": "Yes, End Game",
     "gameIsLive": "Game is Live!",
     "openLogs": "Event Log",
-    "logsCount": "{count} logs"
+    "logsCount": "{count} logs",
+    "gameGuide": "Game Guide & Roles",
+    "gameGuideShort": "Guide"
   },
   "playerEntry": {
     "addPlayers": "Player Setup & Seating",
@@ -476,5 +478,154 @@
     "votingSlogan": "Raise your voice and bring suspected infiltrators to justice.",
     "middaySlogan": "Final parting words and the mysterious turn of fate.",
     "nightSlogan": "In the cover of shadows, lethal choices and quiet rescues unfold."
+  },
+  "roleGuide": {
+    "title": "Game & Role Hierarchy Guide",
+    "subtitle": "Interactive breakdown of scenario rules, abilities, priorities, and night resolution",
+    "tabs": {
+      "roles": "🎭 Roles & Abilities",
+      "flowchart": "🌙 Night Priority Ladder",
+      "rules": "⚖️ Scenario & Rules"
+    },
+    "searchPlaceholder": "Search roles or abilities (e.g. Doctor, Shot, Shield, Constantine)...",
+    "filterActive": "In Current Match ({count})",
+    "filterAll": "All Scenario Roles ({count})",
+    "factions": {
+      "all": "All Factions",
+      "town": "Town (شهروندان)",
+      "mafia": "Mafia (مافیا)",
+      "thirdParty": "Neutral / Third Party (مستقل)",
+      "townProtector": "Town Protector",
+      "townInvestigator": "Town Investigator",
+      "townVigilante": "Town Vigilante",
+      "townMystic": "Town Mystic",
+      "townCitizen": "Town Member",
+      "mafiaLeader": "Mafia Leader",
+      "mafiaEnforcer": "Mafia Enforcer",
+      "mafiaSupport": "Mafia Attorney",
+      "mafiaMember": "Mafia Member",
+      "neutralProphet": "Neutral Prophet"
+    },
+    "types": {
+      "kill": "Lethal Shot",
+      "heal": "Medical Save",
+      "shield": "Armor Shield",
+      "inquire": "Investigation",
+      "block": "Role Block",
+      "bribe": "Bribe",
+      "revive": "Revival",
+      "prophecy": "Prophecy",
+      "passive": "Passive Trait"
+    },
+    "charges": {
+      "unlimited": "Unlimited (Nightly)",
+      "oneShot": "1-Shot Protection",
+      "onePerGame": "1 per Game",
+      "twoPerGame": "2 per Game",
+      "permanent": "Permanent",
+      "nightOneOnly": "Night 1 Only",
+      "dayOnly": "Day Phase"
+    },
+    "abilities": {
+      "mafiaShot": {
+        "name": "Mafia Night Shot",
+        "desc": "Coordinates with the Mafia team to designate 1 player for elimination."
+      },
+      "godfatherShield": {
+        "name": "Armored Vest",
+        "desc": "Passively absorbs 1 lethal night shot without dying."
+      },
+      "cleanInquiry": {
+        "name": "Clean Record",
+        "desc": "Appears as an innocent Town member when investigated by the Detective."
+      },
+      "block": {
+        "name": "Role Block",
+        "desc": "Silences the target's active night ability for that night."
+      },
+      "buy": {
+        "name": "Bribe Citizen",
+        "desc": "Under tournament rules, bribes an unassigned citizen into the mafia syndicate."
+      },
+      "teamShot": {
+        "name": "Coordinated Shot",
+        "desc": "Carries out the mafia elimination shot when designated or if leader is eliminated."
+      },
+      "treat": {
+        "name": "Medical Treatment",
+        "desc": "Prevents death if the target is shot on the same night. Self-heal allowed."
+      },
+      "investigate": {
+        "name": "Identity Inquiry",
+        "desc": "Investigates 1 player to reveal if they are Mafia (Godfather appears clean)."
+      },
+      "vigilanteShot": {
+        "name": "Town Sniper Shot",
+        "desc": "Eliminates suspected Mafia. Penalty: If target is innocent Town, Leon dies from guilt at dawn and the target survives!"
+      },
+      "revive": {
+        "name": "Revive Soul",
+        "desc": "Brings 1 dead player back to life before sunrise (1 charge per game)."
+      },
+      "chooseSide": {
+        "name": "Prophecy & Siding",
+        "desc": "Inquires 3 players to learn how many are Mafia, and chooses to win with Town or Mafia."
+      },
+      "prophetShield": {
+        "name": "Prophet's Cloak",
+        "desc": "Immune to deadly night shots throughout the entire game."
+      },
+      "deduction": {
+        "name": "Civic Deduction & Vote",
+        "desc": "Uses logical argumentation and daytime voting to eliminate hidden Mafia members."
+      }
+    },
+    "tactics": {
+      "godfather": "Coordinate with Matador to block the Doctor before ordering night shots.",
+      "matador": "Focus on blocking high-value targets like the Doctor or Detective early on.",
+      "saulGoodman": "Keep a low profile to recruit an unassigned citizen when the time is right.",
+      "mafia": "Blend in during daytime discussions and cast strategic votes with the town.",
+      "doctor": "Save unexpected targets to throw off the Mafia's kill patterns. Guard your self-heal.",
+      "detective": "Share verified inquiries tactfully without exposing your identity immediately.",
+      "leon": "Only shoot with strong day evidence to avoid triggering the fatal guilt penalty.",
+      "constantine": "Wait for a critical power role (like Doctor or Detective) to die before using your revive.",
+      "nostradamus": "Choose the 3 most vocal players on Night 1 to gauge table balance.",
+      "citizen": "Observe voting patterns and challenge inconsistencies during speech turns."
+    },
+    "nightSteps": {
+      "step1": {
+        "title": "Priority 99 — Passive Shields & Armor",
+        "desc": "Godfather vest and Nostradamus cloak protect against incoming shots."
+      },
+      "step2": {
+        "title": "Priority 90 — Role Blocks & Bribes",
+        "desc": "Matador cancels target's ability execution. Saul Goodman bribes target."
+      },
+      "step3": {
+        "title": "Priority 80 — Doctor Save & Protection",
+        "desc": "Doctor treats target, preventing lethal damage for the night."
+      },
+      "step4": {
+        "title": "Priority 70 — Lethal Night Shots",
+        "desc": "Godfather/Mafia and Leon fire deadly shots. Leon penalty evaluated."
+      },
+      "step5": {
+        "title": "Priority 50 — Inquiries & Readings",
+        "desc": "Detective discovers target's faction. Nostradamus receives mafia count."
+      },
+      "step6": {
+        "title": "Priority 10 — Constantine Revivals",
+        "desc": "Constantine restores a fallen player back to the living roster."
+      },
+      "step7": {
+        "title": "Sunrise & Dawn Announcement",
+        "desc": "The moderator calculates all shields, saves, and kills to announce actual eliminations."
+      }
+    },
+    "flowchartTitle": "Night Resolution Priority Ladder (Descending 99 → 0)",
+    "flowchartSubtitle": "Higher priority numbers execute before lower priority actions",
+    "scenarioTitle": "Active Scenario Specifications",
+    "scenarioDetails": "Game Configuration & Timings",
+    "noRolesFound": "No roles match your search filter."
   }
 }

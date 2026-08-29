@@ -20,6 +20,20 @@ export const roleSvgMap = {
     </svg>
   `,
 
+  mafia: `
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+      <circle cx="50" cy="50" r="48" fill="#1F1515" stroke="#EF4444" stroke-width="2"/>
+      <!-- Dual Tommy Gun / Cross Weapons -->
+      <rect x="25" y="46" width="50" height="8" rx="2" fill="#DC2626" opacity="0.8"/>
+      <circle cx="36" cy="50" r="10" stroke="#EF4444" stroke-width="2.5" fill="#111827"/>
+      <!-- Fedora Silhouette -->
+      <path d="M26 42 C30 30 40 24 50 24 C60 24 70 30 74 42 Z" fill="#991B1B"/>
+      <line x1="20" y1="42" x2="80" y2="42" stroke="#EF4444" stroke-width="3" stroke-linecap="round"/>
+      <!-- Trench Mask -->
+      <path d="M34 52 L50 64 L66 52 L50 78 Z" fill="#111827" stroke="#EF4444" stroke-width="1.5"/>
+    </svg>
+  `,
+
   detective: `
     <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
       <circle cx="50" cy="50" r="48" fill="#0F172A" stroke="#3B82F6" stroke-width="2"/>

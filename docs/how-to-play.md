@@ -173,7 +173,33 @@ Players can connect their mobile devices directly to the host's screen without i
 
 ---
 
-## 6. Procedural Sound Effects & Audio Cues
+## 7. In-Game Interactive Role Guide & Night Resolution Flowchart
+
+Both the human moderator and mobile players can consult the comprehensive **In-Game Guide & Help System** anytime during setup or live gameplay by tapping the **📖 Guide** button in the top action bar:
+
+1. **🎭 Role & Ability Hierarchy Tree:**
+   * **Visual Hierarchy:** Displays custom SVG vector character artwork (`roleSvgMap`), faction alignment badges (🟢 Town, 🔴 Mafia, 🟣 Neutral), and narrative backstories.
+   * **Abilities Breakdown ($a_1, a_2, \dots$):** Lists every active and passive ability, including action classification (Lethal Kill, Medical Save, Investigation, Role Block, Bribe, Revive, Armor Shield), standardized descending numerical priority ($99 \rightarrow 10$), charge limits, and targeting rules (self-targeting allowed vs. others only, living vs. dead).
+   * **Tactical Pro-Tips:** Provides strategy guidance, edge-case tournament rulings, and synergies for both moderator adjudications and player decision-making.
+   * **Dynamic Filters & Search:** Filter by "All Scenario Roles" or "Active Seated Roles in Current Match", by faction (Town, Mafia, Neutral), or via instant keyword search.
+
+2. **🌙 Night Resolution Priority Ladder (Descending 99 → 0):**
+   * Visual step-by-step ladder depicting the exact resolution sequence executed at dawn:
+     * **Step 1 (Priority 99):** Passive Shields & Armor (Godfather vest, Nostradamus cloak).
+     * **Step 2 (Priority 90):** Role Blocks & Bribes (Matador cancels actions, Saul Goodman buys citizen).
+     * **Step 3 (Priority 80):** Doctor Save & Protection (Doctor heals target against fatal shots).
+     * **Step 4 (Priority 70):** Lethal Night Shots (Godfather/Mafia and Leon fire; Leon innocent penalty verified).
+     * **Step 5 (Priority 50):** Inquiries & Readings (Detective discovers faction; Nostradamus receives mafia count).
+     * **Step 6 (Priority 10):** Constantine Revivals (Dead player restored to life).
+     * **Step 7 (Sunrise / Dawn):** Moderator announces calculated actual eliminations.
+
+3. **⚖️ Scenario & Tournament Rules:**
+   * Summarizes active scenario parameters: default speaking time ($40\text{s} / 60\text{s}$), challenge time ($25\text{s} / 30\text{s}$), defense time ($60\text{s}$), and the mathematical defense threshold ($\lceil \text{Alive}/2 \rceil$).
+   * Outlines fundamental rules including turn rotations ($+2$ shift), Godfather inquiry immunity, and Nostradamus win conditions.
+
+---
+
+## 8. Procedural Sound Effects & Audio Cues
 
 MPGA features a zero-asset procedural sound engine powered by the Web Audio API:
 * **Countdown Warning Ticks:** Cues players at $\le 10$ seconds and $\le 3$ seconds remaining on their speaking or defense turns.
@@ -182,3 +208,4 @@ MPGA features a zero-asset procedural sound engine powered by the Web Audio API:
 * **Roulette Wheel Ticks:** Provides tactile audio feedback while spinning for tie-breakers and Last Word cards.
 * **Victory Fanfare:** Triumphant fanfare upon game over and card draws.
 * **Sound Toggle:** A dedicated mute button (🔊 / 🔇) in the top navigation bar allows silencing sound effects at any time.
+

@@ -36,6 +36,16 @@
               {{ audio.isPlayingMusic.value ? audio.currentTrack.value?.title || $t('audio.musicConsole') : $t('audio.musicConsole') }}
             </span>
           </button>
+
+          <!-- IN-GAME GUIDE & ROLE HIERARCHY BUTTON -->
+          <button
+            class="px-3 py-1.5 bg-gray-800 hover:bg-amber-950/80 active:scale-95 border border-gray-700 hover:border-amber-500/60 text-gray-300 hover:text-white rounded-xl transition-all text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow"
+            :title="$t('app.gameGuide')"
+            @click="showGuideModal = true"
+          >
+            <span>📖</span>
+            <span class="hidden sm:inline">{{ $t('app.gameGuide') }}</span>
+          </button>
         </div>
 
         <!-- MULTIPLAYER CONNECT PHONES BUTTON -->
@@ -180,6 +190,9 @@
 
     <!-- SOUNDTRACK & SUNO MUSIC CONSOLE MODAL -->
     <SoundtrackConsole :is-open="showSoundtrackModal" @close="showSoundtrackModal = false" />
+
+    <!-- IN-GAME GUIDE & ROLE HIERARCHY MODAL -->
+    <GameGuideModal :is-open="showGuideModal" @close="showGuideModal = false" />
   </div>
 </template>
 
@@ -198,6 +211,7 @@ import MultiplayerHostModal from './components/multiplayer/MultiplayerHostModal.
 import PlayerClient from './components/player/PlayerClient.vue';
 import LanguageSwitcher from './components/LanguageSwitcher.vue';
 import SoundtrackConsole from './components/SoundtrackConsole.vue';
+import GameGuideModal from './components/GameGuideModal.vue';
 
 const store = useGameStore();
 const audio = useAudio();
@@ -209,6 +223,7 @@ const isPlayerMode = ref(false);
 const showMultiplayerModal = ref(false);
 const showResetModal = ref(false);
 const showSoundtrackModal = ref(false);
+const showGuideModal = ref(false);
 
 // Auto-DJ watcher for phase transitions
 watch(

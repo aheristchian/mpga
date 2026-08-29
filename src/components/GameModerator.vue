@@ -40,6 +40,16 @@
           <span>Match Ended ({{ store.winner?.toUpperCase() }})</span>
         </button>
 
+        <!-- Game Guide Button -->
+        <button
+          class="bg-gray-800 hover:bg-amber-950/80 border border-gray-700 hover:border-amber-500/50 text-gray-300 hover:text-white px-3 py-2 rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5 cursor-pointer"
+          :title="$t('app.gameGuide')"
+          @click="showGuideModal = true"
+        >
+          <span>📖</span>
+          <span class="hidden sm:inline">{{ $t('app.gameGuideShort') }}</span>
+        </button>
+
         <!-- Event Log Button -->
         <button
           class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer"
@@ -229,6 +239,9 @@
         </button>
       </template>
     </BaseModal>
+
+    <!-- IN-GAME GUIDE & ROLE HIERARCHY MODAL -->
+    <GameGuideModal :is-open="showGuideModal" @close="showGuideModal = false" />
   </div>
 </template>
 
@@ -243,6 +256,7 @@ import DayPhase from './game/DayPhase.vue';
 import VotingPhase from './game/VotingPhase.vue';
 import MiddayPhase from './game/MiddayPhase.vue';
 import NightPhase from './game/NightPhase.vue';
+import GameGuideModal from './GameGuideModal.vue';
 import { useGameStore } from '../stores/gameStore';
 
 const store = useGameStore();
@@ -251,6 +265,7 @@ const aliveCount = computed(() => store.livePlayers.filter((p) => !p.isDead).len
 
 const showLogDrawer = ref(false);
 const showStatusModal = ref(false);
+const showGuideModal = ref(false);
 const selectedPlayerForModal = ref(null);
 const showEndGameModal = ref(false);
 

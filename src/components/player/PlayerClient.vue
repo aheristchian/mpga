@@ -16,6 +16,17 @@
       <div class="flex items-center gap-2">
         <LanguageSwitcher />
 
+        <!-- IN-GAME GUIDE BUTTON -->
+        <button
+          type="button"
+          class="px-2.5 py-1 bg-gray-900 hover:bg-gray-800 border border-gray-750 text-amber-300 hover:text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer active:scale-95 shadow-sm"
+          :title="$t('app.gameGuide')"
+          @click="showGuideModal = true"
+        >
+          <span>📖</span>
+          <span class="hidden sm:inline">{{ $t('app.gameGuideShort') }}</span>
+        </button>
+
         <div class="flex items-center gap-1.5 bg-gray-900 px-2.5 py-1 rounded-xl border border-gray-800 text-[10px]">
           <span
             class="w-2 h-2 rounded-full"
@@ -594,6 +605,9 @@
         {{ $t('app.copyright') }}
       </p>
     </footer>
+
+    <!-- IN-GAME GUIDE & ROLE HIERARCHY MODAL -->
+    <GameGuideModal :is-open="showGuideModal" :is-player-view="true" @close="showGuideModal = false" />
   </div>
 </template>
 
@@ -601,12 +615,14 @@
 import { ref, computed, onMounted } from 'vue';
 import RoleAvatar from '../RoleAvatar.vue';
 import LanguageSwitcher from '../LanguageSwitcher.vue';
+import GameGuideModal from '../GameGuideModal.vue';
 import { useMultiplayer } from '../../services/useMultiplayerService';
 
 const emit = defineEmits(['returnToModerator']);
 const appVersion = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '1.1.0';
 const multiplayer = useMultiplayer();
 
+const showGuideModal = ref(false);
 const nameInputRef = ref(null);
 const inputRoomCode = ref('');
 const inputPlayerName = ref('');
