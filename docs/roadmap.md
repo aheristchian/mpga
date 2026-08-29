@@ -8,7 +8,7 @@ This document tracks completed milestones, current capabilities, and upcoming ar
 
 ```mermaid
 graph TD
-    subgraph Core Architecture (Completed)
+    subgraph S1 ["Core Architecture (Completed)"]
         A[Vue 3 Orchestrator: App.vue] --> B[ModeSelection.vue]
         A --> C[PlayerEntry.vue]
         A --> D[RoleSelection.vue]
@@ -24,7 +24,7 @@ graph TD
         E -.-> G[(LocalStorage Base64 Sync)]
     end
 
-    subgraph Phase 2 : Serverless & Dual-Transport Multiplayer
+    subgraph S2 ["Phase 2: Serverless & Dual-Transport Multiplayer"]
         J[Moderator Host Cockpit] -->|Generates Session & Room PIN| K[QR Code / Direct Link]
         L1[Player Client 1] -->|Scans QR / Connects| M((Cloud MQTT Relay / WebRTC P2P))
         L2[Player Client 2] -->|Scans QR / Connects| M
@@ -33,7 +33,7 @@ graph TD
         M <-->|Private Role Info & Prompts| L2
     end
 
-    subgraph Phase 3 : Universal Declarative Modding & Import/Export (Next)
+    subgraph S3 ["Phase 3: Universal Declarative Modding & Import/Export (Next)"]
         CFG[Universal JSON/YAML Rulepack] -->|Loads / Imports| ENGINE[Universal Game Engine]
         ENGINE -->|Dynamic Actions Schema| ACTIONS[Action Buttons & Target Selectors]
         ENGINE -->|Descending Numerical Priority| PRIORITY[Standardized Priority Ladder]
