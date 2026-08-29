@@ -65,6 +65,11 @@ describe('useAudioService', () => {
       'https://cdn1.suno.ai/0712a149-2b4a-466d-b8d9-1365c71a3e6f.mp3'
     );
 
+    // Raw UUID format
+    expect(audio.resolveSunoAudioUrl('c6d61f1b-b9d7-4106-843c-b9b9743ca3e6')).toBe(
+      'https://cdn1.suno.ai/c6d61f1b-b9d7-4106-843c-b9b9743ca3e6.mp3'
+    );
+
     // Empty or non-string input
     expect(audio.resolveSunoAudioUrl('')).toBe('');
     expect(audio.resolveSunoAudioUrl(null)).toBe('');

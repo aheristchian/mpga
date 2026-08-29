@@ -226,11 +226,25 @@ watch(
     } else if (newPhase === 'mode-selection' || newPhase === 'setup' || newPhase === 'role-selection') {
       audio.playPhaseMusic('lobby');
     }
-  }
+  },
+  { immediate: true }
 );
 
 onMounted(() => {
   if (typeof window !== 'undefined') {
+    // Unlock and trigger lobby playback upon first user interaction (browser autoplay policy requirement)
+    const handleFirstInteraction = () => {
+      if (audio.autoPlayOnPhaseChange.value && !audio.isMuted.value && !audio.isPlayingMusic.value) {
+        if (['mode-selection', 'setup', 'role-selection'].includes(store.gamePhase)) {
+          audio.playPhaseMusic('lobby');
+        }
+      }
+    };
+
+    window.addEventListener('click', handleFirstInteraction, { once: true });
+    window.addEventListener('keydown', handleFirstInteraction, { once: true });
+    window.addEventListener('touchstart', handleFirstInteraction, { once: true });
+
     const params = new URLSearchParams(window.location.search);
     if (params.has('join') || params.has('room') || params.has('player')) {
       isPlayerMode.value = true;

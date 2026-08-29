@@ -112,10 +112,18 @@ export const soundtrackConfig = {
     lobby: [
       {
         id: 'lobby-theme-1',
-        title: 'Gathering of the Dons (Lobby Theme)',
-        artist: 'Suno AI',
-        url: 'https://cdn1.suno.ai/aabbccdd-1122-3344-5566-778899aabbcc.mp3',
-        description: 'Smooth 1930s speakeasy lounge jazz',
+        title: 'Midnight in the Speakeasy',
+        artist: 'Ali Heristchian',
+        url: 'https://cdn1.suno.ai/c6d61f1b-b9d7-4106-843c-b9b9743ca3e6.mp3',
+        description: '1930s Speakeasy Lounge Jazz',
+        volumeMultiplier: 0.7,
+      },
+      {
+        id: 'lobby-theme-2',
+        title: 'Midnight Dust',
+        artist: 'Ali Heristchian',
+        url: 'https://cdn1.suno.ai/8582ab11-520e-4735-8158-4c741480c8c2.mp3',
+        description: 'Modern Lo-Fi Mafia Beats',
         volumeMultiplier: 0.7,
       },
     ],
@@ -138,6 +146,12 @@ export function resolveSunoAudioUrl(inputUrl) {
   if (sunoSongMatch && sunoSongMatch[1]) {
     const songId = sunoSongMatch[1];
     return `https://cdn1.suno.ai/${songId}.mp3`;
+  }
+
+  // Match raw UUID string (e.g., c6d61f1b-b9d7-4106-843c-b9b9743ca3e6)
+  const uuidMatch = trimmed.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
+  if (uuidMatch) {
+    return `https://cdn1.suno.ai/${trimmed}.mp3`;
   }
 
   return trimmed;

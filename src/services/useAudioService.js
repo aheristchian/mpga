@@ -84,6 +84,10 @@ export function useAudio() {
   const playTrack = (track, options = { fade: true }) => {
     if (!track || !track.url || isMuted.value) return;
 
+    if (currentTrack.value?.id === track.id && isPlayingMusic.value && currentAudioEl && !currentAudioEl.paused) {
+      return;
+    }
+
     const streamUrl = resolveSunoAudioUrl(track.url);
     if (!streamUrl) return;
 
