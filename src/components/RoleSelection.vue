@@ -200,23 +200,34 @@ onMounted(async () => {
   await fetchGameData();
 });
 
+const store = useGameStore();
+
 // Helper to safely get the count
 const getCount = (roleId) => {
   return roleCounts.value[roleId] || 0;
 };
+
+// Filter roles strictly by the selected game mode
+const availableRoles = computed(() => {
+  if (!roles.value.length) return [];
+  const activeModeId = store.gameMode?.id || 'godfather';
+  return roles.value.filter((role) => {
+    return role.modeIds ? role.modeIds.includes(activeModeId) : true;
+  });
+});
 
 // Sums up all the values in the dictionary
 const totalSelected = computed(() => {
   return Object.values(roleCounts.value).reduce((sum, count) => sum + count, 0);
 });
 
-// COMPUTED: Group the roles by their Side for rendering
+// COMPUTED: Group the available roles by their Side for rendering
 const rolesGroupedBySide = computed(() => {
-  if (!roles.value.length || !sides.value.length) return [];
+  if (!availableRoles.value.length || !sides.value.length) return [];
   const groups = sides.value.map((side) => {
     return {
       side: side,
-      roles: roles.value.filter((role) => role.sideId === side.id),
+      roles: availableRoles.value.filter((role) => role.sideId === side.id),
     };
   });
   return groups.filter((group) => group.roles.length > 0);
@@ -224,7 +235,7 @@ const rolesGroupedBySide = computed(() => {
 
 const getSideSelectedCount = (sideId) => {
   let count = 0;
-  roles.value.forEach((role) => {
+  availableRoles.value.forEach((role) => {
     if (role.sideId === sideId) {
       count += getCount(role.id);
     }

@@ -128,6 +128,7 @@ Modes are configured in [`src/data/modes.js`](file:///Users/ali.heristchian/Docu
   * Voting Rounding: `ceil` (half of alive players rounded up)
   * Balance Constraint: Maximum Mafia ratio is 34% of total player count.
 * **Classic Mafia Mode:**
+  * **Allowed Roles:** Pure 4-role classic setup: **Mafia (`mafia`)**, **Citizen (`citizen`)**, **Detective / Cop (`detective`)**, and **Doctor (`doctor`)**. Advanced roles (Godfather, Matador, Saul Goodman, Nostradamus, Constantine, Leon) are excluded.
   * Minimum Players: 4 (recommended: 6–10)
   * Speaking Time: 60 seconds
   * Borrowed / Challenge Time: 30 seconds
@@ -135,6 +136,16 @@ Modes are configured in [`src/data/modes.js`](file:///Users/ali.heristchian/Docu
   * Daily Turn Shift: 1 seat
   * Voting Rounding: `half` (standard `Math.round`)
   * Balance Constraint: Maximum Mafia ratio is 33% of total player count.
+
+* **Godfather Scenario Mode (Iranian Mafia Tournament):**
+  * **Allowed Roles:** Full 10-role tournament roster: Godfather, Matador, Saul Goodman, Mafia, Doctor, Detective, Citizen, Nostradamus, Constantine, Leon.
+  * Minimum Players: 4 (standard: 10 players)
+  * Speaking Time: 40 seconds
+  * Borrowed / Challenge Time: 25 seconds
+  * Defense Speech Time: 60 seconds
+  * Daily Turn Shift: 2 seats
+  * Voting Rounding: `ceil`
+  * Balance Constraint: Maximum Mafia ratio is 34% of total player count.
 
 ---
 

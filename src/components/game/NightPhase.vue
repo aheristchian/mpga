@@ -440,10 +440,24 @@ const livingMafiaMembers = computed(() =>
 );
 
 const actorsWithAbilities = computed(() => {
-  const list = alivePlayers.value.filter((p) => {
+  const hasAliveGodfather = alivePlayers.value.some((p) => p.role?.id === 'godfather');
+  let mafiaTeamAdded = false;
+
+  const list = [];
+  for (const p of alivePlayers.value) {
+    const roleId = p.role?.id;
     const abilities = p.role?.abilityIds || [];
-    return abilities.length > 0;
-  });
+
+    if (roleId === 'mafia') {
+      // In Classic mode or when Godfather is absent/dead, include one Mafia team actor for the night shot
+      if (!hasAliveGodfather && !mafiaTeamAdded && abilities.includes('mafia-shot')) {
+        list.push(p);
+        mafiaTeamAdded = true;
+      }
+    } else if (abilities.length > 0) {
+      list.push(p);
+    }
+  }
 
   return list.sort((a, b) => {
     const prioA = getAbilityPriority(a);
