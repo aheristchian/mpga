@@ -53,12 +53,32 @@
         </div>
       </div>
 
-      <h1
-        class="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-yellow-500 drop-shadow-md tracking-wider text-center"
-      >
-        {{ $t('app.title') }}
-      </h1>
-      <p class="text-gray-400 mt-2 text-center text-sm">{{ $t('app.subtitle') }}</p>
+      <!-- HERO HEADER -->
+      <div class="relative text-center max-w-2xl mx-auto space-y-2.5">
+        <!-- Sleek Tournament Cockpit Badge -->
+        <div
+          class="inline-flex items-center gap-2 px-3.5 py-1 bg-red-950/40 border border-red-500/30 rounded-full text-[11px] font-semibold text-red-300 tracking-wider uppercase backdrop-blur-md shadow-sm"
+        >
+          <span class="inline-block w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+          <span>{{ $t('app.badge') }}</span>
+        </div>
+
+        <!-- Sleek Gradient Title -->
+        <h1
+          class="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-white drop-shadow-md"
+        >
+          <span
+            class="bg-gradient-to-r from-red-500 via-rose-400 to-amber-300 bg-clip-text text-transparent"
+          >
+            {{ $t('app.title') }}
+          </span>
+        </h1>
+
+        <!-- Refined Subtitle -->
+        <p class="text-xs sm:text-sm text-gray-400 max-w-md mx-auto leading-relaxed">
+          {{ $t('app.subtitle') }}
+        </p>
+      </div>
     </header>
 
     <main class="container mx-auto pb-20">
@@ -87,13 +107,32 @@
     </main>
 
     <footer
-      class="mt-8 pb-4 text-center text-gray-500 text-xs flex justify-center items-center gap-4"
+      class="mt-12 pb-6 border-t border-gray-800/80 pt-6 max-w-2xl mx-auto text-center space-y-2"
     >
-      <span>v{{ appVersion }}</span>
-      <span>•</span>
-      <button class="text-blue-400 hover:underline cursor-pointer" @click="isPlayerMode = true">
-        {{ $t('playerClient.switchPlayerMode') }}
-      </button>
+      <div
+        class="flex flex-wrap justify-center items-center gap-x-3 gap-y-1 text-xs text-gray-400"
+      >
+        <span class="inline-flex items-center gap-1.5">
+          <span>{{ $t('app.createdBy') }}</span>
+          <span class="font-bold text-gray-200">Ali Heristchian</span>
+        </span>
+        <span class="text-gray-600">•</span>
+        <span
+          class="px-2 py-0.5 bg-gray-800 border border-gray-700/80 rounded-full text-[11px] font-mono font-bold text-gray-300 shadow-sm"
+        >
+          v{{ appVersion }}
+        </span>
+        <span class="text-gray-600">•</span>
+        <button
+          class="text-blue-400 hover:text-blue-300 hover:underline cursor-pointer font-medium transition-colors"
+          @click="isPlayerMode = true"
+        >
+          {{ $t('playerClient.switchPlayerMode') }}
+        </button>
+      </div>
+      <p class="text-[11px] text-gray-400">
+        {{ $t('app.copyright') }}
+      </p>
     </footer>
 
     <!-- GLOBAL RESET MODAL -->

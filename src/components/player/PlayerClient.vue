@@ -557,8 +557,19 @@
     </main>
 
     <!-- FOOTER -->
-    <footer class="py-2 text-center text-[10px] text-gray-600">
-      Mafia Party Game Assistant · P2P WebRTC Mobile Client
+    <footer class="py-3 text-center text-xs text-gray-400 space-y-1">
+      <div class="flex items-center justify-center gap-2">
+        <span>{{ $t('app.title') }}</span>
+        <span class="text-gray-600">•</span>
+        <span
+          class="px-1.5 py-0.2 bg-gray-900 border border-gray-800 rounded text-[10px] font-mono font-bold text-gray-400"
+        >
+          v{{ appVersion }}
+        </span>
+      </div>
+      <p class="text-[10px] text-gray-400">
+        {{ $t('app.createdBy') }} <strong class="text-gray-300">Ali Heristchian</strong>
+      </p>
     </footer>
   </div>
 </template>
@@ -569,6 +580,7 @@ import RoleAvatar from '../RoleAvatar.vue';
 import LanguageSwitcher from '../LanguageSwitcher.vue';
 import { useMultiplayer } from '../../services/useMultiplayerService';
 
+const appVersion = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '1.1.0';
 const multiplayer = useMultiplayer();
 
 const nameInputRef = ref(null);

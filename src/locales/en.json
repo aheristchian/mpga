@@ -68,7 +68,10 @@
   },
   "app": {
     "title": "Mafia Moderator",
-    "subtitle": "Manage your game phases easily.",
+    "subtitle": "Intelligent Game Master & Tournament Assistant",
+    "badge": "Tournament Cockpit",
+    "createdBy": "Created by",
+    "copyright": "© 2026 Ali Heristchian. All Rights Reserved.",
     "startOver": "Start Over",
     "startOverConfirmTitle": "Start Over?",
     "startOverWarning": "Are you sure you want to start a completely new game?",
