@@ -517,7 +517,7 @@
                 : 'bg-blue-950/80 border-blue-500 text-blue-200'
             "
           >
-            <span class="text-2xl block mb-1">{{ detectiveResult === 'mafia' ? '👎' : '👍' }}</span>
+            <span class="text-2xl block mb-1">{{ detectiveResult === 'mafia' ? '👍' : '👎' }}</span>
             <span>{{
               detectiveResult === 'mafia'
                 ? $t('nightPhase.guiltyMafia')

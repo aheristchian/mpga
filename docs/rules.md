@@ -33,8 +33,12 @@ The calculation engine in [`src/services/useWinCondition.js`](file:///Users/ali.
   * *Active Ability (`treat`):* Chooses one player each night to protect from elimination.
   * *Rules:* If the protected target is attacked by Mafia or Vigilante, the target survives.
 * **Detective (`detective`)**
-  * *Active Ability (`investigate`):* Investigates one player per night to learn their alignment (`town` or `mafia`).
-  * *Rules:* In standard Godfather mode, the Godfather may appear innocent (or have a protective shield depending on mode settings).
+  * *Active Ability (`investigate`):* Investigates one player per night to learn if they are Mafia.
+  * *Moderator Signal & Gesture Protocol:*
+    * The fundamental inquiry question is: **"Is this player a Mafia?"** (*آیا این بازیکن مافیا است؟*)
+    * **Thumbs Up (👍):** **YES / Positive Inquiry (`استعلام مثبت`)** $\to$ The target IS a Mafia member.
+    * **Thumbs Down (👎):** **NO / Negative Inquiry (`استعلام منفی`)** $\to$ The target is NOT Mafia (Citizen / Town member).
+  * *Godfather Exception:* In standard Godfather tournament rules, the Godfather has a clean inquiry (*استعلام منفی*) and appears innocent (Thumbs Down 👎) unless stated otherwise.
 * **Constantine (`constantine`)**
   * *Active Ability (`revive`):* Can revive one eliminated player back into the game (typically once per game).
   * *Rules:* Target must be currently dead. The revived player re-enters as an active living player.
@@ -59,8 +63,10 @@ The calculation engine in [`src/services/useWinCondition.js`](file:///Users/ali.
 ### Third Party (`sideId: 'third-party'`)
 
 * **Nostradamus (`nostradamus`)**
-  * *Active Ability (`choose-side`):* On Night 1, Nostradamus chooses up to 3 living players; the moderator calculates how many of those 3 are Mafia and silently signals the count on fingers. Nostradamus also secretly chooses which team (Town or Mafia) they want to align with.
-  * *Passive Ability (`unlimited-shield`):* Permanent night-shot immunity to ensure fair third-party gameplay.
+  * *Night 1 3-Player Inquiry:* On Night 1, Nostradamus selects 3 living players. The moderator counts how many of those 3 are Mafia members and silently shows the count using fingers (e.g., 2 fingers = 2 Mafias). The identities of *which* players are Mafia remain hidden.
+  * *Majority Threshold & Tactical Rule:* If the count of Mafia members among the 3 choices exceeds half of the total living Mafias in the game ($> N_{\text{mafia}}/2$, e.g., $\ge 2$ Mafias in a 3-Mafia game), Nostradamus is strategically recommended to side with the **Mafia**.
+  * *Third-Party Agency:* Nostradamus is an independent 3rd-party role and retains full strategic freedom to choose whichever side (`town` or `mafia`) they wish, and can decide how to play throughout the game.
+  * *Passive Ability (`unlimited-shield`):* Permanent night-shot immunity to ensure third-party balance.
 
 ---
 

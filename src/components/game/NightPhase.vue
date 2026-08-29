@@ -251,6 +251,77 @@
               <p class="text-xs text-gray-200 italic">
                 {{ $t('nightPhase.nostradamusSignalPrompt', { count: nostradamusMafiaCount }) }}
               </p>
+
+              <!-- Strategic Threshold & Recommendation -->
+              <div class="pt-2 border-t border-purple-700/60 text-xs space-y-1">
+                <div class="text-purple-300 font-semibold">
+                  {{
+                    $t('nightPhase.nostradamusTotalMafiaContext', {
+                      total: totalMafiaInGame,
+                      threshold: Math.floor(totalMafiaInGame / 2),
+                    })
+                  }}
+                </div>
+                <div
+                  class="p-2 rounded-lg"
+                  :class="
+                    isMoreThanHalfMafia
+                      ? 'bg-red-950/60 border border-red-500/50 text-red-200 font-semibold'
+                      : 'bg-blue-950/60 border border-blue-500/50 text-blue-200 font-semibold'
+                  "
+                >
+                  💡
+                  {{
+                    isMoreThanHalfMafia
+                      ? $t('nightPhase.nostradamusRecommendationMafia', {
+                          count: nostradamusMafiaCount,
+                          total: totalMafiaInGame,
+                        })
+                      : $t('nightPhase.nostradamusRecommendationTown', {
+                          count: nostradamusMafiaCount,
+                          total: totalMafiaInGame,
+                        })
+                  }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Secret Side Selection (Night 1 Alignment Choice) -->
+            <div class="pt-2 space-y-2 text-left">
+              <label class="text-xs font-bold text-purple-200 uppercase tracking-wider block">
+                {{ $t('nightPhase.nostradamusChooseSideTitle') }}
+              </label>
+              <div class="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  class="p-3 rounded-xl border-2 font-bold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 select-none min-h-[44px]"
+                  :class="
+                    store.nostradamusChoice === 'town'
+                      ? 'bg-blue-600 border-blue-300 text-white shadow-lg ring-2 ring-blue-400'
+                      : 'bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700'
+                  "
+                  @click="store.setNostradamusChoice('town')"
+                >
+                  <span>🔵</span>
+                  <span>{{ $t('nightPhase.nostradamusSideTown') }}</span>
+                </button>
+                <button
+                  type="button"
+                  class="p-3 rounded-xl border-2 font-bold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 select-none min-h-[44px]"
+                  :class="
+                    store.nostradamusChoice === 'mafia'
+                      ? 'bg-red-600 border-red-300 text-white shadow-lg ring-2 ring-red-400'
+                      : 'bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700'
+                  "
+                  @click="store.setNostradamusChoice('mafia')"
+                >
+                  <span>🔴</span>
+                  <span>{{ $t('nightPhase.nostradamusSideMafia') }}</span>
+                </button>
+              </div>
+              <p class="text-[11px] text-gray-400 italic">
+                {{ $t('nightPhase.nostradamusThirdPartyNote') }}
+              </p>
             </div>
           </div>
 
@@ -277,13 +348,13 @@
           <!-- DETECTIVE INSTANT FEEDBACK -->
           <div
             v-if="currentActor.role?.id === 'detective' && actionMap[currentActor.name]"
-            class="bg-blue-950/50 border border-blue-500/50 p-4 rounded-xl space-y-2 mb-6"
+            class="bg-blue-950/50 border border-blue-500/50 p-4 rounded-xl space-y-2 mb-6 text-left"
           >
             <span class="text-xs text-blue-400 font-bold uppercase tracking-wider block">
               {{ $t('nightPhase.investigationResult') }}
             </span>
             <div class="flex items-center gap-3">
-              <span class="text-2xl">{{ detectiveInquiryResult?.isGuilty ? '👎' : '👍' }}</span>
+              <span class="text-3xl">{{ detectiveInquiryResult?.isGuilty ? '👍' : '👎' }}</span>
               <div>
                 <span
                   class="font-black text-lg block"
@@ -296,7 +367,11 @@
                   }}
                 </span>
                 <p class="text-xs text-gray-300">
-                  Signal secretly to Detective without opening eyes of others.
+                  {{
+                    detectiveInquiryResult?.isGuilty
+                      ? $t('nightPhase.inquirySignalMafia')
+                      : $t('nightPhase.inquirySignalTown')
+                  }}
                 </p>
               </div>
             </div>
@@ -519,6 +594,14 @@ const nostradamusMafiaCount = computed(() => {
     const p = store.livePlayers.find((player) => player.name === name);
     return p?.role?.sideId === 'mafia';
   }).length;
+});
+
+const totalMafiaInGame = computed(() => {
+  return store.livePlayers.filter((p) => p.role?.sideId === 'mafia').length;
+});
+
+const isMoreThanHalfMafia = computed(() => {
+  return nostradamusMafiaCount.value > totalMafiaInGame.value / 2;
 });
 
 const toggleNostradamusTarget = (name) => {
