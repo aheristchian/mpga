@@ -240,16 +240,16 @@
 
                   <!-- Source Badges -->
                   <span
-                    v-if="track.localUrl || track.url"
+                    v-if="track.localUrl"
                     class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-950/70 border border-emerald-600/40 text-emerald-300"
                     title="Local offline MP3 available"
                   >
                     📁 {{ $t('audio.localSource') }}
                   </span>
                   <span
-                    v-if="track.onlineUrl"
+                    v-if="track.onlineUrl || (track.url && track.url.startsWith('http'))"
                     class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-cyan-950/70 border border-cyan-600/40 text-cyan-300"
-                    title="Online / OneDrive link configured"
+                    title="Online / Cloud stream configured"
                   >
                     ☁️ {{ $t('audio.onlineSource') }}
                   </span>

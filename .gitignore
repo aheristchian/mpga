@@ -2,18 +2,6 @@ node_modules/
 .DS_Store
 */.DS_Store
 
-# Audio files (large binary assets)
-*.mp3
-*.mp3_
-*.wav
-*.ogg
-*.m4a
-*.aac
-public/audio/soundtracks/*.mp3
-public/audio/soundtracks/*.mp3_
-dist/audio/soundtracks/*.mp3
-dist/audio/soundtracks/*.mp3_
-
 # Local test / build temporary files
 *.local
 npm-debug.log*

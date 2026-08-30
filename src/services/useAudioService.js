@@ -233,7 +233,9 @@ export function useAudio() {
     if (phasePlaylist.length === 0) return;
 
     // Pick first track with a valid, non-disabled URL
-    const playableTrack = phasePlaylist.find((t) => Boolean(t.url) && !t.url.endsWith('_'));
+    const playableTrack = phasePlaylist.find(
+      (t) => Boolean(t.url || t.onlineUrl || t.localUrl) && !(t.url || t.onlineUrl || t.localUrl).endsWith('_')
+    );
     if (playableTrack) {
       playTrack(playableTrack, options);
     }
