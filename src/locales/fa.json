@@ -65,14 +65,18 @@
     "title": "انتخاب سناریوی بازی",
     "subtitle": "سناریو، زمان‌بندی‌ها و ساختار نقش‌های مسابقه را مشخص کنید",
     "continue": "انتخاب سناریو و ورود بازیکنان",
+    "selectAndProceed": "انتخاب و شروع با {name}",
     "speechTime": "زمان صحبت",
     "challengeTime": "زمان چالش",
     "defenseTime": "زمان دفاعیه",
     "minPlayers": "حداقل بازیکن",
+    "players": "بازیکن",
     "tournamentStandardBadge": "🏆 استاندارد مسابقات",
     "classicStandardBadge": "⚖️ سنتی و متعادل",
     "includedRoles": "نقش‌های کلیدی این سناریو",
-    "selected": "سناریوی انتخاب‌شده"
+    "selected": "سناریوی انتخاب‌شده",
+    "tapToExpand": "مشاهده جزئیات",
+    "tapToCollapse": "بستن جزئیات"
   },
   "app": {
     "title": "گرداننده مافیا",

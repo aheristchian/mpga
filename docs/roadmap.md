@@ -118,73 +118,32 @@ graph TD
 
 ---
 
-## 🚀 Upcoming Milestones
+## 🚀 Upcoming Roadmap & Master TODOs
 
-### 1. 100% Declarative Config-Driven Game Engine & Universal Modding Architecture
-**Goal:** Eliminate all hardcoded role `if` conditions and replace them with a pure declarative ability and scenario engine.
-* **Declarative Character Schema:** Fully declare `actions`, `passives`, `inquiryResponse`, and `winConditions` in configuration.
-* **Universal Action Dispatcher (`executeAction(actionConfig, actor, targets)`):** Pure execution engine processing actions without character name hardcoding.
-* **Game Pack Import & Export (Community Modding):** One-click JSON/YAML export and import allowing players and tournament hosts to share and load custom game modes.
+### 📱 1. Multiplayer & Mobile Experience
+- [ ] **Direct Player Actions → Host Teleprompter:** Connected players submit night ability targets and daytime voting ballots directly from smartphones; choices stream live into the moderator teleprompter with manual override controls.
+- [ ] **Multiplayer Presence Healing & Auto-Heartbeat:** Continuous ping/pong health checks, reactive connection status badges, and automatic reconnection handling across Cloud MQTT and WebRTC.
+- [ ] **Spectator / Projector Big-Screen View (`?view=projector`):** Dedicated television and cafe projector display showing active speaker spotlight countdown, live vote tallies, and phase scenery without exposing secret roles or moderator controls.
+- [ ] **Screen WakeLock API (`navigator.wakeLock`):** Prevents player and moderator phone displays from dimming or sleeping during active speaker turns and defense timers.
+- [ ] **Tactile Haptic Feedback (`navigator.vibrate`):** Silent vibration cues on speaking turn start, 5-second defense warning, and night phase wake-ups.
+- [ ] **Stealth OLED Night Mode:** Ultra-low luminescence pitch-black interface to eliminate face illumination and prevent physical room tells during the night phase.
+- [ ] **Progressive Web App (PWA) & Offline Cache:** "Add to Home Screen" support on iOS/Android with Workbox service worker caching for low-connectivity venues.
 
-### 2. Multiplayer State Reactivity, Connected Player Roster Sync & Presence Healing
-**Goal:** Ensure 100% reactive player connection lists, active device badges, and live seat assignments across both Cloud MQTT and WebRTC.
-* **Live Connected Device Roster:** Real-time player count badge in header and lobby updating automatically on joins, leaves, and seat changes.
-* **Active Presence Heartbeat:** Periodic ping/pong health monitor preventing phantom disconnected sessions.
-* **Multiplayer Cockpit Controls:** Reactive action buttons in `MultiplayerHostModal` and `PlayerEntry` reflecting real-time connection status.
+### 🧠 2. Game Engine & Modding Architecture
+- [ ] **100% Declarative Config Engine:** Eliminate hardcoded role logic in favor of declarative action schemas (`actions`, `passives`, `inquiryResponse`, `priorityLadder`).
+- [ ] **Game Pack Import / Export (.json / .yaml):** One-click import and export of community-created tournament rulepacks, custom roles, and house rules.
+- [ ] **In-Browser Visual "Role Studio":** GUI creator to design custom characters, abilities, SVG icons, and faction alignments without editing code.
+- [ ] **1-Step Undo / Moderator Misclick Rewind:** Fast rollback button allowing the moderator to undo accidental eliminations or premature phase advances.
+- [ ] **Post-Match Time-Travel Replay:** Interactive step-by-step match timeline scrubber to replay every turn, vote, and night ability after match completion.
 
-### 3. Direct Player Action Submissions & Real-Time Moderator Teleprompter Sync
-**Goal:** Empower players to submit night ability targets and daytime voting ballots directly from their connected smartphones, updating the moderator teleprompter in real time.
-* **Direct Mobile Night Action Submissions:** Connected players with active night abilities select their action and target on their mobile interface; choices instantly stream to the moderator teleprompter wizard with real-time incoming status badges.
-* **Moderator Live Review & Fallback:** The moderator maintains full authoritative control to review, accept, or override player-submitted actions if a player misses their action window.
-* **Mobile Daytime Voting Ballots:** Players submit daytime votes from their devices, automatically aggregating candidate tallies on the host screen while preserving physical tournament voting etiquette.
+### 🏆 3. Tournament & Competitive League Features
+- [ ] **Tournament Bracket & Multi-Table League Management:** Master standings, table rotations, point accumulation, and match scoring across multi-table tournaments.
+- [ ] **Post-Match Social Infographics:** Canvas-rendered summary story cards (MVP, decisive doctor saves, key night actions) ready to export for Instagram/WhatsApp.
+- [ ] **Automated Multi-Device E2E Simulation (Playwright):** CI simulation testing 1 host + 10 virtual player browser clients playing through complete matches.
 
-### 6. Headless Core State Machine (`@mpga/core`) & Time-Travel Event Sourcing
-**Goal:** Decouple the game engine into a pure, headless state machine with deterministic event sourcing.
-* **Pure Domain Engine:**
-  - Zero dependencies on Vue, DOM, or browser APIs.
-  - Enables mathematical balance simulations (simulating 10,000 matches in seconds).
-* **Time-Travel Event Sourcing:**
-  - Every game event is logged as an immutable delta.
-  - Enables instant **1-step Undo / Moderator Misclick Rewind** and an interactive post-match **Time-Travel Match Replay Viewer**.
+### 🎙️ 4. Audio & Code Quality
+- [ ] **TTS Voice Narration (Web Speech API):** Optional automated speech synthesis reading the night teleprompter announcements and speaker warnings.
+- [ ] **TypeScript 5 Strict Migration:** Adding `<script setup lang="ts">` and strict interfaces across all Pinia stores, composables, and components.
 
-### 7. Stealth OLED Night Mode, Screen WakeLock & Tactile Haptic Feedback
-**Goal:** Optimize physical party gameplay and eliminate inadvertent "screen glow" tells.
-* **OLED Stealth Dark Mode:**
-  - Deep pitch-black theme with ultra-low luminescence to prevent face illumination in dark rooms during the night phase.
-* **Screen WakeLock API:**
-  - Keeps moderator and player screens active during active speaking and defense timers without sleeping in pockets.
-* **Tactile Haptic Vibrations (`navigator.vibrate`):**
-  - Distinct vibration pulses for speaking turn start, 5-second defense warning, and elimination notices.
-
-### 8. In-Browser Visual "Role Studio" & Scenario Builder
-**Goal:** Allow users to build, test, and share custom characters and rulepacks in an intuitive visual studio.
-* Drag-and-drop avatar, faction, abilities ($a_1, a_2$), priorities, and prompts.
-* Instant generation of shareable QR codes and scenario pack links (`?pack=custom-scenario-id`).
-
-### 9. Post-Match Infographics & Elo Tournament Leaderboards
-**Goal:** Generate shareable visual recap story cards and track competitive rankings.
-* **Dynamic Infographic Generator:** Canvas-rendered summary card for social sharing (Instagram / WhatsApp) highlighting MVPs, key saves, and match timeline.
-* **Tournament Elo & Leaderboards:** Aggregate win rates and performance ratings across tournament rounds.
-
-### 10. Automated Multi-Device E2E Simulation (Playwright)
-**Goal:** Continuous quality verification with automated multi-client simulations.
-* Playwright test suite spinning up 1 Host + 10 virtual Player mobile browsers executing full match lifecycles automatically on CI.
-
-### 11. Offline PWA (Progressive Web App) & Service Worker Support
-**Goal:** Enable complete offline playability and home screen installability on mobile devices and tablets during tournaments with intermittent connectivity.
-* Add web app manifest, custom icons, and Workbox caching for all application assets and audio files.
-
-### 12. Spectator Mode & Public Display View
-**Goal:** Provide a dedicated projector / spectator display URL (`/?view=spectator` or `/?view=projector`) showing live speaker spotlights, vote tallies, and phase art without revealing secret roles.
-
-### 13. Audio DJ Console, Custom Soundtracks & TTS Moderator Prompts
-**Goal:** Allow hosts to select alternative sound packs or enable Web Speech synthesis for automated night teleprompter announcements.
-
-### 14. Tournament Bracket & Multi-Table League Management
-**Goal:** Support tournament organizers managing multi-table events with master standings, player ranking points, and aggregated tournament statistics.
-
-### 15. TypeScript 5 Strict Schema Migration
-* Migrate from Vanilla JS to **TypeScript** (`<script setup lang="ts">`).
-* Define strict TypeScript interfaces (`Player`, `Role`, `Ability`, `GameMode`, `NightAction`, `GameEventLog`, `LastWordCard`, `GameStatusResult`).
 
 
