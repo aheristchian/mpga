@@ -15,18 +15,18 @@
     </div>
 
     <!-- MODE CARDS LIST / GRID -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 pt-2">
       <div
         v-for="mode in availableModes"
         :key="mode.id"
-        class="relative flex flex-col bg-gray-900/90 hover:bg-gray-850 border-2 rounded-2xl transition-all duration-300 cursor-pointer select-none group shadow-xl overflow-hidden"
+        class="relative flex flex-col bg-gray-900/90 hover:bg-gray-850 border-2 rounded-2xl transition-all duration-300 cursor-pointer select-none group shadow-xl"
         :class="getCardClasses(mode.id)"
         @click="selectMode(mode.id)"
       >
-        <!-- ACTIVE CHECKMARK BADGE (CORNER) -->
+        <!-- ACTIVE FLOATING CHECKMARK BADGE (OUTSIDE BORDER) -->
         <div
           v-if="selectedModeId === mode.id"
-          class="absolute -top-1 -right-1 rtl:-right-auto rtl:-left-1 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-bl-xl rtl:rounded-bl-none rtl:rounded-br-xl px-2.5 py-1 flex items-center justify-center font-black text-xs shadow-md border-b border-l rtl:border-l-0 rtl:border-r border-emerald-400/40 z-10"
+          class="absolute -top-3 -right-3 rtl:-right-auto rtl:-left-3 sm:-top-3.5 sm:-right-3.5 rtl:sm:-left-3.5 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-black text-sm shadow-lg shadow-green-500/30 border-2 border-gray-900 z-20 animate-bounce-short"
         >
           ✓
         </div>
@@ -84,78 +84,82 @@
           </div>
         </div>
 
-        <!-- EXPANDABLE DETAILS DRAWER -->
+        <!-- EXPANDABLE DETAILS DRAWER (SMOOTH CSS GRID EXPANSION) -->
         <div
-          v-show="selectedModeId === mode.id"
-          class="px-4 sm:px-5 pb-5 pt-0 space-y-4 border-t border-gray-800/60 transition-all duration-300"
+          class="grid transition-all duration-300 ease-in-out"
+          :class="selectedModeId === mode.id ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'"
         >
-          <!-- VECTOR ILLUSTRATION BANNER -->
-          <div
-            class="w-full h-28 sm:h-36 mt-4 rounded-xl overflow-hidden border transition-transform duration-300 shadow-inner flex items-center justify-center"
-            :class="mode.id === 'godfather' ? 'border-red-900/50 bg-red-950/20' : 'border-blue-900/50 bg-blue-950/20'"
-          >
-            <div
-              v-if="getSvg(mode.id)"
-              class="w-full h-full"
-              v-html="getSvg(mode.id)"
-            ></div>
-            <div v-else class="text-4xl">
-              {{ mode.id === 'godfather' ? '🎩' : '⚖️' }}
-            </div>
-          </div>
-
-          <!-- DESCRIPTION -->
-          <p class="text-xs sm:text-sm text-gray-300 leading-relaxed">
-            {{ $t('modes.' + mode.id + '.description') }}
-          </p>
-
-          <!-- CORE ROLES PREVIEW -->
-          <div class="pt-2 border-t border-gray-800/80">
-            <span class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-2">
-              {{ $t('modeSelection.includedRoles') }}
-            </span>
-            <div class="flex flex-wrap gap-1.5">
-              <span
-                v-for="role in getModeRoles(mode.id)"
-                :key="role.id"
-                class="px-2 py-0.5 rounded-lg text-xs font-medium border"
-                :class="getRoleBadgeClass(role.sideId)"
+          <div class="overflow-hidden">
+            <div class="px-4 sm:px-5 pb-5 pt-0 space-y-4 border-t border-gray-800/60">
+              <!-- VECTOR ILLUSTRATION BANNER -->
+              <div
+                class="w-full h-28 sm:h-36 mt-4 rounded-xl overflow-hidden border transition-transform duration-300 shadow-inner flex items-center justify-center"
+                :class="mode.id === 'godfather' ? 'border-red-900/50 bg-red-950/20' : 'border-blue-900/50 bg-blue-950/20'"
               >
-                {{ role.icon }} {{ $te('roles.' + role.id + '.name') ? $t('roles.' + role.id + '.name') : role.name }}
-              </span>
-            </div>
-          </div>
+                <div
+                  v-if="getSvg(mode.id)"
+                  class="w-full h-full"
+                  v-html="getSvg(mode.id)"
+                ></div>
+                <div v-else class="text-4xl">
+                  {{ mode.id === 'godfather' ? '🎩' : '⚖️' }}
+                </div>
+              </div>
 
-          <!-- TIMINGS & STATS BAR -->
-          <div class="pt-2 border-t border-gray-800 grid grid-cols-3 gap-2 text-center">
-            <div class="bg-gray-800/60 p-2 rounded-xl border border-gray-750">
-              <span class="block text-[10px] uppercase font-bold text-gray-400">{{ $t('modeSelection.speechTime') }}</span>
-              <span class="text-xs sm:text-sm font-mono font-black text-white">⏱️ {{ mode.timeToTalk }}s</span>
-            </div>
-            <div class="bg-gray-800/60 p-2 rounded-xl border border-gray-750">
-              <span class="block text-[10px] uppercase font-bold text-gray-400">{{ $t('modeSelection.challengeTime') }}</span>
-              <span class="text-xs sm:text-sm font-mono font-black text-white">🔄 {{ mode.borrowedTimeToTalk }}s</span>
-            </div>
-            <div class="bg-gray-800/60 p-2 rounded-xl border border-gray-750">
-              <span class="block text-[10px] uppercase font-bold text-gray-400">{{ $t('modeSelection.defenseTime') }}</span>
-              <span class="text-xs sm:text-sm font-mono font-black text-white">🛡️ {{ mode.defenseTimeToTalk }}s</span>
-            </div>
-          </div>
+              <!-- DESCRIPTION -->
+              <p class="text-xs sm:text-sm text-gray-300 leading-relaxed">
+                {{ $t('modes.' + mode.id + '.description') }}
+              </p>
 
-          <!-- IN-CARD DIRECT ACTION BUTTON (NO DEEP SCROLLING NEEDED) -->
-          <div class="pt-2">
-            <button
-              class="w-full bg-gradient-to-r hover:brightness-110 active:scale-[0.98] text-white py-3.5 px-4 rounded-xl font-black text-sm shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2"
-              :class="
-                mode.id === 'godfather'
-                  ? 'from-red-600 via-rose-600 to-amber-600 shadow-red-600/30'
-                  : 'from-blue-600 via-indigo-600 to-cyan-600 shadow-blue-600/30'
-              "
-              @click.stop="confirmMode"
-            >
-              <span>{{ $t('modeSelection.selectAndProceed', { name: $t('modes.' + mode.id + '.name') }) }}</span>
-              <span class="rtl:rotate-180">➔</span>
-            </button>
+              <!-- CORE ROLES PREVIEW -->
+              <div class="pt-2 border-t border-gray-800/80">
+                <span class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-2">
+                  {{ $t('modeSelection.includedRoles') }}
+                </span>
+                <div class="flex flex-wrap gap-1.5">
+                  <span
+                    v-for="role in getModeRoles(mode.id)"
+                    :key="role.id"
+                    class="px-2 py-0.5 rounded-lg text-xs font-medium border"
+                    :class="getRoleBadgeClass(role.sideId)"
+                  >
+                    {{ role.icon }} {{ $te('roles.' + role.id + '.name') ? $t('roles.' + role.id + '.name') : role.name }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- TIMINGS & STATS BAR -->
+              <div class="pt-2 border-t border-gray-800 grid grid-cols-3 gap-2 text-center">
+                <div class="bg-gray-800/60 p-2 rounded-xl border border-gray-750">
+                  <span class="block text-[10px] uppercase font-bold text-gray-400">{{ $t('modeSelection.speechTime') }}</span>
+                  <span class="text-xs sm:text-sm font-mono font-black text-white">⏱️ {{ mode.timeToTalk }}s</span>
+                </div>
+                <div class="bg-gray-800/60 p-2 rounded-xl border border-gray-750">
+                  <span class="block text-[10px] uppercase font-bold text-gray-400">{{ $t('modeSelection.challengeTime') }}</span>
+                  <span class="text-xs sm:text-sm font-mono font-black text-white">🔄 {{ mode.borrowedTimeToTalk }}s</span>
+                </div>
+                <div class="bg-gray-800/60 p-2 rounded-xl border border-gray-750">
+                  <span class="block text-[10px] uppercase font-bold text-gray-400">{{ $t('modeSelection.defenseTime') }}</span>
+                  <span class="text-xs sm:text-sm font-mono font-black text-white">🛡️ {{ mode.defenseTimeToTalk }}s</span>
+                </div>
+              </div>
+
+              <!-- IN-CARD DIRECT ACTION BUTTON (NO DEEP SCROLLING NEEDED) -->
+              <div class="pt-2">
+                <button
+                  class="w-full bg-gradient-to-r hover:brightness-110 active:scale-[0.98] text-white py-3.5 px-4 rounded-xl font-black text-sm shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2"
+                  :class="
+                    mode.id === 'godfather'
+                      ? 'from-red-600 via-rose-600 to-amber-600 shadow-red-600/30'
+                      : 'from-blue-600 via-indigo-600 to-cyan-600 shadow-blue-600/30'
+                  "
+                  @click.stop="confirmMode"
+                >
+                  <span>{{ $t('modeSelection.selectAndProceed', { name: $t('modes.' + mode.id + '.name') }) }}</span>
+                  <span class="rtl:rotate-180">➔</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
