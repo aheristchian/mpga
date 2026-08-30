@@ -6,9 +6,9 @@
  * OneDrive downloads, Suno AI tracks, and remote CDN URLs.
  *
  * Victory Tracks:
- * - Victory 1: Mafia Victory (Win 1)
- * - Victory 2: Town Victory (Win 2)
- * - Victory 3: 3rd Party / Nostradamus Victory (Win 3)
+ * - Victory 1: Mafia Victory
+ * - Victory 2: Town Victory
+ * - Victory 3: 3rd Party / Nostradamus Victory
  */
 
 export const soundtrackConfig = {
