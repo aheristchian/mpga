@@ -130,6 +130,11 @@ graph TD
 * **Big-Screen Projector / TV View (`ProjectorView.vue`):** Dedicated television and cafe projector display (`?view=projector`) showing active speaker spotlight countdown, live vote tallies, and atmospheric stealth scenery while strictly protecting secret role privacy.
 * **Post-Match Time-Travel Replay (`useMatchReplay.js` & `MatchReplayModal.vue`):** Interactive timeline scrubber reconstructing the entire match step-by-step with simulated seating roster highlights, auto-playback, and speed controls.
 
+### 16. Full TypeScript Migration (v2.0.0 Major Milestone)
+* **100% Strict Type Safety:** Root `tsconfig.json`, domain models in `src/types/`, typed Pinia stores, typed composable services, typed utils, and `<script setup lang="ts">` across all 23 Vue 3 Single File Components.
+* **Zero Legacy JavaScript:** Full replacement of `.js` files with `.ts`, complete type safety on P2P/MQTT networking packets, game engine night actions, and voting states.
+* **Comprehensive Test Suite Parity:** All 11 unit test suites converted to `.spec.ts` with 100% pass rate (67/67 tests) in Vitest.
+
 ---
 
 ## 🚀 Upcoming Roadmap & Master TODOs
@@ -157,7 +162,7 @@ graph TD
 
 ### 🎙️ 4. Audio & Code Quality
 - [x] **TTS Voice Narration (Web Speech API):** Optional automated speech synthesis reading the night teleprompter announcements and speaker warnings.
-- [ ] **TypeScript 5 Strict Migration:** Adding `<script setup lang="ts">` and strict interfaces across all Pinia stores, composables, and components.
+- [x] **TypeScript 5+ Strict Migration (v2.0.0):** Added `<script setup lang="ts">` and strict interfaces across all Pinia stores, composables, and components.
 
 
 
