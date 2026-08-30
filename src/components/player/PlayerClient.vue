@@ -950,6 +950,7 @@ import GameGuideModal from '../GameGuideModal.vue';
 import { useMultiplayer } from '../../services/useMultiplayerService';
 import { useWakeLock } from '../../services/useWakeLock';
 import { useHaptics } from '../../services/useHaptics';
+import { useGameService } from '../../services/useGameService';
 
 const emit = defineEmits<{
   (e: 'returnToModerator'): void;
@@ -958,6 +959,7 @@ const appVersion = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '1
 const multiplayer = useMultiplayer();
 const wakeLock = useWakeLock();
 const haptics = useHaptics();
+const gameService = useGameService();
 
 const showGuideModal = ref(false);
 const nameInputRef = ref<HTMLInputElement | null>(null);
@@ -1005,60 +1007,8 @@ const isPlayerClaimed = (name) => {
 };
 
 const availableNightActions = computed(() => {
-  const roleId = playerIdentity.value?.role?.id;
-  if (!roleId) return [];
-
-  if (roleId === 'godfather' || roleId === 'mafia') {
-    return [
-      { id: 'mafia-shot', nameKey: 'nightPhase.actionMafiaShot', icon: '🔫' },
-      { id: 'pass', nameKey: 'nightPhase.actionPass', icon: '🚫' },
-    ];
-  }
-  if (roleId === 'doctor') {
-    return [
-      { id: 'treat', nameKey: 'nightPhase.actionTreatOther', icon: '💉' },
-      { id: 'treat-self', nameKey: 'nightPhase.actionTreatSelf', icon: '🛡️' },
-      { id: 'pass', nameKey: 'nightPhase.actionPass', icon: '🚫' },
-    ];
-  }
-  if (roleId === 'matador') {
-    return [
-      { id: 'block', nameKey: 'nightPhase.actionBlock', icon: '🚫' },
-      { id: 'pass', nameKey: 'nightPhase.actionPass', icon: '🚫' },
-    ];
-  }
-  if (roleId === 'leon') {
-    return [
-      { id: 'vigillante-shot', nameKey: 'nightPhase.actionVigilanteShot', icon: '🎯' },
-      { id: 'pass', nameKey: 'nightPhase.actionPass', icon: '🚫' },
-    ];
-  }
-  if (roleId === 'detective') {
-    return [
-      { id: 'investigate', nameKey: 'nightPhase.actionInvestigate', icon: '🔍' },
-      { id: 'pass', nameKey: 'nightPhase.actionPass', icon: '🚫' },
-    ];
-  }
-  if (roleId === 'constantine') {
-    return [
-      { id: 'revive', nameKey: 'nightPhase.actionRevive', icon: '✨' },
-      { id: 'pass', nameKey: 'nightPhase.actionPass', icon: '🚫' },
-    ];
-  }
-  if (roleId === 'saul-goodman') {
-    return [
-      { id: 'buy', nameKey: 'nightPhase.actionBuy', icon: '💼' },
-      { id: 'pass', nameKey: 'nightPhase.actionPass', icon: '🚫' },
-    ];
-  }
-
-  const list = (playerIdentity.value?.role?.abilityIds || []).map((abId) => ({
-    id: abId,
-    nameKey: abId,
-    icon: '✨',
-  }));
-  list.push({ id: 'pass', nameKey: 'nightPhase.actionPass', icon: '🚫' });
-  return list;
+  if (!playerIdentity.value?.role) return [];
+  return gameService.getAvailableNightActions(playerIdentity.value.role);
 });
 
 const currentActionId = computed(() => {

@@ -349,6 +349,8 @@
     "actionReviveDesc": "Bring an eliminated player back into the living game",
     "actionBuy": "Bribe / Recruit",
     "actionBuyDesc": "Attempt to recruit or bribe an opponent",
+    "actionChooseSide": "Prophecy / Choose Side",
+    "actionChooseSideDesc": "Inquire 3 players and select your winning faction",
     "actionPass": "Hold / Pass Turn",
     "actionPassDesc": "Skip action for this night without targeting anyone",
     "passNotice": "Action skipped for this night (No target selected).",
@@ -681,6 +683,10 @@
       "deduction": {
         "name": "Civic Deduction & Vote",
         "desc": "Uses logical argumentation and daytime voting to eliminate hidden Mafia members."
+      },
+      "sixthSense": {
+        "name": "Sixth Sense",
+        "desc": "Intuitively senses danger and threat levels."
       }
     },
     "tactics": {

@@ -709,6 +709,7 @@ import { useI18n } from 'vue-i18n';
 import { mockAbilities } from '../../data/abilities';
 import { resolveNight } from '../../services/gameEngine';
 import { useGameStore } from '../../stores/gameStore';
+import { useGameService } from '../../services/useGameService';
 import { useAudio } from '../../services/useAudioService';
 import { useMultiplayer } from '../../services/useMultiplayerService';
 import { useVoiceNarration } from '../../services/useVoiceNarration';
@@ -718,6 +719,7 @@ import type { Player, NightAction, NightResolution } from '../../types';
 
 const { locale } = useI18n();
 const store = useGameStore();
+const gameService = useGameService();
 const audio = useAudio();
 const multiplayer = useMultiplayer();
 const narration = useVoiceNarration();
@@ -814,152 +816,9 @@ const getAbilityPriority = (player) => {
   return ability ? ability.priority : 99;
 };
 
-const getAvailableActionsForActor = (actor) => {
+const getAvailableActionsForActor = (actor: Player | any) => {
   if (!actor || !actor.role) return [];
-  const roleId = actor.role.id;
-
-  if (roleId === 'godfather' || roleId === 'mafia') {
-    return [
-      {
-        id: 'mafia-shot',
-        nameKey: 'nightPhase.actionMafiaShot',
-        icon: '🔫',
-        descriptionKey: 'nightPhase.actionMafiaShotDesc',
-      },
-      {
-        id: 'pass',
-        nameKey: 'nightPhase.actionPass',
-        icon: '🚫',
-        descriptionKey: 'nightPhase.actionPassDesc',
-      },
-    ];
-  }
-
-  if (roleId === 'doctor') {
-    return [
-      {
-        id: 'treat',
-        nameKey: 'nightPhase.actionTreatOther',
-        icon: '💉',
-        descriptionKey: 'nightPhase.actionTreatOtherDesc',
-      },
-      {
-        id: 'treat-self',
-        nameKey: 'nightPhase.actionTreatSelf',
-        icon: '🛡️',
-        descriptionKey: 'nightPhase.actionTreatSelfDesc',
-      },
-      {
-        id: 'pass',
-        nameKey: 'nightPhase.actionPass',
-        icon: '🚫',
-        descriptionKey: 'nightPhase.actionPassDesc',
-      },
-    ];
-  }
-
-  if (roleId === 'matador') {
-    return [
-      {
-        id: 'block',
-        nameKey: 'nightPhase.actionBlock',
-        icon: '🚫',
-        descriptionKey: 'nightPhase.actionBlockDesc',
-      },
-      {
-        id: 'pass',
-        nameKey: 'nightPhase.actionPass',
-        icon: '⏭️',
-        descriptionKey: 'nightPhase.actionPassDesc',
-      },
-    ];
-  }
-
-  if (roleId === 'leon') {
-    return [
-      {
-        id: 'vigillante-shot',
-        nameKey: 'nightPhase.actionVigilanteShot',
-        icon: '🎯',
-        descriptionKey: 'nightPhase.actionVigilanteShotDesc',
-      },
-      {
-        id: 'pass',
-        nameKey: 'nightPhase.actionPass',
-        icon: '🚫',
-        descriptionKey: 'nightPhase.actionPassDesc',
-      },
-    ];
-  }
-
-  if (roleId === 'detective') {
-    return [
-      {
-        id: 'investigate',
-        nameKey: 'nightPhase.actionInvestigate',
-        icon: '🔍',
-        descriptionKey: 'nightPhase.actionInvestigateDesc',
-      },
-      {
-        id: 'pass',
-        nameKey: 'nightPhase.actionPass',
-        icon: '🚫',
-        descriptionKey: 'nightPhase.actionPassDesc',
-      },
-    ];
-  }
-
-  if (roleId === 'constantine') {
-    return [
-      {
-        id: 'revive',
-        nameKey: 'nightPhase.actionRevive',
-        icon: '✨',
-        descriptionKey: 'nightPhase.actionReviveDesc',
-      },
-      {
-        id: 'pass',
-        nameKey: 'nightPhase.actionPass',
-        icon: '🚫',
-        descriptionKey: 'nightPhase.actionPassDesc',
-      },
-    ];
-  }
-
-  if (roleId === 'saul-goodman') {
-    return [
-      {
-        id: 'buy',
-        nameKey: 'nightPhase.actionBuy',
-        icon: '💼',
-        descriptionKey: 'nightPhase.actionBuyDesc',
-      },
-      {
-        id: 'pass',
-        nameKey: 'nightPhase.actionPass',
-        icon: '🚫',
-        descriptionKey: 'nightPhase.actionPassDesc',
-      },
-    ];
-  }
-
-  // Fallback for custom roles
-  const actions = (actor.role.abilityIds || []).map((abilityId) => {
-    const ability = mockAbilities.find((a) => a.id === abilityId);
-    return {
-      id: abilityId,
-      nameKey: ability ? ability.name : abilityId,
-      icon: '✨',
-      descriptionKey: ability ? ability.description : 'Use role night ability',
-    };
-  });
-  actions.push({
-    id: 'pass',
-    nameKey: 'nightPhase.actionPass',
-    icon: '🚫',
-    descriptionKey: 'nightPhase.actionPassDesc',
-  });
-  return actions;
+  return gameService.getAvailableNightActions(actor.role);
 };
 
 const getSelectedActionId = (actorName) => {

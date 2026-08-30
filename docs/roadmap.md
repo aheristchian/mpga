@@ -149,7 +149,7 @@ graph TD
 - [x] **Progressive Web App (PWA) & Offline Cache:** "Add to Home Screen" support on iOS/Android with Workbox service worker caching for low-connectivity venues.
 
 ### 🧠 2. Game Engine & Modding Architecture
-- [ ] **100% Declarative Config Engine:** Eliminate hardcoded role logic in favor of declarative action schemas (`actions`, `passives`, `inquiryResponse`, `priorityLadder`).
+- [x] **100% Declarative Role & Ability Schema Engine:** Unified single source of truth across `roles.ts`, `abilities.ts`, and auto-generated `roleGuideData.ts` with declarative priority ladder ($99 \to 90 \to 80 \to 70 \to 50 \to 10 \to 0$), auto-generated game guide, and dynamic mobile/moderator night action resolver.
 - [ ] **Game Pack Import / Export (.json / .yaml):** One-click import and export of community-created tournament rulepacks, custom roles, and house rules.
 - [ ] **In-Browser Visual "Role Studio":** GUI creator to design custom characters, abilities, SVG icons, and faction alignments without editing code.
 - [x] **1-Step Undo / Moderator Misclick Rewind:** Fast rollback button allowing the moderator to undo accidental eliminations or premature phase advances.

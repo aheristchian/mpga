@@ -1,10 +1,18 @@
 import { describe, it, expect } from 'vitest';
-import { roleGuideData, nightResolutionSteps } from './roleGuideData';
+import {
+  roleGuideData,
+  nightResolutionSteps,
+  generateRoleGuideData,
+  generateNightResolutionSteps,
+} from './roleGuideData';
+import { mockRoles } from './roles';
+import { mockAbilities } from './abilities';
 import { roleSvgMap } from './roleIllustrations';
+import { useGameService } from '../services/useGameService';
 import enLocale from '../locales/en.json';
 import faLocale from '../locales/fa.json';
 
-describe('Role Guide Data Integrity', () => {
+describe('Role Guide Data Integrity & Declarative Engine', () => {
   it('should contain all essential tournament roles', () => {
     const roleIds = roleGuideData.map((r) => r.id);
     expect(roleIds).toContain('godfather');
@@ -17,6 +25,14 @@ describe('Role Guide Data Integrity', () => {
     expect(roleIds).toContain('constantine');
     expect(roleIds).toContain('nostradamus');
     expect(roleIds).toContain('citizen');
+  });
+
+  it('should dynamically generate guide data from mockRoles and mockAbilities', () => {
+    const generated = generateRoleGuideData(mockRoles);
+    expect(generated.length).toBe(mockRoles.length);
+    const doc = generated.find((r) => r.id === 'doctor');
+    expect(doc).toBeDefined();
+    expect(doc?.abilities.map((a) => a.id)).toContain('treat');
   });
 
   it('should have matching SVG vector illustrations for every role', () => {
@@ -60,5 +76,32 @@ describe('Role Guide Data Integrity', () => {
     expect((faLocale as any).roleGuide.tabs.flowchart).toBeDefined();
     expect((enLocale as any).roleGuide.tabs.rules).toBeDefined();
     expect((faLocale as any).roleGuide.tabs.rules).toBeDefined();
+  });
+
+  describe('useGameService Declarative Helpers', () => {
+    const gameService = useGameService();
+
+    it('should hydrate role with side and full ability definitions', () => {
+      const hydrated = gameService.getFullRoleDetails('doctor');
+      expect(hydrated).toBeDefined();
+      expect(hydrated?.side?.id).toBe('town');
+      expect(hydrated?.abilities.length).toBeGreaterThan(0);
+      expect(hydrated?.abilities[0].id).toBe('treat');
+      expect(hydrated?.abilities[0].priority).toBe(80);
+    });
+
+    it('should derive available night actions with standard pass option', () => {
+      const doctorRole = mockRoles.find((r) => r.id === 'doctor');
+      const actions = gameService.getAvailableNightActions(doctorRole);
+      expect(actions.length).toBe(3); // treat, treat-self, pass
+      expect(actions.map((a) => a.id)).toEqual(['treat', 'treat-self', 'pass']);
+    });
+
+    it('should provide pass-only for roles without active night abilities like citizen', () => {
+      const citizenRole = mockRoles.find((r) => r.id === 'citizen');
+      const actions = gameService.getAvailableNightActions(citizenRole);
+      expect(actions.length).toBe(1);
+      expect(actions[0].id).toBe('pass');
+    });
   });
 });

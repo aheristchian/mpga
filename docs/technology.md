@@ -137,9 +137,10 @@ graph TD
     end
 ```
 
-### 1. Relational Data Modeling & Headless CMS Prep
-* Data in [`src/data/`](file:///Users/ali.heristchian/Documents/learning/mpga/src/data/) is modeled relationally using string foreign keys.
-* The hydration service ([`src/services/useGameService.js`](file:///Users/ali.heristchian/Documents/learning/mpga/src/services/useGameService.js)) combines foreign keys into rich nested structures on demand.
+### 1. Declarative Single Source of Truth & Role Engine
+* Data in [`src/data/roles.ts`](file:///Users/ali.heristchian/Documents/learning/mpga/src/data/roles.ts) and [`src/data/abilities.ts`](file:///Users/ali.heristchian/Documents/learning/mpga/src/data/abilities.ts) serves as the 100% declarative single source of truth for the entire application.
+* **Auto-Generated Game Guide & Resolution Ladder:** [`src/data/roleGuideData.ts`](file:///Users/ali.heristchian/Documents/learning/mpga/src/data/roleGuideData.ts) dynamically compiles `roleGuideData` and `nightResolutionSteps` from role and ability definitions rather than relying on redundant static arrays.
+* **Composable Hydration & Action Derivation:** The hydration service ([`src/services/useGameService.ts`](file:///Users/ali.heristchian/Documents/learning/mpga/src/services/useGameService.ts)) combines foreign keys into rich nested structures on demand and exposes `getAvailableNightActions(role)` which automatically derives active night abilities and appends standard pass choices for both the host teleprompter ([`NightPhase.vue`](file:///Users/ali.heristchian/Documents/learning/mpga/src/components/game/NightPhase.vue)) and player phones ([`PlayerClient.vue`](file:///Users/ali.heristchian/Documents/learning/mpga/src/components/player/PlayerClient.vue)).
 
 ### 2. State Management & Pinia Architecture
 * Global game state is managed in [`src/stores/gameStore.js`](file:///Users/ali.heristchian/Documents/learning/mpga/src/stores/gameStore.js):

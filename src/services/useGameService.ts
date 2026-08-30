@@ -4,7 +4,18 @@ import { mockSides } from '../data/sides';
 import { mockAbilities } from '../data/abilities';
 import { mockPhases } from '../data/phases';
 import { mockModes } from '../data/modes';
-import type { Role, Side, Ability, Phase, GameMode, HydratedRole } from '../types';
+import { generateRoleGuideData, generateNightResolutionSteps } from '../data/roleGuideData';
+import type {
+  Role,
+  Side,
+  Ability,
+  Phase,
+  GameMode,
+  HydratedRole,
+  NightActionOption,
+  GuideRole,
+  NightResolutionStep,
+} from '../types';
 
 // A Vue Composable (conventionally starts with "use")
 export function useGameService() {
@@ -38,18 +49,77 @@ export function useGameService() {
     }
   };
 
-  // Helper method to "Hydrate" a role (join it with its side data)
+  // Helper method to "Hydrate" a role (join it with its side & full ability objects)
   const getFullRoleDetails = (roleId: string): HydratedRole | null => {
-    const role = roles.value.find((r) => r.id === roleId);
+    const roleList = roles.value.length > 0 ? roles.value : mockRoles;
+    const sideList = sides.value.length > 0 ? sides.value : mockSides;
+    const abilityList = abilities.value.length > 0 ? abilities.value : mockAbilities;
+
+    const role = roleList.find((r) => r.id === roleId);
     if (!role) return null;
 
-    const side = sides.value.find((s) => s.id === role.sideId);
+    const side = sideList.find((s) => s.id === role.sideId) || null;
+    const roleAbilities: Ability[] = (role.abilityIds || [])
+      .map((id) => abilityList.find((a) => a.id === id))
+      .filter((a): a is Ability => Boolean(a));
+    const passiveAbilities: Ability[] = (role.passiveAbilityIds || [])
+      .map((id) => abilityList.find((a) => a.id === id))
+      .filter((a): a is Ability => Boolean(a));
 
-    // Return a new object that combines the role and its side object
     return {
       ...role,
-      side: side || null,
+      side,
+      abilities: roleAbilities,
+      passiveAbilities,
     };
+  };
+
+  /**
+   * Declaratively resolves available night action options for a given role.
+   * Derives active abilities and automatically appends the standard pass option.
+   */
+  const getAvailableNightActions = (
+    role: Role | HydratedRole | undefined | null
+  ): NightActionOption[] => {
+    if (!role) return [];
+
+    const actionList: NightActionOption[] = [];
+    const abilityList = abilities.value.length > 0 ? abilities.value : mockAbilities;
+    const abilityIdList = role.abilityIds || [];
+
+    abilityIdList.forEach((abId) => {
+      const ability = abilityList.find((a) => a.id === abId);
+      if (ability && !ability.isPassive) {
+        actionList.push({
+          id: ability.id,
+          nameKey: ability.actionNameKey || ability.nameKey,
+          icon: ability.icon,
+          descriptionKey: ability.actionDescKey || ability.descriptionKey,
+          ability,
+        });
+      }
+    });
+
+    // Always append pass option
+    actionList.push({
+      id: 'pass',
+      nameKey: 'nightPhase.actionPass',
+      icon: '🚫',
+      descriptionKey: 'nightPhase.actionPassDesc',
+    });
+
+    return actionList;
+  };
+
+  const getRoleGuideData = (): GuideRole[] => {
+    const roleList = roles.value.length > 0 ? roles.value : mockRoles;
+    return generateRoleGuideData(roleList);
+  };
+
+  const getNightResolutionSequence = (): NightResolutionStep[] => {
+    const roleList = roles.value.length > 0 ? roles.value : mockRoles;
+    const abilityList = abilities.value.length > 0 ? abilities.value : mockAbilities;
+    return generateNightResolutionSteps(roleList, abilityList);
   };
 
   return {
@@ -62,5 +132,8 @@ export function useGameService() {
     error,
     fetchGameData,
     getFullRoleDetails,
+    getAvailableNightActions,
+    getRoleGuideData,
+    getNightResolutionSequence,
   };
 }

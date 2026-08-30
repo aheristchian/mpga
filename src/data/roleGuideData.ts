@@ -1,373 +1,152 @@
 /**
  * Comprehensive in-game guide data for roles, abilities, and resolution sequence.
- * 100% internationalized via translation keys for English and Persian.
+ * 100% Declaratively derived from mockRoles & mockAbilities (Single Source of Truth).
+ * 100% Internationalized via translation keys for English and Persian.
  */
 
-export interface GuideAbility {
-  id: string;
-  nameKey: string;
-  descKey: string;
-  typeKey: string;
-  typeColor: string;
-  priority: number;
-  icon: string;
-  selfAllowed: boolean;
-  livingOnly: boolean;
-  chargesKey: string;
+import { mockRoles } from './roles';
+import { mockAbilities } from './abilities';
+import type { Role, Ability, GuideRole, GuideAbility, NightResolutionStep } from '../types';
+
+export type { GuideRole, GuideAbility, NightResolutionStep } from '../types';
+
+const abilityMap = new Map<string, Ability>(mockAbilities.map((a) => [a.id, a]));
+
+export function buildGuideAbility(ability: Ability): GuideAbility {
+  return {
+    id: ability.id,
+    nameKey: ability.nameKey,
+    descKey: ability.descriptionKey,
+    typeKey: ability.typeKey,
+    typeColor: ability.typeColor,
+    priority: ability.priority,
+    icon: ability.icon,
+    selfAllowed: ability.target.selfAllowed,
+    livingOnly: ability.target.livingOnly,
+    chargesKey: ability.chargesKey,
+  };
 }
 
-export interface GuideRole {
-  id: string;
-  sideId: string;
-  nameKey: string;
-  descKey: string;
-  badgeKey: string;
-  svgKey: string;
-  abilities: GuideAbility[];
-  tacticsKey: string;
+export function buildGuideRole(role: Role): GuideRole {
+  const allAbilityIds = [...(role.abilityIds || []), ...(role.passiveAbilityIds || [])];
+  const abilities: GuideAbility[] = [];
+
+  allAbilityIds.forEach((id) => {
+    const ab = abilityMap.get(id);
+    if (ab) {
+      abilities.push(buildGuideAbility(ab));
+    }
+  });
+
+  return {
+    id: role.id,
+    sideId: role.sideId,
+    nameKey: role.nameKey,
+    descKey: role.descriptionKey,
+    badgeKey: role.badgeKey,
+    svgKey: role.svgKey,
+    abilities,
+    tacticsKey: role.tacticsKey,
+  };
 }
 
-export interface NightResolutionStep {
-  step: number;
-  priority: number;
-  titleKey: string;
-  descKey: string;
-  icon: string;
-  actors: string[];
-  color: string;
+export function generateRoleGuideData(roles: Role[] = mockRoles): GuideRole[] {
+  return roles.map(buildGuideRole);
 }
 
-export const roleGuideData: GuideRole[] = [
-  {
-    id: 'godfather',
-    sideId: 'mafia',
-    nameKey: 'roles.godfather.name',
-    descKey: 'roles.godfather.description',
-    badgeKey: 'roleGuide.factions.mafiaLeader',
-    svgKey: 'godfather',
-    abilities: [
-      {
-        id: 'mafia-shot',
-        nameKey: 'roleGuide.abilities.mafiaShot.name',
-        descKey: 'roleGuide.abilities.mafiaShot.desc',
-        typeKey: 'roleGuide.types.kill',
-        typeColor: 'red',
-        priority: 70,
-        icon: '🔫',
-        selfAllowed: false,
-        livingOnly: true,
-        chargesKey: 'roleGuide.charges.unlimited',
-      },
-      {
-        id: 'shield',
-        nameKey: 'roleGuide.abilities.godfatherShield.name',
-        descKey: 'roleGuide.abilities.godfatherShield.desc',
-        typeKey: 'roleGuide.types.shield',
-        typeColor: 'amber',
-        priority: 99,
-        icon: '🛡️',
-        selfAllowed: true,
-        livingOnly: true,
-        chargesKey: 'roleGuide.charges.oneShot',
-      },
-      {
-        id: 'clean-inquiry',
-        nameKey: 'roleGuide.abilities.cleanInquiry.name',
-        descKey: 'roleGuide.abilities.cleanInquiry.desc',
-        typeKey: 'roleGuide.types.passive',
-        typeColor: 'blue',
-        priority: 99,
-        icon: '🎭',
-        selfAllowed: true,
-        livingOnly: true,
-        chargesKey: 'roleGuide.charges.permanent',
-      },
-    ],
-    tacticsKey: 'roleGuide.tactics.godfather',
-  },
-  {
-    id: 'matador',
-    sideId: 'mafia',
-    nameKey: 'roles.matador.name',
-    descKey: 'roles.matador.description',
-    badgeKey: 'roleGuide.factions.mafiaEnforcer',
-    svgKey: 'matador',
-    abilities: [
-      {
-        id: 'block',
-        nameKey: 'roleGuide.abilities.block.name',
-        descKey: 'roleGuide.abilities.block.desc',
-        typeKey: 'roleGuide.types.block',
-        typeColor: 'purple',
-        priority: 90,
-        icon: '🛑',
-        selfAllowed: false,
-        livingOnly: true,
-        chargesKey: 'roleGuide.charges.unlimited',
-      },
-    ],
-    tacticsKey: 'roleGuide.tactics.matador',
-  },
-  {
-    id: 'saul-goodman',
-    sideId: 'mafia',
-    nameKey: 'roles.saul-goodman.name',
-    descKey: 'roles.saul-goodman.description',
-    badgeKey: 'roleGuide.factions.mafiaSupport',
-    svgKey: 'saul-goodman',
-    abilities: [
-      {
-        id: 'buy',
-        nameKey: 'roleGuide.abilities.buy.name',
-        descKey: 'roleGuide.abilities.buy.desc',
-        typeKey: 'roleGuide.types.bribe',
-        typeColor: 'amber',
-        priority: 90,
-        icon: '🤝',
-        selfAllowed: false,
-        livingOnly: true,
-        chargesKey: 'roleGuide.charges.onePerGame',
-      },
-    ],
-    tacticsKey: 'roleGuide.tactics.saulGoodman',
-  },
-  {
-    id: 'mafia',
-    sideId: 'mafia',
-    nameKey: 'roles.mafia.name',
-    descKey: 'roles.mafia.description',
-    badgeKey: 'roleGuide.factions.mafiaMember',
-    svgKey: 'mafia',
-    abilities: [
-      {
-        id: 'team-shot',
-        nameKey: 'roleGuide.abilities.teamShot.name',
-        descKey: 'roleGuide.abilities.teamShot.desc',
-        typeKey: 'roleGuide.types.kill',
-        typeColor: 'red',
-        priority: 70,
-        icon: '🔫',
-        selfAllowed: false,
-        livingOnly: true,
-        chargesKey: 'roleGuide.charges.unlimited',
-      },
-    ],
-    tacticsKey: 'roleGuide.tactics.mafia',
-  },
-  {
-    id: 'doctor',
-    sideId: 'town',
-    nameKey: 'roles.doctor.name',
-    descKey: 'roles.doctor.description',
-    badgeKey: 'roleGuide.factions.townProtector',
-    svgKey: 'doctor',
-    abilities: [
-      {
-        id: 'treat',
-        nameKey: 'roleGuide.abilities.treat.name',
-        descKey: 'roleGuide.abilities.treat.desc',
-        typeKey: 'roleGuide.types.heal',
-        typeColor: 'emerald',
-        priority: 80,
-        icon: '💉',
-        selfAllowed: true,
-        livingOnly: true,
-        chargesKey: 'roleGuide.charges.unlimited',
-      },
-    ],
-    tacticsKey: 'roleGuide.tactics.doctor',
-  },
-  {
-    id: 'detective',
-    sideId: 'town',
-    nameKey: 'roles.detective.name',
-    descKey: 'roles.detective.description',
-    badgeKey: 'roleGuide.factions.townInvestigator',
-    svgKey: 'detective',
-    abilities: [
-      {
-        id: 'investigate',
-        nameKey: 'roleGuide.abilities.investigate.name',
-        descKey: 'roleGuide.abilities.investigate.desc',
-        typeKey: 'roleGuide.types.inquire',
-        typeColor: 'blue',
-        priority: 50,
-        icon: '🔍',
-        selfAllowed: false,
-        livingOnly: true,
-        chargesKey: 'roleGuide.charges.unlimited',
-      },
-    ],
-    tacticsKey: 'roleGuide.tactics.detective',
-  },
-  {
-    id: 'leon',
-    sideId: 'town',
-    nameKey: 'roles.leon.name',
-    descKey: 'roles.leon.description',
-    badgeKey: 'roleGuide.factions.townVigilante',
-    svgKey: 'leon',
-    abilities: [
-      {
-        id: 'vigillante-shot',
-        nameKey: 'roleGuide.abilities.vigilanteShot.name',
-        descKey: 'roleGuide.abilities.vigilanteShot.desc',
-        typeKey: 'roleGuide.types.kill',
-        typeColor: 'cyan',
-        priority: 70,
-        icon: '🎯',
-        selfAllowed: false,
-        livingOnly: true,
-        chargesKey: 'roleGuide.charges.twoPerGame',
-      },
-    ],
-    tacticsKey: 'roleGuide.tactics.leon',
-  },
-  {
-    id: 'constantine',
-    sideId: 'town',
-    nameKey: 'roles.constantine.name',
-    descKey: 'roles.constantine.description',
-    badgeKey: 'roleGuide.factions.townMystic',
-    svgKey: 'constantine',
-    abilities: [
-      {
-        id: 'revive',
-        nameKey: 'roleGuide.abilities.revive.name',
-        descKey: 'roleGuide.abilities.revive.desc',
-        typeKey: 'roleGuide.types.revive',
-        typeColor: 'amber',
-        priority: 10,
-        icon: '✨',
-        selfAllowed: false,
-        livingOnly: false,
-        chargesKey: 'roleGuide.charges.onePerGame',
-      },
-    ],
-    tacticsKey: 'roleGuide.tactics.constantine',
-  },
-  {
-    id: 'nostradamus',
-    sideId: 'third-party',
-    nameKey: 'roles.nostradamus.name',
-    descKey: 'roles.nostradamus.description',
-    badgeKey: 'roleGuide.factions.neutralProphet',
-    svgKey: 'nostradamus',
-    abilities: [
-      {
-        id: 'choose-side',
-        nameKey: 'roleGuide.abilities.chooseSide.name',
-        descKey: 'roleGuide.abilities.chooseSide.desc',
-        typeKey: 'roleGuide.types.prophecy',
-        typeColor: 'purple',
-        priority: 50,
-        icon: '🔮',
-        selfAllowed: false,
-        livingOnly: true,
-        chargesKey: 'roleGuide.charges.nightOneOnly',
-      },
-      {
-        id: 'unlimited-shield',
-        nameKey: 'roleGuide.abilities.prophetShield.name',
-        descKey: 'roleGuide.abilities.prophetShield.desc',
-        typeKey: 'roleGuide.types.shield',
-        typeColor: 'amber',
-        priority: 99,
-        icon: '🛡️',
-        selfAllowed: true,
-        livingOnly: true,
-        chargesKey: 'roleGuide.charges.permanent',
-      },
-    ],
-    tacticsKey: 'roleGuide.tactics.nostradamus',
-  },
-  {
-    id: 'citizen',
-    sideId: 'town',
-    nameKey: 'roles.citizen.name',
-    descKey: 'roles.citizen.description',
-    badgeKey: 'roleGuide.factions.townCitizen',
-    svgKey: 'citizen',
-    abilities: [
-      {
-        id: 'deduction',
-        nameKey: 'roleGuide.abilities.deduction.name',
-        descKey: 'roleGuide.abilities.deduction.desc',
-        typeKey: 'roleGuide.types.passive',
-        typeColor: 'blue',
-        priority: 0,
-        icon: '🗣️',
-        selfAllowed: true,
-        livingOnly: true,
-        chargesKey: 'roleGuide.charges.dayOnly',
-      },
-    ],
-    tacticsKey: 'roleGuide.tactics.citizen',
-  },
-];
+export const roleGuideData: GuideRole[] = generateRoleGuideData();
 
-export const nightResolutionSteps: NightResolutionStep[] = [
-  {
-    step: 1,
-    priority: 99,
+export const stepMetaMap: Record<
+  number,
+  { titleKey: string; descKey: string; icon: string; color: string }
+> = {
+  99: {
     titleKey: 'roleGuide.nightSteps.step1.title',
     descKey: 'roleGuide.nightSteps.step1.desc',
     icon: '🛡️',
-    actors: ['godfather', 'nostradamus'],
     color: 'amber',
   },
-  {
-    step: 2,
-    priority: 90,
+  90: {
     titleKey: 'roleGuide.nightSteps.step2.title',
     descKey: 'roleGuide.nightSteps.step2.desc',
     icon: '🛑',
-    actors: ['matador', 'saul-goodman'],
     color: 'purple',
   },
-  {
-    step: 3,
-    priority: 80,
+  80: {
     titleKey: 'roleGuide.nightSteps.step3.title',
     descKey: 'roleGuide.nightSteps.step3.desc',
     icon: '💉',
-    actors: ['doctor'],
     color: 'emerald',
   },
-  {
-    step: 4,
-    priority: 70,
+  70: {
     titleKey: 'roleGuide.nightSteps.step4.title',
     descKey: 'roleGuide.nightSteps.step4.desc',
     icon: '🔫',
-    actors: ['godfather', 'mafia', 'leon'],
     color: 'red',
   },
-  {
-    step: 5,
-    priority: 50,
+  50: {
     titleKey: 'roleGuide.nightSteps.step5.title',
     descKey: 'roleGuide.nightSteps.step5.desc',
     icon: '🔍',
-    actors: ['detective', 'nostradamus'],
     color: 'blue',
   },
-  {
-    step: 6,
-    priority: 10,
+  10: {
     titleKey: 'roleGuide.nightSteps.step6.title',
     descKey: 'roleGuide.nightSteps.step6.desc',
     icon: '✨',
-    actors: ['constantine'],
     color: 'yellow',
   },
-  {
-    step: 7,
-    priority: 0,
+  0: {
     titleKey: 'roleGuide.nightSteps.step7.title',
     descKey: 'roleGuide.nightSteps.step7.desc',
     icon: '🌅',
-    actors: ['moderator'],
     color: 'amber',
   },
-];
+};
+
+export function generateNightResolutionSteps(
+  roles: Role[] = mockRoles,
+  _abilities: Ability[] = mockAbilities
+): NightResolutionStep[] {
+  const priorityMap = new Map<number, Set<string>>();
+
+  // Seed the standard step priorities
+  [99, 90, 80, 70, 50, 10].forEach((p) => priorityMap.set(p, new Set<string>()));
+
+  roles.forEach((role) => {
+    const allIds = [...(role.abilityIds || []), ...(role.passiveAbilityIds || [])];
+    allIds.forEach((abId) => {
+      const ab = abilityMap.get(abId);
+      if (ab && priorityMap.has(ab.priority)) {
+        priorityMap.get(ab.priority)!.add(role.id);
+      }
+    });
+  });
+
+  const sortedPriorities = [99, 90, 80, 70, 50, 10, 0];
+  let stepNumber = 1;
+
+  return sortedPriorities.map((priority) => {
+    const meta = stepMetaMap[priority] || {
+      titleKey: `Priority ${priority}`,
+      descKey: '',
+      icon: '⚡',
+      color: 'slate',
+    };
+
+    const actors =
+      priority === 0 ? ['moderator'] : Array.from(priorityMap.get(priority) || []);
+
+    return {
+      step: stepNumber++,
+      priority,
+      titleKey: meta.titleKey,
+      descKey: meta.descKey,
+      icon: meta.icon,
+      actors,
+      color: meta.color,
+    };
+  });
+}
+
+export const nightResolutionSteps: NightResolutionStep[] = generateNightResolutionSteps();
