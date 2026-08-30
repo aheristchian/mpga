@@ -22,7 +22,7 @@
               {{ $t('audio.musicConsole') }}
             </h3>
             <p class="text-xs text-gray-400">
-              Suno AI & Custom Audio Soundtrack Manager
+              MPGA Atmosphere Soundtrack & Playlist Player
             </p>
           </div>
         </div>
@@ -35,7 +35,7 @@
       </div>
 
       <!-- SCROLLABLE BODY -->
-      <div class="p-6 space-y-6 overflow-y-auto flex-1">
+      <div class="p-6 space-y-5 overflow-y-auto flex-1">
         <!-- NOW PLAYING WIDGET -->
         <div
           class="bg-gradient-to-r from-gray-950 via-gray-900 to-gray-950 border border-gray-800 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg"
@@ -43,7 +43,7 @@
           <div class="flex items-center gap-3 w-full sm:w-auto">
             <div
               class="w-12 h-12 rounded-xl bg-gray-800 border border-gray-700 flex items-center justify-center text-2xl shrink-0"
-              :class="{ 'animate-pulse text-purple-400': audio.isPlayingMusic.value }"
+              :class="{ 'animate-pulse text-purple-400 shadow-md shadow-purple-500/20': audio.isPlayingMusic.value }"
             >
               {{ audio.isPlayingMusic.value ? '📻' : '🔈' }}
             </div>
@@ -55,12 +55,12 @@
                 {{ audio.currentTrack.value?.title || 'MPGA Soundtrack' }}
               </h4>
               <span class="text-xs text-gray-400">
-                {{ audio.currentTrack.value?.artist || 'Suno AI' }}
+                {{ audio.currentTrack.value?.artist || 'Ali Heristchian' }}
               </span>
             </div>
           </div>
 
-          <!-- CONTROLS & VOLUME -->
+          <!-- CONTROLS -->
           <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
             <button
               class="w-9 h-9 rounded-lg bg-gray-800 hover:bg-gray-700 active:scale-95 text-white flex items-center justify-center transition-all cursor-pointer"
@@ -93,9 +93,9 @@
           </div>
         </div>
 
-        <!-- VOLUME & AUTOPLAY & CLOUD SETTINGS -->
-        <div class="space-y-3 bg-gray-800/40 border border-gray-800 p-4 rounded-xl">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- VOLUME & AUTOPLAY SETTINGS -->
+        <div class="bg-gray-800/40 border border-gray-800 p-4 rounded-xl">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
             <!-- Music Volume Slider -->
             <div>
               <div class="flex justify-between items-center mb-1.5">
@@ -133,43 +133,6 @@
                   :class="audio.autoPlayOnPhaseChange.value ? 'translate-x-5' : 'translate-x-0'"
                 />
               </button>
-            </div>
-          </div>
-
-          <!-- OFFLINE LOCAL FIRST & REMOTE ONEDRIVE CONFIG -->
-          <div class="pt-3 border-t border-gray-800/80 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <!-- Prefer Local Toggle -->
-            <div class="flex items-center justify-between gap-2">
-              <div>
-                <span class="text-xs font-bold text-gray-200 block flex items-center gap-1.5">
-                  <span>📁</span> {{ $t('audio.preferLocalLabel') }}
-                </span>
-                <span class="text-[11px] text-gray-400 block leading-tight">{{ $t('audio.preferLocalDesc') }}</span>
-              </div>
-              <button
-                class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
-                :class="audio.preferLocal.value ? 'bg-emerald-600' : 'bg-gray-700'"
-                @click="audio.setPreferLocal(!audio.preferLocal.value)"
-              >
-                <span
-                  class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
-                  :class="audio.preferLocal.value ? 'translate-x-5' : 'translate-x-0'"
-                />
-              </button>
-            </div>
-
-            <!-- Remote Base URL -->
-            <div>
-              <label class="block text-[11px] font-semibold text-gray-300 mb-1 flex items-center gap-1">
-                <span>☁️</span> {{ $t('audio.remoteBaseUrlLabel') }}
-              </label>
-              <input
-                :value="audio.remoteBaseUrl.value"
-                type="text"
-                :placeholder="$t('audio.remoteBaseUrlPlaceholder')"
-                class="w-full bg-gray-900 border border-gray-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-purple-500 font-mono"
-                @change="audio.setRemoteBaseUrl($event.target.value)"
-              />
             </div>
           </div>
         </div>
@@ -237,22 +200,6 @@
                   >
                     {{ $t('audio.thirdPartyWinTrack') }}
                   </span>
-
-                  <!-- Source Badges -->
-                  <span
-                    v-if="track.localUrl"
-                    class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-950/70 border border-emerald-600/40 text-emerald-300"
-                    title="Local offline MP3 available"
-                  >
-                    📁 {{ $t('audio.localSource') }}
-                  </span>
-                  <span
-                    v-if="track.onlineUrl || (track.url && track.url.startsWith('http'))"
-                    class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-cyan-950/70 border border-cyan-600/40 text-cyan-300"
-                    title="Online / Cloud stream configured"
-                  >
-                    ☁️ {{ $t('audio.onlineSource') }}
-                  </span>
                 </div>
                 <p class="text-xs text-gray-400 truncate mt-0.5">
                   {{ track.artist || 'Ali Heristchian' }}
@@ -261,10 +208,10 @@
 
               <div class="flex items-center gap-2 shrink-0">
                 <button
-                  class="px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+                  class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
                   :class="
                     audio.currentTrack.value?.id === track.id && audio.isPlayingMusic.value
-                      ? 'bg-purple-600 hover:bg-purple-500 text-white'
+                      ? 'bg-purple-600 hover:bg-purple-500 text-white shadow-md shadow-purple-600/20'
                       : 'bg-gray-700 hover:bg-gray-600 text-gray-200'
                   "
                   @click="handleTrackClick(track)"
@@ -279,102 +226,9 @@
               v-if="currentCategoryTracks.length === 0"
               class="text-center py-6 text-gray-500 text-xs"
             >
-              No tracks added for this category yet.
+              No tracks configured for this category.
             </div>
           </div>
-        </div>
-
-        <!-- ADD CUSTOM SUNO / ONEDRIVE URL SECTION -->
-        <div class="bg-gray-950/60 border border-gray-800 rounded-xl p-4 space-y-3">
-          <h5 class="text-xs font-bold uppercase tracking-wider text-purple-400 flex items-center gap-1.5">
-            <span>✨</span> {{ $t('audio.addCustomSuno') }}
-          </h5>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label class="block text-[11px] font-semibold text-gray-400 mb-1">
-                {{ $t('audio.trackTitlePlaceholder') }}
-              </label>
-              <input
-                v-model="customTitle"
-                type="text"
-                placeholder="e.g. Noir City Mystery"
-                class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500"
-              />
-            </div>
-
-            <div>
-              <label class="block text-[11px] font-semibold text-gray-400 mb-1">
-                {{ $t('audio.targetPhase') }}
-              </label>
-              <select
-                v-model="customPhase"
-                class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500"
-              >
-                <option value="night">{{ $t('audio.phaseNight') }}</option>
-                <option value="day">{{ $t('audio.phaseDay') }}</option>
-                <option value="voting">{{ $t('audio.phaseVoting') }}</option>
-                <option value="midday">{{ $t('audio.phaseMidday') }}</option>
-                <option value="victory">{{ $t('audio.phaseVictory') }}</option>
-                <option value="lobby">{{ $t('audio.phaseLobby') }}</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label class="block text-[11px] font-semibold text-gray-400 mb-1">
-                {{ $t('audio.onlineUrlLabel') }}
-              </label>
-              <input
-                v-model="customUrl"
-                type="text"
-                :placeholder="$t('audio.sunoUrlPlaceholder')"
-                class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500 font-mono"
-              />
-            </div>
-
-            <div>
-              <label class="block text-[11px] font-semibold text-gray-400 mb-1">
-                {{ $t('audio.localPathLabel') }}
-              </label>
-              <input
-                v-model="customLocalUrl"
-                type="text"
-                :placeholder="$t('audio.localPathPlaceholder')"
-                class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500 font-mono"
-              />
-            </div>
-          </div>
-
-          <div class="flex justify-end gap-2 pt-1">
-            <button
-              :disabled="!customUrl && !customLocalUrl"
-              class="px-3.5 py-1.5 bg-gray-800 hover:bg-gray-700 disabled:opacity-40 text-gray-300 rounded-lg text-xs font-bold transition-all cursor-pointer"
-              @click="handleTestPlay"
-            >
-              {{ $t('audio.testPlay') }}
-            </button>
-            <button
-              :disabled="(!customUrl && !customLocalUrl) || !customTitle"
-              class="px-4 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 disabled:opacity-40 text-white rounded-lg text-xs font-bold transition-all shadow-md shadow-purple-600/20 cursor-pointer"
-              @click="handleAddTrack"
-            >
-              {{ $t('audio.addTrack') }}
-            </button>
-          </div>
-        </div>
-
-        <!-- CONFIG FILE NOTICE -->
-        <div class="text-[11px] text-gray-400 bg-gray-950/40 p-3 rounded-lg border border-gray-800/80 flex items-start gap-2">
-          <span class="text-amber-400">💡</span>
-          <span>
-            <i18n-t keypath="audio.configFileHint" tag="span">
-              <template #path>
-                <code class="text-purple-300 bg-gray-900 px-1 py-0.5 rounded font-mono">src/data/soundtracks.js</code>
-              </template>
-            </i18n-t>
-          </span>
         </div>
       </div>
 
@@ -406,10 +260,6 @@ const emit = defineEmits(['close']);
 const audio = useAudio();
 
 const selectedTab = ref('night');
-const customTitle = ref('');
-const customUrl = ref('');
-const customLocalUrl = ref('');
-const customPhase = ref('night');
 
 const phaseTabs = [
   { id: 'night', labelKey: 'audio.phaseNight', icon: '🌙' },
@@ -431,44 +281,6 @@ const handleTrackClick = (track) => {
     audio.activePhase.value = selectedTab.value;
     audio.playTrack(track);
   }
-};
-
-const handleTestPlay = () => {
-  if (!customUrl.value && !customLocalUrl.value) return;
-  const tempTrack = {
-    id: 'test-' + Date.now(),
-    title: customTitle.value || 'Custom Test Track',
-    artist: 'Suno / Stream',
-    localUrl: customLocalUrl.value || '',
-    onlineUrl: customUrl.value || '',
-    url: customLocalUrl.value || customUrl.value,
-    volumeMultiplier: 1.0,
-  };
-  audio.playTrack(tempTrack);
-};
-
-const handleAddTrack = () => {
-  if ((!customUrl.value && !customLocalUrl.value) || !customTitle.value) return;
-
-  const newTrack = {
-    id: 'custom-' + Date.now(),
-    title: customTitle.value,
-    artist: 'Ali Heristchian',
-    localUrl: customLocalUrl.value || '',
-    onlineUrl: customUrl.value || '',
-    url: customLocalUrl.value || customUrl.value,
-    volumeMultiplier: 0.85,
-  };
-
-  if (!audio.playlists.value[customPhase.value]) {
-    audio.playlists.value[customPhase.value] = [];
-  }
-  audio.playlists.value[customPhase.value].push(newTrack);
-
-  selectedTab.value = customPhase.value;
-  customTitle.value = '';
-  customUrl.value = '';
-  customLocalUrl.value = '';
 };
 
 const close = () => {

@@ -132,7 +132,6 @@ export function useAudio() {
       }
 
       const audio = new Audio(streamUrl);
-      audio.crossOrigin = 'anonymous';
       audio.loop = false;
 
       const targetVol = musicVolume.value * (track.volumeMultiplier || 1.0);
@@ -145,7 +144,7 @@ export function useAudio() {
       audio.addEventListener('error', (err) => {
         if (fallbackUrl && fallbackUrl !== streamUrl) {
           console.info(
-            `[MPGA Audio] Primary audio stream failed for "${track.title}" (${streamUrl}). Falling back to online/alternative URL: ${fallbackUrl}`
+            `[MPGA Audio] Primary audio stream failed for "${track.title}" (${streamUrl}). Falling back to alternative URL: ${fallbackUrl}`
           );
           playStream(fallbackUrl, null, track, options);
           return;
@@ -196,30 +195,20 @@ export function useAudio() {
   };
 
   /**
-   * Plays a specific track object with smart local-first / online fallback resolution
-   * @param {Object} track - { id, title, artist, localUrl, onlineUrl, url, volumeMultiplier }
+   * Plays a specific track object with smart URL resolution
+   * @param {Object} track - { id, title, artist, url, volumeMultiplier }
    * @param {Object} options - { fade: boolean }
    */
   const playTrack = (track, options = { fade: true }) => {
     if (!track || isMuted.value) return;
 
-    const rawLocal = track.localUrl || track.url || '';
-    const rawOnline = track.onlineUrl || '';
+    const rawUrl = track.url || track.onlineUrl || track.localUrl || '';
+    if (!rawUrl || rawUrl.endsWith('_')) return;
 
-    // Ignore disabled tracks (ending with underscore to prevent unwanted traffic)
-    if (rawLocal && rawLocal.endsWith('_') && (!rawOnline || rawOnline.endsWith('_'))) return;
+    const primaryUrl = resolveAudioUrl(rawUrl, remoteBaseUrl.value);
+    if (!primaryUrl) return;
 
-    const primaryRaw = preferLocal.value ? (rawLocal || rawOnline) : (rawOnline || rawLocal);
-    const fallbackRaw = preferLocal.value
-      ? (rawOnline && rawOnline !== primaryRaw ? rawOnline : null)
-      : (rawLocal && rawLocal !== primaryRaw ? rawLocal : null);
-
-    const primaryUrl = resolveAudioUrl(primaryRaw, remoteBaseUrl.value);
-    const fallbackUrl = fallbackRaw ? resolveAudioUrl(fallbackRaw, remoteBaseUrl.value) : null;
-
-    if (!primaryUrl && !fallbackUrl) return;
-
-    playStream(primaryUrl || fallbackUrl, fallbackUrl && primaryUrl ? fallbackUrl : null, track, options);
+    playStream(primaryUrl, null, track, options);
   };
 
   /**
@@ -318,25 +307,29 @@ export function useAudio() {
   };
 
   const nextTrack = () => {
-    const list = (playlists.value[activePhase.value] || []).filter((t) => Boolean(t.url) && !t.url.endsWith('_'));
+    const list = (playlists.value[activePhase.value] || []).filter(
+      (t) => Boolean(t.url || t.onlineUrl || t.localUrl) && !(t.url || t.onlineUrl || t.localUrl).endsWith('_')
+    );
     if (list.length === 0) return;
 
     const currentIndex = list.findIndex((t) => t.id === currentTrack.value?.id);
     const nextIndex = (currentIndex + 1) % list.length;
     const nextItem = list[nextIndex];
-    if (nextItem && nextItem.url) {
+    if (nextItem) {
       playTrack(nextItem);
     }
   };
 
   const previousTrack = () => {
-    const list = playlists.value[activePhase.value] || [];
+    const list = (playlists.value[activePhase.value] || []).filter(
+      (t) => Boolean(t.url || t.onlineUrl || t.localUrl) && !(t.url || t.onlineUrl || t.localUrl).endsWith('_')
+    );
     if (list.length === 0) return;
 
     const currentIndex = list.findIndex((t) => t.id === currentTrack.value?.id);
     const prevIndex = (currentIndex - 1 + list.length) % list.length;
     const prevItem = list[prevIndex];
-    if (prevItem && prevItem.url) {
+    if (prevItem) {
       playTrack(prevItem);
     }
   };
