@@ -82,9 +82,9 @@ graph TD
 * **Privacy-First Mobile Client (`PlayerClient.vue`):** Standalone mobile interface with visual roster seat claiming, tap-to-reveal secret role card, live speaker spotlight synchronization, night action console with real-time detective inquiry feedback, voting ballots, and timeout/retry recovery actions.
 * **Strict Payload Sanitization:** `sanitizePlayerPayload` and `sanitizePublicGameState` ensure zero role leakage to foreign player clients.
 
-### 8. Web Audio Procedural Sound Engine & Suno Custom Soundtrack Loader
+### 8. Web Audio Procedural Sound Engine & CDN Soundtrack Integration
 * Synthesizes countdown warning ticks ($\le 10$s, $\le 3$s), resonant end-of-turn gongs, night fall & dawn rise chord progressions, roulette wheel mechanical ticks, and victory fanfares.
-* Added phase-based custom soundtrack loader supporting Suno-generated AI music tracks with zero-bandwidth preservation controls.
+* Added phase-based custom soundtrack engine streaming orchestral audio stems (originally composed via Suno AI) directly from GitHub Release CDN assets.
 
 ### 9. Persian Localization, Language Switcher & Tournament Rule Polish
 * **Pure Bilingual Architecture:** Added comprehensive Persian translation dictionary ([`src/locales/fa.json`](file:///Users/ali.heristchian/Documents/learning/mpga/src/locales/fa.json)) and cleaned English dictionary ([`src/locales/en.json`](file:///Users/ali.heristchian/Documents/learning/mpga/src/locales/en.json)), removing mixed parenthetical terms.
@@ -131,6 +131,12 @@ graph TD
 * **Live Connected Device Roster:** Real-time player count badge in header and lobby updating automatically on joins, leaves, and seat changes.
 * **Active Presence Heartbeat:** Periodic ping/pong health monitor preventing phantom disconnected sessions.
 * **Multiplayer Cockpit Controls:** Reactive action buttons in `MultiplayerHostModal` and `PlayerEntry` reflecting real-time connection status.
+
+### 3. Direct Player Action Submissions & Real-Time Moderator Teleprompter Sync
+**Goal:** Empower players to submit night ability targets and daytime voting ballots directly from their connected smartphones, updating the moderator teleprompter in real time.
+* **Direct Mobile Night Action Submissions:** Connected players with active night abilities select their action and target on their mobile interface; choices instantly stream to the moderator teleprompter wizard with real-time incoming status badges.
+* **Moderator Live Review & Fallback:** The moderator maintains full authoritative control to review, accept, or override player-submitted actions if a player misses their action window.
+* **Mobile Daytime Voting Ballots:** Players submit daytime votes from their devices, automatically aggregating candidate tallies on the host screen while preserving physical tournament voting etiquette.
 
 ### 6. Headless Core State Machine (`@mpga/core`) & Time-Travel Event Sourcing
 **Goal:** Decouple the game engine into a pure, headless state machine with deterministic event sourcing.

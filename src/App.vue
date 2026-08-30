@@ -191,7 +191,7 @@
     <!-- MULTIPLAYER HOST MODAL -->
     <MultiplayerHostModal :is-open="showMultiplayerModal" @close="showMultiplayerModal = false" />
 
-    <!-- SOUNDTRACK & SUNO MUSIC CONSOLE MODAL -->
+    <!-- SOUNDTRACK CONSOLE MODAL -->
     <SoundtrackConsole :is-open="showSoundtrackModal" @close="showSoundtrackModal = false" />
 
     <!-- IN-GAME GUIDE & ROLE HIERARCHY MODAL -->

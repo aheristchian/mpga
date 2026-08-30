@@ -179,6 +179,8 @@
               {{
                 multiplayer.errorMessage.value === 'WRONG_PASSCODE'
                   ? $t('playerClient.wrongPasscode')
+                  : multiplayer.errorMessage.value === 'NAME_ALREADY_CLAIMED'
+                  ? $t('playerClient.nameAlreadyClaimed')
                   : multiplayer.errorMessage.value
               }}
             </p>
@@ -211,7 +213,7 @@
 
       <!-- 2. CONNECTED: LOBBY WAITING SCREEN (Setup phase or waiting for role assignment) -->
       <div
-        v-else-if="!playerIdentity?.role"
+        v-else-if="!playerIdentity?.role || publicState?.gamePhase !== 'playing'"
         class="bg-gray-900 border border-gray-800 p-5 rounded-2xl shadow-xl space-y-4"
       >
         <div class="text-center space-y-1.5">
@@ -229,6 +231,15 @@
               })
             }}
           </p>
+        </div>
+
+        <!-- ERROR BANNER (e.g. NAME ALREADY CLAIMED) -->
+        <div
+          v-if="multiplayer.errorMessage.value === 'NAME_ALREADY_CLAIMED'"
+          class="p-3 bg-red-950/80 border border-red-500/80 text-red-200 text-xs rounded-xl flex items-center gap-2 shadow-lg"
+        >
+          <span class="text-base">⚠️</span>
+          <span class="font-semibold">{{ $t('playerClient.nameAlreadyClaimed') }}</span>
         </div>
 
         <!-- 2A. UNNAMED PLAYER PROMPT (If connected without a name) -->
@@ -305,8 +316,23 @@
           </div>
         </div>
 
-        <!-- STATUS NOTICE -->
-        <div class="bg-gray-800/80 p-2.5 rounded-xl border border-gray-700/60">
+        <!-- STATUS NOTICE: NOT STARTED / WAITING -->
+        <div
+          v-if="publicState?.gamePhase && publicState.gamePhase !== 'playing'"
+          class="bg-gradient-to-r from-blue-950/70 to-indigo-950/70 p-3.5 rounded-xl border border-blue-500/40 space-y-1 text-center shadow-inner"
+        >
+          <p class="text-xs text-blue-300 font-bold flex items-center justify-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
+            <span>{{ $t('playerClient.gameNotStartedTitle') }}</span>
+          </p>
+          <p class="text-[11px] text-gray-300 leading-relaxed font-medium">
+            {{ $t('playerClient.gameNotStartedNotice') }}
+          </p>
+          <p class="text-[10px] text-gray-400">
+            {{ $t('playerClient.roleWillRevealWhenStarted') }}
+          </p>
+        </div>
+        <div v-else class="bg-gray-800/80 p-2.5 rounded-xl border border-gray-700/60">
           <p class="text-xs text-amber-300 font-semibold flex items-center justify-center gap-1.5 text-center">
             <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
             <span>{{ $t('playerClient.waitingForHostToStart') }}</span>
@@ -349,6 +375,12 @@
                   class="text-[10px] bg-blue-900/90 text-blue-300 border border-blue-500/50 px-2 py-0.5 rounded-full font-extrabold tracking-wider"
                 >
                   {{ $t('playerClient.youBadge') }}
+                </span>
+                <span
+                  v-else-if="isPlayerClaimed(p.name)"
+                  class="text-[10px] bg-gray-900 text-gray-400 border border-gray-700 px-2 py-0.5 rounded-full font-medium flex items-center gap-1"
+                >
+                  🔒 {{ $t('playerClient.seatClaimed') }}
                 </span>
                 <button
                   v-else-if="!effectivePlayerName"
@@ -708,6 +740,21 @@ const lobbyPlayersList = computed(() => {
   if (multiplayer.lobbyPlayers.value?.length) return multiplayer.lobbyPlayers.value;
   return [];
 });
+
+const isPlayerClaimed = (name) => {
+  if (!name) return false;
+  const n = name.trim().toLowerCase();
+  if (effectivePlayerName.value && effectivePlayerName.value.trim().toLowerCase() === n) {
+    return false;
+  }
+  if (publicState.value?.claimedPlayers && Array.isArray(publicState.value.claimedPlayers)) {
+    return publicState.value.claimedPlayers.includes(n);
+  }
+  const matching = lobbyPlayersList.value.find(
+    (p) => (p.name || '').trim().toLowerCase() === n
+  );
+  return matching ? !!matching.isClaimed : false;
+};
 
 const availableNightActions = computed(() => {
   const roleId = playerIdentity.value?.role?.id;

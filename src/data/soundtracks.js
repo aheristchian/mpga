@@ -155,8 +155,3 @@ export function resolveAudioUrl(inputUrl) {
   if (!inputUrl || typeof inputUrl !== 'string') return '';
   return inputUrl.trim();
 }
-
-/**
- * Backward compatibility alias for resolveAudioUrl
- */
-export const resolveSunoAudioUrl = resolveAudioUrl;

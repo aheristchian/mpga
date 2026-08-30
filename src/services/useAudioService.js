@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue';
-import { soundtrackConfig, resolveAudioUrl, resolveSunoAudioUrl } from '../data/soundtracks';
+import { soundtrackConfig, resolveAudioUrl } from '../data/soundtracks';
 
 // Persisted audio states
 const isMuted = ref(
@@ -453,6 +453,5 @@ export function useAudio() {
     playFanfare,
     playVoteClick,
     resolveAudioUrl,
-    resolveSunoAudioUrl,
   };
 }

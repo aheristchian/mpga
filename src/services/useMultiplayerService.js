@@ -60,41 +60,54 @@ let hostPresenceInterval = null;
 // MQTT Broker Configuration (Public High-Availability WSS Brokers)
 const CLOUD_BROKER_URL = 'wss://broker.hivemq.com:8884/mqtt';
 
-export function sanitizePlayerPayload(player) {
+export function sanitizePlayerPayload(player, isGameLive = true) {
   if (!player) return null;
   return {
     name: player.name,
-    role: player.role
-      ? {
-          id: player.role.id,
-          name: player.role.name,
-          sideId: player.role.sideId,
-          description: player.role.description,
-          abilities: player.role.abilities,
-        }
-      : null,
+    role:
+      isGameLive && player.role
+        ? {
+            id: player.role.id,
+            name: player.role.name,
+            sideId: player.role.sideId,
+            description: player.role.description,
+            abilities: player.role.abilities,
+          }
+        : null,
     isDead: !!player.isDead,
     isSilenced: !!player.isSilenced,
     warnings: player.warnings || 0,
   };
 }
 
-export function sanitizePublicGameState(store) {
+export function sanitizePublicGameState(store, claimedPlayerNames = []) {
   if (!store) return {};
+  const claimedSet = new Set(
+    (claimedPlayerNames || [])
+      .map((n) => (typeof n === 'string' ? n.trim().toLowerCase() : ''))
+      .filter(Boolean)
+  );
+
   const living = (store.livePlayers || [])
     .filter((p) => !p.isDead)
-    .map((p, idx) => ({ name: p.name, seat: idx + 1 }));
+    .map((p, idx) => ({
+      name: p.name,
+      seat: idx + 1,
+      isClaimed: claimedSet.has((p.name || '').toLowerCase()),
+    }));
 
   const all = (store.livePlayers || []).map((p, idx) => ({
     name: p.name,
     seat: idx + 1,
     isDead: !!p.isDead,
     isSilenced: !!p.isSilenced,
+    isClaimed: claimedSet.has((p.name || '').toLowerCase()),
   }));
 
   const setupPlayers = (store.players || []).map((p, idx) => ({
     name: p.name,
     seat: idx + 1,
+    isClaimed: claimedSet.has((p.name || '').toLowerCase()),
   }));
 
   return {
@@ -104,6 +117,7 @@ export function sanitizePublicGameState(store) {
     livingPlayers: living,
     allPlayers: all.length > 0 ? all : setupPlayers,
     setupPlayers: setupPlayers,
+    claimedPlayers: Array.from(claimedSet),
     eliminatedPlayer: store.eliminatedPlayer
       ? { name: store.eliminatedPlayer.name, role: store.eliminatedPlayer.role?.name }
       : null,
@@ -366,11 +380,26 @@ export function useMultiplayer() {
 
     // Request State / Ping
     if (data.type === 'GET_STATE') {
+      const reqName = (data.playerName || '').trim();
+      const isClaimedByOther =
+        reqName &&
+        connectedPeers.value.some(
+          (p) =>
+            p.peerId !== senderId &&
+            p.playerName &&
+            p.playerName.trim().toLowerCase() === reqName.toLowerCase()
+        );
+      if (isClaimedByOther) {
+        sendCloudDirect(hostCode, senderId, {
+          type: 'LOBBY_ERROR',
+          message: 'NAME_ALREADY_CLAIMED',
+        });
+      }
       dispatchPlayerAction({
         action: 'CLIENT_REQUESTED_STATE',
         type: 'CLIENT_REQUESTED_STATE',
         senderId,
-        playerName: data.playerName,
+        playerName: isClaimedByOther ? '' : reqName,
       });
       return;
     }
@@ -398,6 +427,20 @@ export function useMultiplayer() {
         sendCloudDirect(hostCode, senderId, {
           type: 'LOBBY_ERROR',
           message: 'INVALID_NAME',
+        });
+        return;
+      }
+
+      const isClaimedByOther = connectedPeers.value.some(
+        (p) =>
+          p.peerId !== senderId &&
+          p.playerName &&
+          p.playerName.trim().toLowerCase() === playerName.toLowerCase()
+      );
+      if (isClaimedByOther) {
+        sendCloudDirect(hostCode, senderId, {
+          type: 'LOBBY_ERROR',
+          message: 'NAME_ALREADY_CLAIMED',
         });
         return;
       }
@@ -436,18 +479,51 @@ export function useMultiplayer() {
     }
 
     if (data.type === 'CLAIM_SEAT') {
+      const playerName = (data.playerName || '').trim();
+      if (!playerName) return;
+
+      const isClaimedByOther = connectedPeers.value.some(
+        (p) =>
+          p.peerId !== senderId &&
+          p.playerName &&
+          p.playerName.trim().toLowerCase() === playerName.toLowerCase()
+      );
+      if (isClaimedByOther) {
+        sendCloudDirect(hostCode, senderId, {
+          type: 'LOBBY_ERROR',
+          message: 'NAME_ALREADY_CLAIMED',
+        });
+        return;
+      }
+
       if (existingIndex !== -1) {
         connectedPeers.value[existingIndex] = {
           ...connectedPeers.value[existingIndex],
-          playerName: data.playerName,
+          playerName,
           lastSeen: Date.now(),
         };
         connectedPeers.value = [...connectedPeers.value];
+      } else {
+        connectedPeers.value = [
+          ...connectedPeers.value,
+          {
+            peerId: senderId,
+            playerName,
+            lastSeen: Date.now(),
+          },
+        ];
       }
+
+      sendCloudDirect(hostCode, senderId, {
+        type: 'LOBBY_JOINED',
+        playerName,
+        roomCode: hostCode,
+      });
+
       dispatchPlayerAction({
         action: 'CLAIM_SEAT',
         type: 'CLAIM_SEAT',
-        playerName: data.playerName,
+        playerName,
         peerId: senderId,
       });
       return;
@@ -595,11 +671,30 @@ export function useMultiplayer() {
 
   const handleWebRTCHostIncomingData = (conn, data) => {
     if (data.type === 'GET_STATE') {
+      const reqName = (data.playerName || '').trim();
+      const isClaimedByOther =
+        reqName &&
+        connectedPeers.value.some(
+          (p) =>
+            p.peerId !== conn.peer &&
+            p.playerName &&
+            p.playerName.trim().toLowerCase() === reqName.toLowerCase()
+        );
+      if (isClaimedByOther) {
+        try {
+          conn.send({
+            type: 'LOBBY_ERROR',
+            message: 'NAME_ALREADY_CLAIMED',
+          });
+        } catch {
+          // ignore
+        }
+      }
       dispatchPlayerAction({
         action: 'CLIENT_REQUESTED_STATE',
         type: 'CLIENT_REQUESTED_STATE',
         peerId: conn.peer,
-        playerName: data.playerName,
+        playerName: isClaimedByOther ? '' : reqName,
       });
       return;
     }
@@ -642,6 +737,24 @@ export function useMultiplayer() {
         return;
       }
 
+      const isClaimedByOther = connectedPeers.value.some(
+        (p) =>
+          p.peerId !== conn.peer &&
+          p.playerName &&
+          p.playerName.trim().toLowerCase() === playerName.toLowerCase()
+      );
+      if (isClaimedByOther) {
+        try {
+          conn.send({
+            type: 'LOBBY_ERROR',
+            message: 'NAME_ALREADY_CLAIMED',
+          });
+        } catch {
+          // ignore
+        }
+        return;
+      }
+
       const peerIdx = connectedPeers.value.findIndex((p) => p.peerId === conn.peer);
       if (peerIdx !== -1) {
         connectedPeers.value[peerIdx] = {
@@ -672,19 +785,51 @@ export function useMultiplayer() {
     }
 
     if (data.type === 'CLAIM_SEAT') {
+      const playerName = (data.playerName || '').trim();
+      if (!playerName) return;
+
+      const isClaimedByOther = connectedPeers.value.some(
+        (p) =>
+          p.peerId !== conn.peer &&
+          p.playerName &&
+          p.playerName.trim().toLowerCase() === playerName.toLowerCase()
+      );
+      if (isClaimedByOther) {
+        try {
+          conn.send({
+            type: 'LOBBY_ERROR',
+            message: 'NAME_ALREADY_CLAIMED',
+          });
+        } catch {
+          // ignore
+        }
+        return;
+      }
+
       const peerIdx = connectedPeers.value.findIndex((p) => p.peerId === conn.peer);
       if (peerIdx !== -1) {
         connectedPeers.value[peerIdx] = {
           ...connectedPeers.value[peerIdx],
-          playerName: data.playerName,
+          playerName,
           lastSeen: Date.now(),
         };
         connectedPeers.value = [...connectedPeers.value];
       }
+
+      try {
+        conn.send({
+          type: 'LOBBY_JOINED',
+          playerName,
+          roomCode: roomCode.value,
+        });
+      } catch {
+        // ignore
+      }
+
       dispatchPlayerAction({
         action: 'CLAIM_SEAT',
         type: 'CLAIM_SEAT',
-        playerName: data.playerName,
+        playerName,
         peerId: conn.peer,
       });
       return;
@@ -720,8 +865,14 @@ export function useMultiplayer() {
   // Broadcast state to all connected devices
   const broadcastHostState = (store) => {
     if (!store) return;
-    const publicState = sanitizePublicGameState(store);
-    const rawPlayers = store.livePlayers && store.livePlayers.length > 0 ? store.livePlayers : store.players || [];
+    const isGameLive = store.gamePhase === 'playing';
+    const claimedPlayerNames = connectedPeers.value
+      .map((p) => p.playerName)
+      .filter((n) => Boolean(n && n.trim()));
+
+    const publicState = sanitizePublicGameState(store, claimedPlayerNames);
+    const rawPlayers =
+      store.livePlayers && store.livePlayers.length > 0 ? store.livePlayers : store.players || [];
 
     if (transportMode.value === 'cloud') {
       if (hostMqttClient && hostMqttClient.connected) {
@@ -729,8 +880,10 @@ export function useMultiplayer() {
         hostMqttClient.publish(topicPublic, JSON.stringify(publicState), { qos: 0 });
 
         connectedPeers.value.forEach((p) => {
-          const rawPlayer = rawPlayers.find((rp) => rp.name === p.playerName);
-          const privateIdentity = rawPlayer ? sanitizePlayerPayload(rawPlayer) : null;
+          const rawPlayer = rawPlayers.find(
+            (rp) => rp.name && p.playerName && rp.name.toLowerCase() === p.playerName.toLowerCase()
+          );
+          const privateIdentity = rawPlayer ? sanitizePlayerPayload(rawPlayer, isGameLive) : null;
           sendCloudDirect(roomCode.value, p.peerId, {
             type: 'STATE_UPDATE',
             player: privateIdentity,
@@ -741,8 +894,10 @@ export function useMultiplayer() {
     } else {
       connectedPeers.value.forEach((p) => {
         if (!p.conn || !p.conn.open) return;
-        const rawPlayer = rawPlayers.find((rp) => rp.name === p.playerName);
-        const privateIdentity = rawPlayer ? sanitizePlayerPayload(rawPlayer) : null;
+        const rawPlayer = rawPlayers.find(
+          (rp) => rp.name && p.playerName && rp.name.toLowerCase() === p.playerName.toLowerCase()
+        );
+        const privateIdentity = rawPlayer ? sanitizePlayerPayload(rawPlayer, isGameLive) : null;
 
         try {
           p.conn.send({

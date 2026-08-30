@@ -87,8 +87,8 @@ describe('useMultiplayerService', () => {
     const publicState = sanitizePublicGameState(store);
     expect(publicState.gamePhase).toBe('setup');
     expect(publicState.setupPlayers.length).toBe(2);
-    expect(publicState.setupPlayers[0]).toEqual({ name: 'Ali', seat: 1 });
-    expect(publicState.setupPlayers[1]).toEqual({ name: 'Sara', seat: 2 });
+    expect(publicState.setupPlayers[0]).toEqual({ name: 'Ali', seat: 1, isClaimed: false });
+    expect(publicState.setupPlayers[1]).toEqual({ name: 'Sara', seat: 2, isClaimed: false });
     expect(publicState.allPlayers.length).toBe(2);
   });
 
@@ -135,6 +135,51 @@ describe('useMultiplayerService', () => {
 
     // Cleanup listener B
     unsubB();
+  });
+
+  it('withholds role in sanitizePlayerPayload when isGameLive is false (pre-game / lobby)', () => {
+    const player = {
+      name: 'Ali',
+      role: {
+        id: 'detective',
+        name: 'Detective',
+        sideId: 'town',
+        description: 'Investigates players',
+        abilities: ['investigate'],
+      },
+      isDead: false,
+    };
+
+    // Pre-game: isGameLive = false
+    const preGamePayload = sanitizePlayerPayload(player, false);
+    expect(preGamePayload.name).toBe('Ali');
+    expect(preGamePayload.role).toBeNull();
+
+    // In-game: isGameLive = true
+    const inGamePayload = sanitizePlayerPayload(player, true);
+    expect(inGamePayload.name).toBe('Ali');
+    expect(inGamePayload.role).toBeDefined();
+    expect(inGamePayload.role.id).toBe('detective');
+  });
+
+  it('marks isClaimed accurately in sanitizePublicGameState based on claimed player roster', () => {
+    const store = {
+      gamePhase: 'setup',
+      players: [
+        { name: 'Ali' },
+        { name: 'Sara' },
+        { name: 'Reza' },
+      ],
+      livePlayers: [],
+    };
+
+    const claimed = ['Ali', 'reza'];
+    const publicState = sanitizePublicGameState(store, claimed);
+
+    expect(publicState.claimedPlayers).toEqual(['ali', 'reza']);
+    expect(publicState.setupPlayers[0]).toEqual({ name: 'Ali', seat: 1, isClaimed: true });
+    expect(publicState.setupPlayers[1]).toEqual({ name: 'Sara', seat: 2, isClaimed: false });
+    expect(publicState.setupPlayers[2]).toEqual({ name: 'Reza', seat: 3, isClaimed: true });
   });
 
   it('correctly tracks isPeerConnected and connectedPlayerNames', async () => {

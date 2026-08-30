@@ -60,7 +60,7 @@ mpga/
 │   │   ├── roleIllustrations.js  # Scalable vector SVG illustrations for character roles
 │   │   ├── roles.js              # Role definitions, limits, and foreign keys
 │   │   ├── sides.js              # Factions (Town, Mafia, Third Party)
-│   │   └── soundtracks.js        # Suno AI & Phase background music playlists & stream resolver
+│   │   └── soundtracks.js        # Phase background music playlists & stream resolver
 │   ├── locales/                  # Localization dictionaries
 │   │   ├── en.json               # English translations (clean strings)
 │   │   └── fa.json               # Persian translations (authentic Mafia terminology)
@@ -176,7 +176,7 @@ graph TD
 * **Mobile Client View (`PlayerClient.vue`):**
   - Standalone mobile interface featuring Room PIN authentication, live transport badge, latency indicator (ms), Lobby Waiting Room with live player roster, tap-to-reveal secret role cards, live speaker spotlight synchronization, night action target selection with immediate detective feedback, voting ballots, and timeout/retry recovery actions.
 
-### 8. Procedural Web Audio Sound FX & Suno Music Engine
+### 8. Procedural Web Audio Sound FX & CDN Soundtrack Engine
 * **Sound FX Engine:** Synthesizes procedural sound cues directly via the browser's native Web `AudioContext`:
   * **Countdown Ticks:** Subtle 800 Hz sine clicks for the final 10 seconds of a speaking/defense turn.
   * **Urgent Ticks:** 1200 Hz alert clicks for the final 3 seconds.
@@ -185,13 +185,13 @@ graph TD
   * **Dawn Rise:** Ascending C-major chord arpeggio (C4 $\rightarrow$ E4 $\rightarrow$ G4 $\rightarrow$ C5) on morning wake-up.
   * **Roulette Wheel:** Mechanical tick sound during Destiny Spin and Last Word Card selection.
   * **Victory Fanfare:** Triumphant brass-like major chord fanfare upon match conclusion.
-* **Soundtrack Configuration & Suno AI Music Playback ([`src/data/soundtracks.js`](file:///Users/ali.heristchian/Documents/learning/mpga/src/data/soundtracks.js)):**
-  * **Phase Playlists:** Dedicated music playlists for all game phases and scenes (`lobby`, `day`, `voting`, `midday`, `night`, `victory`).
+* **Soundtrack Configuration & Music Playback ([`src/data/soundtracks.js`](file:///Users/ali.heristchian/Documents/learning/mpga/src/data/soundtracks.js)):**
+  * **Phase Playlists:** Dedicated music playlists for all game phases and scenes (`lobby`, `day`, `voting`, `midday`, `night`, `victory`). The default orchestral stems were originally generated with Suno AI and are served directly from high-speed GitHub Release CDN assets.
   * **Winner-Specific Victory Soundtracks:** Automatically plays faction-tailored victory themes upon match resolution (`Victory-1.mp3` for Mafia, `Victory-2.mp3` for Town, `Victory-3.mp3` for Third-Party / Nostradamus).
   * **Midday & Last Words Soundtrack:** Plays tailored tension music (`Midday-1.mp3`) while eliminated players give their final speech and draw cards.
-  * **Smart Suno URL Resolver (`resolveSunoAudioUrl`):** Automatically detects and parses Suno song URLs (`https://suno.com/song/<id>`) into direct playable CDN audio streams (`https://cdn1.suno.ai/<id>.mp3`).
+  * **Direct Audio Stream URL Engine (`resolveAudioUrl`):** Clean, protocol-agnostic audio URL resolver that directly feeds HTML5 audio streams with zero third-party parsing overhead.
   * **Auto-DJ Crossfading:** Seamlessly switches and crossfades background tracks when transitioning between game phases and sub-phases.
-  * **Moderator Music Console (`SoundtrackConsole.vue`):** Dedicated UI for testing tracks, managing volume, toggling Auto-DJ, and pasting live Suno URLs on the fly.
+  * **Moderator Music Console (`SoundtrackConsole.vue`):** Dedicated UI for testing tracks, managing volume, toggling Auto-DJ, and previewing phase soundtracks on the fly.
 * **Persistent Preferences:** Reactive volume and mute states (`useAudio().musicVolume`, `useAudio().autoPlayOnPhaseChange`, `useAudio().isMuted`) synchronized with `localStorage`.
 
 ---
