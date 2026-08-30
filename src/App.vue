@@ -8,14 +8,14 @@
   <div v-else class="min-h-screen bg-gray-900 text-white font-sans p-4 sm:p-6">
     <header class="mb-8 relative flex flex-col items-center">
       <!-- TOP ACTION BAR -->
-      <div class="w-full flex justify-between items-center mb-4 gap-2">
-        <div class="flex items-center gap-2">
+      <div class="w-full flex justify-between items-center mb-4 gap-1.5 sm:gap-2 flex-wrap sm:flex-nowrap">
+        <div class="flex items-center gap-1.5 sm:gap-2">
           <!-- LANGUAGE SWITCHER -->
           <LanguageSwitcher />
 
           <!-- SOUND FX TOGGLE BUTTON -->
           <button
-            class="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 active:scale-95 border border-gray-700 text-gray-300 hover:text-white rounded-xl transition-all text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow"
+            class="p-2 sm:px-3 sm:py-1.5 bg-gray-800 hover:bg-gray-700 active:scale-95 border border-gray-700 text-gray-300 hover:text-white rounded-xl transition-all text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow shrink-0"
             :title="audio.isMuted.value ? $t('audio.unmute') : $t('audio.mute')"
             @click="audio.toggleMute"
           >
@@ -25,9 +25,9 @@
             }}</span>
           </button>
 
-          <!-- SOUNDTRACK & SUNO MUSIC CONSOLE BUTTON -->
+          <!-- SOUNDTRACK MUSIC CONSOLE BUTTON -->
           <button
-            class="px-3 py-1.5 bg-gray-800 hover:bg-purple-950/80 active:scale-95 border border-gray-700 hover:border-purple-500/60 text-gray-300 hover:text-white rounded-xl transition-all text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow"
+            class="p-2 sm:px-3 sm:py-1.5 bg-gray-800 hover:bg-purple-950/80 active:scale-95 border border-gray-700 hover:border-purple-500/60 text-gray-300 hover:text-white rounded-xl transition-all text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow shrink-0"
             :title="$t('audio.musicConsole')"
             @click="showSoundtrackModal = true"
           >
@@ -39,7 +39,7 @@
 
           <!-- IN-GAME GUIDE & ROLE HIERARCHY BUTTON -->
           <button
-            class="px-3 py-1.5 bg-gray-800 hover:bg-amber-950/80 active:scale-95 border border-gray-700 hover:border-amber-500/60 text-gray-300 hover:text-white rounded-xl transition-all text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow"
+            class="p-2 sm:px-3 sm:py-1.5 bg-gray-800 hover:bg-amber-950/80 active:scale-95 border border-gray-700 hover:border-amber-500/60 text-gray-300 hover:text-white rounded-xl transition-all text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow shrink-0"
             :title="$t('app.gameGuide')"
             @click="showGuideModal = true"
           >
@@ -48,14 +48,15 @@
           </button>
         </div>
 
-        <!-- MULTIPLAYER CONNECT PHONES BUTTON -->
-        <div class="flex items-center gap-2">
+        <!-- MULTIPLAYER CONNECT PHONES & START OVER -->
+        <div class="flex items-center gap-1.5 sm:gap-2">
           <button
-            class="px-3.5 py-1.5 bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 border border-blue-500/50 text-white rounded-xl transition-all text-xs font-bold flex items-center gap-1.5 shadow-md cursor-pointer"
+            class="px-2.5 py-2 sm:px-3.5 sm:py-1.5 bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 border border-blue-500/50 text-white rounded-xl transition-all text-xs font-bold flex items-center gap-1.5 shadow-md cursor-pointer shrink-0"
+            :title="$t('multiplayer.connectDevices')"
             @click="openMultiplayerModal"
           >
             <span>📱</span>
-            <span>{{ $t('multiplayer.connectDevices') }}</span>
+            <span class="hidden sm:inline">{{ $t('multiplayer.connectDevices') }}</span>
             <span
               v-if="multiplayer.connectedPeers.value.length > 0"
               class="bg-blue-900 text-blue-200 px-1.5 py-0.2 rounded-full text-[10px]"
@@ -67,10 +68,12 @@
           <!-- GLOBAL START OVER BUTTON -->
           <button
             v-if="store.gamePhase !== 'mode-selection'"
-            class="px-3 py-1.5 bg-gray-800 hover:bg-red-900 border border-gray-700 hover:border-red-500 text-gray-300 hover:text-white rounded-xl transition-colors text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow"
+            class="p-2 sm:px-3 sm:py-1.5 bg-gray-800 hover:bg-red-900 border border-gray-700 hover:border-red-500 text-gray-300 hover:text-white rounded-xl transition-colors text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow shrink-0"
+            :title="$t('app.startOver')"
             @click="showResetModal = true"
           >
-            <span>↺</span> {{ $t('app.startOver') }}
+            <span>↺</span>
+            <span class="hidden sm:inline">{{ $t('app.startOver') }}</span>
           </button>
         </div>
       </div>

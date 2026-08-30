@@ -139,11 +139,11 @@
 
         <!-- PHASE PLAYLIST TABS -->
         <div>
-          <div class="flex flex-wrap gap-2 border-b border-gray-800 pb-3 mb-4">
+          <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-3 mb-4 border-b border-gray-800">
             <button
               v-for="tab in phaseTabs"
               :key="tab.id"
-              class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+              class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shrink-0 whitespace-nowrap"
               :class="
                 selectedTab === tab.id
                   ? 'bg-purple-600 text-white shadow-md shadow-purple-600/20'

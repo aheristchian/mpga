@@ -213,18 +213,28 @@ export function useAudio() {
 
   /**
    * Plays music for a given phase (e.g. 'night', 'day', 'voting', 'midday', 'victory', 'lobby')
+   * Automatically picks a random available track from the phase playlist.
    */
-  const playPhaseMusic = (phaseKey, options = { fade: true }) => {
+  const playPhaseMusic = (phaseKey, options = { fade: true, random: true }) => {
     if (!phaseKey) return;
     activePhase.value = phaseKey;
 
-    const phasePlaylist = playlists.value[phaseKey] || [];
-    if (phasePlaylist.length === 0) return;
-
-    // Pick first track with a valid, non-disabled URL
-    const playableTrack = phasePlaylist.find(
+    const phasePlaylist = (playlists.value[phaseKey] || []).filter(
       (t) => Boolean(t.url || t.onlineUrl || t.localUrl) && !(t.url || t.onlineUrl || t.localUrl).endsWith('_')
     );
+    if (phasePlaylist.length === 0) return;
+
+    let playableTrack;
+    if (options.random !== false && phasePlaylist.length > 1) {
+      // Pick a random track from this phase (prefer different from the currently playing track)
+      const otherTracks = phasePlaylist.filter((t) => t.id !== currentTrack.value?.id);
+      const candidates = otherTracks.length > 0 ? otherTracks : phasePlaylist;
+      const randIdx = Math.floor(Math.random() * candidates.length);
+      playableTrack = candidates[randIdx];
+    } else {
+      playableTrack = phasePlaylist[0];
+    }
+
     if (playableTrack) {
       playTrack(playableTrack, options);
     }
