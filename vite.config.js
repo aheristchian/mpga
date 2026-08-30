@@ -14,4 +14,24 @@ export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(packageJson.version),
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('mqtt') || id.includes('peerjs')) {
+              return 'vendor-multiplayer';
+            }
+            if (id.includes('sweetalert2') || id.includes('qrcode.vue')) {
+              return 'vendor-ui';
+            }
+            if (id.includes('vue') || id.includes('pinia')) {
+              return 'vendor-vue';
+            }
+            return 'vendor';
+          }
+        },
+      },
+    },
+  },
 });

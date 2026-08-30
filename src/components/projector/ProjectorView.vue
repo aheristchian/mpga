@@ -9,16 +9,21 @@
     ></div>
 
     <!-- TOP BAR: MATCH STATUS & SPECTATOR CONTROLS -->
-    <header class="relative z-10 flex justify-between items-center bg-gray-900/80 backdrop-blur-md p-4 sm:p-6 rounded-3xl border border-gray-800 shadow-2xl">
+    <header
+      class="relative z-10 flex justify-between items-center bg-gray-900/80 backdrop-blur-md p-4 sm:p-6 rounded-3xl border border-gray-800 shadow-2xl"
+    >
       <div class="flex items-center gap-4 sm:gap-6">
         <div class="flex items-center gap-3">
           <span class="text-3xl sm:text-4xl">🎭</span>
           <div>
             <h1 class="text-xl sm:text-2xl font-black tracking-wider text-white">
-              MPGA <span class="text-amber-400 font-mono text-sm sm:text-base font-bold">PROJECTOR</span>
+              MPGA
+              <span class="text-amber-400 font-mono text-sm sm:text-base font-bold">PROJECTOR</span>
             </h1>
             <p class="text-xs text-gray-400 font-medium">
-              {{ isRemoteSpectator ? $t('projector.remoteSpectator') : $t('projector.localDisplay') }}
+              {{
+                isRemoteSpectator ? $t('projector.remoteSpectator') : $t('projector.localDisplay')
+              }}
             </p>
           </div>
         </div>
@@ -27,7 +32,9 @@
 
         <!-- DAY & PHASE BADGES -->
         <div class="flex items-center gap-2.5">
-          <span class="bg-amber-950/80 border border-amber-500/50 text-amber-300 font-black px-4 py-1.5 rounded-2xl text-sm sm:text-base font-mono">
+          <span
+            class="bg-amber-950/80 border border-amber-500/50 text-amber-300 font-black px-4 py-1.5 rounded-2xl text-sm sm:text-base font-mono"
+          >
             {{ $t('projector.day', { day: currentDay }) }}
           </span>
           <span
@@ -42,7 +49,9 @@
       <!-- SPECTATOR UTILITY CONTROLS -->
       <div class="flex items-center gap-3">
         <!-- Living count -->
-        <div class="bg-gray-800/90 border border-gray-700 px-3.5 py-1.5 rounded-2xl text-xs sm:text-sm font-bold text-gray-300 flex items-center gap-2">
+        <div
+          class="bg-gray-800/90 border border-gray-700 px-3.5 py-1.5 rounded-2xl text-xs sm:text-sm font-bold text-gray-300 flex items-center gap-2"
+        >
           <span>👥</span>
           <span>{{ aliveCount }} / {{ totalPlayersCount }} {{ $t('projector.alive') }}</span>
         </div>
@@ -67,20 +76,29 @@
     </header>
 
     <!-- CENTER HERO STAGE (DYNAMIC BY SUB-PHASE) -->
-    <main class="relative z-10 flex-1 flex flex-col justify-center items-center my-8 text-center px-4 max-w-5xl mx-auto w-full">
+    <main
+      class="relative z-10 flex-1 flex flex-col justify-center items-center my-8 text-center px-4 max-w-5xl mx-auto w-full"
+    >
       <!-- 1. DAY PHASE: ACTIVE SPEAKER SPOTLIGHT & TIMER -->
       <div v-if="currentSubPhase === 'day'" class="w-full space-y-8 animate-fade-in">
-        <div class="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 text-amber-400 px-6 py-2 rounded-full text-sm font-bold tracking-wide uppercase">
+        <div
+          class="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 text-amber-400 px-6 py-2 rounded-full text-sm font-bold tracking-wide uppercase"
+        >
           <span>🗣️</span>
           <span>{{ $t('projector.discussionFloor') }}</span>
         </div>
 
         <!-- Giant Speaker Name -->
         <div>
-          <h2 class="text-4xl sm:text-6xl lg:text-7xl font-black text-white tracking-tight drop-shadow-lg">
+          <h2
+            class="text-4xl sm:text-6xl lg:text-7xl font-black text-white tracking-tight drop-shadow-lg"
+          >
             {{ activeSpeakerName || $t('projector.openFloor') }}
           </h2>
-          <p v-if="isChallengeActive" class="text-amber-400 font-bold text-lg sm:text-xl mt-2 animate-pulse">
+          <p
+            v-if="isChallengeActive"
+            class="text-amber-400 font-bold text-lg sm:text-xl mt-2 animate-pulse"
+          >
             ⚡ {{ $t('projector.challengeTurn') }}
           </p>
         </div>
@@ -91,7 +109,10 @@
             class="w-56 h-56 sm:w-72 sm:h-72 rounded-full border-8 flex flex-col justify-center items-center bg-gray-900/90 shadow-2xl transition-all duration-300"
             :class="timerBorderClass"
           >
-            <span class="text-5xl sm:text-7xl font-black font-mono tracking-tighter" :class="timerTextClass">
+            <span
+              class="text-5xl sm:text-7xl font-black font-mono tracking-tighter"
+              :class="timerTextClass"
+            >
               {{ formattedTimer }}
             </span>
             <span class="text-xs uppercase font-bold tracking-widest text-gray-400 mt-2">
@@ -103,7 +124,9 @@
 
       <!-- 2. VOTING PHASE: NOMINEES TALLY BOARD -->
       <div v-else-if="currentSubPhase === 'voting'" class="w-full space-y-6 animate-fade-in">
-        <div class="inline-flex items-center gap-2 bg-orange-500/10 border border-orange-500/30 text-orange-400 px-6 py-2 rounded-full text-sm font-bold tracking-wide uppercase">
+        <div
+          class="inline-flex items-center gap-2 bg-orange-500/10 border border-orange-500/30 text-orange-400 px-6 py-2 rounded-full text-sm font-bold tracking-wide uppercase"
+        >
           <span>🗳️</span>
           <span>{{ $t('projector.votingStage') }}</span>
         </div>
@@ -136,7 +159,9 @@
             <div class="w-full bg-gray-800 rounded-full h-3 overflow-hidden">
               <div
                 class="bg-gradient-to-r from-orange-600 to-amber-500 h-full rounded-full transition-all duration-500"
-                :style="{ width: `${Math.min(100, ((nominee.votes || 0) / Math.max(1, aliveCount)) * 100)}%` }"
+                :style="{
+                  width: `${Math.min(100, ((nominee.votes || 0) / Math.max(1, aliveCount)) * 100)}%`,
+                }"
               ></div>
             </div>
           </div>
@@ -145,7 +170,9 @@
 
       <!-- 3. MIDDAY / DEFENSE PHASE -->
       <div v-else-if="currentSubPhase === 'midday'" class="w-full space-y-6 animate-fade-in">
-        <div class="inline-flex items-center gap-2 bg-purple-500/10 border border-purple-500/30 text-purple-400 px-6 py-2 rounded-full text-sm font-bold tracking-wide uppercase">
+        <div
+          class="inline-flex items-center gap-2 bg-purple-500/10 border border-purple-500/30 text-purple-400 px-6 py-2 rounded-full text-sm font-bold tracking-wide uppercase"
+        >
           <span>⚖️</span>
           <span>{{ $t('projector.middayCourt') }}</span>
         </div>
@@ -154,7 +181,10 @@
           {{ $t('projector.finalDefenseCourt') }}
         </h2>
 
-        <div v-if="eliminatedPlayer" class="bg-purple-950/60 border border-purple-500/50 p-6 rounded-3xl max-w-md mx-auto shadow-2xl">
+        <div
+          v-if="eliminatedPlayer"
+          class="bg-purple-950/60 border border-purple-500/50 p-6 rounded-3xl max-w-md mx-auto shadow-2xl"
+        >
           <p class="text-xs text-purple-300 font-bold uppercase tracking-wider mb-2">
             {{ $t('projector.eliminatedPlayer') }}
           </p>
@@ -174,7 +204,9 @@
           {{ $t('projector.townAsleepDesc') }}
         </p>
 
-        <div class="inline-flex items-center gap-2 bg-indigo-950/60 border border-indigo-500/40 text-indigo-300 px-5 py-2 rounded-2xl text-xs font-bold shadow-lg">
+        <div
+          class="inline-flex items-center gap-2 bg-indigo-950/60 border border-indigo-500/40 text-indigo-300 px-5 py-2 rounded-2xl text-xs font-bold shadow-lg"
+        >
           <span>🔒</span>
           <span>{{ $t('projector.privacyShieldActive') }}</span>
         </div>
@@ -186,18 +218,35 @@
           {{ isTownWin ? '🏆' : isMafiaWin ? '👑' : '⚖️' }}
         </div>
 
-        <h2 class="text-4xl sm:text-6xl font-black tracking-tight" :class="isTownWin ? 'text-blue-400' : isMafiaWin ? 'text-red-400' : 'text-purple-400'">
-          {{ isTownWin ? $t('gameOver.townVictoryTitle') : isMafiaWin ? $t('gameOver.mafiaVictoryTitle') : 'Match Concluded' }}
+        <h2
+          class="text-4xl sm:text-6xl font-black tracking-tight"
+          :class="isTownWin ? 'text-blue-400' : isMafiaWin ? 'text-red-400' : 'text-purple-400'"
+        >
+          {{
+            isTownWin
+              ? $t('gameOver.townVictoryTitle')
+              : isMafiaWin
+                ? $t('gameOver.mafiaVictoryTitle')
+                : 'Match Concluded'
+          }}
         </h2>
 
         <p class="text-lg text-gray-300 max-w-lg mx-auto">
-          {{ isTownWin ? $t('gameOver.townVictorySubtitle') : isMafiaWin ? $t('gameOver.mafiaVictorySubtitle') : '' }}
+          {{
+            isTownWin
+              ? $t('gameOver.townVictorySubtitle')
+              : isMafiaWin
+                ? $t('gameOver.mafiaVictorySubtitle')
+                : ''
+          }}
         </p>
       </div>
     </main>
 
     <!-- FOOTER: SURVIVOR ROSTER STRIP -->
-    <footer class="relative z-10 bg-gray-900/80 backdrop-blur-md p-4 rounded-3xl border border-gray-800 shadow-2xl">
+    <footer
+      class="relative z-10 bg-gray-900/80 backdrop-blur-md p-4 rounded-3xl border border-gray-800 shadow-2xl"
+    >
       <div class="flex items-center justify-between gap-4 overflow-x-auto pb-1 scrollbar-thin">
         <div class="flex items-center gap-2 text-xs font-bold text-gray-400 shrink-0">
           <span>🛡️</span>
@@ -225,7 +274,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useGameStore } from '../../stores/gameStore';
 import { useMultiplayer } from '../../services/useMultiplayerService';
@@ -238,7 +287,9 @@ const multiplayer = useMultiplayer();
 
 // Determine whether we are receiving state from remote host via clientPublicState or local host
 const isRemoteSpectator = computed(() => {
-  return multiplayer.isClient.value && !store.livePlayers.length && !!multiplayer.clientPublicState.value;
+  return (
+    multiplayer.isClient.value && !store.livePlayers.length && !!multiplayer.clientPublicState.value
+  );
 });
 
 const currentSubPhase = computed(() => {

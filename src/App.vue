@@ -38,7 +38,11 @@
           >
             <span :class="{ 'animate-pulse text-purple-400': audio.isPlayingMusic.value }">🎵</span>
             <span class="hidden sm:inline max-w-[140px] truncate">
-              {{ audio.isPlayingMusic.value ? audio.currentTrack.value?.title || $t('audio.musicConsole') : $t('audio.musicConsole') }}
+              {{
+                audio.isPlayingMusic.value
+                  ? audio.currentTrack.value?.title || $t('audio.musicConsole')
+                  : $t('audio.musicConsole')
+              }}
             </span>
           </button>
 
@@ -149,9 +153,7 @@
     <footer
       class="mt-12 pb-6 border-t border-gray-800/80 pt-6 max-w-2xl mx-auto text-center space-y-2"
     >
-      <div
-        class="flex flex-wrap justify-center items-center gap-x-3 gap-y-1 text-xs text-gray-400"
-      >
+      <div class="flex flex-wrap justify-center items-center gap-x-3 gap-y-1 text-xs text-gray-400">
         <span class="inline-flex items-center gap-1.5">
           <span>{{ $t('app.createdBy') }}</span>
           <span class="font-bold text-gray-200">{{ $t('app.authorName') }}</span>
@@ -255,7 +257,11 @@ watch(
     if (!audio.autoPlayOnPhaseChange.value || audio.isMuted.value) return;
 
     if (isGameOver || newPhase === 'game-over') {
-      const evaluation = evaluateGameStatus(store.livePlayers, store.gameLogs, store.nostradamusChoice);
+      const evaluation = evaluateGameStatus(
+        store.livePlayers,
+        store.gameLogs,
+        store.nostradamusChoice
+      );
       audio.playVictoryMusic(winner || evaluation.winner || 'town');
     } else if (newPhase === 'playing' || newPhase === 'moderator') {
       if (newSubPhase === 'day') {
@@ -279,7 +285,11 @@ onMounted(() => {
   if (typeof window !== 'undefined') {
     // Unlock and trigger continuous lobby playback upon first user interaction (browser autoplay policy requirement)
     const handleFirstInteraction = () => {
-      if (audio.autoPlayOnPhaseChange.value && !audio.isMuted.value && !audio.isPlayingMusic.value) {
+      if (
+        audio.autoPlayOnPhaseChange.value &&
+        !audio.isMuted.value &&
+        !audio.isPlayingMusic.value
+      ) {
         if (store.isGameOver) {
           audio.playVictoryMusic(store.winner || 'town');
         } else if (store.gamePhase === 'playing' || store.gamePhase === 'moderator') {
@@ -325,7 +335,10 @@ onMounted(() => {
         'night',
         `📱 Mobile Action: ${actionData.actorRole || 'Player'} (${actionData.actorName || actionData.actor})`,
         `Submitted target: ${actionData.targetPlayerName || actionData.target} via mobile phone.`,
-        { player: actionData.actorName || actionData.actor, target: actionData.targetPlayerName || actionData.target }
+        {
+          player: actionData.actorName || actionData.actor,
+          target: actionData.targetPlayerName || actionData.target,
+        }
       );
     } else if (actionData.type === 'CAST_VOTE' || actionData.action === 'CAST_VOTE') {
       store.addLog(

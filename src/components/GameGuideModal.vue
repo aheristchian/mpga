@@ -7,7 +7,7 @@ import { roleGuideData, nightResolutionSteps } from '../data/roleGuideData';
 import { roleSvgMap } from '../data/roleIllustrations';
 import { mockModes } from '../data/modes';
 
-const props = defineProps({
+defineProps({
   isOpen: {
     type: Boolean,
     default: false,
@@ -277,7 +277,11 @@ const getStepColorClass = (color) => {
             }}
           </button>
           <span class="text-gray-400 text-[11px]">
-            {{ filterOnlyActiveMatch ? '⚡ Showing only roles seated in this game' : '📖 Showing full database of roles' }}
+            {{
+              filterOnlyActiveMatch
+                ? '⚡ Showing only roles seated in this game'
+                : '📖 Showing full database of roles'
+            }}
           </span>
         </div>
 
@@ -317,7 +321,9 @@ const getStepColorClass = (color) => {
 
             <!-- ABILITIES BREAKDOWN ($a_1, a_2, ...) -->
             <div class="space-y-2 pt-1 border-t border-gray-700/50">
-              <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+              <div
+                class="text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5"
+              >
                 <span>⚡</span>
                 <span>Abilities & Action System ({{ role.abilities.length }})</span>
               </div>
@@ -359,23 +365,25 @@ const getStepColorClass = (color) => {
                   </p>
 
                   <!-- CONSTRAINTS & CHARGES -->
-                  <div class="flex items-center gap-2 pt-1 text-[10px] text-gray-400 border-t border-gray-800">
+                  <div
+                    class="flex items-center gap-2 pt-1 text-[10px] text-gray-400 border-t border-gray-800"
+                  >
                     <span class="bg-gray-800/80 px-1.5 py-0.5 rounded font-mono text-gray-300">
                       {{ $t(ability.chargesKey) }}
                     </span>
                     <span v-if="ability.selfAllowed" class="text-emerald-400 font-semibold">
                       ✓ Self-Target Allowed
                     </span>
-                    <span v-else class="text-amber-400/80">
-                      ✗ Others Only
-                    </span>
+                    <span v-else class="text-amber-400/80"> ✗ Others Only </span>
                   </div>
                 </div>
               </div>
             </div>
 
             <!-- TACTICAL PRO-TIP -->
-            <div class="bg-gray-950/70 rounded-xl p-2.5 border border-amber-500/20 text-xs flex items-start gap-2">
+            <div
+              class="bg-gray-950/70 rounded-xl p-2.5 border border-amber-500/20 text-xs flex items-start gap-2"
+            >
               <span class="text-amber-400 text-sm">💡</span>
               <div class="text-amber-200/90 text-[11px] leading-relaxed">
                 <strong class="text-amber-300">Strategic Rule & Tip:</strong>
@@ -412,9 +420,11 @@ const getStepColorClass = (color) => {
         </div>
 
         <!-- VERTICAL LADDER FLOW -->
-        <div class="space-y-3 relative pl-4 sm:pl-6 border-l-2 border-indigo-600/40 my-4 ml-2 sm:ml-4">
+        <div
+          class="space-y-3 relative pl-4 sm:pl-6 border-l-2 border-indigo-600/40 my-4 ml-2 sm:ml-4"
+        >
           <div
-            v-for="(item, idx) in nightResolutionSteps"
+            v-for="item in nightResolutionSteps"
             :key="item.step"
             class="relative rounded-2xl p-3.5 sm:p-4 border transition-all space-y-2 shadow-md"
             :class="getStepColorClass(item.color)"
@@ -474,7 +484,9 @@ const getStepColorClass = (color) => {
                 {{ $t('roleGuide.scenarioDetails') }}
               </p>
             </div>
-            <span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-950 text-amber-300 border border-amber-600/50">
+            <span
+              class="px-3 py-1 rounded-full text-xs font-bold bg-amber-950 text-amber-300 border border-amber-600/50"
+            >
               🏆 Mode Specs
             </span>
           </div>
@@ -509,9 +521,7 @@ const getStepColorClass = (color) => {
             </div>
 
             <div class="bg-gray-950 p-3 rounded-xl border border-gray-800 text-center space-y-1">
-              <div class="text-[10px] font-bold text-gray-400 uppercase">
-                Voting Threshold
-              </div>
+              <div class="text-[10px] font-bold text-gray-400 uppercase">Voting Threshold</div>
               <div class="text-xs font-bold text-emerald-400 mt-1 uppercase font-mono">
                 ⌈ Alive / 2 ⌉
               </div>
@@ -526,19 +536,28 @@ const getStepColorClass = (color) => {
 
             <ul class="space-y-2 text-xs text-gray-300 leading-relaxed list-disc list-inside">
               <li>
-                <strong class="text-white">Day Turn Rotation:</strong> Each morning, speech starting position rotates clockwise by <code class="text-amber-400 font-mono">+{{ currentMode.nextDayShift }}</code> positions.
+                <strong class="text-white">Day Turn Rotation:</strong> Each morning, speech starting
+                position rotates clockwise by
+                <code class="text-amber-400 font-mono">+{{ currentMode.nextDayShift }}</code>
+                positions.
               </li>
               <li>
-                <strong class="text-white">Godfather Armor & Clean Inquiries:</strong> The Godfather survives exactly 1 lethal night shot and always returns innocent to Detective inquiries.
+                <strong class="text-white">Godfather Armor & Clean Inquiries:</strong> The Godfather
+                survives exactly 1 lethal night shot and always returns innocent to Detective
+                inquiries.
               </li>
               <li>
-                <strong class="text-white">Leon (Vigilante) Guilt Penalty:</strong> If Leon shoots an innocent citizen or town member, Leon dies at sunrise and the target lives.
+                <strong class="text-white">Leon (Vigilante) Guilt Penalty:</strong> If Leon shoots
+                an innocent citizen or town member, Leon dies at sunrise and the target lives.
               </li>
               <li>
-                <strong class="text-white">Constantine Single Revive:</strong> Constantine can revive 1 dead player back to life before sunrise (1 charge per game).
+                <strong class="text-white">Constantine Single Revive:</strong> Constantine can
+                revive 1 dead player back to life before sunrise (1 charge per game).
               </li>
               <li>
-                <strong class="text-white">Nostradamus Victory Condition:</strong> Nostradamus must predict the winning side on Night 1 and wins alongside that side if they achieve victory.
+                <strong class="text-white">Nostradamus Victory Condition:</strong> Nostradamus must
+                predict the winning side on Night 1 and wins alongside that side if they achieve
+                victory.
               </li>
             </ul>
           </div>

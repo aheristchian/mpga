@@ -17,7 +17,9 @@
           >
             {{ $t('dayPhase.step1Badge') }}
           </span>
-          <span class="text-gray-600 inline-block rtl:rotate-180 transform transition-transform">→</span>
+          <span class="text-gray-600 inline-block rtl:rotate-180 transform transition-transform"
+            >→</span
+          >
           <span
             class="px-2.5 py-1 rounded-lg transition-colors"
             :class="
@@ -28,7 +30,9 @@
           >
             {{ $t('dayPhase.step2Badge') }}
           </span>
-          <span class="text-gray-600 inline-block rtl:rotate-180 transform transition-transform">→</span>
+          <span class="text-gray-600 inline-block rtl:rotate-180 transform transition-transform"
+            >→</span
+          >
           <span
             class="px-2.5 py-1 rounded-lg transition-colors"
             :class="
@@ -205,9 +209,9 @@
                         (activeChallenger ? activeChallenger.role?.id : currentPlayer.role?.id) +
                         '.name'
                     )
-                  : (activeChallenger
-                      ? activeChallenger.role?.name
-                      : currentPlayer.role?.name || 'Citizen')
+                  : activeChallenger
+                    ? activeChallenger.role?.name
+                    : currentPlayer.role?.name || 'Citizen'
               }}
             </p>
             <span
@@ -337,7 +341,9 @@
         </div>
 
         <!-- NEXT SPEAKER / ADVANCE -->
-        <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 pt-2">
+        <div
+          class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 pt-2"
+        >
           <button
             class="text-xs text-gray-500 hover:text-red-400 underline transition-colors cursor-pointer py-2 px-1 text-center sm:text-left"
             @click="forceEndDay"
@@ -395,7 +401,10 @@
             {{ $t('dayPhase.selectChallengerPrompt') }}
           </p>
 
-          <div v-if="eligibleChallengers.length > 0" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-60 overflow-y-auto p-1">
+          <div
+            v-if="eligibleChallengers.length > 0"
+            class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-60 overflow-y-auto p-1"
+          >
             <button
               v-for="p in eligibleChallengers"
               :key="p.name"
@@ -406,7 +415,9 @@
                 <RoleAvatar :role="p.role" size="sm" />
                 <span>{{ p.name }}</span>
               </div>
-              <span class="text-amber-400 text-xs">⚡ {{ store.gameMode?.borrowedTimeToTalk || 25 }}s</span>
+              <span class="text-amber-400 text-xs"
+                >⚡ {{ store.gameMode?.borrowedTimeToTalk || 25 }}s</span
+              >
             </button>
           </div>
 
@@ -512,7 +523,7 @@ const getSideColorClass = (sideId) => {
   return 'text-town';
 };
 
-const startDayFlow = () => {
+const startSpeeches = () => {
   usedChallengeToday.value.clear();
   speakingQueue.value = [...previewQueue.value];
   totalSpeakersCount.value = speakingQueue.value.length;

@@ -145,7 +145,9 @@
     </div>
 
     <template #footer>
-      <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center w-full gap-3">
+      <div
+        class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center w-full gap-3"
+      >
         <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
           <button
             class="w-full sm:w-auto px-5 py-2.5 bg-gray-700 hover:bg-gray-600 active:scale-95 text-gray-200 font-semibold text-xs rounded-xl transition-all cursor-pointer min-h-[44px] select-none text-center"
@@ -189,10 +191,7 @@
   />
 
   <!-- POST-MATCH TIME TRAVEL REPLAY MODAL -->
-  <MatchReplayModal
-    :is-open="showReplayModal"
-    @close="showReplayModal = false"
-  />
+  <MatchReplayModal :is-open="showReplayModal" @close="showReplayModal = false" />
 </template>
 
 <script setup>

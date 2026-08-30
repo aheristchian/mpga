@@ -211,13 +211,16 @@ export function useMatchReplay(initialPlayers = [], rawGameLogs = []) {
     }
     isPlaying.value = true;
     clearInterval(timer);
-    timer = setInterval(() => {
-      if (currentStepIndex.value < totalSteps.value - 1) {
-        currentStepIndex.value++;
-      } else {
-        pause();
-      }
-    }, Math.max(400, Math.floor(1600 / playbackSpeed.value)));
+    timer = setInterval(
+      () => {
+        if (currentStepIndex.value < totalSteps.value - 1) {
+          currentStepIndex.value++;
+        } else {
+          pause();
+        }
+      },
+      Math.max(400, Math.floor(1600 / playbackSpeed.value))
+    );
   };
 
   const pause = () => {

@@ -192,9 +192,9 @@
                 <span class="font-bold text-white truncate block">{{ player.name }}</span>
                 <span class="text-[10px] text-gray-400 truncate block">{{
                   player.role
-                    ? ($te('roles.' + player.role?.id + '.name')
-                        ? $t('roles.' + player.role?.id + '.name')
-                        : player.role?.name || 'Citizen')
+                    ? $te('roles.' + player.role?.id + '.name')
+                      ? $t('roles.' + player.role?.id + '.name')
+                      : player.role?.name || 'Citizen'
                     : $t('playerEntry.modeLobby')
                 }}</span>
               </div>
@@ -227,7 +227,9 @@
     </div>
 
     <template #footer>
-      <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center w-full gap-3">
+      <div
+        class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center w-full gap-3"
+      >
         <span class="text-[11px] text-gray-400 text-center sm:text-left">
           {{ $t('multiplayer.offlineNote') }}
         </span>
@@ -344,7 +346,9 @@ const copyJoinUrl = async () => {
 
 const openProjectorTab = () => {
   if (typeof window !== 'undefined') {
-    const origin = customHost.value ? `${window.location.protocol}//${customHost.value}` : window.location.origin;
+    const origin = customHost.value
+      ? `${window.location.protocol}//${customHost.value}`
+      : window.location.origin;
     window.open(`${origin}${window.location.pathname}?view=projector`, '_blank');
   }
 };

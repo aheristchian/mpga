@@ -278,9 +278,7 @@ export function useMultiplayer() {
   };
 
   const connectedPlayerNames = computed(() => {
-    return connectedPeers.value
-      .map((p) => (p.playerName || '').trim())
-      .filter(Boolean);
+    return connectedPeers.value.map((p) => (p.playerName || '').trim()).filter(Boolean);
   });
 
   // --- HOST METHODS ---
@@ -316,7 +314,9 @@ export function useMultiplayer() {
   // 1. CLOUD HOST (MQTT over WSS with multi-broker failover)
   const startCloudHost = (hostCode, brokerIndex = 0) => {
     if (brokerIndex >= CLOUD_BROKER_URLS.length) {
-      console.warn('[MPGA Multiplayer] All Cloud MQTT brokers unreachable. Auto-switching to WebRTC P2P.');
+      console.warn(
+        '[MPGA Multiplayer] All Cloud MQTT brokers unreachable. Auto-switching to WebRTC P2P.'
+      );
       startWebRTCHost(hostCode);
       return;
     }
@@ -330,7 +330,11 @@ export function useMultiplayer() {
 
     try {
       if (hostMqttClient) {
-        try { hostMqttClient.end(true); } catch {}
+        try {
+          hostMqttClient.end(true);
+        } catch {
+          /* ignore client end error */
+        }
         hostMqttClient = null;
       }
 
@@ -344,7 +348,11 @@ export function useMultiplayer() {
       failoverTimeout = setTimeout(() => {
         if (!hasConnected && isHost.value && transportMode.value === 'cloud') {
           console.warn(`[MPGA Multiplayer] Host broker ${currentBroker} timeout, trying next...`);
-          try { hostMqttClient?.end(true); } catch {}
+          try {
+            hostMqttClient?.end(true);
+          } catch {
+            /* ignore client end error */
+          }
           startCloudHost(hostCode, brokerIndex + 1);
         }
       }, 4500);
@@ -369,7 +377,11 @@ export function useMultiplayer() {
       hostMqttClient.on('error', (err) => {
         if (!hasConnected && isHost.value && transportMode.value === 'cloud') {
           if (failoverTimeout) clearTimeout(failoverTimeout);
-          try { hostMqttClient?.end(true); } catch {}
+          try {
+            hostMqttClient?.end(true);
+          } catch {
+            /* ignore client end error */
+          }
           startCloudHost(hostCode, brokerIndex + 1);
         } else if (hasConnected) {
           errorMessage.value = err.message || 'Cloud broker error';
@@ -398,7 +410,7 @@ export function useMultiplayer() {
           });
         }
       }, 5000);
-    } catch (e) {
+    } catch {
       if (brokerIndex + 1 < CLOUD_BROKER_URLS.length) {
         startCloudHost(hostCode, brokerIndex + 1);
       } else {
@@ -958,7 +970,12 @@ export function useMultiplayer() {
   };
 
   // --- CLIENT (PLAYER) METHODS ---
-  const joinRoom = (targetRoomCode, preferredPlayerName = '', passcode = '', targetTransport = '') => {
+  const joinRoom = (
+    targetRoomCode,
+    preferredPlayerName = '',
+    passcode = '',
+    targetTransport = ''
+  ) => {
     cleanupAllConnections();
 
     if (targetTransport && (targetTransport === 'cloud' || targetTransport === 'webrtc')) {
@@ -986,7 +1003,9 @@ export function useMultiplayer() {
   // 1. CLOUD CLIENT (MQTT over WSS with multi-broker failover)
   const joinCloudRoom = (cleanCode, preferredPlayerName, passcode, brokerIndex = 0) => {
     if (brokerIndex >= CLOUD_BROKER_URLS.length) {
-      console.warn('[MPGA Multiplayer] All Cloud MQTT brokers unreachable. Auto-switching to WebRTC P2P.');
+      console.warn(
+        '[MPGA Multiplayer] All Cloud MQTT brokers unreachable. Auto-switching to WebRTC P2P.'
+      );
       joinWebRTCRoom(cleanCode, preferredPlayerName, passcode);
       return;
     }
@@ -1002,7 +1021,11 @@ export function useMultiplayer() {
 
     try {
       if (clientMqttClient) {
-        try { clientMqttClient.end(true); } catch {}
+        try {
+          clientMqttClient.end(true);
+        } catch {
+          /* ignore client end error */
+        }
         clientMqttClient = null;
       }
 
@@ -1016,7 +1039,11 @@ export function useMultiplayer() {
       failoverTimeout = setTimeout(() => {
         if (!hasConnected && isClient.value && transportMode.value === 'cloud') {
           console.warn(`[MPGA Multiplayer] Client broker ${currentBroker} timeout, trying next...`);
-          try { clientMqttClient?.end(true); } catch {}
+          try {
+            clientMqttClient?.end(true);
+          } catch {
+            /* ignore client end error */
+          }
           joinCloudRoom(cleanCode, preferredPlayerName, passcode, brokerIndex + 1);
         }
       }, 4500);
@@ -1102,7 +1129,11 @@ export function useMultiplayer() {
       clientMqttClient.on('error', (err) => {
         if (!hasConnected && isClient.value && transportMode.value === 'cloud') {
           if (failoverTimeout) clearTimeout(failoverTimeout);
-          try { clientMqttClient?.end(true); } catch {}
+          try {
+            clientMqttClient?.end(true);
+          } catch {
+            /* ignore client end error */
+          }
           joinCloudRoom(cleanCode, preferredPlayerName, passcode, brokerIndex + 1);
         } else if (hasConnected) {
           connectionStatus.value = 'error';
@@ -1115,7 +1146,7 @@ export function useMultiplayer() {
           connectionStatus.value = 'connecting';
         }
       });
-    } catch (e) {
+    } catch {
       if (brokerIndex + 1 < CLOUD_BROKER_URLS.length) {
         joinCloudRoom(cleanCode, preferredPlayerName, passcode, brokerIndex + 1);
       } else {

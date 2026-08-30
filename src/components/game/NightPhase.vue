@@ -26,12 +26,16 @@
             <span
               class="px-2 py-0.5 rounded-lg transition-colors whitespace-nowrap"
               :class="
-                stage === 'sleep' ? 'bg-indigo-600 text-white font-black shadow-md' : 'text-gray-400'
+                stage === 'sleep'
+                  ? 'bg-indigo-600 text-white font-black shadow-md'
+                  : 'text-gray-400'
               "
             >
               {{ $t('nightPhase.stepSleepBadge') }}
             </span>
-            <span class="text-gray-600 inline-block rtl:rotate-180 transform transition-transform">→</span>
+            <span class="text-gray-600 inline-block rtl:rotate-180 transform transition-transform"
+              >→</span
+            >
 
             <!-- Step 2 (Day 1 only): Mafia Intro -->
             <template v-if="store.currentDay === 1">
@@ -45,19 +49,29 @@
               >
                 {{ $t('nightPhase.stepMafiaBadge') }}
               </span>
-              <span class="text-gray-600 inline-block rtl:rotate-180 transform transition-transform">→</span>
+              <span class="text-gray-600 inline-block rtl:rotate-180 transform transition-transform"
+                >→</span
+              >
             </template>
 
             <!-- Step 2 / 3: Role Wakeups -->
             <span
               class="px-2 py-0.5 rounded-lg transition-colors whitespace-nowrap"
               :class="
-                stage === 'wizard' ? 'bg-indigo-600 text-white font-black shadow-md' : 'text-gray-400'
+                stage === 'wizard'
+                  ? 'bg-indigo-600 text-white font-black shadow-md'
+                  : 'text-gray-400'
               "
             >
-              {{ store.currentDay === 1 ? $t('nightPhase.stepRolesBadge') : $t('nightPhase.stepRolesBadgeLater') }}
+              {{
+                store.currentDay === 1
+                  ? $t('nightPhase.stepRolesBadge')
+                  : $t('nightPhase.stepRolesBadgeLater')
+              }}
             </span>
-            <span class="text-gray-600 inline-block rtl:rotate-180 transform transition-transform">→</span>
+            <span class="text-gray-600 inline-block rtl:rotate-180 transform transition-transform"
+              >→</span
+            >
 
             <!-- Step 3 / 4: Morning Announcement -->
             <span
@@ -68,7 +82,11 @@
                   : 'text-gray-400'
               "
             >
-              {{ store.currentDay === 1 ? $t('nightPhase.stepMorningBadge') : $t('nightPhase.stepMorningBadgeLater') }}
+              {{
+                store.currentDay === 1
+                  ? $t('nightPhase.stepMorningBadge')
+                  : $t('nightPhase.stepMorningBadgeLater')
+              }}
             </span>
           </div>
         </div>
@@ -89,7 +107,9 @@
         </h3>
 
         <!-- CUE SCRIPT -->
-        <div class="bg-red-950/40 border border-red-500/50 p-5 rounded-xl max-w-lg mx-auto text-left rtl:text-right space-y-3">
+        <div
+          class="bg-red-950/40 border border-red-500/50 p-5 rounded-xl max-w-lg mx-auto text-left rtl:text-right space-y-3"
+        >
           <div>
             <span class="text-[10px] text-red-400 uppercase font-bold tracking-wider block mb-1">
               {{ $t('common.moderatorScriptCue1') }}
@@ -110,7 +130,9 @@
         </div>
 
         <!-- MAFIA ROSTER PREVIEW -->
-        <div class="max-w-md mx-auto bg-gray-800/80 p-4 rounded-xl border border-gray-700 text-left rtl:text-right">
+        <div
+          class="max-w-md mx-auto bg-gray-800/80 p-4 rounded-xl border border-gray-700 text-left rtl:text-right"
+        >
           <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
             {{ $t('nightPhase.livingMafiaRoster') }}
           </h4>
@@ -124,7 +146,11 @@
               <div>
                 <span class="font-bold text-white text-sm block">{{ m.name }}</span>
                 <span class="text-xs text-red-400">
-                  {{ $te('roles.' + m.role?.id + '.name') ? $t('roles.' + m.role?.id + '.name') : m.role?.name }}
+                  {{
+                    $te('roles.' + m.role?.id + '.name')
+                      ? $t('roles.' + m.role?.id + '.name')
+                      : m.role?.name
+                  }}
                 </span>
               </div>
             </div>
@@ -184,7 +210,9 @@
                 $t('nightPhase.stepProgress', {
                   current: currentActorIndex + 1,
                   total: actorsWithAbilities.length,
-                  role: $te('roles.' + currentActor.role?.id + '.name') ? $t('roles.' + currentActor.role?.id + '.name') : currentActor.role?.name,
+                  role: $te('roles.' + currentActor.role?.id + '.name')
+                    ? $t('roles.' + currentActor.role?.id + '.name')
+                    : currentActor.role?.name,
                 })
               }}
             </span>
@@ -200,10 +228,15 @@
             <RoleAvatar :role="currentActor.role" size="lg" />
             <div>
               <h3 class="text-2xl font-black text-white">
-                {{ $te('roles.' + currentActor.role?.id + '.name') ? $t('roles.' + currentActor.role?.id + '.name') : currentActor.role?.name }}
+                {{
+                  $te('roles.' + currentActor.role?.id + '.name')
+                    ? $t('roles.' + currentActor.role?.id + '.name')
+                    : currentActor.role?.name
+                }}
               </h3>
               <p class="text-sm text-gray-300">
-                {{ $t('common.player') }}: <span class="font-bold text-white">{{ currentActor.name }}</span>
+                {{ $t('common.player') }}:
+                <span class="font-bold text-white">{{ currentActor.name }}</span>
               </p>
             </div>
           </div>
@@ -218,7 +251,9 @@
               <p class="text-sm text-gray-200 italic">
                 {{
                   $t('nightPhase.wakeRolePrompt', {
-                    role: $te('roles.' + currentActor.role?.id + '.name') ? $t('roles.' + currentActor.role?.id + '.name') : currentActor.role?.name,
+                    role: $te('roles.' + currentActor.role?.id + '.name')
+                      ? $t('roles.' + currentActor.role?.id + '.name')
+                      : currentActor.role?.name,
                     player: currentActor.name,
                   })
                 }}
@@ -260,7 +295,9 @@
             </div>
 
             <!-- Moderator Signal Prompt -->
-            <div class="p-4 bg-purple-900/60 border border-purple-500/70 rounded-xl space-y-2 text-left">
+            <div
+              class="p-4 bg-purple-900/60 border border-purple-500/70 rounded-xl space-y-2 text-left"
+            >
               <div class="flex items-center justify-between">
                 <span class="text-xs text-purple-200 font-bold uppercase tracking-wider">
                   {{
@@ -369,17 +406,23 @@
                         : $t('nightPhase.mobileActionPass', { player: currentActor.name })
                     }}
                   </span>
-                  <span class="text-[10px] text-gray-400">{{ $t('nightPhase.overridePrompt') }}</span>
+                  <span class="text-[10px] text-gray-400">{{
+                    $t('nightPhase.overridePrompt')
+                  }}</span>
                 </div>
               </div>
-              <span class="text-[10px] bg-emerald-950/90 text-emerald-300 border border-emerald-500/60 px-2.5 py-0.5 rounded-full font-black tracking-wider animate-pulse">
+              <span
+                class="text-[10px] bg-emerald-950/90 text-emerald-300 border border-emerald-500/60 px-2.5 py-0.5 rounded-full font-black tracking-wider animate-pulse"
+              >
                 SYNCED
               </span>
             </div>
 
             <!-- STEP 1: SELECT ACTION TYPE -->
             <div class="space-y-2">
-              <label class="text-xs font-bold text-indigo-300 uppercase tracking-wider flex items-center gap-1.5">
+              <label
+                class="text-xs font-bold text-indigo-300 uppercase tracking-wider flex items-center gap-1.5"
+              >
                 <span>⚡</span> {{ $t('nightPhase.step1Action') }}
               </label>
 
@@ -396,14 +439,19 @@
                   "
                   @click="selectActorAction(currentActor.name, action.id)"
                 >
-                  <span class="text-2xl p-1.5 bg-gray-900/80 rounded-lg shrink-0">{{ action.icon }}</span>
+                  <span class="text-2xl p-1.5 bg-gray-900/80 rounded-lg shrink-0">{{
+                    action.icon
+                  }}</span>
                   <div class="min-w-0 flex-1">
                     <div class="flex items-center justify-between gap-1">
-                      <span class="font-bold text-sm text-white truncate">{{ $t(action.nameKey) }}</span>
+                      <span class="font-bold text-sm text-white truncate">{{
+                        $t(action.nameKey)
+                      }}</span>
                       <span
                         v-if="getSelectedActionId(currentActor.name) === action.id"
                         class="text-xs text-indigo-400 font-black bg-indigo-900/60 px-1.5 py-0.5 rounded"
-                      >✓</span>
+                        >✓</span
+                      >
                     </div>
                     <p class="text-[11px] text-gray-400 mt-0.5 leading-snug">
                       {{ $t(action.descriptionKey) }}
@@ -428,16 +476,24 @@
             >
               <span class="text-3xl">🛡️</span>
               <div>
-                <p class="text-sm font-bold text-emerald-300">{{ $t('nightPhase.selfHealNotice') }}</p>
+                <p class="text-sm font-bold text-emerald-300">
+                  {{ $t('nightPhase.selfHealNotice') }}
+                </p>
                 <p class="text-xs text-emerald-200/80 font-medium mt-0.5">
-                  {{ currentActor.name }} ({{ $te('roles.' + currentActor.role?.id + '.name') ? $t('roles.' + currentActor.role?.id + '.name') : currentActor.role?.name }})
+                  {{ currentActor.name }} ({{
+                    $te('roles.' + currentActor.role?.id + '.name')
+                      ? $t('roles.' + currentActor.role?.id + '.name')
+                      : currentActor.role?.name
+                  }})
                 </p>
               </div>
             </div>
 
             <div v-else class="space-y-2">
               <div class="flex items-center justify-between">
-                <label class="text-xs font-bold text-indigo-300 uppercase tracking-wider flex items-center gap-1.5">
+                <label
+                  class="text-xs font-bold text-indigo-300 uppercase tracking-wider flex items-center gap-1.5"
+                >
                   <span>🎯</span> {{ $t('nightPhase.step2Target') }}
                 </label>
                 <span
@@ -445,13 +501,18 @@
                   class="text-xs text-indigo-300 font-bold bg-indigo-950/80 px-2.5 py-0.5 rounded-full border border-indigo-700"
                 >
                   {{ $t('nightPhase.selectedTarget') }}:
-                  <strong class="text-white ml-1">{{ getCurrentTargetName(currentActor.name) }}</strong>
+                  <strong class="text-white ml-1">{{
+                    getCurrentTargetName(currentActor.name)
+                  }}</strong>
                 </span>
               </div>
 
               <!-- CANDIDATE PLAYER CARDS GRID -->
               <div
-                v-if="getValidTargetsForAction(currentActor, getSelectedActionId(currentActor.name)).length === 0"
+                v-if="
+                  getValidTargetsForAction(currentActor, getSelectedActionId(currentActor.name))
+                    .length === 0
+                "
                 class="text-center py-6 bg-gray-900/60 border border-dashed border-gray-700 rounded-xl p-4"
               >
                 <p class="text-xs text-gray-400">{{ $t('nightPhase.noDeadPlayers') }}</p>
@@ -459,7 +520,10 @@
 
               <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
                 <button
-                  v-for="target in getValidTargetsForAction(currentActor, getSelectedActionId(currentActor.name))"
+                  v-for="target in getValidTargetsForAction(
+                    currentActor,
+                    getSelectedActionId(currentActor.name)
+                  )"
                   :key="target.name"
                   type="button"
                   class="p-3 rounded-xl border text-left transition-all cursor-pointer select-none active:scale-95 flex items-center gap-2.5 min-h-[52px]"
@@ -474,13 +538,18 @@
                   <div class="min-w-0 flex-1">
                     <span class="font-bold text-sm block truncate">{{ target.name }}</span>
                     <span class="text-[10px] block truncate opacity-80">
-                      {{ $te('roles.' + target.role?.id + '.name') ? $t('roles.' + target.role?.id + '.name') : target.role?.name }}
+                      {{
+                        $te('roles.' + target.role?.id + '.name')
+                          ? $t('roles.' + target.role?.id + '.name')
+                          : target.role?.name
+                      }}
                     </span>
                   </div>
                   <span
                     v-if="getCurrentTargetName(currentActor.name) === target.name"
                     class="text-sm font-black text-white shrink-0"
-                  >✓</span>
+                    >✓</span
+                  >
                 </button>
               </div>
             </div>
@@ -524,13 +593,17 @@
           >
             {{
               $t('nightPhase.putToSleepPrompt', {
-                role: $te('roles.' + currentActor.role?.id + '.name') ? $t('roles.' + currentActor.role?.id + '.name') : currentActor.role?.name,
+                role: $te('roles.' + currentActor.role?.id + '.name')
+                  ? $t('roles.' + currentActor.role?.id + '.name')
+                  : currentActor.role?.name,
               })
             }}
           </div>
 
           <!-- NAVIGATION CONTROLS -->
-          <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 pt-2">
+          <div
+            class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 pt-2"
+          >
             <button
               class="w-full sm:w-auto px-5 py-3 bg-gray-700 hover:bg-gray-600 active:scale-95 text-gray-300 rounded-xl font-semibold transition-all text-sm disabled:opacity-30 min-h-[44px] cursor-pointer select-none flex items-center justify-center gap-1.5"
               :disabled="currentActorIndex === 0"
@@ -559,9 +632,9 @@
       <div v-else-if="stage === 'morning' && resolution" class="space-y-6">
         <!-- MORNING TOWN WAKE UP SCRIPT -->
         <div class="bg-indigo-950/40 border-2 border-indigo-500/60 p-5 rounded-2xl">
-          <span class="text-xs text-indigo-400 font-bold uppercase tracking-widest block mb-1"
-            >{{ $t('nightPhase.morningWakeUpScript') }}</span
-          >
+          <span class="text-xs text-indigo-400 font-bold uppercase tracking-widest block mb-1">{{
+            $t('nightPhase.morningWakeUpScript')
+          }}</span>
           <p class="text-lg font-bold text-white italic">
             {{ $t('nightPhase.morningTownPrompt') }}
           </p>
@@ -631,7 +704,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { mockAbilities } from '../../data/abilities';
 import { resolveNight } from '../../services/gameEngine';
@@ -642,7 +715,7 @@ import { useVoiceNarration } from '../../services/useVoiceNarration';
 import PhaseHeroBanner from '../PhaseHeroBanner.vue';
 import RoleAvatar from '../RoleAvatar.vue';
 
-const { t, locale } = useI18n();
+const { locale } = useI18n();
 const store = useGameStore();
 const audio = useAudio();
 const multiplayer = useMultiplayer();
@@ -667,25 +740,29 @@ const narrateCurrentStep = () => {
   const lang = locale.value === 'fa' ? 'fa-IR' : 'en-US';
 
   if (stage.value === 'sleep') {
-    const text = locale.value === 'fa'
-      ? 'شب فرارسیده است. تمامی بازیکنان به خواب بروند.'
-      : 'Night has fallen. All players go to sleep.';
+    const text =
+      locale.value === 'fa'
+        ? 'شب فرارسیده است. تمامی بازیکنان به خواب بروند.'
+        : 'Night has fallen. All players go to sleep.';
     narration.speak(text, lang);
   } else if (stage.value === 'mafia-intro') {
-    const text = locale.value === 'fa'
-      ? 'اعضای مافیا چشمان خود را باز کنند و یکدیگر را شناسایی کنند.'
-      : 'Mafia members, open your eyes and identify each other.';
+    const text =
+      locale.value === 'fa'
+        ? 'اعضای مافیا چشمان خود را باز کنند و یکدیگر را شناسایی کنند.'
+        : 'Mafia members, open your eyes and identify each other.';
     narration.speak(text, lang);
   } else if (stage.value === 'wizard' && currentActor.value) {
     const actorRole = currentActor.value.role?.name || '';
-    const text = locale.value === 'fa'
-      ? `${actorRole}، بیدار شو و اقدام خود را انتخاب کن.`
-      : `${actorRole}, wake up and choose your action.`;
+    const text =
+      locale.value === 'fa'
+        ? `${actorRole}، بیدار شو و اقدام خود را انتخاب کن.`
+        : `${actorRole}, wake up and choose your action.`;
     narration.speak(text, lang);
   } else if (stage.value === 'morning') {
-    const text = locale.value === 'fa'
-      ? 'صبح فرارسیده است. شهروندان بیدار شوید.'
-      : 'Dawn breaks. Citizens wake up.';
+    const text =
+      locale.value === 'fa'
+        ? 'صبح فرارسیده است. شهروندان بیدار شوید.'
+        : 'Dawn breaks. Citizens wake up.';
     narration.speak(text, lang);
   }
 };

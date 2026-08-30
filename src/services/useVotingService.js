@@ -54,7 +54,11 @@ export function clampVotes(currentVotes, delta, aliveCount) {
  * @returns {{ changed: boolean, added: boolean, voterChoices: string[] }}
  */
 export function togglePreVote(voterName, candidateName, voterMap, counts, aliveCount) {
-  if (!voterName || !candidateName || voterName.trim().toLowerCase() === candidateName.trim().toLowerCase()) {
+  if (
+    !voterName ||
+    !candidateName ||
+    voterName.trim().toLowerCase() === candidateName.trim().toLowerCase()
+  ) {
     return { changed: false, added: false, voterChoices: [] };
   }
 
@@ -101,7 +105,11 @@ export function togglePreVote(voterName, candidateName, voterMap, counts, aliveC
  * @returns {{ changed: boolean, chosenDefender: string|null }}
  */
 export function castFinalVote(voterName, defenderName, voterMap, counts, aliveCount) {
-  if (!voterName || !defenderName || voterName.trim().toLowerCase() === defenderName.trim().toLowerCase()) {
+  if (
+    !voterName ||
+    !defenderName ||
+    voterName.trim().toLowerCase() === defenderName.trim().toLowerCase()
+  ) {
     return { changed: false, chosenDefender: null };
   }
 

@@ -165,11 +165,7 @@ describe('useMultiplayerService', () => {
   it('marks isClaimed accurately in sanitizePublicGameState based on claimed player roster', () => {
     const store = {
       gamePhase: 'setup',
-      players: [
-        { name: 'Ali' },
-        { name: 'Sara' },
-        { name: 'Reza' },
-      ],
+      players: [{ name: 'Ali' }, { name: 'Sara' }, { name: 'Reza' }],
       livePlayers: [],
     };
 

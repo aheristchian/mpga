@@ -114,8 +114,19 @@ export const resolveNight = (players, actionMap) => {
         break;
 
       case 'investigate':
-        // Expose side info in the log for the moderator
-        log.push(`[INFO] Detective found out ${target.name} is on team: ${target.role.sideId}`);
+        // Expose side info in the log for the moderator (Godfather appears clean/innocent)
+        if (target.role?.id === 'godfather') {
+          log.push(
+            `[INQUIRY] ${actor.name} (Detective) investigated ${target.name} (Godfather). Result: Innocent/Clean (Town).`
+          );
+        } else {
+          const isGuilty = target.role?.sideId === 'mafia';
+          log.push(
+            `[INQUIRY] ${actor.name} (Detective) investigated ${target.name}. Result: ${
+              isGuilty ? 'Guilty (Mafia)' : 'Innocent (Town)'
+            }.`
+          );
+        }
         break;
 
       case 'revive':

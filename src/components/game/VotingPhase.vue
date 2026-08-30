@@ -17,7 +17,9 @@
           >
             {{ $t('votingPhase.step1Badge') }}
           </span>
-          <span class="text-gray-600 inline-block rtl:rotate-180 transform transition-transform">→</span>
+          <span class="text-gray-600 inline-block rtl:rotate-180 transform transition-transform"
+            >→</span
+          >
           <span
             class="px-2.5 py-1 rounded-lg transition-colors"
             :class="
@@ -28,7 +30,9 @@
           >
             {{ $t('votingPhase.step2Badge') }}
           </span>
-          <span class="text-gray-600 inline-block rtl:rotate-180 transform transition-transform">→</span>
+          <span class="text-gray-600 inline-block rtl:rotate-180 transform transition-transform"
+            >→</span
+          >
           <span
             class="px-2.5 py-1 rounded-lg transition-colors"
             :class="
@@ -123,7 +127,9 @@
         </div>
 
         <!-- STAGE 1 ACTIONS -->
-        <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 pt-4 border-t border-gray-700">
+        <div
+          class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 pt-4 border-t border-gray-700"
+        >
           <span class="text-xs text-gray-400 text-center sm:text-left">
             {{ qualifiedDefenders.length }} Defender(s) qualified
           </span>

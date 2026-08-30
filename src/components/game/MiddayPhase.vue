@@ -17,7 +17,9 @@
           >
             {{ $t('middayPhase.step1Badge') }}
           </span>
-          <span class="text-gray-600 inline-block rtl:rotate-180 transform transition-transform">→</span>
+          <span class="text-gray-600 inline-block rtl:rotate-180 transform transition-transform"
+            >→</span
+          >
           <span
             class="px-2.5 py-1 rounded-lg transition-colors"
             :class="

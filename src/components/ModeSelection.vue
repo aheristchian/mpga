@@ -40,7 +40,11 @@
                     : 'bg-blue-950/60 text-blue-400'
                 "
               >
-                <div v-if="getScenarioSvg(mode.id)" class="w-full h-full flex items-center justify-center" v-html="getScenarioSvg(mode.id)"></div>
+                <div
+                  v-if="getScenarioSvg(mode.id)"
+                  class="w-full h-full flex items-center justify-center"
+                  v-html="getScenarioSvg(mode.id)"
+                ></div>
                 <span v-else class="text-2xl">{{ mode.id === 'godfather' ? '🎩' : '⚖️' }}</span>
               </div>
 
@@ -55,13 +59,20 @@
                         : 'bg-blue-950/80 text-blue-400 border-blue-800/80'
                     "
                   >
-                    {{ mode.id === 'godfather' ? $t('modeSelection.tournamentStandardBadge') : $t('modeSelection.classicStandardBadge') }}
+                    {{
+                      mode.id === 'godfather'
+                        ? $t('modeSelection.tournamentStandardBadge')
+                        : $t('modeSelection.classicStandardBadge')
+                    }}
                   </span>
                   <span class="text-[11px] font-mono font-medium text-gray-400">
-                    {{ mode.minPlayers }} {{ $t('modeSelection.players') }} • ⏱️ {{ mode.timeToTalk }}s
+                    {{ mode.minPlayers }} {{ $t('modeSelection.players') }} • ⏱️
+                    {{ mode.timeToTalk }}s
                   </span>
                 </div>
-                <h3 class="text-lg sm:text-xl font-black text-white group-hover:text-amber-400 transition-colors truncate">
+                <h3
+                  class="text-lg sm:text-xl font-black text-white group-hover:text-amber-400 transition-colors truncate"
+                >
                   {{ $t('modes.' + mode.id + '.name') }}
                 </h3>
               </div>
@@ -73,7 +84,9 @@
                 class="w-8 h-8 rounded-full flex items-center justify-center border text-xs sm:text-sm transition-all duration-300"
                 :class="
                   selectedModeId === mode.id
-                    ? (mode.id === 'godfather' ? 'bg-red-500/20 border-red-500 text-red-400 rotate-180' : 'bg-blue-500/20 border-blue-500 text-blue-400 rotate-180')
+                    ? mode.id === 'godfather'
+                      ? 'bg-red-500/20 border-red-500 text-red-400 rotate-180'
+                      : 'bg-blue-500/20 border-blue-500 text-blue-400 rotate-180'
                     : 'bg-gray-800 border-gray-700 text-gray-400'
                 "
               >
@@ -85,19 +98,21 @@
           <!-- DETAILS DRAWER (COLLAPSIBLE ON MOBILE, ALWAYS SHOWN SIDE-BY-SIDE ON DESKTOP) -->
           <div
             class="grid transition-all duration-300 ease-in-out md:!grid-rows-[1fr] md:!opacity-100 flex-1"
-            :class="selectedModeId === mode.id ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none md:pointer-events-auto'"
+            :class="
+              selectedModeId === mode.id
+                ? 'grid-rows-[1fr] opacity-100'
+                : 'grid-rows-[0fr] opacity-0 pointer-events-none md:pointer-events-auto'
+            "
           >
             <div class="overflow-hidden h-full flex flex-col justify-between">
-              <div class="px-4 sm:px-5 pb-5 pt-0 space-y-3.5 border-t border-gray-800/60 flex-1 flex flex-col justify-between">
+              <div
+                class="px-4 sm:px-5 pb-5 pt-0 space-y-3.5 border-t border-gray-800/60 flex-1 flex flex-col justify-between"
+              >
                 <!-- VECTOR ILLUSTRATION BANNER -->
                 <div
                   class="w-full h-32 sm:h-36 mt-3 rounded-xl overflow-hidden flex items-center justify-center relative shadow-inner bg-gradient-to-b from-gray-950/80 to-gray-900/60 shrink-0"
                 >
-                  <div
-                    v-if="getSvg(mode.id)"
-                    class="w-full h-full"
-                    v-html="getSvg(mode.id)"
-                  ></div>
+                  <div v-if="getSvg(mode.id)" class="w-full h-full" v-html="getSvg(mode.id)"></div>
                   <div v-else class="text-4xl">
                     {{ mode.id === 'godfather' ? '🎩' : '⚖️' }}
                   </div>
@@ -112,7 +127,9 @@
 
                 <!-- CORE ROLES PREVIEW (FULL VISIBILITY ON MOBILE, MIN-HEIGHT ON DESKTOP) -->
                 <div class="pt-2.5 border-t border-gray-800/80">
-                  <span class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">
+                  <span
+                    class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1.5"
+                  >
                     {{ $t('modeSelection.includedRoles') }}
                   </span>
                   <div class="flex flex-wrap content-start items-start gap-1.5 md:min-h-[58px]">
@@ -123,24 +140,42 @@
                       :class="getRoleBadgeClass(role.sideId)"
                     >
                       <span>{{ role.icon }}</span>
-                      <span>{{ $te('roles.' + role.id + '.name') ? $t('roles.' + role.id + '.name') : role.name }}</span>
+                      <span>{{
+                        $te('roles.' + role.id + '.name')
+                          ? $t('roles.' + role.id + '.name')
+                          : role.name
+                      }}</span>
                     </span>
                   </div>
                 </div>
 
                 <!-- TIMINGS & STATS BAR (UNIFORM 3-COLUMN GRID) -->
-                <div class="pt-2.5 border-t border-gray-800 grid grid-cols-3 gap-2 text-center shrink-0">
+                <div
+                  class="pt-2.5 border-t border-gray-800 grid grid-cols-3 gap-2 text-center shrink-0"
+                >
                   <div class="bg-gray-800/60 p-2 rounded-xl border border-gray-750">
-                    <span class="block text-[10px] uppercase font-bold text-gray-400">{{ $t('modeSelection.speechTime') }}</span>
-                    <span class="text-xs sm:text-sm font-mono font-black text-white">⏱️ {{ mode.timeToTalk }}s</span>
+                    <span class="block text-[10px] uppercase font-bold text-gray-400">{{
+                      $t('modeSelection.speechTime')
+                    }}</span>
+                    <span class="text-xs sm:text-sm font-mono font-black text-white"
+                      >⏱️ {{ mode.timeToTalk }}s</span
+                    >
                   </div>
                   <div class="bg-gray-800/60 p-2 rounded-xl border border-gray-750">
-                    <span class="block text-[10px] uppercase font-bold text-gray-400">{{ $t('modeSelection.challengeTime') }}</span>
-                    <span class="text-xs sm:text-sm font-mono font-black text-white">🔄 {{ mode.borrowedTimeToTalk }}s</span>
+                    <span class="block text-[10px] uppercase font-bold text-gray-400">{{
+                      $t('modeSelection.challengeTime')
+                    }}</span>
+                    <span class="text-xs sm:text-sm font-mono font-black text-white"
+                      >🔄 {{ mode.borrowedTimeToTalk }}s</span
+                    >
                   </div>
                   <div class="bg-gray-800/60 p-2 rounded-xl border border-gray-750">
-                    <span class="block text-[10px] uppercase font-bold text-gray-400">{{ $t('modeSelection.defenseTime') }}</span>
-                    <span class="text-xs sm:text-sm font-mono font-black text-white">🛡️ {{ mode.defenseTimeToTalk }}s</span>
+                    <span class="block text-[10px] uppercase font-bold text-gray-400">{{
+                      $t('modeSelection.defenseTime')
+                    }}</span>
+                    <span class="text-xs sm:text-sm font-mono font-black text-white"
+                      >🛡️ {{ mode.defenseTimeToTalk }}s</span
+                    >
                   </div>
                 </div>
 
@@ -156,8 +191,14 @@
                     "
                     @click.stop="confirmMode"
                   >
-                    <span>{{ $t('modeSelection.selectAndProceed', { name: $t('modes.' + mode.id + '.name') }) }}</span>
-                    <span class="inline-block rtl:rotate-180 transform transition-transform">➔</span>
+                    <span>{{
+                      $t('modeSelection.selectAndProceed', {
+                        name: $t('modes.' + mode.id + '.name'),
+                      })
+                    }}</span>
+                    <span class="inline-block rtl:rotate-180 transform transition-transform"
+                      >➔</span
+                    >
                   </button>
 
                   <button

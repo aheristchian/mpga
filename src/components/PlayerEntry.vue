@@ -84,7 +84,9 @@
               @click="multiplayer.setTransportMode('cloud')"
             >
               <span class="text-xs font-bold">{{ $t('multiplayer.cloudRelay') }}</span>
-              <span class="text-[10px] opacity-75 mt-0.5 leading-tight">{{ $t('multiplayer.cloudRelayDesc') }}</span>
+              <span class="text-[10px] opacity-75 mt-0.5 leading-tight">{{
+                $t('multiplayer.cloudRelayDesc')
+              }}</span>
             </button>
 
             <button
@@ -98,7 +100,9 @@
               @click="multiplayer.setTransportMode('webrtc')"
             >
               <span class="text-xs font-bold">{{ $t('multiplayer.webrtcP2p') }}</span>
-              <span class="text-[10px] opacity-75 mt-0.5 leading-tight">{{ $t('multiplayer.webrtcP2pDesc') }}</span>
+              <span class="text-[10px] opacity-75 mt-0.5 leading-tight">{{
+                $t('multiplayer.webrtcP2pDesc')
+              }}</span>
             </button>
           </div>
         </div>
@@ -157,7 +161,9 @@
                 @click="copyJoinUrl"
               >
                 <span>🔗</span>
-                <span>{{ copied ? $t('playerEntry.linkCopied') : $t('playerEntry.copyLink') }}</span>
+                <span>{{
+                  copied ? $t('playerEntry.linkCopied') : $t('playerEntry.copyLink')
+                }}</span>
               </button>
             </div>
           </div>
@@ -189,7 +195,9 @@
           <h3 class="text-lg font-bold text-gray-200">
             {{ $t('playerEntry.currentPlayers') }}
           </h3>
-          <span class="bg-blue-900/60 border border-blue-700 text-blue-200 text-xs px-2 py-0.5 rounded-full font-bold">
+          <span
+            class="bg-blue-900/60 border border-blue-700 text-blue-200 text-xs px-2 py-0.5 rounded-full font-bold"
+          >
             {{ players.length }}
           </span>
         </div>
@@ -238,11 +246,15 @@
       </div>
 
       <div v-else class="text-center text-gray-500 py-6 italic text-sm">
-        {{ activeTab === 'lobby' ? $t('playerEntry.waitingForPlayers') : $t('playerEntry.noPlayers') }}
+        {{
+          activeTab === 'lobby' ? $t('playerEntry.waitingForPlayers') : $t('playerEntry.noPlayers')
+        }}
       </div>
 
       <!-- PROCEED TO ROLES BUTTON -->
-      <div class="mt-4 pt-3 border-t border-gray-700/60 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+      <div
+        class="mt-4 pt-3 border-t border-gray-700/60 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3"
+      >
         <p v-if="players.length < minPlayers" class="text-xs text-yellow-500">
           ⚠️ {{ $t('playerEntry.needMore', { min: minPlayers }) }}
         </p>
@@ -268,7 +280,7 @@ import { useMultiplayer } from '../services/useMultiplayerService';
 import { saveEncoded, loadEncoded } from '../utils/storage';
 import QrcodeVue from 'qrcode.vue';
 
-const props = defineProps({
+defineProps({
   minPlayers: {
     type: Number,
     default: 4,
@@ -293,7 +305,12 @@ const players = computed({
 
 onMounted(() => {
   const savedPlayers = loadEncoded('mpga_setup_players');
-  if (savedPlayers && Array.isArray(savedPlayers) && savedPlayers.length > 0 && store.players.length === 0) {
+  if (
+    savedPlayers &&
+    Array.isArray(savedPlayers) &&
+    savedPlayers.length > 0 &&
+    store.players.length === 0
+  ) {
     store.players = savedPlayers;
   }
   if (!multiplayer.isHost.value) {

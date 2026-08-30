@@ -58,7 +58,11 @@
               ? 'bg-amber-950/40 border-amber-500/40 text-amber-300'
               : 'bg-gray-900 border-gray-800 text-gray-500'
           "
-          :title="wakeLock.isActive.value ? $t('playerClient.wakeLockActive') : $t('playerClient.wakeLockDisabled')"
+          :title="
+            wakeLock.isActive.value
+              ? $t('playerClient.wakeLockActive')
+              : $t('playerClient.wakeLockDisabled')
+          "
           @click="wakeLock.toggleWakeLock()"
         >
           <span>{{ wakeLock.isActive.value ? '🔆' : '🌙' }}</span>
@@ -77,7 +81,9 @@
           <span class="hidden sm:inline">{{ $t('app.gameGuideShort') }}</span>
         </button>
 
-        <div class="flex items-center gap-1.5 bg-gray-900 px-2 py-1 rounded-xl border border-gray-800 text-[10px]">
+        <div
+          class="flex items-center gap-1.5 bg-gray-900 px-2 py-1 rounded-xl border border-gray-800 text-[10px]"
+        >
           <span
             class="w-2 h-2 rounded-full"
             :class="{
@@ -230,8 +236,8 @@
                 multiplayer.errorMessage.value === 'WRONG_PASSCODE'
                   ? $t('playerClient.wrongPasscode')
                   : multiplayer.errorMessage.value === 'NAME_ALREADY_CLAIMED'
-                  ? $t('playerClient.nameAlreadyClaimed')
-                  : multiplayer.errorMessage.value
+                    ? $t('playerClient.nameAlreadyClaimed')
+                    : multiplayer.errorMessage.value
               }}
             </p>
             <button
@@ -325,10 +331,7 @@
         </div>
 
         <!-- 2B. REGISTERED PLAYER CARD -->
-        <div
-          v-else
-          class="p-3.5 bg-blue-950/30 border border-blue-500/40 rounded-2xl space-y-2"
-        >
+        <div v-else class="p-3.5 bg-blue-950/30 border border-blue-500/40 rounded-2xl space-y-2">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2.5">
               <span class="text-xl">👤</span>
@@ -383,7 +386,9 @@
           </p>
         </div>
         <div v-else class="bg-gray-800/80 p-2.5 rounded-xl border border-gray-700/60">
-          <p class="text-xs text-amber-300 font-semibold flex items-center justify-center gap-1.5 text-center">
+          <p
+            class="text-xs text-amber-300 font-semibold flex items-center justify-center gap-1.5 text-center"
+          >
             <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
             <span>{{ $t('playerClient.waitingForHostToStart') }}</span>
           </p>
@@ -401,10 +406,7 @@
             </span>
           </div>
 
-          <div
-            v-if="lobbyPlayersList.length > 0"
-            class="space-y-1.5 max-h-56 overflow-y-auto pr-1"
-          >
+          <div v-if="lobbyPlayersList.length > 0" class="space-y-1.5 max-h-56 overflow-y-auto pr-1">
             <div
               v-for="p in lobbyPlayersList"
               :key="p.name"
@@ -533,16 +535,25 @@
                 class="text-[10px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full"
                 :class="getSideBadgeClass(playerIdentity.role?.sideId)"
               >
-                {{ $te('sides.' + playerIdentity.role?.sideId) ? $t('sides.' + playerIdentity.role?.sideId) : (playerIdentity.role?.sideId || 'Town') }}
+                {{
+                  $te('sides.' + playerIdentity.role?.sideId)
+                    ? $t('sides.' + playerIdentity.role?.sideId)
+                    : playerIdentity.role?.sideId || 'Town'
+                }}
               </span>
               <h2 class="text-2xl font-black text-white mt-1.5">
-                {{ $te('roles.' + playerIdentity.role?.id + '.name') ? $t('roles.' + playerIdentity.role?.id + '.name') : (playerIdentity.role?.name || 'Citizen') }}
+                {{
+                  $te('roles.' + playerIdentity.role?.id + '.name')
+                    ? $t('roles.' + playerIdentity.role?.id + '.name')
+                    : playerIdentity.role?.name || 'Citizen'
+                }}
               </h2>
               <p class="text-xs text-gray-300 max-w-xs mx-auto mt-1 leading-relaxed">
                 {{
                   $te('roles.' + playerIdentity.role?.id + '.description')
                     ? $t('roles.' + playerIdentity.role?.id + '.description')
-                    : (playerIdentity.role?.description || 'Support town members in identifying the mafia infiltrators.')
+                    : playerIdentity.role?.description ||
+                      'Support town members in identifying the mafia infiltrators.'
                 }}
               </p>
             </div>
@@ -594,10 +605,7 @@
               >
                 {{ $t('playerClient.nightActionPrompt') }}
               </h4>
-              <p
-                class="text-[11px]"
-                :class="isStealthMode ? 'text-neutral-400' : 'text-gray-300'"
-              >
+              <p class="text-[11px]" :class="isStealthMode ? 'text-neutral-400' : 'text-gray-300'">
                 {{ $t('playerClient.chooseTargetPrompt') }}
               </p>
             </div>
@@ -620,17 +628,19 @@
                 class="p-2.5 rounded-xl border text-left transition-all text-xs font-bold flex items-center gap-2 cursor-pointer active:scale-95 select-none min-h-[44px]"
                 :class="
                   currentActionId === action.id
-                    ? (isStealthMode
-                        ? 'bg-red-950/90 border-red-800 text-red-200 ring-1 ring-red-700 shadow-none'
-                        : 'bg-indigo-600 border-indigo-300 text-white shadow-md ring-2 ring-indigo-400')
-                    : (isStealthMode
-                        ? 'bg-neutral-900/90 border-neutral-800 text-neutral-400 hover:text-neutral-200'
-                        : 'bg-gray-900/80 border-gray-700 text-gray-300 hover:bg-gray-800')
+                    ? isStealthMode
+                      ? 'bg-red-950/90 border-red-800 text-red-200 ring-1 ring-red-700 shadow-none'
+                      : 'bg-indigo-600 border-indigo-300 text-white shadow-md ring-2 ring-indigo-400'
+                    : isStealthMode
+                      ? 'bg-neutral-900/90 border-neutral-800 text-neutral-400 hover:text-neutral-200'
+                      : 'bg-gray-900/80 border-gray-700 text-gray-300 hover:bg-gray-800'
                 "
                 @click="selectPlayerAction(action.id)"
               >
                 <span class="text-base shrink-0">{{ action.icon }}</span>
-                <span class="truncate">{{ $te(action.nameKey) ? $t(action.nameKey) : action.nameKey }}</span>
+                <span class="truncate">{{
+                  $te(action.nameKey) ? $t(action.nameKey) : action.nameKey
+                }}</span>
               </button>
             </div>
           </div>
@@ -682,7 +692,11 @@
             <div
               v-if="validNightTargets.length === 0"
               class="p-3 rounded-lg text-center text-xs"
-              :class="isStealthMode ? 'bg-neutral-900/60 text-neutral-500' : 'bg-gray-900/60 text-gray-400'"
+              :class="
+                isStealthMode
+                  ? 'bg-neutral-900/60 text-neutral-500'
+                  : 'bg-gray-900/60 text-gray-400'
+              "
             >
               {{ $t('nightPhase.noDeadPlayers') }}
             </div>
@@ -696,12 +710,12 @@
                 class="p-2.5 rounded-xl border text-left transition-all text-xs font-bold flex items-center gap-2 cursor-pointer active:scale-95 select-none min-h-[44px]"
                 :class="
                   selectedNightTarget === target.name
-                    ? (isStealthMode
-                        ? 'bg-red-950/90 border-red-800 text-red-200 ring-1 ring-red-700'
-                        : 'bg-gradient-to-r from-indigo-600 to-purple-600 border-indigo-300 text-white shadow-md ring-2 ring-indigo-400')
-                    : (isStealthMode
-                        ? 'bg-neutral-900/90 border-neutral-800 text-neutral-400 hover:text-neutral-200'
-                        : 'bg-gray-900/80 border-gray-700 text-gray-300 hover:bg-gray-800')
+                    ? isStealthMode
+                      ? 'bg-red-950/90 border-red-800 text-red-200 ring-1 ring-red-700'
+                      : 'bg-gradient-to-r from-indigo-600 to-purple-600 border-indigo-300 text-white shadow-md ring-2 ring-indigo-400'
+                    : isStealthMode
+                      ? 'bg-neutral-900/90 border-neutral-800 text-neutral-400 hover:text-neutral-200'
+                      : 'bg-gray-900/80 border-gray-700 text-gray-300 hover:bg-gray-800'
                 "
                 @click="selectedNightTarget = target.name"
               >
@@ -724,10 +738,15 @@
             <div class="flex items-center gap-2 min-w-0">
               <span class="text-lg shrink-0">✓</span>
               <div class="min-w-0 flex-1">
-                <span class="text-xs font-bold block truncate">{{ $t('playerClient.nightTargetSubmitted') }}</span>
+                <span class="text-xs font-bold block truncate">{{
+                  $t('playerClient.nightTargetSubmitted')
+                }}</span>
                 <span class="text-[10px] opacity-80 block truncate">
                   {{
-                    selectedNightTarget || (currentActionId === 'pass' ? $t('nightPhase.actionPass') : $t('nightPhase.actionTreatSelf'))
+                    selectedNightTarget ||
+                    (currentActionId === 'pass'
+                      ? $t('nightPhase.actionPass')
+                      : $t('nightPhase.actionTreatSelf'))
                   }}
                 </span>
               </div>
@@ -749,7 +768,9 @@
           <!-- SUBMIT BUTTON (When not yet submitted) -->
           <button
             v-else
-            :disabled="(!selectedNightTarget && currentActionId !== 'pass' && currentActionId !== 'treat-self')"
+            :disabled="
+              !selectedNightTarget && currentActionId !== 'pass' && currentActionId !== 'treat-self'
+            "
             class="w-full min-h-[44px] py-3 text-white font-bold text-sm rounded-xl transition-all cursor-pointer shadow-lg select-none disabled:opacity-40 active:scale-95"
             :class="
               isStealthMode
@@ -767,8 +788,12 @@
             class="p-3 rounded-lg border text-center font-bold text-xs"
             :class="
               detectiveResult === 'mafia'
-                ? (isStealthMode ? 'bg-red-950/90 border-red-700 text-red-200' : 'bg-red-950/80 border-red-500 text-red-200')
-                : (isStealthMode ? 'bg-neutral-900 border-neutral-700 text-neutral-200' : 'bg-blue-950/80 border-blue-500 text-blue-200')
+                ? isStealthMode
+                  ? 'bg-red-950/90 border-red-700 text-red-200'
+                  : 'bg-red-950/80 border-red-500 text-red-200'
+                : isStealthMode
+                  ? 'bg-neutral-900 border-neutral-700 text-neutral-200'
+                  : 'bg-blue-950/80 border-blue-500 text-blue-200'
             "
           >
             <span class="text-2xl block mb-1">{{ detectiveResult === 'mafia' ? '👍' : '👎' }}</span>
@@ -814,14 +839,19 @@
                 'p-3 min-h-[44px] rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-between select-none active:scale-95 active:brightness-90',
                 myPreVotes.includes(target.name)
                   ? 'bg-emerald-950/80 border-2 border-emerald-500 text-emerald-200 shadow-md shadow-emerald-950/50 ring-1 ring-emerald-500/40'
-                  : 'bg-gray-900 border border-gray-700 hover:border-orange-500 text-white hover:bg-orange-950/40'
+                  : 'bg-gray-900 border border-gray-700 hover:border-orange-500 text-white hover:bg-orange-950/40',
               ]"
               @click="handleCastVote(target.name, 'pre')"
             >
               <span class="truncate">{{ target.name }}</span>
-              <span v-if="myPreVotes.includes(target.name)" class="text-emerald-400 font-black flex items-center gap-1">
+              <span
+                v-if="myPreVotes.includes(target.name)"
+                class="text-emerald-400 font-black flex items-center gap-1"
+              >
                 <span>✓</span>
-                <span class="text-[10px] hidden sm:inline">{{ $t('playerClient.votedTapToRevoke') }}</span>
+                <span class="text-[10px] hidden sm:inline">{{
+                  $t('playerClient.votedTapToRevoke')
+                }}</span>
               </span>
               <span v-else class="text-orange-400">🗳️</span>
             </button>
@@ -854,14 +884,19 @@
                   'p-3 min-h-[44px] rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-between select-none active:scale-95 active:brightness-90',
                   myFinalVote === target.name
                     ? 'bg-red-950/90 border-2 border-red-500 text-red-200 shadow-md shadow-red-950/50 ring-1 ring-red-500/50'
-                    : 'bg-gray-900 border border-gray-700 hover:border-red-500 text-white hover:bg-red-950/40'
+                    : 'bg-gray-900 border border-gray-700 hover:border-red-500 text-white hover:bg-red-950/40',
                 ]"
                 @click="handleCastVote(target.name, 'final')"
               >
                 <span class="truncate">{{ target.name }}</span>
-                <span v-if="myFinalVote === target.name" class="text-red-400 font-black flex items-center gap-1">
+                <span
+                  v-if="myFinalVote === target.name"
+                  class="text-red-400 font-black flex items-center gap-1"
+                >
                   <span>⚖️</span>
-                  <span class="text-[10px] hidden sm:inline">{{ $t('playerClient.votedToEliminate') }}</span>
+                  <span class="text-[10px] hidden sm:inline">{{
+                    $t('playerClient.votedToEliminate')
+                  }}</span>
                 </span>
                 <span v-else class="text-gray-400">🗳️</span>
               </button>
@@ -899,7 +934,11 @@
     </footer>
 
     <!-- IN-GAME GUIDE & ROLE HIERARCHY MODAL -->
-    <GameGuideModal :is-open="showGuideModal" :is-player-view="true" @close="showGuideModal = false" />
+    <GameGuideModal
+      :is-open="showGuideModal"
+      :is-player-view="true"
+      @close="showGuideModal = false"
+    />
   </div>
 </template>
 
@@ -959,9 +998,7 @@ const isPlayerClaimed = (name) => {
   if (publicState.value?.claimedPlayers && Array.isArray(publicState.value.claimedPlayers)) {
     return publicState.value.claimedPlayers.includes(n);
   }
-  const matching = lobbyPlayersList.value.find(
-    (p) => (p.name || '').trim().toLowerCase() === n
-  );
+  const matching = lobbyPlayersList.value.find((p) => (p.name || '').trim().toLowerCase() === n);
   return matching ? !!matching.isClaimed : false;
 };
 
@@ -1079,7 +1116,12 @@ onMounted(() => {
       const savedName = (localStorage.getItem('mpga_player_name') || '').trim();
       if (savedName) {
         inputPlayerName.value = savedName;
-        multiplayer.joinRoom(joinCode, savedName, pin, transport || multiplayer.transportMode.value);
+        multiplayer.joinRoom(
+          joinCode,
+          savedName,
+          pin,
+          transport || multiplayer.transportMode.value
+        );
       }
     }
   }
@@ -1164,7 +1206,9 @@ const qualifiedDefenders = computed(() => {
 const isMeQualifiedDefender = computed(() => {
   const list = publicState.value?.votingState?.qualifiedDefenders || [];
   return list.some(
-    (p) => (p.name || '').trim().toLowerCase() === (playerIdentity.value?.name || '').trim().toLowerCase()
+    (p) =>
+      (p.name || '').trim().toLowerCase() ===
+      (playerIdentity.value?.name || '').trim().toLowerCase()
   );
 });
 

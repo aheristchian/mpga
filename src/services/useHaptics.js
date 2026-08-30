@@ -5,7 +5,9 @@ export function useHaptics() {
     if (isSupported) {
       try {
         navigator.vibrate(30);
-      } catch {}
+      } catch {
+        /* ignore vibration failure */
+      }
     }
   };
 
@@ -13,7 +15,9 @@ export function useHaptics() {
     if (isSupported) {
       try {
         navigator.vibrate(60);
-      } catch {}
+      } catch {
+        /* ignore vibration failure */
+      }
     }
   };
 
@@ -21,7 +25,9 @@ export function useHaptics() {
     if (isSupported) {
       try {
         navigator.vibrate([80, 50, 80]);
-      } catch {}
+      } catch {
+        /* ignore vibration failure */
+      }
     }
   };
 
@@ -29,7 +35,9 @@ export function useHaptics() {
     if (isSupported) {
       try {
         navigator.vibrate([100, 80, 100]);
-      } catch {}
+      } catch {
+        /* ignore vibration failure */
+      }
     }
   };
 

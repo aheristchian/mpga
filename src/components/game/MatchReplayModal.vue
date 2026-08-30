@@ -7,12 +7,14 @@
   >
     <div class="space-y-6 py-1">
       <!-- HEADER SUMMARY & SCRUBBER BAR -->
-      <div class="bg-gray-850/90 border border-gray-700/80 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
+      <div
+        class="bg-gray-850/90 border border-gray-700/80 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4"
+      >
         <!-- TOP ROW: STEP COUNTER, DAY, & PHASE BADGES -->
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div class="flex items-center gap-2.5">
             <span class="text-xs font-bold text-gray-400 uppercase tracking-wider font-mono">
-              {{ $t('replay.step', { current: (currentStepIndex + 1), total: totalSteps }) }}
+              {{ $t('replay.step', { current: currentStepIndex + 1, total: totalSteps }) }}
             </span>
             <span
               class="px-2.5 py-1 rounded-full text-xs font-black uppercase tracking-wider shadow-sm"
@@ -20,19 +22,29 @@
             >
               {{ phaseLabel }}
             </span>
-            <span class="bg-amber-950/80 border border-amber-600/50 text-amber-300 px-2.5 py-1 rounded-full text-xs font-bold font-mono">
+            <span
+              class="bg-amber-950/80 border border-amber-600/50 text-amber-300 px-2.5 py-1 rounded-full text-xs font-bold font-mono"
+            >
               {{ $t('replay.day', { day: currentSnapshot?.day || 1 }) }}
             </span>
           </div>
 
           <!-- PLAYBACK SPEED SELECTION -->
-          <div class="flex items-center gap-1.5 bg-gray-900/90 border border-gray-700 px-2.5 py-1 rounded-xl">
-            <span class="text-[11px] text-gray-400 font-bold uppercase tracking-wider me-1">{{ $t('replay.speed') }}:</span>
+          <div
+            class="flex items-center gap-1.5 bg-gray-900/90 border border-gray-700 px-2.5 py-1 rounded-xl"
+          >
+            <span class="text-[11px] text-gray-400 font-bold uppercase tracking-wider me-1"
+              >{{ $t('replay.speed') }}:</span
+            >
             <button
               v-for="s in [1, 2, 3]"
               :key="s"
               class="px-2 py-0.5 text-xs font-mono font-bold rounded-md transition-all cursor-pointer select-none"
-              :class="playbackSpeed === s ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-400 hover:text-gray-200'"
+              :class="
+                playbackSpeed === s
+                  ? 'bg-indigo-600 text-white shadow-sm'
+                  : 'text-gray-400 hover:text-gray-200'
+              "
               @click="setSpeed(s)"
             >
               {{ s }}x
@@ -75,7 +87,11 @@
           </button>
           <button
             class="px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm text-white shadow-lg active:scale-95 transition-all flex items-center gap-2 cursor-pointer select-none min-h-[44px]"
-            :class="isPlaying ? 'bg-amber-600 hover:bg-amber-500' : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500'"
+            :class="
+              isPlaying
+                ? 'bg-amber-600 hover:bg-amber-500'
+                : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500'
+            "
             @click="togglePlay"
           >
             <span>{{ isPlaying ? '⏸️' : '▶️' }}</span>
@@ -130,12 +146,15 @@
       <!-- SIMULATED TABLE SEATING ROSTER -->
       <div class="space-y-3">
         <div class="flex items-center justify-between">
-          <h4 class="text-sm font-bold uppercase tracking-wider text-gray-400 flex items-center gap-2">
+          <h4
+            class="text-sm font-bold uppercase tracking-wider text-gray-400 flex items-center gap-2"
+          >
             <span>🛡️</span>
             <span>{{ $t('replay.playerRoster') }}</span>
           </h4>
           <span class="text-xs font-mono text-gray-400 font-semibold">
-            {{ aliveCount }} {{ $t('replay.alive') }} / {{ totalCount }} {{ $t('playerEntry.players') }}
+            {{ aliveCount }} {{ $t('replay.alive') }} / {{ totalCount }}
+            {{ $t('playerEntry.players') }}
           </span>
         </div>
 
@@ -153,15 +172,22 @@
             ></div>
 
             <RoleAvatar :role="player.role" :is-dead="player.isDead" size="sm" />
-            
+
             <div class="min-w-0 flex-1 z-10">
               <div class="flex items-center gap-1.5">
-                <p class="text-white font-bold text-xs truncate" :class="{ 'line-through text-gray-400': player.isDead }">
+                <p
+                  class="text-white font-bold text-xs truncate"
+                  :class="{ 'line-through text-gray-400': player.isDead }"
+                >
                   {{ player.name }}
                 </p>
                 <span v-if="player.isDead" class="text-[10px] text-red-400 shrink-0">💀</span>
-                <span v-if="player.warningCards === 1" class="text-[10px] text-amber-400 shrink-0">🟨</span>
-                <span v-if="player.warningCards >= 2" class="text-[10px] text-red-500 shrink-0">🟥</span>
+                <span v-if="player.warningCards === 1" class="text-[10px] text-amber-400 shrink-0"
+                  >🟨</span
+                >
+                <span v-if="player.warningCards >= 2" class="text-[10px] text-red-500 shrink-0"
+                  >🟥</span
+                >
               </div>
 
               <p
@@ -210,7 +236,7 @@ import RoleAvatar from '../RoleAvatar.vue';
 import { useGameStore } from '../../stores/gameStore';
 import { useMatchReplay } from '../../services/useMatchReplay';
 
-const props = defineProps({
+defineProps({
   isOpen: {
     type: Boolean,
     default: false,

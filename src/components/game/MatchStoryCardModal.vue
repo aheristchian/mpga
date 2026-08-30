@@ -11,7 +11,9 @@
       </p>
 
       <!-- CARD CANVAS PREVIEW -->
-      <div class="relative flex justify-center items-center bg-gray-950 p-3 rounded-2xl border border-gray-800 shadow-2xl overflow-hidden max-h-[60vh]">
+      <div
+        class="relative flex justify-center items-center bg-gray-950 p-3 rounded-2xl border border-gray-800 shadow-2xl overflow-hidden max-h-[60vh]"
+      >
         <canvas
           ref="canvasRef"
           width="1080"
@@ -44,7 +46,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick, onMounted } from 'vue';
+import { ref, watch, nextTick, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import BaseModal from '../BaseModal.vue';
 
@@ -73,7 +75,7 @@ const props = defineProps({
 
 defineEmits(['close']);
 
-const { t, locale } = useI18n();
+const { locale } = useI18n();
 const canvasRef = ref(null);
 const canShare = ref(typeof navigator !== 'undefined' && !!navigator.share);
 
@@ -145,9 +147,13 @@ const renderCanvas = () => {
   ctx.fillStyle = isTown ? '#60a5fa' : isMafia ? '#f87171' : '#c084fc';
   ctx.font = '900 68px Vazirmatn, Inter, sans-serif';
   const victoryTitle = isTown
-    ? (locale.value === 'fa' ? 'پیروزی شهروندان' : 'TOWN VICTORY')
+    ? locale.value === 'fa'
+      ? 'پیروزی شهروندان'
+      : 'TOWN VICTORY'
     : isMafia
-      ? (locale.value === 'fa' ? 'پیروزی مافیا' : 'MAFIA VICTORY')
+      ? locale.value === 'fa'
+        ? 'پیروزی مافیا'
+        : 'MAFIA VICTORY'
       : 'THIRD PARTY VICTORY';
   ctx.fillText(victoryTitle, width / 2, 490);
 
@@ -155,8 +161,12 @@ const renderCanvas = () => {
   ctx.fillStyle = '#e2e8f0';
   ctx.font = '500 32px Vazirmatn, Inter, sans-serif';
   const subtitle = isTown
-    ? (locale.value === 'fa' ? 'تمام اعضای مافیا شناسایی و حذف شدند' : 'All Mafia members have been eradicated.')
-    : (locale.value === 'fa' ? 'مافیا اکثریت مطلق شهر را به دست گرفت' : 'Mafia seized control of the city.');
+    ? locale.value === 'fa'
+      ? 'تمام اعضای مافیا شناسایی و حذف شدند'
+      : 'All Mafia members have been eradicated.'
+    : locale.value === 'fa'
+      ? 'مافیا اکثریت مطلق شهر را به دست گرفت'
+      : 'Mafia seized control of the city.';
   ctx.fillText(subtitle, width / 2, 550);
 
   // Match Stats Card Container
@@ -248,7 +258,11 @@ const renderCanvas = () => {
   ctx.textAlign = 'center';
   ctx.fillStyle = '#475569';
   ctx.font = 'bold 24px Vazirmatn, Inter, sans-serif';
-  ctx.fillText('⚡ Play Mafia like a pro with MPGA (github.com/aheristchian/mpga)', width / 2, 1820);
+  ctx.fillText(
+    '⚡ Play Mafia like a pro with MPGA (github.com/aheristchian/mpga)',
+    width / 2,
+    1820
+  );
 };
 
 const downloadCard = () => {

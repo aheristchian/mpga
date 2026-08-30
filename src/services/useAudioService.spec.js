@@ -56,9 +56,11 @@ describe('useAudioService', () => {
     const audio = useAudio();
 
     // Direct URL
-    expect(audio.resolveAudioUrl('https://github.com/aheristchian/mpga/releases/download/v1.0.0-audio/Night-1.mp3')).toBe(
-      'https://github.com/aheristchian/mpga/releases/download/v1.0.0-audio/Night-1.mp3'
-    );
+    expect(
+      audio.resolveAudioUrl(
+        'https://github.com/aheristchian/mpga/releases/download/v1.0.0-audio/Night-1.mp3'
+      )
+    ).toBe('https://github.com/aheristchian/mpga/releases/download/v1.0.0-audio/Night-1.mp3');
 
     // URL with whitespace
     expect(audio.resolveAudioUrl('  https://example.com/audio.mp3  ')).toBe(

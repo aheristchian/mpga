@@ -21,9 +21,7 @@
             <h3 class="text-lg font-black text-white">
               {{ $t('audio.musicConsole') }}
             </h3>
-            <p class="text-xs text-gray-400">
-              MPGA Atmosphere Soundtrack & Playlist Player
-            </p>
+            <p class="text-xs text-gray-400">MPGA Atmosphere Soundtrack & Playlist Player</p>
           </div>
         </div>
         <button
@@ -43,13 +41,20 @@
           <div class="flex items-center gap-3 w-full sm:w-auto">
             <div
               class="w-12 h-12 rounded-xl bg-gray-800 border border-gray-700 flex items-center justify-center text-2xl shrink-0"
-              :class="{ 'animate-pulse text-purple-400 shadow-md shadow-purple-500/20': audio.isPlayingMusic.value }"
+              :class="{
+                'animate-pulse text-purple-400 shadow-md shadow-purple-500/20':
+                  audio.isPlayingMusic.value,
+              }"
             >
               {{ audio.isPlayingMusic.value ? '📻' : '🔈' }}
             </div>
             <div class="min-w-0 flex-1">
               <span class="text-[10px] uppercase font-bold text-gray-500 tracking-wider block">
-                {{ audio.isPlayingMusic.value ? $t('audio.musicPlaying', { title: '' }) : $t('audio.noTrackPlaying') }}
+                {{
+                  audio.isPlayingMusic.value
+                    ? $t('audio.musicPlaying', { title: '' })
+                    : $t('audio.noTrackPlaying')
+                }}
               </span>
               <h4 class="text-sm font-black text-white truncate max-w-xs sm:max-w-sm">
                 {{ audio.currentTrack.value?.title || 'MPGA Soundtrack' }}
@@ -120,8 +125,12 @@
             <!-- Auto-DJ Toggle -->
             <div class="flex items-center justify-between gap-2">
               <div>
-                <span class="text-xs font-bold text-white block">{{ $t('audio.autoPlayLabel') }}</span>
-                <span class="text-[11px] text-gray-400 block leading-tight">{{ $t('audio.autoPlayDesc') }}</span>
+                <span class="text-xs font-bold text-white block">{{
+                  $t('audio.autoPlayLabel')
+                }}</span>
+                <span class="text-[11px] text-gray-400 block leading-tight">{{
+                  $t('audio.autoPlayDesc')
+                }}</span>
               </div>
               <button
                 class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
@@ -139,7 +148,9 @@
 
         <!-- PHASE PLAYLIST TABS -->
         <div>
-          <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-3 mb-4 border-b border-gray-800">
+          <div
+            class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-3 mb-4 border-b border-gray-800"
+          >
             <button
               v-for="tab in phaseTabs"
               :key="tab.id"
@@ -216,8 +227,16 @@
                   "
                   @click="handleTrackClick(track)"
                 >
-                  <span>{{ audio.currentTrack.value?.id === track.id && audio.isPlayingMusic.value ? '⏸' : '▶' }}</span>
-                  <span>{{ audio.currentTrack.value?.id === track.id && audio.isPlayingMusic.value ? $t('audio.pause') : $t('audio.play') }}</span>
+                  <span>{{
+                    audio.currentTrack.value?.id === track.id && audio.isPlayingMusic.value
+                      ? '⏸'
+                      : '▶'
+                  }}</span>
+                  <span>{{
+                    audio.currentTrack.value?.id === track.id && audio.isPlayingMusic.value
+                      ? $t('audio.pause')
+                      : $t('audio.play')
+                  }}</span>
                 </button>
               </div>
             </div>
@@ -233,7 +252,9 @@
       </div>
 
       <!-- MODAL FOOTER -->
-      <div class="px-6 py-3 border-t border-gray-800 bg-gray-950/80 flex flex-col sm:flex-row justify-end">
+      <div
+        class="px-6 py-3 border-t border-gray-800 bg-gray-950/80 flex flex-col sm:flex-row justify-end"
+      >
         <button
           class="w-full sm:w-auto px-5 py-2.5 bg-gray-800 hover:bg-gray-700 text-white rounded-xl text-xs font-bold transition-all cursor-pointer min-h-[44px] select-none text-center"
           @click="close"

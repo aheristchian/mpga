@@ -50,7 +50,11 @@
             class="text-2xl font-bold uppercase tracking-widest"
             :class="getTextColorClass(group.side.id)"
           >
-            {{ $te('sides.' + group.side.id + '.name') ? $t('sides.' + group.side.id + '.name') : group.side.name }}
+            {{
+              $te('sides.' + group.side.id + '.name')
+                ? $t('sides.' + group.side.id + '.name')
+                : group.side.name
+            }}
           </h3>
           <span class="ml-4 text-sm font-semibold text-gray-400 bg-gray-900 px-3 py-1 rounded-full">
             {{ $t('roleSelection.sideSelected', { count: getSideSelectedCount(group.side.id) }) }}
@@ -68,14 +72,20 @@
             <div>
               <div class="flex justify-between items-start mb-1">
                 <h4 class="text-xl font-bold shadow-sm">
-                  {{ $te('roles.' + role.id + '.name') ? $t('roles.' + role.id + '.name') : role.name }}
+                  {{
+                    $te('roles.' + role.id + '.name') ? $t('roles.' + role.id + '.name') : role.name
+                  }}
                 </h4>
                 <span class="text-xs font-bold opacity-50 bg-black/30 px-2 py-1 rounded">
                   {{ $t('roleSelection.maxLimit', { limit: role.limit || 1 }) }}
                 </span>
               </div>
               <p class="text-sm opacity-90 line-clamp-3 mb-2">
-                {{ $te('roles.' + role.id + '.description') ? $t('roles.' + role.id + '.description') : role.description }}
+                {{
+                  $te('roles.' + role.id + '.description')
+                    ? $t('roles.' + role.id + '.description')
+                    : role.description
+                }}
               </p>
             </div>
 

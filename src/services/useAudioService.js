@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { soundtrackConfig, resolveAudioUrl } from '../data/soundtracks';
 
 // Persisted audio states
@@ -127,7 +127,12 @@ export function useAudio() {
   const playStream = (streamUrl, track, options = { fade: true }) => {
     if (!streamUrl || isMuted.value) return;
 
-    if (currentTrack.value?.id === track.id && isPlayingMusic.value && currentAudioEl && !currentAudioEl.paused) {
+    if (
+      currentTrack.value?.id === track.id &&
+      isPlayingMusic.value &&
+      currentAudioEl &&
+      !currentAudioEl.paused
+    ) {
       return;
     }
 
@@ -157,33 +162,36 @@ export function useAudio() {
         isPlayingMusic.value = false;
       });
 
-      newAudio.play().then(() => {
-        currentTrack.value = track;
-        isPlayingMusic.value = true;
-        currentAudioEl = newAudio;
+      newAudio
+        .play()
+        .then(() => {
+          currentTrack.value = track;
+          isPlayingMusic.value = true;
+          currentAudioEl = newAudio;
 
-        // Crossfade: gracefully fade out previous track
-        if (oldAudio && !oldAudio.paused && options.fade) {
-          const oldStartVol = oldAudio.volume;
-          fadeAudioElement(oldAudio, oldStartVol, 0, crossfadeMs, () => {
+          // Crossfade: gracefully fade out previous track
+          if (oldAudio && !oldAudio.paused && options.fade) {
+            const oldStartVol = oldAudio.volume;
+            fadeAudioElement(oldAudio, oldStartVol, 0, crossfadeMs, () => {
+              oldAudio.pause();
+              oldAudio.src = '';
+            });
+          } else if (oldAudio) {
             oldAudio.pause();
             oldAudio.src = '';
-          });
-        } else if (oldAudio) {
-          oldAudio.pause();
-          oldAudio.src = '';
-        }
+          }
 
-        // Crossfade: gracefully fade in new track
-        if (options.fade) {
-          fadeAudioElement(newAudio, 0.001, targetVol, crossfadeMs);
-        } else {
-          newAudio.volume = targetVol;
-        }
-      }).catch((e) => {
-        console.warn('[MPGA Audio] Playback prevented by browser autoplay policy:', e);
-        isPlayingMusic.value = false;
-      });
+          // Crossfade: gracefully fade in new track
+          if (options.fade) {
+            fadeAudioElement(newAudio, 0.001, targetVol, crossfadeMs);
+          } else {
+            newAudio.volume = targetVol;
+          }
+        })
+        .catch((e) => {
+          console.warn('[MPGA Audio] Playback prevented by browser autoplay policy:', e);
+          isPlayingMusic.value = false;
+        });
     } catch (e) {
       console.warn('[MPGA Audio] Audio instantiation failed:', e);
     }
@@ -320,14 +328,17 @@ export function useAudio() {
       if (options.fade) {
         currentAudioEl.volume = 0.001;
       }
-      currentAudioEl.play().then(() => {
-        isPlayingMusic.value = true;
-        if (options.fade) {
-          fadeAudioElement(currentAudioEl, 0.001, targetVol, crossfadeMs);
-        } else {
-          currentAudioEl.volume = targetVol;
-        }
-      }).catch(() => {});
+      currentAudioEl
+        .play()
+        .then(() => {
+          isPlayingMusic.value = true;
+          if (options.fade) {
+            fadeAudioElement(currentAudioEl, 0.001, targetVol, crossfadeMs);
+          } else {
+            currentAudioEl.volume = targetVol;
+          }
+        })
+        .catch(() => {});
     } else if (currentTrack.value && !currentTrack.value.url?.endsWith('_')) {
       playTrack(currentTrack.value, options);
     } else {

@@ -3,7 +3,15 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', 'Roboto', 'Vazirmatn', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+        sans: [
+          'Inter',
+          'Roboto',
+          'Vazirmatn',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          'Segoe UI',
+          'sans-serif',
+        ],
         fa: ['Vazirmatn', 'sans-serif'],
       },
       colors: {

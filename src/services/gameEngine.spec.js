@@ -116,16 +116,26 @@ describe('Game Engine - resolveNight', () => {
     const players = [
       createMockPlayer('DetectivePlayer', 'investigate', [], 'town'),
       createMockPlayer('Suspect', null, [], 'mafia'),
+      {
+        id: 'godfather-id',
+        name: 'GodfatherBoss',
+        role: {
+          id: 'godfather',
+          name: 'Godfather',
+          sideId: 'mafia',
+          abilityIds: ['mafia-shot'],
+          passiveAbilityIds: ['shield'],
+        },
+      },
     ];
-    const actionMap = {
-      DetectivePlayer: 'Suspect',
-    };
 
-    const result = resolveNight(players, actionMap);
+    // 1. Investigating regular Mafia member
+    const result1 = resolveNight(players, { DetectivePlayer: 'Suspect' });
+    expect(result1.log.some((l) => l.includes('Guilty (Mafia)'))).toBe(true);
 
-    expect(
-      result.log.some((l) => l.includes('Detective found out Suspect is on team: mafia'))
-    ).toBe(true);
+    // 2. Investigating Godfather returns Innocent / Clean
+    const result2 = resolveNight(players, { DetectivePlayer: 'GodfatherBoss' });
+    expect(result2.log.some((l) => l.includes('Innocent/Clean (Town)'))).toBe(true);
   });
 
   it('should support object action payloads with explicit actionId', () => {

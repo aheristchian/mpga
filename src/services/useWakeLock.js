@@ -54,7 +54,11 @@ export function useWakeLock() {
   };
 
   const handleVisibilityChange = async () => {
-    if (typeof document !== 'undefined' && document.visibilityState === 'visible' && isAutoEnabled.value) {
+    if (
+      typeof document !== 'undefined' &&
+      document.visibilityState === 'visible' &&
+      isAutoEnabled.value
+    ) {
       await requestWakeLock();
     }
   };

@@ -80,7 +80,11 @@ export const useGameStore = defineStore('game', () => {
       nostradamusChoice.value = snapshot.nostradamusChoice;
       votingState.value = snapshot.votingState;
 
-      addLog('moderator', 'Action Undone', `Rolled back: ${snapshot.description || 'Previous State'}`);
+      addLog(
+        'moderator',
+        'Action Undone',
+        `Rolled back: ${snapshot.description || 'Previous State'}`
+      );
       return snapshot;
     }
     return null;
