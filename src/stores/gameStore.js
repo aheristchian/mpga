@@ -23,6 +23,20 @@ export const useGameStore = defineStore('game', () => {
   const showGameOverModal = ref(false);
   const nostradamusChoice = ref(loadEncoded('mpga_nostradamusChoice') || null);
 
+  // Active Voting State for Multiplayer Synchronization
+  const votingState = ref({
+    stage: 'pre-vote', // 'pre-vote', 'defense', 'final-vote'
+    qualifiedDefenders: [],
+    threshold: 0,
+  });
+
+  const setVotingState = (state) => {
+    votingState.value = {
+      ...votingState.value,
+      ...state,
+    };
+  };
+
   // --- ACTIONS ---
 
   /**
@@ -299,6 +313,7 @@ export const useGameStore = defineStore('game', () => {
     winner,
     showGameOverModal,
     nostradamusChoice,
+    votingState,
     // Actions
     addLog,
     checkWinCondition,
@@ -315,6 +330,7 @@ export const useGameStore = defineStore('game', () => {
     drawLastWordCard,
     proceedToNextDay,
     setSubPhase,
+    setVotingState,
     dismissGameOverModal,
     reopenGameOverModal,
     resetGame,

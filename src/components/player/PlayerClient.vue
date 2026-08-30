@@ -652,20 +652,81 @@
               <h4 class="text-xs font-black text-orange-400 uppercase tracking-wider">
                 {{ $t('playerClient.votingBallot') }}
               </h4>
-              <p class="text-[11px] text-gray-300">{{ $t('playerClient.castYourVote') }}</p>
+              <p class="text-[11px] text-gray-300">
+                <span v-if="currentVotingStage === 'pre-vote'">
+                  {{ $t('playerClient.preVotePrompt') }}
+                </span>
+                <span v-else-if="currentVotingStage === 'defense'">
+                  {{ $t('playerClient.defenseSpeechNotice') }}
+                </span>
+                <span v-else-if="currentVotingStage === 'final-vote'">
+                  {{ $t('playerClient.finalVotePrompt') }}
+                </span>
+              </p>
             </div>
           </div>
 
-          <div class="grid grid-cols-2 gap-2">
+          <!-- STAGE 1: PRE-VOTE -->
+          <div v-if="currentVotingStage === 'pre-vote'" class="grid grid-cols-2 gap-2">
             <button
               v-for="target in livingOtherPlayers"
               :key="target.name"
-              class="p-3 min-h-[44px] bg-gray-900 hover:bg-orange-900/50 active:scale-95 active:brightness-90 border border-gray-700 hover:border-orange-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-between select-none"
-              @click="handleCastVote(target.name)"
+              :class="[
+                'p-3 min-h-[44px] rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-between select-none active:scale-95 active:brightness-90',
+                myPreVotes.includes(target.name)
+                  ? 'bg-emerald-950/80 border-2 border-emerald-500 text-emerald-200 shadow-md shadow-emerald-950/50 ring-1 ring-emerald-500/40'
+                  : 'bg-gray-900 border border-gray-700 hover:border-orange-500 text-white hover:bg-orange-950/40'
+              ]"
+              @click="handleCastVote(target.name, 'pre')"
             >
               <span class="truncate">{{ target.name }}</span>
-              <span class="text-orange-400">🗳️</span>
+              <span v-if="myPreVotes.includes(target.name)" class="text-emerald-400 font-black flex items-center gap-1">
+                <span>✓</span>
+                <span class="text-[10px] hidden sm:inline">{{ $t('playerClient.votedTapToRevoke') }}</span>
+              </span>
+              <span v-else class="text-orange-400">🗳️</span>
             </button>
+          </div>
+
+          <!-- STAGE 2: DEFENSE IN PROGRESS -->
+          <div
+            v-else-if="currentVotingStage === 'defense'"
+            class="p-4 bg-gray-900/80 border border-gray-700 rounded-xl text-center space-y-2"
+          >
+            <span class="text-2xl block animate-pulse">🎙️</span>
+            <p class="text-xs text-gray-300 leading-relaxed font-medium">
+              {{ $t('playerClient.defenseSpeechNotice') }}
+            </p>
+          </div>
+
+          <!-- STAGE 3: FINAL VOTE -->
+          <div v-else-if="currentVotingStage === 'final-vote'" class="space-y-2">
+            <div
+              v-if="isMeQualifiedDefender"
+              class="p-2.5 bg-yellow-950/60 border border-yellow-600/50 rounded-lg text-xs text-yellow-200 text-center font-medium"
+            >
+              ⚠️ {{ $t('playerClient.defenderCannotVoteSelf') }}
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <button
+                v-for="target in qualifiedDefenders"
+                :key="target.name"
+                :class="[
+                  'p-3 min-h-[44px] rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-between select-none active:scale-95 active:brightness-90',
+                  myFinalVote === target.name
+                    ? 'bg-red-950/90 border-2 border-red-500 text-red-200 shadow-md shadow-red-950/50 ring-1 ring-red-500/50'
+                    : 'bg-gray-900 border border-gray-700 hover:border-red-500 text-white hover:bg-red-950/40'
+                ]"
+                @click="handleCastVote(target.name, 'final')"
+              >
+                <span class="truncate">{{ target.name }}</span>
+                <span v-if="myFinalVote === target.name" class="text-red-400 font-black flex items-center gap-1">
+                  <span>⚖️</span>
+                  <span class="text-[10px] hidden sm:inline">{{ $t('playerClient.votedToEliminate') }}</span>
+                </span>
+                <span v-else class="text-gray-400">🗳️</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -704,7 +765,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import RoleAvatar from '../RoleAvatar.vue';
 import LanguageSwitcher from '../LanguageSwitcher.vue';
 import GameGuideModal from '../GameGuideModal.vue';
@@ -726,6 +787,10 @@ const selectedNightActionId = ref('');
 const selectedNightTarget = ref('');
 const submittedNightTarget = ref(false);
 const detectiveResult = ref(null);
+
+// Voting State
+const myPreVotes = ref([]);
+const myFinalVote = ref(null);
 
 const playerIdentity = computed(() => multiplayer.clientPlayerIdentity.value);
 const publicState = computed(() => multiplayer.clientPublicState.value);
@@ -932,8 +997,65 @@ const handleNightActionSubmit = () => {
   }
 };
 
-const handleCastVote = (candidateName) => {
-  multiplayer.sendVote(candidateName);
+const currentVotingStage = computed(() => publicState.value?.votingState?.stage || 'pre-vote');
+
+const qualifiedDefenders = computed(() => {
+  const list = publicState.value?.votingState?.qualifiedDefenders || [];
+  return list.filter((p) => p.name !== playerIdentity.value?.name);
+});
+
+const isMeQualifiedDefender = computed(() => {
+  const list = publicState.value?.votingState?.qualifiedDefenders || [];
+  return list.some(
+    (p) => (p.name || '').trim().toLowerCase() === (playerIdentity.value?.name || '').trim().toLowerCase()
+  );
+});
+
+watch(
+  () => publicState.value?.subPhase,
+  (newPhase) => {
+    if (newPhase !== 'voting') {
+      myPreVotes.value = [];
+      myFinalVote.value = null;
+    }
+  }
+);
+
+watch(
+  () => publicState.value?.votingState?.stage,
+  (newStage) => {
+    if (newStage === 'final-vote') {
+      myFinalVote.value = null;
+    } else if (newStage === 'pre-vote') {
+      myPreVotes.value = [];
+    }
+  }
+);
+
+const handleCastVote = (candidateName, voteType = 'pre') => {
+  if (!candidateName) return;
+
+  if (voteType === 'pre') {
+    if (myPreVotes.value.includes(candidateName)) {
+      myPreVotes.value = myPreVotes.value.filter((n) => n !== candidateName);
+    } else {
+      myPreVotes.value.push(candidateName);
+    }
+    multiplayer.sendVote(candidateName, 'pre');
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      navigator.vibrate(40);
+    }
+  } else if (voteType === 'final') {
+    if (myFinalVote.value === candidateName) {
+      myFinalVote.value = null;
+    } else {
+      myFinalVote.value = candidateName;
+    }
+    multiplayer.sendVote(candidateName, 'final');
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      navigator.vibrate(60);
+    }
+  }
 };
 
 const getSideColorClass = (sideId) => {

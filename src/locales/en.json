@@ -414,6 +414,12 @@
     "selfHeal": "Self-Heal (Protect Yourself)",
     "votingBallot": "Voting Ballot",
     "castYourVote": "Vote for this player",
+    "preVotePrompt": "Pre-Vote: Send to Defense (1 vote per player, tap to toggle)",
+    "finalVotePrompt": "Final Vote: Choose defender to eliminate (1 vote total)",
+    "defenseSpeechNotice": "Defenders are delivering speeches. Voting will open after defenses.",
+    "votedTapToRevoke": "Voted (Tap to retract)",
+    "votedToEliminate": "Voted to eliminate",
+    "defenderCannotVoteSelf": "You are on the defense stand and cannot vote for yourself.",
     "switchPlayerMode": "Leave Lobby / Disconnect",
     "leaveRoom": "Leave Lobby / Disconnect",
     "returnToModerator": "👑 Return to Moderator Cockpit"

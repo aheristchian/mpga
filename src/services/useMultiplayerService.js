@@ -129,6 +129,11 @@ export function sanitizePublicGameState(store, claimedPlayerNames = []) {
     drawnLastWordCards: store.drawnLastWordCards || [],
     isGameOver: !!store.isGameOver,
     winner: store.winner || null,
+    votingState: store.votingState || {
+      stage: 'pre-vote',
+      qualifiedDefenders: [],
+      threshold: 0,
+    },
   };
 }
 

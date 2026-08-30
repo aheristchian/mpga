@@ -102,7 +102,7 @@ All messages exchanged between clients and the host are serialized JSON envelope
 | `SYNC_FULL_STATE` | Host $\to$ Client | Broadcasts current phase, living player roster, day count, and public game status. |
 | `ASSIGN_ROLE` | Host $\to$ Client | Direct private message delivering secret role details and abilities to a specific player. |
 | `NIGHT_ACTION` | Client $\to$ Host | Submits secret night target (e.g., Doctor heal, Mafia shot, Detective inquiry). |
-| `CAST_VOTE` | Client $\to$ Host | Submits vote against a player during the voting subphase. |
+| `CAST_VOTE` | Client $\to$ Host | Submits vote against a candidate during the voting subphase (`voteType`: `'pre'` or `'final'`). Validated and deduplicated on host. |
 | `CHALLENGE_REQUEST` | Client $\to$ Host | Requests challenge speaking time from the active day speaker. |
 | `PING` / `PONG` | Both | Lightweight keep-alive and network roundtrip latency measurement. |
 
@@ -116,6 +116,11 @@ All messages exchanged between clients and the host are serialized JSON envelope
 2. **Tap-to-Reveal Privacy Blur:**
    * Player screens initialize with an opaque frosted privacy shield (`🔒 Tap to Reveal Role`).
    * Players can tap once to inspect their secret role and tap again to immediately re-hide it from bystanders.
+3. **Cryptographic & Ballot-Level Vote Deduplication:**
+   * Voters cannot cast multiple votes or inflate counts by network packet spamming.
+   * **Pre-Vote Stage:** Enforces at most 1 toggleable vote per candidate (`togglePreVote`). Voters cannot vote for themselves.
+   * **Final Vote Stage:** Enforces at most 1 vote total across all defenders (`castFinalVote`), switching choices or retracting cleanly.
+   * Dead players and self-voters are strictly filtered on both client and host.
 
 ---
 

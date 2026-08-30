@@ -385,6 +385,8 @@ import {
   calculateVotingThreshold,
   calculateMaxVotesPerCandidate,
   clampVotes,
+  togglePreVote,
+  castFinalVote,
 } from '../../services/useVotingService';
 import PhaseHeroBanner from '../PhaseHeroBanner.vue';
 import RoleAvatar from '../RoleAvatar.vue';
@@ -395,11 +397,24 @@ const multiplayer = useMultiplayer();
 
 const stage = ref('pre-vote'); // 'pre-vote', 'defense', 'final-vote'
 const preVotes = ref({});
+const preVotesByVoter = ref({});
 const qualifiedDefenders = ref([]);
 const defenseQueue = ref([]);
 const currentDefender = ref(null);
 const currentDefenderIndex = ref(0);
 const finalVotes = ref({});
+const finalVotesByVoter = ref({});
+
+const syncVotingState = () => {
+  store.setVotingState({
+    stage: stage.value,
+    qualifiedDefenders: qualifiedDefenders.value.map((p) => ({
+      name: p.name,
+      role: p.role?.name,
+    })),
+    threshold: votingThreshold.value,
+  });
+};
 
 // Defense Timer
 const defenseTimeLeft = ref(0);
@@ -444,6 +459,7 @@ const updateQualifiedDefenders = () => {
   qualifiedDefenders.value = alivePlayers.value.filter(
     (p) => (preVotes.value[p.name] || 0) >= votingThreshold.value
   );
+  syncVotingState();
 };
 
 const startDefenseStage = () => {
@@ -462,6 +478,7 @@ const startDefenseStage = () => {
   defenseQueue.value = [...qualifiedDefenders.value];
   currentDefenderIndex.value = 0;
   stage.value = 'defense';
+  syncVotingState();
   loadNextDefender();
 };
 
@@ -483,6 +500,7 @@ const loadNextDefender = () => {
   } else {
     currentDefender.value = null;
     stage.value = 'final-vote';
+    syncVotingState();
   }
 };
 
@@ -608,22 +626,62 @@ let unregisterMultiplayerListener = null;
 
 onMounted(() => {
   stage.value = 'pre-vote';
+  syncVotingState();
 
   unregisterMultiplayerListener = multiplayer.onPlayerAction((data) => {
     if (data && (data.action === 'CAST_VOTE' || data.type === 'CAST_VOTE')) {
+      const voterName = data.voterName;
       const candidateName = data.candidateName;
       const voteType = data.voteType || 'pre';
-      if (!candidateName) return;
+      if (!voterName || !candidateName) return;
+
+      const voter = alivePlayers.value.find(
+        (p) => p.name.trim().toLowerCase() === voterName.trim().toLowerCase()
+      );
+      if (!voter) return;
 
       if (voteType === 'pre' && stage.value === 'pre-vote') {
-        const candidate = alivePlayers.value.find((p) => p.name === candidateName);
+        const candidate = alivePlayers.value.find(
+          (p) => p.name.trim().toLowerCase() === candidateName.trim().toLowerCase()
+        );
         if (candidate) {
-          updatePreVote(candidate, 1);
+          const res = togglePreVote(
+            voter.name,
+            candidate.name,
+            preVotesByVoter.value,
+            preVotes.value,
+            alivePlayers.value.length
+          );
+          if (res.changed) {
+            audio.playVoteClick();
+            updateQualifiedDefenders();
+            store.addLog(
+              'voting',
+              `📱 ${voter.name} ${res.added ? 'voted for' : 'revoked vote for'} ${candidate.name}`,
+              `Total votes for ${candidate.name}: ${preVotes.value[candidate.name] || 0}`
+            );
+          }
         }
       } else if (voteType === 'final' && stage.value === 'final-vote') {
-        const defender = qualifiedDefenders.value.find((p) => p.name === candidateName);
+        const defender = qualifiedDefenders.value.find(
+          (p) => p.name.trim().toLowerCase() === candidateName.trim().toLowerCase()
+        );
         if (defender) {
-          updateFinalVote(defender, 1);
+          const res = castFinalVote(
+            voter.name,
+            defender.name,
+            finalVotesByVoter.value,
+            finalVotes.value,
+            alivePlayers.value.length
+          );
+          if (res.changed) {
+            audio.playVoteClick();
+            store.addLog(
+              'voting',
+              `📱 ${voter.name} ${res.chosenDefender ? 'voted to eliminate ' + defender.name : 'revoked final vote'}`,
+              `Total final votes for ${defender.name}: ${finalVotes.value[defender.name] || 0}`
+            );
+          }
         }
       }
     }
