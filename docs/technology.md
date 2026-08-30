@@ -196,9 +196,9 @@ graph TD
 
 ---
 
-## 4. Legal & Intellectual Property Notice
+## 4. License & Open-Source Terms
 
-* **Copyright (c) 2026 Ali Heristchian. All Rights Reserved.**
-* The source code, visual vector assets, game design logic, and documentation contained in this repository are proprietary.
-* Unauthorized copying, redistribution, modification, reverse engineering, sublicensing, or commercial exploitation in whole or in part without prior written permission is strictly prohibited. See [`LICENSE`](file:///Users/ali.heristchian/Documents/learning/mpga/LICENSE) for complete terms.
+* **Copyright (C) 2026 Ali Heristchian.**
+* Licensed under the **GNU General Public License v3.0 (GPL-3.0-or-later)**.
+* You are free to run, copy, distribute, study, and modify this software. Any derivative works or distributed modified versions must also remain licensed under GPL-3.0. See [`LICENSE`](file:///Users/ali.heristchian/Documents/learning/mpga/LICENSE) for complete terms.
 

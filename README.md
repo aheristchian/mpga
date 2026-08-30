@@ -49,8 +49,11 @@ npm run test
 
 ---
 
-## 📄 License & Intellectual Property
+## 📄 License
 
-Copyright (c) 2026 Ali Heristchian. All Rights Reserved.  
-Proprietary software. Unauthorized copying, distribution, modification, or commercial use is strictly prohibited. See [LICENSE](LICENSE) for details.
+This project is licensed under the **GNU General Public License v3.0 (GPL-3.0-or-later)**.  
+Copyright (C) 2026 Ali Heristchian.
+
+You are free to run, copy, distribute, study, and modify this software under the terms of the GNU General Public License. Any derivative works or distributed modified versions must also be licensed under GPL-3.0. See [LICENSE](LICENSE) for the full license text.
+
 
