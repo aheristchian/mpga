@@ -229,21 +229,20 @@
   </BaseModal>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue';
 import BaseModal from '../BaseModal.vue';
 import RoleAvatar from '../RoleAvatar.vue';
 import { useGameStore } from '../../stores/gameStore';
 import { useMatchReplay } from '../../services/useMatchReplay';
 
-defineProps({
-  isOpen: {
-    type: Boolean,
-    default: false,
-  },
-});
+defineProps<{
+  isOpen?: boolean;
+}>();
 
-const emit = defineEmits(['close']);
+const emit = defineEmits<{
+  (e: 'close'): void;
+}>();
 
 const store = useGameStore();
 
@@ -264,8 +263,9 @@ const {
   setSpeed,
 } = useMatchReplay(store.players, store.gameLogs);
 
-const onScrub = (event) => {
-  goToStep(parseInt(event.target.value, 10) || 0);
+const onScrub = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  goToStep(parseInt(target.value, 10) || 0);
 };
 
 const handleClose = () => {

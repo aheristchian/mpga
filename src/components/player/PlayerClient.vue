@@ -942,7 +942,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue';
 import RoleAvatar from '../RoleAvatar.vue';
 import LanguageSwitcher from '../LanguageSwitcher.vue';
@@ -951,14 +951,16 @@ import { useMultiplayer } from '../../services/useMultiplayerService';
 import { useWakeLock } from '../../services/useWakeLock';
 import { useHaptics } from '../../services/useHaptics';
 
-const emit = defineEmits(['returnToModerator']);
+const emit = defineEmits<{
+  (e: 'returnToModerator'): void;
+}>();
 const appVersion = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '1.1.0';
 const multiplayer = useMultiplayer();
 const wakeLock = useWakeLock();
 const haptics = useHaptics();
 
 const showGuideModal = ref(false);
-const nameInputRef = ref(null);
+const nameInputRef = ref<HTMLInputElement | null>(null);
 const inputRoomCode = ref('');
 const inputPlayerName = ref('');
 const inputPasscode = ref('');
@@ -969,11 +971,11 @@ const isStealthMode = ref(true);
 const selectedNightActionId = ref('');
 const selectedNightTarget = ref('');
 const submittedNightTarget = ref(false);
-const detectiveResult = ref(null);
+const detectiveResult = ref<any>(null);
 
 // Voting State
-const myPreVotes = ref([]);
-const myFinalVote = ref(null);
+const myPreVotes = ref<string[]>([]);
+const myFinalVote = ref<string | null>(null);
 
 const playerIdentity = computed(() => multiplayer.clientPlayerIdentity.value);
 const publicState = computed(() => multiplayer.clientPublicState.value);

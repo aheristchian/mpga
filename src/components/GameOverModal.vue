@@ -194,7 +194,7 @@
   <MatchReplayModal :is-open="showReplayModal" @close="showReplayModal = false" />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import BaseModal from './BaseModal.vue';
 import RoleAvatar from './RoleAvatar.vue';

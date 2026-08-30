@@ -138,7 +138,7 @@
   </Teleport>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useGameStore } from '../stores/gameStore';
 

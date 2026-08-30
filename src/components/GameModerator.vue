@@ -256,7 +256,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from 'vue';
 import BaseModal from './BaseModal.vue';
 import GameOverModal from './GameOverModal.vue';

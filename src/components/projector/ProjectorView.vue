@@ -273,13 +273,15 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useGameStore } from '../../stores/gameStore';
 import { useMultiplayer } from '../../services/useMultiplayerService';
 
-defineEmits(['exit']);
+defineEmits<{
+  (e: 'exit'): void;
+}>();
 
 const { t } = useI18n();
 const store = useGameStore();

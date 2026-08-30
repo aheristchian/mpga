@@ -70,7 +70,7 @@
   </Teleport>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onMounted, onUnmounted } from 'vue';
 
 // Define the inputs this component accepts

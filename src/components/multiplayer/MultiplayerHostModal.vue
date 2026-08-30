@@ -244,7 +244,7 @@
   </BaseModal>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from 'vue';
 import QrcodeVue from 'qrcode.vue';
 import BaseModal from '../BaseModal.vue';
@@ -252,14 +252,13 @@ import RoleAvatar from '../RoleAvatar.vue';
 import { useGameStore } from '../../stores/gameStore';
 import { useMultiplayer } from '../../services/useMultiplayerService';
 
-defineProps({
-  isOpen: {
-    type: Boolean,
-    default: false,
-  },
-});
+defineProps<{
+  isOpen?: boolean;
+}>();
 
-defineEmits(['close']);
+defineEmits<{
+  (e: 'close'): void;
+}>();
 
 const store = useGameStore();
 const multiplayer = useMultiplayer();

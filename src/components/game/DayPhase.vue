@@ -446,7 +446,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useGameStore } from '../../stores/gameStore';
 import { useAudio } from '../../services/useAudioService';
@@ -454,20 +454,21 @@ import PhaseHeroBanner from '../PhaseHeroBanner.vue';
 import RoleAvatar from '../RoleAvatar.vue';
 import BaseModal from '../BaseModal.vue';
 import PlayerStatusModal from '../PlayerStatusModal.vue';
+import type { Player } from '../../types';
 
 const store = useGameStore();
 const audio = useAudio();
 
-const stage = ref('setup'); // 'setup', 'speaking', 'wrapup'
-const direction = ref('clockwise');
-const speakingQueue = ref([]);
-const currentPlayer = ref(null);
+const stage = ref<'setup' | 'speaking' | 'wrapup'>('setup');
+const direction = ref<'clockwise' | 'counterclockwise'>('clockwise');
+const speakingQueue = ref<Player[]>([]);
+const currentPlayer = ref<Player | null>(null);
 const currentSpeakerIndex = ref(0);
 const totalSpeakersCount = ref(0);
 
 // Challenge Mechanics
-const usedChallengeToday = ref(new Set());
-const activeChallenger = ref(null);
+const usedChallengeToday = ref<Set<string>>(new Set());
+const activeChallenger = ref<Player | null>(null);
 const savedSpeakerTime = ref(0);
 const hasUsedChallengeThisTurn = ref(false);
 const showChallengeModal = ref(false);
@@ -475,7 +476,7 @@ const showChallengeModal = ref(false);
 // Timer State
 const timeLeft = ref(0);
 const isRunning = ref(false);
-let timerInterval = null;
+let timerInterval: ReturnType<typeof setInterval> | null = null;
 
 // Modal
 const showStatusModal = ref(false);
@@ -517,7 +518,7 @@ const formattedTime = computed(() => {
   return `${m}:${s.toString().padStart(2, '0')}`;
 });
 
-const getSideColorClass = (sideId) => {
+const getSideColorClass = (sideId?: string) => {
   if (sideId === 'mafia') return 'text-mafia';
   if (sideId === 'third-party') return 'text-thirdParty';
   return 'text-town';

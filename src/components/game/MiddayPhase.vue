@@ -196,27 +196,28 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useGameStore } from '../../stores/gameStore';
 import { useAudio } from '../../services/useAudioService';
 import PhaseHeroBanner from '../PhaseHeroBanner.vue';
 import RoleAvatar from '../RoleAvatar.vue';
+import type { LastWordCard } from '../../types';
 
 const store = useGameStore();
 const audio = useAudio();
 const { t } = useI18n();
 
-const stage = ref('speech'); // 'speech', 'card'
+const stage = ref<'speech' | 'card'>('speech');
 const speechTimeLeft = ref(45);
 const isSpeechRunning = ref(false);
-let speechTimerInterval = null;
+let speechTimerInterval: ReturnType<typeof setInterval> | null = null;
 
 // Card Draw State
 const isSpinning = ref(false);
 const spinningCardName = ref('');
-const drawnCard = ref(null);
+const drawnCard = ref<LastWordCard | null>(null);
 
 const targetPlayer = computed(() => {
   return store.eliminatedPlayer || store.livePlayers.find((p) => p.isDead) || null;

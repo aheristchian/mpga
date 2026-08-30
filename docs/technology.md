@@ -8,7 +8,8 @@ This document outlines the software architecture, data modeling patterns, state 
 
 | Technology | Purpose | Key Details |
 | :--- | :--- | :--- |
-| **Vue 3** | Frontend Framework | Uses Composition API with `<script setup>`. |
+| **Vue 3** | Frontend Framework | Uses Composition API with `<script setup lang="ts">`. |
+| **TypeScript** | Type Safety | Full end-to-end type safety, domain models in `src/types/`, strict mode enabled. |
 | **Pinia** | State Management | Central reactive store (`useGameStore`) for active game phases, player states, logs, and card decks. |
 | **PeerJS (WebRTC)** | Serverless P2P Multiplayer | Direct browser-to-browser P2P data channels connecting Host and Player devices without a dedicated backend server. |
 | **qrcode.vue** | Dynamic QR Generation | Generates sharp SVG QR codes for quick mobile device pairing and seat claiming. |
@@ -34,6 +35,7 @@ mpga/
 ├── src/
 │   ├── components/               # Declarative Vue SFC components
 │   │   ├── BaseModal.vue         # Reusable Teleport modal with slot injection
+│   │   ├── GameGuideModal.vue    # Interactive role glossary and rulebook modal
 │   │   ├── GameLogDrawer.vue     # Sliding historical event log & filter drawer
 │   │   ├── GameModerator.vue     # Main moderator cockpit & player manager
 │   │   ├── GameOverModal.vue     # Victory celebration modal & match statistics aggregator
@@ -44,41 +46,62 @@ mpga/
 │   │   ├── PlayerStatusModal.vue # Anytime moderator override modal (Kill/Revive/Penalties)
 │   │   ├── RoleAvatar.vue        # Scalable SVG vector character artwork & faction ring
 │   │   ├── RoleSelection.vue     # Faction-based role picker with balance validator
+│   │   ├── SoundtrackConsole.vue # Ambient music console & playlist controller
 │   │   ├── game/                 # Sub-phase step-by-step guided wizards
 │   │   │   ├── DayPhase.vue      # Solar Amber theme, speaker spotlight & challenge timer
-│   │   │   ├── VotingPhase.vue   # Courtroom theme, pre-vote, defense, & closed-eye vote
+│   │   │   ├── MatchReplayModal.vue # Interactive scrubbable match timeline & turn-by-turn replay
+│   │   │   ├── MatchStoryCardModal.vue # Canvas graphic story card generator for sharing
 │   │   │   ├── MiddayPhase.vue   # Twilight theme, exit speech & Last Word card roulette
-│   │   │   └── NightPhase.vue    # Midnight theme, role wakeup teleprompter wizard
-│   │   └── player/
-│   │       └── PlayerClient.vue  # Mobile touch player console with private role & voting
+│   │   │   ├── NightPhase.vue    # Midnight theme, role wakeup teleprompter wizard
+│   │   │   └── VotingPhase.vue   # Courtroom theme, pre-vote, defense, & closed-eye vote
+│   │   ├── multiplayer/
+│   │   │   └── MultiplayerHostModal.vue # Lobby host console with QR code & network diagnostics
+│   │   ├── player/
+│   │   │   └── PlayerClient.vue  # Mobile touch player console with private role & voting
+│   │   └── projector/
+│   │       └── ProjectorView.vue # TV/Projector public display mode for living room screens
 │   ├── data/                     # Flat, relational data definitions (JSON-ready)
-│   │   ├── abilities.js          # Active/passive abilities and priority values
-│   │   ├── lastWordCards.js      # Last Word cards data definitions
-│   │   ├── modeIllustrations.js  # Vector SVG artwork for game modes
-│   │   ├── modes.js              # Mode configurations and balance rules
-│   │   ├── phases.js             # Phase IDs and metadata
-│   │   ├── roleIllustrations.js  # Scalable vector SVG illustrations for character roles
-│   │   ├── roles.js              # Role definitions, limits, and foreign keys
-│   │   ├── sides.js              # Factions (Town, Mafia, Third Party)
-│   │   └── soundtracks.js        # Phase background music playlists & stream resolver
+│   │   ├── abilities.ts          # Active/passive abilities and priority values
+│   │   ├── lastWordCards.ts      # Last Word cards data definitions
+│   │   ├── modeIllustrations.ts  # Vector SVG artwork for game modes
+│   │   ├── modes.ts              # Mode configurations and balance rules
+│   │   ├── phases.ts             # Phase IDs and metadata
+│   │   ├── roleGuideData.ts      # Structured role guide glossary & how-to-play info
+│   │   ├── roleIllustrations.ts  # Scalable vector SVG illustrations for character roles
+│   │   ├── roles.ts              # Role definitions, limits, and foreign keys
+│   │   ├── sides.ts              # Factions (Town, Mafia, Third Party)
+│   │   └── soundtracks.ts        # Phase background music playlists & stream resolver
 │   ├── locales/                  # Localization dictionaries
 │   │   ├── en.json               # English translations (clean strings)
 │   │   └── fa.json               # Persian translations (authentic Mafia terminology)
 │   ├── services/                 # Core business logic and service layers
-│   │   ├── gameEngine.js         # Pure Night Action Priority Resolution Engine
-│   │   ├── gameEngine.spec.js    # Unit tests for resolution logic
-│   │   ├── useGameService.js     # Hydration composable connecting relational data
-│   │   ├── useVotingService.js   # Voting calculations (threshold, alive - 1 candidate max cap, clamping)
-│   │   ├── useVotingService.spec.js # Unit tests for voting calculation service
-│   │   ├── useWinCondition.js    # Win Condition Evaluation Engine & Match Statistics Aggregator
-│   │   └── useWinCondition.spec.js # Unit tests for win condition calculation
+│   │   ├── gameEngine.ts         # Pure Night Action Priority Resolution Engine
+│   │   ├── gameEngine.spec.ts    # Unit tests for resolution logic
+│   │   ├── useAudioService.ts    # Web Audio API procedural sound synthesizer & streaming
+│   │   ├── useGameService.ts     # Hydration composable connecting relational data
+│   │   ├── useHaptics.ts         # Tactile vibration feedback composable
+│   │   ├── useMatchReplay.ts     # Turn-by-turn match timeline replay engine
+│   │   ├── useMultiplayerService.ts # Dual-transport MQTT/WebRTC networking composable
+│   │   ├── useVoiceNarration.ts  # Web Speech API speech synthesis narrator
+│   │   ├── useVotingService.ts   # Voting calculations (threshold, clamping, pre-vote/final)
+│   │   ├── useVotingService.spec.ts # Unit tests for voting calculation service
+│   │   ├── useWakeLock.ts        # Screen Wake Lock API composable
+│   │   ├── useWinCondition.ts    # Win Condition Evaluation Engine & Match Statistics Aggregator
+│   │   └── useWinCondition.spec.ts # Unit tests for win condition calculation
 │   ├── stores/                   # Pinia store definitions
-│   │   ├── gameStore.js          # Master state (phases, players, logs, card decks, win state)
-│   │   └── gameStore.spec.js     # Unit tests for game store state & actions
+│   │   ├── gameStore.ts          # Master state (phases, players, logs, card decks, win state)
+│   │   └── gameStore.spec.ts     # Unit tests for game store state & actions
+│   ├── types/                    # TypeScript domain interfaces & type definitions
+│   │   ├── audio.ts              # Audio track and playlist types
+│   │   ├── cards.ts              # Last Word card and mode types
+│   │   ├── game.ts               # Game mode, log, voting, and engine types
+│   │   ├── multiplayer.ts        # Network packet and connection state types
+│   │   ├── role.ts               # Role, side, ability, and hydration types
+│   │   └── index.ts              # Central export barrel
 │   ├── utils/                    # Utilities and helper modules
-│   │   └── storage.js            # Base64/URI encoded LocalStorage persistence
+│   │   └── storage.ts            # Base64/URI encoded LocalStorage persistence
 │   ├── App.vue                   # Top-level orchestrator component
-│   └── main.js                   # App bootstrap (Vue, Pinia, VueI18n, Tailwind)
+│   └── main.ts                   # App bootstrap (Vue, Pinia, VueI18n, Tailwind)
 ```
 
 ---

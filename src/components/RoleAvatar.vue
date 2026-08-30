@@ -43,31 +43,25 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue';
 import { getRoleIllustration } from '../data/roleIllustrations';
+import type { Role } from '../types';
 
-const props = defineProps({
-  role: {
-    type: Object,
-    default: null,
-  },
-  size: {
-    type: String,
-    default: 'md', // 'sm', 'md', 'lg', 'xl', 'hero'
-  },
-  isDead: {
-    type: Boolean,
-    default: false,
-  },
-  showName: {
-    type: Boolean,
-    default: false,
-  },
-  showSide: {
-    type: Boolean,
-    default: false,
-  },
+interface Props {
+  role?: Role | null;
+  size?: 'sm' | 'md' | 'lg' | 'xl' | 'hero';
+  isDead?: boolean;
+  showName?: boolean;
+  showSide?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  role: null,
+  size: 'md',
+  isDead: false,
+  showName: false,
+  showSide: false,
 });
 
 const svgContent = computed(() => {

@@ -174,23 +174,18 @@
   </BaseModal>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import BaseModal from './BaseModal.vue';
 import RoleAvatar from './RoleAvatar.vue';
 import { useGameStore } from '../stores/gameStore';
+import type { Player } from '../types';
 
-const props = defineProps({
-  isOpen: {
-    type: Boolean,
-    required: true,
-  },
-  player: {
-    type: Object,
-    default: null,
-  },
-});
+const props = defineProps<{
+  isOpen: boolean;
+  player: Player | null;
+}>();
 
 const emit = defineEmits(['close']);
 const store = useGameStore();

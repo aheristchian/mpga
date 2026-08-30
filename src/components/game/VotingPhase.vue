@@ -382,7 +382,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useGameStore } from '../../stores/gameStore';
 import { useAudio } from '../../services/useAudioService';
@@ -396,20 +396,21 @@ import {
 } from '../../services/useVotingService';
 import PhaseHeroBanner from '../PhaseHeroBanner.vue';
 import RoleAvatar from '../RoleAvatar.vue';
+import type { Player } from '../../types';
 
 const store = useGameStore();
 const audio = useAudio();
 const multiplayer = useMultiplayer();
 
-const stage = ref('pre-vote'); // 'pre-vote', 'defense', 'final-vote'
-const preVotes = ref({});
-const preVotesByVoter = ref({});
-const qualifiedDefenders = ref([]);
-const defenseQueue = ref([]);
-const currentDefender = ref(null);
+const stage = ref<'pre-vote' | 'defense' | 'final-vote'>('pre-vote');
+const preVotes = ref<Record<string, number>>({});
+const preVotesByVoter = ref<Record<string, Set<string>>>({});
+const qualifiedDefenders = ref<Player[]>([]);
+const defenseQueue = ref<Player[]>([]);
+const currentDefender = ref<Player | null>(null);
 const currentDefenderIndex = ref(0);
-const finalVotes = ref({});
-const finalVotesByVoter = ref({});
+const finalVotes = ref<Record<string, number>>({});
+const finalVotesByVoter = ref<Record<string, string | null>>({});
 
 const syncVotingState = () => {
   store.setVotingState({
@@ -425,7 +426,7 @@ const syncVotingState = () => {
 // Defense Timer
 const defenseTimeLeft = ref(0);
 const isDefenseRunning = ref(false);
-let defenseTimerInterval = null;
+let defenseTimerInterval: ReturnType<typeof setInterval> | null = null;
 
 // Tie Breaker
 const showTieBreakerOverlay = ref(false);

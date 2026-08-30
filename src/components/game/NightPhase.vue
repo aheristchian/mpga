@@ -703,7 +703,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { mockAbilities } from '../../data/abilities';
@@ -714,6 +714,7 @@ import { useMultiplayer } from '../../services/useMultiplayerService';
 import { useVoiceNarration } from '../../services/useVoiceNarration';
 import PhaseHeroBanner from '../PhaseHeroBanner.vue';
 import RoleAvatar from '../RoleAvatar.vue';
+import type { Player, NightAction, NightResolution } from '../../types';
 
 const { locale } = useI18n();
 const store = useGameStore();
@@ -721,12 +722,12 @@ const audio = useAudio();
 const multiplayer = useMultiplayer();
 const narration = useVoiceNarration();
 
-const stage = ref('sleep'); // 'sleep', 'mafia-intro', 'wizard', 'morning'
+const stage = ref<'sleep' | 'mafia-intro' | 'wizard' | 'morning'>('sleep');
 const currentActorIndex = ref(0);
-const actionMap = ref({});
-const selectedActionTypeMap = ref({});
-const mobileActionSyncMap = ref({});
-const resolution = ref(null);
+const actionMap = ref<Record<string, NightAction | null>>({});
+const selectedActionTypeMap = ref<Record<string, string>>({});
+const mobileActionSyncMap = ref<Record<string, any>>({});
+const resolution = ref<NightResolution | null>(null);
 
 const toggleVoiceNarration = () => {
   narration.toggleEnabled();

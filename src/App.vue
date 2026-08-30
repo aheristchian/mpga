@@ -406,7 +406,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, watch, onMounted } from 'vue';
 import { useGameStore } from './stores/gameStore';
 import { useAudio } from './services/useAudioService';

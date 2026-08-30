@@ -218,15 +218,18 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useGameService } from '../services/useGameService';
 import { getModeIllustration, getScenarioIcon } from '../data/modeIllustrations';
+import type { GameMode } from '../types';
 
-const emit = defineEmits(['mode-selected']);
+const emit = defineEmits<{
+  (e: 'mode-selected', mode: GameMode | undefined): void;
+}>();
 const { modes, fetchGameData } = useGameService();
-const availableModes = ref([]);
-const selectedModeId = ref('godfather');
+const availableModes = ref<GameMode[]>([]);
+const selectedModeId = ref<string>('godfather');
 
 onMounted(async () => {
   await fetchGameData();
@@ -236,19 +239,19 @@ onMounted(async () => {
   }
 });
 
-const getSvg = (modeId) => {
+const getSvg = (modeId: string) => {
   return getModeIllustration(modeId);
 };
 
-const getScenarioSvg = (modeId) => {
+const getScenarioSvg = (modeId: string) => {
   return getScenarioIcon(modeId);
 };
 
-const selectMode = (modeId) => {
+const selectMode = (modeId: string) => {
   selectedModeId.value = modeId;
 };
 
-const getCardClasses = (modeId) => {
+const getCardClasses = (modeId: string) => {
   if (selectedModeId.value === modeId) {
     if (modeId === 'godfather') {
       return 'border-red-500 ring-2 ring-red-500/30 bg-gradient-to-b from-red-950/20 via-gray-900/90 to-gray-900 shadow-red-900/30';
@@ -258,7 +261,7 @@ const getCardClasses = (modeId) => {
   return 'border-gray-800 hover:border-gray-700 bg-gray-900/60 opacity-85 hover:opacity-100';
 };
 
-const getModeRoles = (modeId) => {
+const getModeRoles = (modeId: string) => {
   if (modeId === 'godfather') {
     return [
       { id: 'godfather', name: 'Godfather', icon: '🎩', sideId: 'mafia' },
@@ -280,7 +283,7 @@ const getModeRoles = (modeId) => {
   ];
 };
 
-const getRoleBadgeClass = (sideId) => {
+const getRoleBadgeClass = (sideId: string) => {
   if (sideId === 'mafia') {
     return 'bg-red-950/60 text-red-300 border-red-800/60';
   }

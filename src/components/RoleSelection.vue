@@ -181,30 +181,30 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useGameService } from '../services/useGameService';
 import { useGameStore } from '../stores/gameStore';
 import BaseModal from './BaseModal.vue';
+import type { Role, HydratedRole } from '../types';
 
-const props = defineProps({
-  playerCount: {
-    type: Number,
-    required: true,
-  },
-});
+const props = defineProps<{
+  playerCount: number;
+}>();
 
-const emit = defineEmits(['roles-confirmed']);
+const emit = defineEmits<{
+  (e: 'roles-confirmed', roles: (Role | HydratedRole)[]): void;
+}>();
 
 const { roles, sides, modes, isLoading, error, fetchGameData } = useGameService();
 
-const roleCounts = ref({});
+const roleCounts = ref<Record<string, number>>({});
 const showLimitModal = ref(false);
 
 // Balance Warning State
 const showBalanceModal = ref(false);
-const balanceWarningMessage = ref('');
-const pendingRolesToEmit = ref([]);
+const balanceWarningMessage = ref<any>('');
+const pendingRolesToEmit = ref<(Role | HydratedRole)[]>([]);
 
 onMounted(async () => {
   await fetchGameData();
@@ -213,7 +213,7 @@ onMounted(async () => {
 const store = useGameStore();
 
 // Helper to safely get the count
-const getCount = (roleId) => {
+const getCount = (roleId: string) => {
   return roleCounts.value[roleId] || 0;
 };
 
@@ -243,7 +243,7 @@ const rolesGroupedBySide = computed(() => {
   return groups.filter((group) => group.roles.length > 0);
 });
 
-const getSideSelectedCount = (sideId) => {
+const getSideSelectedCount = (sideId: string) => {
   let count = 0;
   availableRoles.value.forEach((role) => {
     if (role.sideId === sideId) {
@@ -253,7 +253,7 @@ const getSideSelectedCount = (sideId) => {
   return count;
 };
 
-const incrementRole = (role) => {
+const incrementRole = (role: Role | HydratedRole) => {
   const currentCount = getCount(role.id);
   const maxLimit = role.limit || 1;
 
@@ -270,21 +270,21 @@ const incrementRole = (role) => {
   roleCounts.value[role.id] = currentCount + 1;
 };
 
-const clearRole = (roleId) => {
+const clearRole = (roleId: string) => {
   roleCounts.value[roleId] = 0;
 };
 
-const getTextColorClass = (sideId) => {
+const getTextColorClass = (sideId?: string) => {
   if (sideId === 'town') return 'text-town';
   if (sideId === 'mafia') return 'text-mafia';
   return 'text-thirdParty';
 };
 
-const getCardClasses = (role) => {
+const getCardClasses = (role: Role | HydratedRole) => {
   const count = getCount(role.id);
   const isGlobalMaxed = totalSelected.value >= props.playerCount;
 
-  let baseClass;
+  let baseClass: string;
   if (role.sideId === 'town') baseClass = 'bg-town border-town';
   else if (role.sideId === 'mafia') baseClass = 'bg-mafia border-mafia';
   else baseClass = 'bg-thirdParty border-thirdParty';

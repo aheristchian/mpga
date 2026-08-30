@@ -317,7 +317,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue';
 import { useGameStore } from '../stores/gameStore';
 import { useMultiplayer } from '../services/useMultiplayerService';

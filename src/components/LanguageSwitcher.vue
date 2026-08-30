@@ -31,7 +31,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -39,7 +39,7 @@ const { locale } = useI18n();
 
 const currentLocale = computed(() => locale.value);
 
-const setLanguage = (lang) => {
+const setLanguage = (lang: string) => {
   locale.value = lang;
   localStorage.setItem('mpga_locale', lang);
   document.documentElement.dir = lang === 'fa' ? 'rtl' : 'ltr';

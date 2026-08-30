@@ -45,38 +45,34 @@
   </BaseModal>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, watch, nextTick, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import BaseModal from '../BaseModal.vue';
+import type { Player } from '../../types';
 
-const props = defineProps({
-  isOpen: {
-    type: Boolean,
-    default: false,
-  },
-  winner: {
-    type: String,
-    default: 'town',
-  },
-  survivors: {
-    type: Array,
-    default: () => [],
-  },
-  currentDay: {
-    type: Number,
-    default: 1,
-  },
-  totalPlayers: {
-    type: Number,
-    default: 0,
-  },
+interface Props {
+  isOpen?: boolean;
+  winner?: string;
+  survivors?: Player[];
+  currentDay?: number;
+  totalPlayers?: number;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  isOpen: false,
+  winner: 'town',
+  survivors: () => [],
+  currentDay: 1,
+  totalPlayers: 0,
 });
 
-defineEmits(['close']);
+defineEmits<{
+  (e: 'close'): void;
+}>();
 
 const { locale } = useI18n();
-const canvasRef = ref(null);
+const canvasRef = ref<HTMLCanvasElement | null>(null);
 const canShare = ref(typeof navigator !== 'undefined' && !!navigator.share);
 
 const renderCanvas = () => {
