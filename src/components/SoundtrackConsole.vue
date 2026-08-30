@@ -93,45 +93,84 @@
           </div>
         </div>
 
-        <!-- VOLUME & AUTOPLAY SETTINGS -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-gray-800/40 border border-gray-800 p-4 rounded-xl">
-          <!-- Music Volume Slider -->
-          <div>
-            <div class="flex justify-between items-center mb-1.5">
-              <label class="text-xs font-bold text-gray-300 flex items-center gap-1.5">
-                <span>🔊</span> {{ $t('audio.musicVolume') }}
-              </label>
-              <span class="text-xs font-mono font-bold text-purple-400">
-                {{ Math.round(audio.musicVolume.value * 100) }}%
-              </span>
+        <!-- VOLUME & AUTOPLAY & CLOUD SETTINGS -->
+        <div class="space-y-3 bg-gray-800/40 border border-gray-800 p-4 rounded-xl">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Music Volume Slider -->
+            <div>
+              <div class="flex justify-between items-center mb-1.5">
+                <label class="text-xs font-bold text-gray-300 flex items-center gap-1.5">
+                  <span>🔊</span> {{ $t('audio.musicVolume') }}
+                </label>
+                <span class="text-xs font-mono font-bold text-purple-400">
+                  {{ Math.round(audio.musicVolume.value * 100) }}%
+                </span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.05"
+                :value="audio.musicVolume.value"
+                class="w-full h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-500"
+                @input="audio.setMusicVolume($event.target.value)"
+              />
             </div>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.05"
-              :value="audio.musicVolume.value"
-              class="w-full h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-500"
-              @input="audio.setMusicVolume($event.target.value)"
-            />
+
+            <!-- Auto-DJ Toggle -->
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <span class="text-xs font-bold text-white block">{{ $t('audio.autoPlayLabel') }}</span>
+                <span class="text-[11px] text-gray-400 block leading-tight">{{ $t('audio.autoPlayDesc') }}</span>
+              </div>
+              <button
+                class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+                :class="audio.autoPlayOnPhaseChange.value ? 'bg-purple-600' : 'bg-gray-700'"
+                @click="audio.setAutoPlay(!audio.autoPlayOnPhaseChange.value)"
+              >
+                <span
+                  class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                  :class="audio.autoPlayOnPhaseChange.value ? 'translate-x-5' : 'translate-x-0'"
+                />
+              </button>
+            </div>
           </div>
 
-          <!-- Auto-DJ Toggle -->
-          <div class="flex items-center justify-between gap-2">
-            <div>
-              <span class="text-xs font-bold text-white block">{{ $t('audio.autoPlayLabel') }}</span>
-              <span class="text-[11px] text-gray-400 block leading-tight">{{ $t('audio.autoPlayDesc') }}</span>
+          <!-- OFFLINE LOCAL FIRST & REMOTE ONEDRIVE CONFIG -->
+          <div class="pt-3 border-t border-gray-800/80 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Prefer Local Toggle -->
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <span class="text-xs font-bold text-gray-200 block flex items-center gap-1.5">
+                  <span>📁</span> {{ $t('audio.preferLocalLabel') }}
+                </span>
+                <span class="text-[11px] text-gray-400 block leading-tight">{{ $t('audio.preferLocalDesc') }}</span>
+              </div>
+              <button
+                class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+                :class="audio.preferLocal.value ? 'bg-emerald-600' : 'bg-gray-700'"
+                @click="audio.setPreferLocal(!audio.preferLocal.value)"
+              >
+                <span
+                  class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                  :class="audio.preferLocal.value ? 'translate-x-5' : 'translate-x-0'"
+                />
+              </button>
             </div>
-            <button
-              class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
-              :class="audio.autoPlayOnPhaseChange.value ? 'bg-purple-600' : 'bg-gray-700'"
-              @click="audio.setAutoPlay(!audio.autoPlayOnPhaseChange.value)"
-            >
-              <span
-                class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
-                :class="audio.autoPlayOnPhaseChange.value ? 'translate-x-5' : 'translate-x-0'"
+
+            <!-- Remote Base URL -->
+            <div>
+              <label class="block text-[11px] font-semibold text-gray-300 mb-1 flex items-center gap-1">
+                <span>☁️</span> {{ $t('audio.remoteBaseUrlLabel') }}
+              </label>
+              <input
+                :value="audio.remoteBaseUrl.value"
+                type="text"
+                :placeholder="$t('audio.remoteBaseUrlPlaceholder')"
+                class="w-full bg-gray-900 border border-gray-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-purple-500 font-mono"
+                @change="audio.setRemoteBaseUrl($event.target.value)"
               />
-            </button>
+            </div>
           </div>
         </div>
 
@@ -170,7 +209,7 @@
               "
             >
               <div class="min-w-0 flex-1 pr-3">
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 flex-wrap">
                   <span
                     v-if="audio.currentTrack.value?.id === track.id && audio.isPlayingMusic.value"
                     class="text-xs text-purple-400 animate-pulse font-bold"
@@ -197,6 +236,22 @@
                     class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-950/80 border border-purple-600/60 text-purple-300"
                   >
                     {{ $t('audio.thirdPartyWinTrack') }}
+                  </span>
+
+                  <!-- Source Badges -->
+                  <span
+                    v-if="track.localUrl || track.url"
+                    class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-950/70 border border-emerald-600/40 text-emerald-300"
+                    title="Local offline MP3 available"
+                  >
+                    📁 {{ $t('audio.localSource') }}
+                  </span>
+                  <span
+                    v-if="track.onlineUrl"
+                    class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-cyan-950/70 border border-cyan-600/40 text-cyan-300"
+                    title="Online / OneDrive link configured"
+                  >
+                    ☁️ {{ $t('audio.onlineSource') }}
                   </span>
                 </div>
                 <p class="text-xs text-gray-400 truncate mt-0.5">
@@ -229,7 +284,7 @@
           </div>
         </div>
 
-        <!-- ADD CUSTOM SUNO URL SECTION -->
+        <!-- ADD CUSTOM SUNO / ONEDRIVE URL SECTION -->
         <div class="bg-gray-950/60 border border-gray-800 rounded-xl p-4 space-y-3">
           <h5 class="text-xs font-bold uppercase tracking-wider text-purple-400 flex items-center gap-1.5">
             <span>✨</span> {{ $t('audio.addCustomSuno') }}
@@ -266,28 +321,42 @@
             </div>
           </div>
 
-          <div>
-            <label class="block text-[11px] font-semibold text-gray-400 mb-1">
-              Suno Song URL or Direct MP3 URL
-            </label>
-            <input
-              v-model="customUrl"
-              type="text"
-              :placeholder="$t('audio.sunoUrlPlaceholder')"
-              class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500 font-mono"
-            />
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-semibold text-gray-400 mb-1">
+                {{ $t('audio.onlineUrlLabel') }}
+              </label>
+              <input
+                v-model="customUrl"
+                type="text"
+                :placeholder="$t('audio.sunoUrlPlaceholder')"
+                class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500 font-mono"
+              />
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-semibold text-gray-400 mb-1">
+                {{ $t('audio.localPathLabel') }}
+              </label>
+              <input
+                v-model="customLocalUrl"
+                type="text"
+                :placeholder="$t('audio.localPathPlaceholder')"
+                class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500 font-mono"
+              />
+            </div>
           </div>
 
           <div class="flex justify-end gap-2 pt-1">
             <button
-              :disabled="!customUrl"
+              :disabled="!customUrl && !customLocalUrl"
               class="px-3.5 py-1.5 bg-gray-800 hover:bg-gray-700 disabled:opacity-40 text-gray-300 rounded-lg text-xs font-bold transition-all cursor-pointer"
               @click="handleTestPlay"
             >
               {{ $t('audio.testPlay') }}
             </button>
             <button
-              :disabled="!customUrl || !customTitle"
+              :disabled="(!customUrl && !customLocalUrl) || !customTitle"
               class="px-4 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 disabled:opacity-40 text-white rounded-lg text-xs font-bold transition-all shadow-md shadow-purple-600/20 cursor-pointer"
               @click="handleAddTrack"
             >
@@ -339,6 +408,7 @@ const audio = useAudio();
 const selectedTab = ref('night');
 const customTitle = ref('');
 const customUrl = ref('');
+const customLocalUrl = ref('');
 const customPhase = ref('night');
 
 const phaseTabs = [
@@ -364,25 +434,29 @@ const handleTrackClick = (track) => {
 };
 
 const handleTestPlay = () => {
-  if (!customUrl.value) return;
+  if (!customUrl.value && !customLocalUrl.value) return;
   const tempTrack = {
     id: 'test-' + Date.now(),
     title: customTitle.value || 'Custom Test Track',
     artist: 'Suno / Stream',
-    url: customUrl.value,
+    localUrl: customLocalUrl.value || '',
+    onlineUrl: customUrl.value || '',
+    url: customLocalUrl.value || customUrl.value,
     volumeMultiplier: 1.0,
   };
   audio.playTrack(tempTrack);
 };
 
 const handleAddTrack = () => {
-  if (!customUrl.value || !customTitle.value) return;
+  if ((!customUrl.value && !customLocalUrl.value) || !customTitle.value) return;
 
   const newTrack = {
     id: 'custom-' + Date.now(),
     title: customTitle.value,
-    artist: 'Suno AI',
-    url: customUrl.value,
+    artist: 'Ali Heristchian',
+    localUrl: customLocalUrl.value || '',
+    onlineUrl: customUrl.value || '',
+    url: customLocalUrl.value || customUrl.value,
     volumeMultiplier: 0.85,
   };
 
@@ -394,6 +468,7 @@ const handleAddTrack = () => {
   selectedTab.value = customPhase.value;
   customTitle.value = '';
   customUrl.value = '';
+  customLocalUrl.value = '';
 };
 
 const close = () => {

@@ -75,6 +75,55 @@ describe('useAudioService', () => {
     expect(audio.resolveSunoAudioUrl(null)).toBe('');
   });
 
+  it('correctly resolves OneDrive, Suno, and relative audio URLs to streaming links', () => {
+    const audio = useAudio();
+
+    // Standard suno.com/song/<id>
+    expect(audio.resolveAudioUrl('https://suno.com/song/0712a149-2b4a-466d-b8d9-1365c71a3e6f')).toBe(
+      'https://cdn1.suno.ai/0712a149-2b4a-466d-b8d9-1365c71a3e6f.mp3'
+    );
+
+    // OneDrive view.aspx -> download.aspx
+    expect(
+      audio.resolveAudioUrl('https://onedrive.live.com/view.aspx?resid=12345&authkey=!abc')
+    ).toBe('https://onedrive.live.com/download.aspx?resid=12345&authkey=!abc');
+
+    // OneDrive query param download=1
+    expect(
+      audio.resolveAudioUrl('https://1drv.ms/u/s!Al_something')
+    ).toBe('https://1drv.ms/u/s!Al_something?download=1');
+
+    // OneDrive with existing query params gets &download=1
+    expect(
+      audio.resolveAudioUrl('https://1drv.ms/u/s!Al_something?e=xyz')
+    ).toBe('https://1drv.ms/u/s!Al_something?e=xyz&download=1');
+
+    // Relative remote file with remoteBaseUrl
+    expect(
+      audio.resolveAudioUrl('Night-1.mp3', 'https://mycloud.example.com/audio/')
+    ).toBe('https://mycloud.example.com/audio/Night-1.mp3');
+
+    // Empty or non-string input
+    expect(audio.resolveAudioUrl('')).toBe('');
+    expect(audio.resolveAudioUrl(null)).toBe('');
+  });
+
+  it('manages preferLocal and remoteBaseUrl settings with localStorage persistence', () => {
+    const audio = useAudio();
+
+    audio.setPreferLocal(false);
+    expect(audio.preferLocal.value).toBe(false);
+    expect(localStorage.getItem('mpga_audio_prefer_local')).toBe('false');
+
+    audio.setPreferLocal(true);
+    expect(audio.preferLocal.value).toBe(true);
+    expect(localStorage.getItem('mpga_audio_prefer_local')).toBe('true');
+
+    audio.setRemoteBaseUrl('https://onedrive.live.com/download?resid=XYZ');
+    expect(audio.remoteBaseUrl.value).toBe('https://onedrive.live.com/download?resid=XYZ');
+    expect(localStorage.getItem('mpga_audio_remote_base_url')).toBe('https://onedrive.live.com/download?resid=XYZ');
+  });
+
   it('manages music volume and autoplay settings with localStorage persistence', () => {
     const audio = useAudio();
 

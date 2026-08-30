@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue';
-import { soundtrackConfig, resolveSunoAudioUrl } from '../data/soundtracks';
+import { soundtrackConfig, resolveAudioUrl, resolveSunoAudioUrl } from '../data/soundtracks';
 
 // Persisted audio states
 const isMuted = ref(
@@ -16,6 +16,18 @@ const autoPlayOnPhaseChange = ref(
   typeof localStorage !== 'undefined' && localStorage.getItem('mpga_music_autoplay') !== null
     ? localStorage.getItem('mpga_music_autoplay') === 'true'
     : soundtrackConfig.settings.autoPlayOnPhaseChange
+);
+
+const preferLocal = ref(
+  typeof localStorage !== 'undefined' && localStorage.getItem('mpga_audio_prefer_local') !== null
+    ? localStorage.getItem('mpga_audio_prefer_local') === 'true'
+    : (soundtrackConfig.settings.preferLocal ?? true)
+);
+
+const remoteBaseUrl = ref(
+  typeof localStorage !== 'undefined' && localStorage.getItem('mpga_audio_remote_base_url') !== null
+    ? localStorage.getItem('mpga_audio_remote_base_url')
+    : (soundtrackConfig.settings.remoteBaseUrl || '')
 );
 
 // Current Track & Playback Status
@@ -76,23 +88,29 @@ export function useAudio() {
     }
   };
 
-  /**
-   * Plays a specific track object with smooth volume crossfade
-   * @param {Object} track - { id, title, artist, url, volumeMultiplier }
-   * @param {Object} options - { fade: boolean }
-   */
-  const playTrack = (track, options = { fade: true }) => {
-    if (!track || !track.url || isMuted.value) return;
+  const setPreferLocal = (val) => {
+    preferLocal.value = Boolean(val);
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('mpga_audio_prefer_local', String(preferLocal.value));
+    }
+  };
 
-    // Disabled tracks (ending with underscore to prevent bandwidth/traffic consumption)
-    if (typeof track.url === 'string' && track.url.endsWith('_')) return;
+  const setRemoteBaseUrl = (url) => {
+    remoteBaseUrl.value = String(url || '').trim();
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('mpga_audio_remote_base_url', remoteBaseUrl.value);
+    }
+  };
+
+  /**
+   * Internal stream player with smooth crossfade and error fallback handling
+   */
+  const playStream = (streamUrl, fallbackUrl, track, options = { fade: true }) => {
+    if (!streamUrl || isMuted.value) return;
 
     if (currentTrack.value?.id === track.id && isPlayingMusic.value && currentAudioEl && !currentAudioEl.paused) {
       return;
     }
-
-    const streamUrl = resolveSunoAudioUrl(track.url);
-    if (!streamUrl) return;
 
     if (typeof window === 'undefined' || typeof window.Audio === 'undefined') {
       currentTrack.value = track;
@@ -125,7 +143,14 @@ export function useAudio() {
       });
 
       audio.addEventListener('error', (err) => {
-        console.warn(`[MPGA Audio] Error playing track ${track.title}:`, err);
+        if (fallbackUrl && fallbackUrl !== streamUrl) {
+          console.info(
+            `[MPGA Audio] Primary audio stream failed for "${track.title}" (${streamUrl}). Falling back to online/alternative URL: ${fallbackUrl}`
+          );
+          playStream(fallbackUrl, null, track, options);
+          return;
+        }
+        console.warn(`[MPGA Audio] Error playing track "${track.title}" (${streamUrl}):`, err);
         isPlayingMusic.value = false;
       });
 
@@ -149,14 +174,52 @@ export function useAudio() {
           }, stepTime);
         }
       }).catch((e) => {
+        if (fallbackUrl && fallbackUrl !== streamUrl) {
+          console.info(
+            `[MPGA Audio] Autoplay or playback rejected for "${streamUrl}", attempting fallback: ${fallbackUrl}`
+          );
+          playStream(fallbackUrl, null, track, options);
+          return;
+        }
         console.warn('[MPGA Audio] Playback prevented by browser autoplay policy:', e);
         isPlayingMusic.value = false;
       });
 
       currentAudioEl = audio;
     } catch (e) {
+      if (fallbackUrl && fallbackUrl !== streamUrl) {
+        playStream(fallbackUrl, null, track, options);
+        return;
+      }
       console.warn('[MPGA Audio] Audio instantiation failed:', e);
     }
+  };
+
+  /**
+   * Plays a specific track object with smart local-first / online fallback resolution
+   * @param {Object} track - { id, title, artist, localUrl, onlineUrl, url, volumeMultiplier }
+   * @param {Object} options - { fade: boolean }
+   */
+  const playTrack = (track, options = { fade: true }) => {
+    if (!track || isMuted.value) return;
+
+    const rawLocal = track.localUrl || track.url || '';
+    const rawOnline = track.onlineUrl || '';
+
+    // Ignore disabled tracks (ending with underscore to prevent unwanted traffic)
+    if (rawLocal && rawLocal.endsWith('_') && (!rawOnline || rawOnline.endsWith('_'))) return;
+
+    const primaryRaw = preferLocal.value ? (rawLocal || rawOnline) : (rawOnline || rawLocal);
+    const fallbackRaw = preferLocal.value
+      ? (rawOnline && rawOnline !== primaryRaw ? rawOnline : null)
+      : (rawLocal && rawLocal !== primaryRaw ? rawLocal : null);
+
+    const primaryUrl = resolveAudioUrl(primaryRaw, remoteBaseUrl.value);
+    const fallbackUrl = fallbackRaw ? resolveAudioUrl(fallbackRaw, remoteBaseUrl.value) : null;
+
+    if (!primaryUrl && !fallbackUrl) return;
+
+    playStream(primaryUrl || fallbackUrl, fallbackUrl && primaryUrl ? fallbackUrl : null, track, options);
   };
 
   /**
@@ -398,6 +461,10 @@ export function useAudio() {
     stopMusic,
     nextTrack,
     previousTrack,
+    preferLocal,
+    setPreferLocal,
+    remoteBaseUrl,
+    setRemoteBaseUrl,
     // SFX
     playTick,
     playUrgentTick,
@@ -407,6 +474,7 @@ export function useAudio() {
     playRouletteTick,
     playFanfare,
     playVoteClick,
+    resolveAudioUrl,
     resolveSunoAudioUrl,
   };
 }

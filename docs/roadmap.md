@@ -101,74 +101,37 @@ graph TD
 * **Dedicated Mobile Lobby Screen (`PlayerClient.vue`):** Clean waiting room UI displaying room code, player's name, pulsing host-wait status, and a live roster of peers who joined the lobby.
 * **Seamless Role Auto-Dispatch:** Once the moderator assigns roles and starts the game, connected player phones in the lobby instantly transition to their secret role reveal cards with privacy shielding.
 
-### 11. Dual-Transport Multiplayer (Cloud MQTT Relay & Hardened WebRTC) + Proprietary License
-* **Dual Transport Selector:** Moderator can choose between **☁️ Cloud Relay** (high-availability MQTT over Secure WebSockets via `broker.hivemq.com` with zero disconnects and live latency badge) and **⚡ WebRTC P2P** (direct browser-to-browser data channels with 3s keep-alive heartbeats and stable room codes).
-* **Automatic Dynamic URL & QR Encoding:** Join links and QR codes automatically encode `&t=cloud` or `&t=webrtc`, allowing player phones to seamlessly pair on the host's selected engine.
-* **Network Latency Monitor:** Added real-time 3.5s ping/pong latency measurement (`pingLatency` in ms) displayed in the client UI.
-* **Proprietary Copyright & Legal License:** Added formal proprietary [`LICENSE`](file:///Users/ali.heristchian/Documents/learning/mpga/LICENSE) (Copyright (c) 2026 Ali Heristchian. All Rights Reserved) protecting all source code, algorithms, visual assets, and documentation.
+### 12. Two-Step Action UX & Standardized Descending Priority Engine
+* **Two-Step Action Selection:** Replaced raw single-target dropdowns with explicit, labeled action buttons (`[🔫 Direct Shot]`, `[💉 Protect Ally]`, `[🛡️ Self Heal]`, `[🔍 Investigate]`, `[🚫 Pass]`) across moderator teleprompter and mobile player clients.
+* **Standardized Descending Numerical Priority ($99 > 90 > 80 > 70 > 50 > 10$):** Unifed night action resolution sequence with mathematical determinism in `abilities.js` and `gameEngine.js`.
+* **Dynamic Candidate Filtering:** Target rosters dynamically filter candidates according to active ability constraints (self-target rules, dead/alive constraints, multi-target quotas).
+
+### 13. Local-First Audio Engine with Automatic Online OneDrive Stream Fallback
+* **Dual-Source Audio Architecture:** Full soundtrack suite (`src/data/soundtracks.js`) configured with local offline file paths (`/audio/soundtracks/`) and online fallback stream URLs.
+* **Intelligent Cloud URL Transformation:** Added automated URL resolvers converting Microsoft OneDrive (`/view.aspx` $\to$ `/download.aspx`, `&download=1`), SharePoint, and Suno AI web links to direct playable MP3 binary audio streams.
+* **Resilient Audio Fallback Recovery:** If local audio assets are not found or fail to load, `useAudioService` smoothly catches errors and initiates seamless fallback to online streaming URLs without stopping the music.
+* **Moderator Audio Console Settings:** Added preferences in `SoundtrackConsole.vue` for toggling local-first priority, setting remote cloud base URLs, and viewing live `[📁 Local]` / `[☁️ Online]` source badges.
+
+### 14. In-App Interactive Role & Ability Guide (`GameGuideModal.vue`)
+* **Interactive Faction Taxonomy:** Visual hierarchy categorized by Town 🟢, Mafia 🔴, and Neutral/Third-Party 🟣.
+* **Detailed Ability Matrix:** Breakdown of active and passive abilities ($a_1, a_2, \dots$), priority tiers, target constraints, character lore, and tournament advice.
+* **Bilingual In-Game Access:** Accessible via top-bar `[❓ Guide]` icon on both moderator cockpit and mobile player screens with secret role shielding.
 
 ---
 
 ## 🚀 Upcoming Milestones
 
 ### 1. 100% Declarative Config-Driven Game Engine & Universal Modding Architecture
-**Goal:** Eliminate all hardcoded role `if` conditions (e.g. `if (role.id === 'godfather')` or `if (role.id === 'nostradamus')`) and replace them with a pure, declarative ability and scenario engine.
-* **Declarative Character Schema:**
-  - Every role definition in `roles.json` / `roles.js` will fully declare its:
-    - `actions: []` (List of active abilities with execution priority, target filter, charge limits, and night teleprompter prompts).
-    - `passives: []` (Shields, immunity, bulletproof counts, investigative immunity).
-    - `inquiryResponse: 'town' | 'mafia' | 'custom'` (What the detective sees).
-    - `winConditions: []` (Faction win condition definitions).
-* **Universal Action Dispatcher (`executeAction(actionConfig, actor, targets)`):**
-  - Pure execution engine that processes actions without knowing character names or specific hardcoded identities.
-* **Game Pack Import & Export (Community Modding):**
-  - Allow players and tournament hosts to export custom game modes, custom role configurations, and rule packs as `.json` or `.yaml` files.
-  - One-click import button allowing players to load custom community scenarios without modifying the source code.
+**Goal:** Eliminate all hardcoded role `if` conditions and replace them with a pure declarative ability and scenario engine.
+* **Declarative Character Schema:** Fully declare `actions`, `passives`, `inquiryResponse`, and `winConditions` in configuration.
+* **Universal Action Dispatcher (`executeAction(actionConfig, actor, targets)`):** Pure execution engine processing actions without character name hardcoding.
+* **Game Pack Import & Export (Community Modding):** One-click JSON/YAML export and import allowing players and tournament hosts to share and load custom game modes.
 
-### 2. In-Game Interactive Role Chart, Hierarchy Tree & Game Guide (`GameGuideModal.vue`)
-**Goal:** Provide an interactive in-game visual reference and flowchart explaining the current game mode, active roles, and their abilities.
-* **Visual Role Hierarchy & Faction Tree:**
-  - Interactive diagram categorizing all seated roles by faction (**Town 🟢**, **Mafia 🔴**, **Neutral/Third-Party 🟣**).
-  - Clicking any role reveals its character art, story, alignment, and full breakdown of abilities ($a_1, a_2, \dots$):
-    - Ability type (Kill, Save, Block, Inquire, Revive, Passive Shield).
-    - Priority rank ($99 \rightarrow 10$).
-    - Target constraints (Self-target permitted, living-only, charge limits).
-    - Strategic advice and tournament ruling notes.
-* **Night Resolution Flowchart:**
-  - Visual timeline diagram showing the exact sequence of night wake-ups and ability resolutions for the current scenario.
-* **Anytime In-Game Access:**
-  - Accessible via top-bar `[❓ Guide]` icon on both moderator cockpit and mobile player screens (with secret role privacy shielding on player clients).
-
-### 3. Dynamic Two-Step Action Selection UX (Action Button $\rightarrow$ Target Selection)
-**Goal:** Replace single raw target dropdowns with explicit, labeled action buttons and dynamic candidate targeting.
-* **Action Button Selector:**
-  - When a character wakes up (e.g., Godfather, Silencer, Doctor), the UI displays clear, icon-labeled action buttons:
-    - *Godfather:* `[🔫 Order Mafia Shot]` | `[🚫 Pass Shot]`
-    - *Silencer:* `[🔇 Silence Player]` | `[🔫 Direct Shot]` | `[🚫 Pass]`
-    - *Doctor:* `[💉 Treat Teammate]` | `[🛡️ Self-Heal (1 Charge)]`
-* **Dynamic Target Filtering:**
-  - Clicking an action button dynamically filters the target roster based on that specific action's rules (e.g. `allowSelf: false`, `onlyDead: true`, `maxTargets: 3`, `onlyUnshielded: true`).
-  - Supports multi-target selection (e.g. Nostradamus 3-target inquiry) with validation before applying.
-
-### 4. Standardized Descending Numerical Priority Engine
-**Goal:** Unify the night resolution priority system into a standardized descending order (`99 > 90 > 50 > 10 > 1`) and align all role wake-ups with tournament standards.
-* **Standard Priority Ladder:**
-  1. **Priority 99 - Passive Shields & Immunity:** Godfather bulletproof, Nostradamus immunity.
-  2. **Priority 90 - Role Blocking & Bribes:** Matador blocks, Saul Goodman bribes.
-  3. **Priority 80 - Healing & Protection:** Doctor saves, Bodyguard guards.
-  4. **Priority 70 - Lethal Shots:** Godfather shot, Vigilante (Leon) shot.
-  5. **Priority 50 - Inquiries & Information:** Detective investigations, Nostradamus alignment reading.
-  6. **Priority 10 - Post-Night Revivals & Dawn Announcements:** Constantine revive.
-* **Unified Resolution Pipeline:**
-  - `gameEngine.js` will sort actions strictly in descending numerical priority (`b.priority - a.priority`).
-
-### 5. Multiplayer State Reactivity, Connected Player Roster Sync & Presence Healing
+### 2. Multiplayer State Reactivity, Connected Player Roster Sync & Presence Healing
 **Goal:** Ensure 100% reactive player connection lists, active device badges, and live seat assignments across both Cloud MQTT and WebRTC.
-* **Live Connected Device Roster:**
-  - Live player count badge in header and lobby automatically updates when players join, disconnect, or switch seats.
-  - Active presence heartbeat prevents phantom disconnected sessions.
-* **Multiplayer Cockpit Controls:**
-  - Reactive action buttons in `MultiplayerHostModal` and `PlayerEntry` reflect real-time network states (`Connecting...`, `Connected (Cloud MQTT)`, `P2P Mesh Active`).
+* **Live Connected Device Roster:** Real-time player count badge in header and lobby updating automatically on joins, leaves, and seat changes.
+* **Active Presence Heartbeat:** Periodic ping/pong health monitor preventing phantom disconnected sessions.
+* **Multiplayer Cockpit Controls:** Reactive action buttons in `MultiplayerHostModal` and `PlayerEntry` reflecting real-time connection status.
 
 ### 6. Headless Core State Machine (`@mpga/core`) & Time-Travel Event Sourcing
 **Goal:** Decouple the game engine into a pure, headless state machine with deterministic event sourcing.
