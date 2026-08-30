@@ -259,15 +259,24 @@ const props = defineProps({
 const emit = defineEmits(['close']);
 const audio = useAudio();
 
-const selectedTab = ref('night');
+const selectedTab = ref(audio.activePhase.value || 'lobby');
+
+watch(
+  () => props.isOpen,
+  (open) => {
+    if (open) {
+      selectedTab.value = audio.activePhase.value || 'lobby';
+    }
+  }
+);
 
 const phaseTabs = [
-  { id: 'night', labelKey: 'audio.phaseNight', icon: '🌙' },
+  { id: 'lobby', labelKey: 'audio.phaseLobby', icon: '🎲' },
   { id: 'day', labelKey: 'audio.phaseDay', icon: '☀️' },
   { id: 'voting', labelKey: 'audio.phaseVoting', icon: '🗳️' },
   { id: 'midday', labelKey: 'audio.phaseMidday', icon: '⏳' },
+  { id: 'night', labelKey: 'audio.phaseNight', icon: '🌙' },
   { id: 'victory', labelKey: 'audio.phaseVictory', icon: '🏆' },
-  { id: 'lobby', labelKey: 'audio.phaseLobby', icon: '🎲' },
 ];
 
 const currentCategoryTracks = computed(() => {

@@ -85,9 +85,21 @@ describe('useAudioService', () => {
     expect(audio.autoPlayOnPhaseChange.value).toBe(true);
   });
 
-  it('handles phase music and track navigation without errors', () => {
+  it('handles phase music and track navigation without errors and retains continuous lobby playback', () => {
     const audio = useAudio();
     audio.isMuted.value = false;
+
+    expect(audio.activePhase.value).toBe('lobby');
+
+    // First call triggers lobby music
+    audio.playPhaseMusic('lobby');
+    expect(audio.activePhase.value).toBe('lobby');
+    const initialTrackId = audio.currentTrack.value?.id;
+
+    // Subsequent calls during setup screens retain current track without restarting
+    audio.playPhaseMusic('lobby');
+    expect(audio.activePhase.value).toBe('lobby');
+    expect(audio.currentTrack.value?.id).toBe(initialTrackId);
 
     expect(() => {
       audio.playPhaseMusic('night');

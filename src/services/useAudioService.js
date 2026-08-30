@@ -21,7 +21,7 @@ const autoPlayOnPhaseChange = ref(
 // Current Track & Playback Status
 const currentTrack = ref(null);
 const isPlayingMusic = ref(false);
-const activePhase = ref('night');
+const activePhase = ref('lobby');
 const playlists = ref(JSON.parse(JSON.stringify(soundtrackConfig.playlists)));
 
 // Audio Elements & Web Audio Context
@@ -168,11 +168,21 @@ export function useAudio() {
   };
 
   /**
-   * Plays music for a given phase (e.g. 'night', 'day', 'voting', 'midday', 'victory', 'lobby')
-   * Automatically picks a random available track from the phase playlist.
+   * Plays music for a given phase (e.g. 'lobby', 'day', 'voting', 'midday', 'night', 'victory')
+   * If music is already playing for this active phase, playback continues uninterrupted.
    */
   const playPhaseMusic = (phaseKey, options = { fade: true, random: true }) => {
     if (!phaseKey) return;
+
+    // Continue uninterrupted if already playing within this phase category
+    if (
+      activePhase.value === phaseKey &&
+      isPlayingMusic.value &&
+      (!currentAudioEl || !currentAudioEl.paused)
+    ) {
+      return;
+    }
+
     activePhase.value = phaseKey;
 
     const phasePlaylist = (playlists.value[phaseKey] || []).filter(
@@ -200,12 +210,23 @@ export function useAudio() {
    * Plays winner-specific victory theme (Mafia -> Win 1, Town -> Win 2, 3rd Party -> Win 3)
    */
   const playVictoryMusic = (winnerSide = 'town', options = { fade: true }) => {
+    const side = String(winnerSide || 'town').toLowerCase();
+
+    // Continue uninterrupted if victory theme for the SAME winner is already playing
+    if (
+      activePhase.value === 'victory' &&
+      isPlayingMusic.value &&
+      currentTrack.value?.winner === side &&
+      (!currentAudioEl || !currentAudioEl.paused)
+    ) {
+      return;
+    }
+
     activePhase.value = 'victory';
     const victoryTracks = playlists.value.victory || [];
     if (victoryTracks.length === 0) return;
 
     let targetTrack = null;
-    const side = String(winnerSide || 'town').toLowerCase();
 
     if (side === 'mafia') {
       targetTrack = victoryTracks.find(
@@ -274,7 +295,7 @@ export function useAudio() {
 
   const nextTrack = () => {
     const list = (playlists.value[activePhase.value] || []).filter(
-      (t) => Boolean(t.url || t.onlineUrl || t.localUrl) && !(t.url || t.onlineUrl || t.localUrl).endsWith('_')
+      (t) => Boolean(t.url) && !t.url.endsWith('_')
     );
     if (list.length === 0) return;
 
@@ -288,7 +309,7 @@ export function useAudio() {
 
   const previousTrack = () => {
     const list = (playlists.value[activePhase.value] || []).filter(
-      (t) => Boolean(t.url || t.onlineUrl || t.localUrl) && !(t.url || t.onlineUrl || t.localUrl).endsWith('_')
+      (t) => Boolean(t.url) && !t.url.endsWith('_')
     );
     if (list.length === 0) return;
 

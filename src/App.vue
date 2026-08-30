@@ -231,15 +231,14 @@ const showGuideModal = ref(false);
 
 // Auto-DJ watcher for phase transitions
 watch(
-  [() => store.gamePhase, () => store.subPhase],
-  ([newPhase, newSubPhase]) => {
+  [() => store.gamePhase, () => store.subPhase, () => store.isGameOver, () => store.winner],
+  ([newPhase, newSubPhase, isGameOver, winner]) => {
     if (!audio.autoPlayOnPhaseChange.value || audio.isMuted.value) return;
-    if (newPhase === 'game-over') {
+
+    if (isGameOver || newPhase === 'game-over') {
       const evaluation = evaluateGameStatus(store.livePlayers, store.gameLogs, store.nostradamusChoice);
-      audio.playVictoryMusic(evaluation.winner || 'town');
-    } else if (['mode-selection', 'setup', 'role-selection'].includes(newPhase)) {
-      audio.playPhaseMusic('lobby');
-    } else if (newPhase === 'moderator') {
+      audio.playVictoryMusic(winner || evaluation.winner || 'town');
+    } else if (newPhase === 'playing' || newPhase === 'moderator') {
       if (newSubPhase === 'day') {
         audio.playPhaseMusic('day');
       } else if (newSubPhase === 'voting') {
@@ -249,6 +248,9 @@ watch(
       } else if (newSubPhase === 'night') {
         audio.playPhaseMusic('night');
       }
+    } else {
+      // The whole time during setup and pre-game windows is treated continuously as the Lobby theme
+      audio.playPhaseMusic('lobby');
     }
   },
   { immediate: true }
@@ -256,10 +258,14 @@ watch(
 
 onMounted(() => {
   if (typeof window !== 'undefined') {
-    // Unlock and trigger lobby playback upon first user interaction (browser autoplay policy requirement)
+    // Unlock and trigger continuous lobby playback upon first user interaction (browser autoplay policy requirement)
     const handleFirstInteraction = () => {
       if (audio.autoPlayOnPhaseChange.value && !audio.isMuted.value && !audio.isPlayingMusic.value) {
-        if (['mode-selection', 'setup', 'role-selection'].includes(store.gamePhase)) {
+        if (store.isGameOver) {
+          audio.playVictoryMusic(store.winner || 'town');
+        } else if (store.gamePhase === 'playing' || store.gamePhase === 'moderator') {
+          audio.playPhaseMusic(store.subPhase || 'day');
+        } else {
           audio.playPhaseMusic('lobby');
         }
       }
