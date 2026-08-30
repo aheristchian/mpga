@@ -20,47 +20,55 @@
           </button>
 
           <div
-            class="hidden sm:flex items-center gap-2 text-xs font-bold bg-gray-900/60 p-1.5 rounded-xl border border-indigo-500/30"
+            class="hidden sm:flex items-center gap-1.5 text-xs font-bold bg-gray-900/60 p-1 rounded-xl border border-indigo-500/30 flex-wrap"
           >
+            <!-- Step 1: Sleep -->
             <span
-              v-if="store.currentDay === 1"
-              class="px-2.5 py-1 rounded-lg transition-colors"
-              :class="
-                stage === 'mafia-intro'
-                  ? 'bg-red-600 text-white font-black shadow-md'
-                  : 'text-gray-400'
-              "
-            >
-              {{ $t('nightPhase.step0Badge') }}
-            </span>
-            <span v-if="store.currentDay === 1" class="text-gray-600 inline-block rtl:rotate-180 transform transition-transform">→</span>
-            <span
-              class="px-2.5 py-1 rounded-lg transition-colors"
+              class="px-2 py-0.5 rounded-lg transition-colors whitespace-nowrap"
               :class="
                 stage === 'sleep' ? 'bg-indigo-600 text-white font-black shadow-md' : 'text-gray-400'
               "
             >
-              {{ $t('nightPhase.step1Badge') }}
+              {{ $t('nightPhase.stepSleepBadge') }}
             </span>
             <span class="text-gray-600 inline-block rtl:rotate-180 transform transition-transform">→</span>
+
+            <!-- Step 2 (Day 1 only): Mafia Intro -->
+            <template v-if="store.currentDay === 1">
+              <span
+                class="px-2 py-0.5 rounded-lg transition-colors whitespace-nowrap"
+                :class="
+                  stage === 'mafia-intro'
+                    ? 'bg-red-600 text-white font-black shadow-md'
+                    : 'text-gray-400'
+                "
+              >
+                {{ $t('nightPhase.stepMafiaBadge') }}
+              </span>
+              <span class="text-gray-600 inline-block rtl:rotate-180 transform transition-transform">→</span>
+            </template>
+
+            <!-- Step 2 / 3: Role Wakeups -->
             <span
-              class="px-2.5 py-1 rounded-lg transition-colors"
+              class="px-2 py-0.5 rounded-lg transition-colors whitespace-nowrap"
               :class="
                 stage === 'wizard' ? 'bg-indigo-600 text-white font-black shadow-md' : 'text-gray-400'
               "
             >
-              {{ $t('nightPhase.step2Badge') }}
+              {{ store.currentDay === 1 ? $t('nightPhase.stepRolesBadge') : $t('nightPhase.stepRolesBadgeLater') }}
             </span>
             <span class="text-gray-600 inline-block rtl:rotate-180 transform transition-transform">→</span>
+
+            <!-- Step 3 / 4: Morning Announcement -->
             <span
-              class="px-2.5 py-1 rounded-lg transition-colors"
+              class="px-2 py-0.5 rounded-lg transition-colors whitespace-nowrap"
               :class="
                 stage === 'morning'
                   ? 'bg-indigo-600 text-white font-black shadow-md'
                   : 'text-gray-400'
               "
             >
-              {{ $t('nightPhase.step3Badge') }}
+              {{ store.currentDay === 1 ? $t('nightPhase.stepMorningBadge') : $t('nightPhase.stepMorningBadgeLater') }}
             </span>
           </div>
         </div>
@@ -81,10 +89,10 @@
         </h3>
 
         <!-- CUE SCRIPT -->
-        <div class="bg-red-950/40 border border-red-500/50 p-5 rounded-xl max-w-lg mx-auto text-left space-y-3">
+        <div class="bg-red-950/40 border border-red-500/50 p-5 rounded-xl max-w-lg mx-auto text-left rtl:text-right space-y-3">
           <div>
             <span class="text-[10px] text-red-400 uppercase font-bold tracking-wider block mb-1">
-              Moderator Script Cue 1
+              {{ $t('common.moderatorScriptCue1') }}
             </span>
             <p class="text-sm text-gray-200 italic leading-relaxed">
               {{ $t('nightPhase.mafiaIntroPrompt') }}
@@ -93,7 +101,7 @@
 
           <div class="pt-2 border-t border-red-900/50">
             <span class="text-[10px] text-red-400 uppercase font-bold tracking-wider block mb-1">
-              Moderator Script Cue 2
+              {{ $t('common.moderatorScriptCue2') }}
             </span>
             <p class="text-sm text-gray-200 italic leading-relaxed">
               {{ $t('nightPhase.mafiaSleepPrompt') }}
@@ -102,7 +110,7 @@
         </div>
 
         <!-- MAFIA ROSTER PREVIEW -->
-        <div class="max-w-md mx-auto bg-gray-800/80 p-4 rounded-xl border border-gray-700 text-left">
+        <div class="max-w-md mx-auto bg-gray-800/80 p-4 rounded-xl border border-gray-700 text-left rtl:text-right">
           <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
             {{ $t('nightPhase.livingMafiaRoster') }}
           </h4>
@@ -141,7 +149,7 @@
         <div class="text-7xl">🌃</div>
         <div class="bg-indigo-950/40 border border-indigo-500/40 p-5 rounded-xl max-w-lg mx-auto">
           <h4 class="text-indigo-400 font-bold text-xs uppercase tracking-widest mb-2">
-            Moderator Script Cue
+            {{ $t('common.moderatorScriptCue') }}
           </h4>
           <p class="text-base text-gray-200 italic leading-relaxed">
             {{ $t('nightPhase.sleepTownPrompt') }}
@@ -155,10 +163,10 @@
           >
             {{
               store.currentDay === 1
-                ? '1. Mafia Team Introduction ▶'
+                ? $t('nightPhase.proceedToMafiaIntro')
                 : actorsWithAbilities.length > 0
-                  ? 'Begin Role Wake-Ups ▶'
-                  : 'Calculate Night Resolution ▶'
+                  ? $t('nightPhase.beginRoleWakeups')
+                  : $t('nightPhase.calculateNightResolution')
             }}
           </button>
         </div>
@@ -195,7 +203,7 @@
                 {{ $te('roles.' + currentActor.role?.id + '.name') ? $t('roles.' + currentActor.role?.id + '.name') : currentActor.role?.name }}
               </h3>
               <p class="text-sm text-gray-300">
-                Player: <span class="font-bold text-white">{{ currentActor.name }}</span>
+                {{ $t('common.player') }}: <span class="font-bold text-white">{{ currentActor.name }}</span>
               </p>
             </div>
           </div>
@@ -205,7 +213,7 @@
             <div class="bg-indigo-950/40 border border-indigo-500/40 p-4 rounded-xl">
               <span
                 class="text-[10px] text-indigo-400 uppercase font-bold tracking-wider block mb-1"
-                >Wake-Up Script</span
+                >{{ $t('nightPhase.wakeUpScript') }}</span
               >
               <p class="text-sm text-gray-200 italic">
                 {{
@@ -552,7 +560,7 @@
         <!-- MORNING TOWN WAKE UP SCRIPT -->
         <div class="bg-indigo-950/40 border-2 border-indigo-500/60 p-5 rounded-2xl">
           <span class="text-xs text-indigo-400 font-bold uppercase tracking-widest block mb-1"
-            >Morning Wake-up Script</span
+            >{{ $t('nightPhase.morningWakeUpScript') }}</span
           >
           <p class="text-lg font-bold text-white italic">
             {{ $t('nightPhase.morningTownPrompt') }}

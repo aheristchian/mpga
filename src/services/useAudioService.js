@@ -27,7 +27,53 @@ const playlists = ref(JSON.parse(JSON.stringify(soundtrackConfig.playlists)));
 // Audio Elements & Web Audio Context
 let audioCtx = null;
 let currentAudioEl = null;
-let fadeInterval = null;
+let activeFaders = [];
+
+function clearAllFaders() {
+  activeFaders.forEach((timer) => clearInterval(timer));
+  activeFaders = [];
+}
+
+/**
+ * Smoothly ramps an HTMLAudioElement's volume from fromVol to toVol over durationMs.
+ * Uses equal-power / trigonometric easing for natural perceptual volume change.
+ * Calls onComplete when finished.
+ */
+function fadeAudioElement(audioEl, fromVol, toVol, durationMs = 1500, onComplete = null) {
+  if (!audioEl) {
+    if (onComplete) onComplete();
+    return null;
+  }
+  const steps = 30;
+  const intervalTime = Math.max(16, Math.floor(durationMs / steps));
+  let step = 0;
+
+  audioEl.volume = Math.max(0, Math.min(1, fromVol));
+
+  const timer = setInterval(() => {
+    step++;
+    const progress = Math.min(1, step / steps);
+    // Sine easing for perceptual volume linearity
+    const easedProgress = Math.sin((progress * Math.PI) / 2);
+    const currentVol = fromVol + (toVol - fromVol) * easedProgress;
+
+    if (audioEl) {
+      audioEl.volume = Math.max(0, Math.min(1, currentVol));
+    }
+
+    if (step >= steps) {
+      clearInterval(timer);
+      activeFaders = activeFaders.filter((t) => t !== timer);
+      if (audioEl) {
+        audioEl.volume = Math.max(0, Math.min(1, toVol));
+      }
+      if (onComplete) onComplete();
+    }
+  }, intervalTime);
+
+  activeFaders.push(timer);
+  return timer;
+}
 
 function getAudioContext() {
   if (typeof window === 'undefined') return null;
@@ -50,10 +96,9 @@ export function useAudio() {
       localStorage.setItem('mpga_audio_muted', isMuted.value ? 'true' : 'false');
     }
     if (isMuted.value && currentAudioEl) {
-      currentAudioEl.pause();
-      isPlayingMusic.value = false;
+      pauseMusic({ fade: true });
     } else if (!isMuted.value && currentTrack.value && !isPlayingMusic.value) {
-      resumeMusic();
+      resumeMusic({ fade: true });
     }
   };
 
@@ -77,7 +122,7 @@ export function useAudio() {
   };
 
   /**
-   * Internal stream player with smooth crossfade
+   * Internal stream player with smooth crossfade and fade-in
    */
   const playStream = (streamUrl, track, options = { fade: true }) => {
     if (!streamUrl || isMuted.value) return;
@@ -93,58 +138,52 @@ export function useAudio() {
     }
 
     try {
-      if (fadeInterval) {
-        clearInterval(fadeInterval);
-        fadeInterval = null;
-      }
+      clearAllFaders();
 
-      // Stop previous audio if playing
-      if (currentAudioEl) {
-        currentAudioEl.pause();
-        currentAudioEl.src = '';
-        currentAudioEl = null;
-      }
-
-      const audio = new Audio(streamUrl);
-      audio.loop = false;
-
+      const oldAudio = currentAudioEl;
       const targetVol = musicVolume.value * (track.volumeMultiplier || 1.0);
-      audio.volume = options.fade ? 0.01 : targetVol;
+      const crossfadeMs = (soundtrackConfig.settings.crossfadeDuration || 1.5) * 1000;
 
-      audio.addEventListener('ended', () => {
+      const newAudio = new Audio(streamUrl);
+      newAudio.loop = false;
+      newAudio.volume = options.fade ? 0.001 : targetVol;
+
+      newAudio.addEventListener('ended', () => {
         nextTrack();
       });
 
-      audio.addEventListener('error', (err) => {
+      newAudio.addEventListener('error', (err) => {
         console.warn(`[MPGA Audio] Error playing track "${track.title}" (${streamUrl}):`, err);
         isPlayingMusic.value = false;
       });
 
-      audio.play().then(() => {
+      newAudio.play().then(() => {
         currentTrack.value = track;
         isPlayingMusic.value = true;
+        currentAudioEl = newAudio;
 
+        // Crossfade: gracefully fade out previous track
+        if (oldAudio && !oldAudio.paused && options.fade) {
+          const oldStartVol = oldAudio.volume;
+          fadeAudioElement(oldAudio, oldStartVol, 0, crossfadeMs, () => {
+            oldAudio.pause();
+            oldAudio.src = '';
+          });
+        } else if (oldAudio) {
+          oldAudio.pause();
+          oldAudio.src = '';
+        }
+
+        // Crossfade: gracefully fade in new track
         if (options.fade) {
-          let step = 0;
-          const steps = 15;
-          const stepTime = (soundtrackConfig.settings.crossfadeDuration * 1000) / steps;
-          fadeInterval = setInterval(() => {
-            step++;
-            if (audio) {
-              audio.volume = Math.min(targetVol, (targetVol * step) / steps);
-            }
-            if (step >= steps) {
-              clearInterval(fadeInterval);
-              fadeInterval = null;
-            }
-          }, stepTime);
+          fadeAudioElement(newAudio, 0.001, targetVol, crossfadeMs);
+        } else {
+          newAudio.volume = targetVol;
         }
       }).catch((e) => {
         console.warn('[MPGA Audio] Playback prevented by browser autoplay policy:', e);
         isPlayingMusic.value = false;
       });
-
-      currentAudioEl = audio;
     } catch (e) {
       console.warn('[MPGA Audio] Audio instantiation failed:', e);
     }
@@ -255,42 +294,79 @@ export function useAudio() {
     }
   };
 
-  const pauseMusic = () => {
-    if (currentAudioEl) {
-      currentAudioEl.pause();
+  const pauseMusic = (options = { fade: true }) => {
+    if (!currentAudioEl || !isPlayingMusic.value) {
+      isPlayingMusic.value = false;
+      return;
     }
-    isPlayingMusic.value = false;
+    if (options.fade) {
+      const startVol = currentAudioEl.volume;
+      fadeAudioElement(currentAudioEl, startVol, 0, 400, () => {
+        if (currentAudioEl) currentAudioEl.pause();
+        isPlayingMusic.value = false;
+      });
+    } else {
+      currentAudioEl.pause();
+      isPlayingMusic.value = false;
+    }
   };
 
-  const resumeMusic = () => {
+  const resumeMusic = (options = { fade: true }) => {
     if (isMuted.value) return;
+    const targetVol = musicVolume.value * (currentTrack.value?.volumeMultiplier || 1.0);
+    const crossfadeMs = (soundtrackConfig.settings.crossfadeDuration || 1.5) * 1000;
+
     if (currentAudioEl && currentAudioEl.src) {
+      if (options.fade) {
+        currentAudioEl.volume = 0.001;
+      }
       currentAudioEl.play().then(() => {
         isPlayingMusic.value = true;
+        if (options.fade) {
+          fadeAudioElement(currentAudioEl, 0.001, targetVol, crossfadeMs);
+        } else {
+          currentAudioEl.volume = targetVol;
+        }
       }).catch(() => {});
     } else if (currentTrack.value && !currentTrack.value.url?.endsWith('_')) {
-      playTrack(currentTrack.value);
+      playTrack(currentTrack.value, options);
     } else {
-      playPhaseMusic(activePhase.value);
+      playPhaseMusic(activePhase.value, options);
     }
   };
 
   const toggleMusic = () => {
     if (isPlayingMusic.value) {
-      pauseMusic();
+      pauseMusic({ fade: true });
     } else {
-      resumeMusic();
+      resumeMusic({ fade: true });
     }
   };
 
-  const stopMusic = () => {
-    if (currentAudioEl) {
+  const stopMusic = (options = { fade: true }) => {
+    if (!currentAudioEl) {
+      currentTrack.value = null;
+      isPlayingMusic.value = false;
+      return;
+    }
+    if (options.fade) {
+      const startVol = currentAudioEl.volume;
+      fadeAudioElement(currentAudioEl, startVol, 0, 400, () => {
+        if (currentAudioEl) {
+          currentAudioEl.pause();
+          currentAudioEl.src = '';
+          currentAudioEl = null;
+        }
+        currentTrack.value = null;
+        isPlayingMusic.value = false;
+      });
+    } else {
       currentAudioEl.pause();
       currentAudioEl.src = '';
       currentAudioEl = null;
+      currentTrack.value = null;
+      isPlayingMusic.value = false;
     }
-    currentTrack.value = null;
-    isPlayingMusic.value = false;
   };
 
   const nextTrack = () => {

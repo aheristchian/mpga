@@ -13,14 +13,14 @@
       <div class="space-y-1">
         <div class="flex flex-wrap items-center gap-2.5">
           <span class="text-2xl">{{ phaseEmoji }}</span>
-          <h2 class="text-2xl font-black tracking-wide text-white capitalize">
+          <h2 class="text-2xl font-black tracking-wide text-white capitalize whitespace-nowrap">
             {{ title || defaultTitle }}
           </h2>
           <span
-            class="text-xs font-black uppercase tracking-widest px-3 py-1 rounded-full border shadow-sm"
+            class="text-xs font-black uppercase tracking-widest px-3 py-1 rounded-full border shadow-sm whitespace-nowrap"
             :class="tagClasses"
           >
-            Day {{ day }}
+            {{ $t('common.day', { day }) }}
           </span>
         </div>
         <p class="text-sm font-medium opacity-90" :class="subtitleClasses">

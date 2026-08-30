@@ -190,7 +190,7 @@ graph TD
   * **Winner-Specific Victory Soundtracks:** Automatically plays faction-tailored victory themes upon match resolution (`Victory-1.mp3` for Mafia, `Victory-2.mp3` for Town, `Victory-3.mp3` for Third-Party / Nostradamus).
   * **Midday & Last Words Soundtrack:** Plays tailored tension music (`Midday-1.mp3`) while eliminated players give their final speech and draw cards.
   * **Direct Audio Stream URL Engine (`resolveAudioUrl`):** Clean, protocol-agnostic audio URL resolver that directly feeds HTML5 audio streams with zero third-party parsing overhead.
-  * **Auto-DJ Crossfading:** Seamlessly switches and crossfades background tracks when transitioning between game phases and sub-phases.
+  * **Auto-DJ Dual-Element Crossfading & Fade-In:** Smoothly fades in when starting playback or resuming/unmuting, and executes true dual-element crossfading using equal-power trigonometric curves (`Math.sin` / `Math.cos`) when transitioning between tracks and phases.
   * **Moderator Music Console (`SoundtrackConsole.vue`):** Dedicated UI for testing tracks, managing volume, toggling Auto-DJ, and previewing phase soundtracks on the fly.
 * **Persistent Preferences:** Reactive volume and mute states (`useAudio().musicVolume`, `useAudio().autoPlayOnPhaseChange`, `useAudio().isMuted`) synchronized with `localStorage`.
 
