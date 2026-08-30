@@ -115,3 +115,18 @@ All messages exchanged between clients and the host are serialized JSON envelope
 2. **Tap-to-Reveal Privacy Blur:**
    * Player screens initialize with an opaque frosted privacy shield (`🔒 Tap to Reveal Role`).
    * Players can tap once to inspect their secret role and tap again to immediately re-hide it from bystanders.
+
+---
+
+## 5. Multi-Subscriber Action Bus & Reactive Presence Sync
+
+1. **Decoupled Multi-Listener Event Bus:**
+   * `useMultiplayerService` uses a multi-subscriber `Set` allowing simultaneous listeners across `App.vue` (global routing, lobby join, state sync), `NightPhase.vue` (live night actions), and `VotingPhase.vue` (live voting tallies).
+   * Subscriptions return an unsubscription function (`const unsub = multiplayer.onPlayerAction(...)`) cleanly executed on Vue component unmount (`onUnmounted`).
+2. **Reactive Peer Presence Tracking:**
+   * Connected peers are tracked with reactive timestamped records.
+   * `isPeerConnected(playerName)` and `connectedPlayerNames` provide immediate UI indicators in setup seating, moderator host modals, and live phase screens.
+   * Inactive peers are automatically pruned after 30 seconds of silence with `PEERS_UPDATED` broadcasts.
+3. **Screen Sleep & Visibility Reconnection:**
+   * When mobile clients wake from sleep or background tabs via `visibilitychange` or `online` network recovery, clients automatically re-establish broker connections and request state synchronization (`reconnectClient()`).
+

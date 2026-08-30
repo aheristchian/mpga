@@ -38,8 +38,19 @@ const clientPublicState = ref(null); // { gamePhase, subPhase, currentDay, livin
 const isInLobby = ref(false);
 const lobbyPlayers = ref([]);
 
-// Event callbacks (for host to hook into store)
-let onPlayerActionCallback = null;
+// Multi-subscriber Event Bus for player actions & lifecycle events
+const playerActionListeners = new Set();
+
+export function dispatchPlayerAction(actionData) {
+  if (!actionData) return;
+  playerActionListeners.forEach((listener) => {
+    try {
+      listener(actionData);
+    } catch (err) {
+      console.error('[MPGA Multiplayer] Error in player action listener:', err);
+    }
+  });
+}
 
 // Keep-alive timers
 let webrtcHeartbeatInterval = null;
@@ -218,9 +229,35 @@ export function useMultiplayer() {
     startHost(freshCode);
   };
 
-  const setOnPlayerAction = (callback) => {
-    onPlayerActionCallback = callback;
+  const onPlayerAction = (callback) => {
+    if (typeof callback !== 'function') return () => {};
+    playerActionListeners.add(callback);
+    return () => {
+      playerActionListeners.delete(callback);
+    };
   };
+
+  const addPlayerActionListener = (callback) => {
+    return onPlayerAction(callback);
+  };
+
+  const setOnPlayerAction = (callback) => {
+    return onPlayerAction(callback);
+  };
+
+  const isPeerConnected = (playerName) => {
+    if (!playerName) return false;
+    const target = playerName.trim().toLowerCase();
+    return connectedPeers.value.some(
+      (p) => p.playerName && p.playerName.trim().toLowerCase() === target
+    );
+  };
+
+  const connectedPlayerNames = computed(() => {
+    return connectedPeers.value
+      .map((p) => (p.playerName || '').trim())
+      .filter(Boolean);
+  });
 
   // --- HOST METHODS ---
   const startHost = (code) => {
@@ -294,10 +331,17 @@ export function useMultiplayer() {
       if (hostPresenceInterval) clearInterval(hostPresenceInterval);
       hostPresenceInterval = setInterval(() => {
         const now = Date.now();
+        const beforeCount = connectedPeers.value.length;
         connectedPeers.value = connectedPeers.value.filter((p) => {
           return !p.lastSeen || now - p.lastSeen < 30000;
         });
-      }, 8000);
+        if (connectedPeers.value.length !== beforeCount) {
+          dispatchPlayerAction({
+            action: 'PEERS_UPDATED',
+            connectedPeers: connectedPeers.value,
+          });
+        }
+      }, 5000);
     } catch (e) {
       errorMessage.value = e.message;
       connectionStatus.value = 'error';
@@ -310,21 +354,24 @@ export function useMultiplayer() {
     if (!senderId) return;
 
     // Update peer presence timestamp
-    const existing = connectedPeers.value.find((p) => p.peerId === senderId);
-    if (existing) {
-      existing.lastSeen = Date.now();
-      if (data.playerName) existing.playerName = data.playerName;
+    const existingIndex = connectedPeers.value.findIndex((p) => p.peerId === senderId);
+    if (existingIndex !== -1) {
+      const updated = { ...connectedPeers.value[existingIndex], lastSeen: Date.now() };
+      if (data.playerName && data.playerName.trim()) {
+        updated.playerName = data.playerName.trim();
+      }
+      connectedPeers.value[existingIndex] = updated;
+      connectedPeers.value = [...connectedPeers.value];
     }
 
     // Request State / Ping
     if (data.type === 'GET_STATE') {
-      if (onPlayerActionCallback) {
-        onPlayerActionCallback({
-          action: 'CLIENT_REQUESTED_STATE',
-          senderId,
-          playerName: data.playerName,
-        });
-      }
+      dispatchPlayerAction({
+        action: 'CLIENT_REQUESTED_STATE',
+        type: 'CLIENT_REQUESTED_STATE',
+        senderId,
+        playerName: data.playerName,
+      });
       return;
     }
 
@@ -355,14 +402,22 @@ export function useMultiplayer() {
         return;
       }
 
-      if (!existing) {
-        connectedPeers.value.push({
-          peerId: senderId,
+      if (existingIndex === -1) {
+        connectedPeers.value = [
+          ...connectedPeers.value,
+          {
+            peerId: senderId,
+            playerName,
+            lastSeen: Date.now(),
+          },
+        ];
+      } else {
+        connectedPeers.value[existingIndex] = {
+          ...connectedPeers.value[existingIndex],
           playerName,
           lastSeen: Date.now(),
-        });
-      } else {
-        existing.playerName = playerName;
+        };
+        connectedPeers.value = [...connectedPeers.value];
       }
 
       sendCloudDirect(hostCode, senderId, {
@@ -371,56 +426,57 @@ export function useMultiplayer() {
         roomCode: hostCode,
       });
 
-      if (onPlayerActionCallback) {
-        onPlayerActionCallback({
-          action: 'JOIN_LOBBY',
-          playerName,
-          peerId: senderId,
-        });
-      }
+      dispatchPlayerAction({
+        action: 'JOIN_LOBBY',
+        type: 'JOIN_LOBBY',
+        playerName,
+        peerId: senderId,
+      });
       return;
     }
 
     if (data.type === 'CLAIM_SEAT') {
-      if (existing) {
-        existing.playerName = data.playerName;
-      }
-      if (onPlayerActionCallback) {
-        onPlayerActionCallback({
-          action: 'CLAIM_SEAT',
+      if (existingIndex !== -1) {
+        connectedPeers.value[existingIndex] = {
+          ...connectedPeers.value[existingIndex],
           playerName: data.playerName,
-          peerId: senderId,
-        });
+          lastSeen: Date.now(),
+        };
+        connectedPeers.value = [...connectedPeers.value];
       }
+      dispatchPlayerAction({
+        action: 'CLAIM_SEAT',
+        type: 'CLAIM_SEAT',
+        playerName: data.playerName,
+        peerId: senderId,
+      });
       return;
     }
 
     if (data.type === 'NIGHT_ACTION') {
-      if (onPlayerActionCallback) {
-        onPlayerActionCallback({
-          action: 'NIGHT_ACTION',
-          actorName: data.actorName,
-          actor: data.actorName,
-          actorRole: data.actorRole,
-          targetPlayerName: data.targetPlayerName,
-          target: data.targetPlayerName,
-          actionId: data.actionId,
-          peerId: senderId,
-        });
-      }
+      dispatchPlayerAction({
+        action: 'NIGHT_ACTION',
+        type: 'NIGHT_ACTION',
+        actorName: data.actorName,
+        actor: data.actorName,
+        actorRole: data.actorRole,
+        targetPlayerName: data.targetPlayerName,
+        target: data.targetPlayerName,
+        actionId: data.actionId,
+        peerId: senderId,
+      });
       return;
     }
 
     if (data.type === 'CAST_VOTE') {
-      if (onPlayerActionCallback) {
-        onPlayerActionCallback({
-          action: 'CAST_VOTE',
-          voterName: data.voterName,
-          candidateName: data.candidateName,
-          voteType: data.voteType,
-          peerId: senderId,
-        });
-      }
+      dispatchPlayerAction({
+        action: 'CAST_VOTE',
+        type: 'CAST_VOTE',
+        voterName: data.voterName,
+        candidateName: data.candidateName,
+        voteType: data.voteType,
+        peerId: senderId,
+      });
     }
   };
 
@@ -454,19 +510,31 @@ export function useMultiplayer() {
 
       hostPeer.on('connection', (conn) => {
         conn.on('open', () => {
-          connectedPeers.value.push({
-            peerId: conn.peer,
-            playerName: '',
-            conn,
-            lastSeen: Date.now(),
-          });
-
-          if (onPlayerActionCallback) {
-            onPlayerActionCallback({
-              action: 'PEER_CONNECTED',
-              peerId: conn.peer,
-            });
+          const existingIdx = connectedPeers.value.findIndex((p) => p.peerId === conn.peer);
+          if (existingIdx === -1) {
+            connectedPeers.value = [
+              ...connectedPeers.value,
+              {
+                peerId: conn.peer,
+                playerName: '',
+                conn,
+                lastSeen: Date.now(),
+              },
+            ];
+          } else {
+            connectedPeers.value[existingIdx] = {
+              ...connectedPeers.value[existingIdx],
+              conn,
+              lastSeen: Date.now(),
+            };
+            connectedPeers.value = [...connectedPeers.value];
           }
+
+          dispatchPlayerAction({
+            action: 'PEER_CONNECTED',
+            type: 'PEER_CONNECTED',
+            peerId: conn.peer,
+          });
         });
 
         conn.on('data', (data) => {
@@ -475,10 +543,20 @@ export function useMultiplayer() {
 
         conn.on('close', () => {
           connectedPeers.value = connectedPeers.value.filter((p) => p.peerId !== conn.peer);
+          dispatchPlayerAction({
+            action: 'PEER_DISCONNECTED',
+            type: 'PEER_DISCONNECTED',
+            peerId: conn.peer,
+          });
         });
 
         conn.on('error', () => {
           connectedPeers.value = connectedPeers.value.filter((p) => p.peerId !== conn.peer);
+          dispatchPlayerAction({
+            action: 'PEER_DISCONNECTED',
+            type: 'PEER_DISCONNECTED',
+            peerId: conn.peer,
+          });
         });
       });
 
@@ -517,19 +595,24 @@ export function useMultiplayer() {
 
   const handleWebRTCHostIncomingData = (conn, data) => {
     if (data.type === 'GET_STATE') {
-      if (onPlayerActionCallback) {
-        onPlayerActionCallback({
-          action: 'CLIENT_REQUESTED_STATE',
-          peerId: conn.peer,
-          playerName: data.playerName,
-        });
-      }
+      dispatchPlayerAction({
+        action: 'CLIENT_REQUESTED_STATE',
+        type: 'CLIENT_REQUESTED_STATE',
+        peerId: conn.peer,
+        playerName: data.playerName,
+      });
       return;
     }
 
     if (data.type === 'PONG') {
-      const p = connectedPeers.value.find((peer) => peer.peerId === conn.peer);
-      if (p) p.lastSeen = Date.now();
+      const idx = connectedPeers.value.findIndex((peer) => peer.peerId === conn.peer);
+      if (idx !== -1) {
+        connectedPeers.value[idx] = {
+          ...connectedPeers.value[idx],
+          lastSeen: Date.now(),
+        };
+        connectedPeers.value = [...connectedPeers.value];
+      }
       return;
     }
 
@@ -559,9 +642,14 @@ export function useMultiplayer() {
         return;
       }
 
-      const peerEntry = connectedPeers.value.find((p) => p.peerId === conn.peer);
-      if (peerEntry) {
-        peerEntry.playerName = playerName;
+      const peerIdx = connectedPeers.value.findIndex((p) => p.peerId === conn.peer);
+      if (peerIdx !== -1) {
+        connectedPeers.value[peerIdx] = {
+          ...connectedPeers.value[peerIdx],
+          playerName,
+          lastSeen: Date.now(),
+        };
+        connectedPeers.value = [...connectedPeers.value];
       }
 
       try {
@@ -574,54 +662,58 @@ export function useMultiplayer() {
         // ignore
       }
 
-      if (onPlayerActionCallback) {
-        onPlayerActionCallback({
-          action: 'JOIN_LOBBY',
-          playerName,
-          peerId: conn.peer,
-        });
-      }
+      dispatchPlayerAction({
+        action: 'JOIN_LOBBY',
+        type: 'JOIN_LOBBY',
+        playerName,
+        peerId: conn.peer,
+      });
       return;
     }
 
     if (data.type === 'CLAIM_SEAT') {
-      const peerEntry = connectedPeers.value.find((p) => p.peerId === conn.peer);
-      if (peerEntry) {
-        peerEntry.playerName = data.playerName;
-      }
-      if (onPlayerActionCallback) {
-        onPlayerActionCallback({
-          action: 'CLAIM_SEAT',
+      const peerIdx = connectedPeers.value.findIndex((p) => p.peerId === conn.peer);
+      if (peerIdx !== -1) {
+        connectedPeers.value[peerIdx] = {
+          ...connectedPeers.value[peerIdx],
           playerName: data.playerName,
-          peerId: conn.peer,
-        });
+          lastSeen: Date.now(),
+        };
+        connectedPeers.value = [...connectedPeers.value];
       }
+      dispatchPlayerAction({
+        action: 'CLAIM_SEAT',
+        type: 'CLAIM_SEAT',
+        playerName: data.playerName,
+        peerId: conn.peer,
+      });
       return;
     }
 
     if (data.type === 'NIGHT_ACTION') {
-      if (onPlayerActionCallback) {
-        onPlayerActionCallback({
-          action: 'NIGHT_ACTION',
-          actorName: data.actorName,
-          actorRole: data.actorRole,
-          targetPlayerName: data.targetPlayerName,
-          peerId: conn.peer,
-        });
-      }
+      dispatchPlayerAction({
+        action: 'NIGHT_ACTION',
+        type: 'NIGHT_ACTION',
+        actorName: data.actorName,
+        actor: data.actorName,
+        actorRole: data.actorRole,
+        targetPlayerName: data.targetPlayerName,
+        target: data.targetPlayerName,
+        actionId: data.actionId,
+        peerId: conn.peer,
+      });
       return;
     }
 
     if (data.type === 'CAST_VOTE') {
-      if (onPlayerActionCallback) {
-        onPlayerActionCallback({
-          action: 'CAST_VOTE',
-          voterName: data.voterName,
-          candidateName: data.candidateName,
-          voteType: data.voteType,
-          peerId: conn.peer,
-        });
-      }
+      dispatchPlayerAction({
+        action: 'CAST_VOTE',
+        type: 'CAST_VOTE',
+        voterName: data.voterName,
+        candidateName: data.candidateName,
+        voteType: data.voteType,
+        peerId: conn.peer,
+      });
     }
   };
 
@@ -1028,6 +1120,18 @@ export function useMultiplayer() {
     }
   };
 
+  const reconnectClient = () => {
+    if (!isClient.value || !roomCode.value) return;
+    const name =
+      clientPlayerName.value ||
+      (typeof localStorage !== 'undefined' ? localStorage.getItem('mpga_player_name') || '' : '');
+    const code = roomCode.value;
+    const passcode =
+      roomPasscode.value ||
+      (typeof localStorage !== 'undefined' ? localStorage.getItem('mpga_room_passcode') || '' : '');
+    joinRoom(code, name, passcode, transportMode.value);
+  };
+
   const disconnect = () => {
     cleanupAllConnections();
     connectionStatus.value = 'disconnected';
@@ -1056,17 +1160,22 @@ export function useMultiplayer() {
     isInLobby,
     lobbyPlayers,
     isConnected,
+    isPeerConnected,
+    connectedPlayerNames,
     setTransportMode,
     startHost,
     setRoomPasscode,
     regenerateRoomCode,
     broadcastHostState,
+    onPlayerAction,
+    addPlayerActionListener,
     setOnPlayerAction,
     joinRoom,
     joinLobby,
     claimSeat,
     sendNightAction,
     sendVote,
+    reconnectClient,
     disconnect,
   };
 }

@@ -279,7 +279,7 @@ onMounted(() => {
   }
 
   // Setup multiplayer listener for host
-  multiplayer.setOnPlayerAction((actionData) => {
+  multiplayer.onPlayerAction((actionData) => {
     if (actionData.action === 'JOIN_LOBBY') {
       if (store.gamePhase === 'setup') {
         store.addSetupPlayer(actionData.playerName, actionData.peerId);
@@ -288,17 +288,19 @@ onMounted(() => {
     } else if (
       actionData.action === 'CLAIM_SEAT' ||
       actionData.action === 'PEER_CONNECTED' ||
+      actionData.action === 'PEER_DISCONNECTED' ||
+      actionData.action === 'PEERS_UPDATED' ||
       actionData.action === 'CLIENT_REQUESTED_STATE'
     ) {
       multiplayer.broadcastHostState(store);
-    } else if (actionData.type === 'NIGHT_ACTION') {
+    } else if (actionData.type === 'NIGHT_ACTION' || actionData.action === 'NIGHT_ACTION') {
       store.addLog(
         'night',
-        `📱 Mobile Action: ${actionData.actorRole || 'Player'} (${actionData.actorName})`,
-        `Submitted target: ${actionData.targetPlayerName} via mobile phone.`,
-        { player: actionData.actorName, target: actionData.targetPlayerName }
+        `📱 Mobile Action: ${actionData.actorRole || 'Player'} (${actionData.actorName || actionData.actor})`,
+        `Submitted target: ${actionData.targetPlayerName || actionData.target} via mobile phone.`,
+        { player: actionData.actorName || actionData.actor, target: actionData.targetPlayerName || actionData.target }
       );
-    } else if (actionData.type === 'CAST_VOTE') {
+    } else if (actionData.type === 'CAST_VOTE' || actionData.action === 'CAST_VOTE') {
       store.addLog(
         'voting',
         `📱 Mobile Vote: ${actionData.voterName}`,

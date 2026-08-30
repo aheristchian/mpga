@@ -341,7 +341,7 @@ const copyJoinUrl = async () => {
 };
 
 const isPeerConnected = (playerName) => {
-  return multiplayer.connectedPeers.value.some((p) => p.playerName === playerName);
+  return multiplayer.isPeerConnected(playerName);
 };
 
 // Drag and Drop State

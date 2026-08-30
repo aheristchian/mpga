@@ -380,6 +380,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useGameStore } from '../../stores/gameStore';
 import { useAudio } from '../../services/useAudioService';
+import { useMultiplayer } from '../../services/useMultiplayerService';
 import {
   calculateVotingThreshold,
   calculateMaxVotesPerCandidate,
@@ -390,6 +391,7 @@ import RoleAvatar from '../RoleAvatar.vue';
 
 const store = useGameStore();
 const audio = useAudio();
+const multiplayer = useMultiplayer();
 
 const stage = ref('pre-vote'); // 'pre-vote', 'defense', 'final-vote'
 const preVotes = ref({});
@@ -602,11 +604,36 @@ const resolveTieSpin = () => {
   spin();
 };
 
+let unregisterMultiplayerListener = null;
+
 onMounted(() => {
   stage.value = 'pre-vote';
+
+  unregisterMultiplayerListener = multiplayer.onPlayerAction((data) => {
+    if (data && (data.action === 'CAST_VOTE' || data.type === 'CAST_VOTE')) {
+      const candidateName = data.candidateName;
+      const voteType = data.voteType || 'pre';
+      if (!candidateName) return;
+
+      if (voteType === 'pre' && stage.value === 'pre-vote') {
+        const candidate = alivePlayers.value.find((p) => p.name === candidateName);
+        if (candidate) {
+          updatePreVote(candidate, 1);
+        }
+      } else if (voteType === 'final' && stage.value === 'final-vote') {
+        const defender = qualifiedDefenders.value.find((p) => p.name === candidateName);
+        if (defender) {
+          updateFinalVote(defender, 1);
+        }
+      }
+    }
+  });
 });
 
 onUnmounted(() => {
   pauseDefenseTimer();
+  if (typeof unregisterMultiplayerListener === 'function') {
+    unregisterMultiplayerListener();
+  }
 });
 </script>

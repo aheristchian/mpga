@@ -580,7 +580,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { mockAbilities } from '../../data/abilities';
 import { resolveNight } from '../../services/gameEngine';
 import { useGameStore } from '../../stores/gameStore';
@@ -954,6 +954,8 @@ const startNextDay = () => {
   store.proceedToNextDay();
 };
 
+let unregisterMultiplayerListener = null;
+
 onMounted(() => {
   stage.value = 'sleep';
   actionMap.value = {};
@@ -963,20 +965,30 @@ onMounted(() => {
   audio.playNightFall();
 
   // Listen for mobile players submitting night actions live
-  multiplayer.setOnPlayerAction((data) => {
-    if (data && data.actor) {
-      if (data.actionId) {
-        selectedActionTypeMap.value[data.actor] = data.actionId;
+  unregisterMultiplayerListener = multiplayer.onPlayerAction((data) => {
+    if (data && (data.actor || data.actorName)) {
+      const actorName = data.actor || data.actorName;
+      const actionId = data.actionId;
+      const targetName = data.target || data.targetPlayerName;
+
+      if (actionId) {
+        selectedActionTypeMap.value[actorName] = actionId;
       }
-      if (data.target) {
-        actionMap.value[data.actor] = {
-          target: data.target,
-          actionId: data.actionId || selectedActionTypeMap.value[data.actor] || 'ability',
+      if (targetName) {
+        actionMap.value[actorName] = {
+          target: targetName,
+          actionId: actionId || selectedActionTypeMap.value[actorName] || 'ability',
         };
       } else {
-        actionMap.value[data.actor] = null;
+        actionMap.value[actorName] = null;
       }
     }
   });
+});
+
+onUnmounted(() => {
+  if (typeof unregisterMultiplayerListener === 'function') {
+    unregisterMultiplayerListener();
+  }
 });
 </script>

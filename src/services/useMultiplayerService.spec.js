@@ -106,4 +106,50 @@ describe('useMultiplayerService', () => {
     mp.setRoomPasscode('9988');
     expect(mp.roomPasscode.value).toBe('9988');
   });
+
+  it('supports multiple action bus subscribers and clean unsubscriptions', async () => {
+    const { useMultiplayer, dispatchPlayerAction } = await import('./useMultiplayerService');
+    const mp = useMultiplayer();
+
+    const receivedA = [];
+    const receivedB = [];
+
+    const unsubA = mp.onPlayerAction((data) => receivedA.push(data));
+    const unsubB = mp.onPlayerAction((data) => receivedB.push(data));
+
+    dispatchPlayerAction({ action: 'TEST_EVENT', value: 123 });
+
+    expect(receivedA.length).toBe(1);
+    expect(receivedA[0]).toEqual({ action: 'TEST_EVENT', value: 123 });
+    expect(receivedB.length).toBe(1);
+    expect(receivedB[0]).toEqual({ action: 'TEST_EVENT', value: 123 });
+
+    // Unsubscribe listener A
+    unsubA();
+
+    dispatchPlayerAction({ action: 'SECOND_EVENT', value: 456 });
+
+    expect(receivedA.length).toBe(1); // Not called again
+    expect(receivedB.length).toBe(2);
+    expect(receivedB[1]).toEqual({ action: 'SECOND_EVENT', value: 456 });
+
+    // Cleanup listener B
+    unsubB();
+  });
+
+  it('correctly tracks isPeerConnected and connectedPlayerNames', async () => {
+    const { useMultiplayer } = await import('./useMultiplayerService');
+    const mp = useMultiplayer();
+
+    mp.connectedPeers.value = [
+      { peerId: 'p1', playerName: 'Alice', lastSeen: Date.now() },
+      { peerId: 'p2', playerName: 'Bob', lastSeen: Date.now() },
+    ];
+
+    expect(mp.isPeerConnected('Alice')).toBe(true);
+    expect(mp.isPeerConnected('alice')).toBe(true);
+    expect(mp.isPeerConnected('Bob')).toBe(true);
+    expect(mp.isPeerConnected('Charlie')).toBe(false);
+    expect(mp.connectedPlayerNames.value).toEqual(['Alice', 'Bob']);
+  });
 });

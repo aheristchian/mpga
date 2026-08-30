@@ -155,7 +155,7 @@
         >
           <span
             >{{ $t('multiplayer.connectedDevices') }} ({{ connectedCount }} /
-            {{ store.livePlayers.length }})</span
+            {{ displayedPlayers.length }})</span
           >
           <span class="text-green-400 text-[11px] flex items-center gap-1">
             <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
@@ -163,9 +163,9 @@
           </span>
         </h4>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+        <div v-if="displayedPlayers.length > 0" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           <div
-            v-for="(player, idx) in store.livePlayers"
+            v-for="(player, idx) in displayedPlayers"
             :key="player.name"
             class="p-2.5 rounded-xl border flex items-center justify-between gap-3 text-xs"
             :class="
@@ -180,9 +180,11 @@
               <div class="truncate">
                 <span class="font-bold text-white truncate block">{{ player.name }}</span>
                 <span class="text-[10px] text-gray-400 truncate block">{{
-                  $te('roles.' + player.role?.id + '.name')
-                    ? $t('roles.' + player.role?.id + '.name')
-                    : player.role?.name || 'Citizen'
+                  player.role
+                    ? ($te('roles.' + player.role?.id + '.name')
+                        ? $t('roles.' + player.role?.id + '.name')
+                        : player.role?.name || 'Citizen')
+                    : $t('playerEntry.modeLobby')
                 }}</span>
               </div>
             </div>
@@ -202,6 +204,13 @@
               </span>
             </div>
           </div>
+        </div>
+
+        <div
+          v-else
+          class="text-center py-6 text-xs text-gray-400 bg-gray-800/40 rounded-xl border border-gray-700/50 italic"
+        >
+          {{ $t('playerEntry.waitingForPlayers') }}
         </div>
       </div>
     </div>
@@ -295,12 +304,19 @@ const joinUrl = computed(() => {
   return url;
 });
 
+const displayedPlayers = computed(() => {
+  if (store.livePlayers && store.livePlayers.length > 0) {
+    return store.livePlayers;
+  }
+  return store.players || [];
+});
+
 const isPlayerConnected = (playerName) => {
-  return multiplayer.connectedPeers.value.some((p) => p.playerName === playerName);
+  return multiplayer.isPeerConnected(playerName);
 };
 
 const connectedCount = computed(() => {
-  return store.livePlayers.filter((p) => isPlayerConnected(p.name)).length;
+  return displayedPlayers.value.filter((p) => isPlayerConnected(p.name)).length;
 });
 
 const copyJoinUrl = async () => {
