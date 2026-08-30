@@ -75,6 +75,8 @@
     "classicStandardBadge": "⚖️ Timeless Classic",
     "includedRoles": "Included Roles",
     "selected": "Selected Scenario",
+    "selectMode": "Select this Scenario",
+    "activeScenario": "Selected & Active",
     "tapToExpand": "Tap to expand details",
     "tapToCollapse": "Tap to collapse"
   },

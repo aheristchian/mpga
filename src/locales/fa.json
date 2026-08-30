@@ -75,6 +75,8 @@
     "classicStandardBadge": "⚖️ سنتی و متعادل",
     "includedRoles": "نقش‌های کلیدی این سناریو",
     "selected": "سناریوی انتخاب‌شده",
+    "selectMode": "انتخاب این سناریو",
+    "activeScenario": "سناریوی انتخاب‌شده",
     "tapToExpand": "مشاهده جزئیات",
     "tapToCollapse": "بستن جزئیات"
   },

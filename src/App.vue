@@ -95,11 +95,11 @@
 
       <!-- HERO HEADER -->
       <div class="relative text-center max-w-2xl mx-auto space-y-2.5">
-        <!-- Sleek Tournament Cockpit Badge -->
+        <!-- Sleek Tournament Cockpit Badge with MPGA Logo -->
         <div
-          class="inline-flex items-center gap-2 px-3.5 py-1 bg-red-950/40 border border-red-500/30 rounded-full text-[11px] font-semibold text-red-300 tracking-wider uppercase backdrop-blur-md shadow-sm"
+          class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-red-950/40 border border-red-500/30 rounded-full text-[11px] font-semibold text-red-300 tracking-wider uppercase backdrop-blur-md shadow-sm"
         >
-          <span class="inline-block w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+          <span class="w-4 h-4 inline-block" v-html="mpgaLogo"></span>
           <span>{{ $t('app.badge') }}</span>
         </div>
 
@@ -232,11 +232,13 @@ import LanguageSwitcher from './components/LanguageSwitcher.vue';
 import SoundtrackConsole from './components/SoundtrackConsole.vue';
 import GameGuideModal from './components/GameGuideModal.vue';
 import { evaluateGameStatus } from './services/useWinCondition';
+import { getMpgaLogo } from './data/modeIllustrations';
 
 const store = useGameStore();
 const audio = useAudio();
 const multiplayer = useMultiplayer();
 const appVersion = __APP_VERSION__;
+const mpgaLogo = getMpgaLogo();
 
 // Detection for projector & player client view
 const isProjectorMode = ref(false);
