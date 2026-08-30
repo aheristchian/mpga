@@ -148,9 +148,9 @@
           </p>
         </div>
 
-        <div class="pt-4">
+        <div class="pt-4 flex flex-col sm:flex-row justify-center">
           <button
-            class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 active:scale-95 text-white px-8 py-3.5 rounded-xl font-black text-base shadow-lg shadow-indigo-600/30 transition-all cursor-pointer min-h-[44px] select-none"
+            class="w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 active:scale-95 text-white px-8 py-3.5 rounded-xl font-black text-base shadow-lg shadow-indigo-600/30 transition-all cursor-pointer min-h-[44px] select-none text-center"
             @click="handleProceedFromSleep"
           >
             {{
@@ -522,9 +522,9 @@
           </div>
 
           <!-- NAVIGATION CONTROLS -->
-          <div class="flex justify-between items-center pt-2">
+          <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 pt-2">
             <button
-              class="px-5 py-3 bg-gray-700 hover:bg-gray-600 active:scale-95 text-gray-300 rounded-xl font-semibold transition-all text-sm disabled:opacity-30 min-h-[44px] cursor-pointer select-none flex items-center gap-1.5"
+              class="w-full sm:w-auto px-5 py-3 bg-gray-700 hover:bg-gray-600 active:scale-95 text-gray-300 rounded-xl font-semibold transition-all text-sm disabled:opacity-30 min-h-[44px] cursor-pointer select-none flex items-center justify-center gap-1.5"
               :disabled="currentActorIndex === 0"
               @click="prevRole"
             >
@@ -533,7 +533,7 @@
             </button>
 
             <button
-              class="bg-indigo-600 hover:bg-indigo-500 active:scale-95 active:brightness-90 text-white px-8 py-3.5 rounded-xl font-bold shadow-lg shadow-indigo-600/30 flex items-center gap-2 transition-all cursor-pointer min-h-[44px] select-none"
+              class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 active:scale-95 active:brightness-90 text-white px-8 py-3.5 rounded-xl font-bold shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 transition-all cursor-pointer min-h-[44px] select-none"
               @click="nextRole"
             >
               <span>{{
@@ -609,9 +609,9 @@
         </div>
 
         <!-- START NEXT DAY -->
-        <div class="pt-4 flex justify-end">
+        <div class="pt-4 flex flex-col sm:flex-row justify-end">
           <button
-            class="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 active:scale-95 text-white px-8 py-3.5 rounded-xl font-black text-base shadow-xl shadow-green-600/30 transition-all cursor-pointer min-h-[44px] select-none"
+            class="w-full sm:w-auto bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 active:scale-95 text-white px-8 py-3.5 rounded-xl font-black text-base shadow-xl shadow-green-600/30 transition-all cursor-pointer min-h-[44px] select-none text-center"
             @click="startNextDay"
           >
             ☀️ {{ $t('nightPhase.startNextDay', { day: store.currentDay + 1 }) }}

@@ -159,13 +159,13 @@
 
     <template #footer>
       <button
-        class="px-5 py-2.5 bg-gray-700 hover:bg-gray-600 active:scale-95 text-white font-semibold rounded-xl transition-all cursor-pointer min-h-[44px] select-none"
+        class="w-full sm:w-auto px-5 py-2.5 bg-gray-700 hover:bg-gray-600 active:scale-95 text-white font-semibold rounded-xl transition-all cursor-pointer min-h-[44px] select-none text-center"
         @click="$emit('close')"
       >
         {{ $t('playerStatusModal.cancel') }}
       </button>
       <button
-        class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-bold rounded-xl shadow-md transition-all cursor-pointer min-h-[44px] select-none"
+        class="w-full sm:w-auto px-6 py-2.5 bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-bold rounded-xl shadow-md transition-all cursor-pointer min-h-[44px] select-none text-center"
         @click="applyChanges"
       >
         {{ $t('playerStatusModal.saveChanges') }}

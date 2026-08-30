@@ -30,7 +30,7 @@
         </span>
       </div>
 
-      <div class="flex items-center gap-1.5 sm:gap-2">
+      <div class="flex flex-wrap items-center justify-end gap-1.5 sm:gap-2">
         <!-- STEALTH OLED TOGGLE (Night Phase) -->
         <button
           v-if="publicState?.subPhase === 'night'"

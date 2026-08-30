@@ -145,23 +145,23 @@
     </div>
 
     <template #footer>
-      <div class="flex flex-wrap justify-between items-center w-full gap-3">
-        <div class="flex items-center gap-2">
+      <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center w-full gap-3">
+        <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
           <button
-            class="px-5 py-2.5 bg-gray-700 hover:bg-gray-600 active:scale-95 text-gray-200 font-semibold text-xs rounded-xl transition-all cursor-pointer min-h-[44px] select-none"
+            class="w-full sm:w-auto px-5 py-2.5 bg-gray-700 hover:bg-gray-600 active:scale-95 text-gray-200 font-semibold text-xs rounded-xl transition-all cursor-pointer min-h-[44px] select-none text-center"
             @click="handleClose"
           >
             {{ $t('gameOver.reviewBoard') }}
           </button>
           <button
-            class="px-4 py-2.5 bg-indigo-700 hover:bg-indigo-600 active:scale-95 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 cursor-pointer min-h-[44px] select-none"
+            class="w-full sm:w-auto px-4 py-2.5 bg-indigo-700 hover:bg-indigo-600 active:scale-95 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer min-h-[44px] select-none"
             @click="showStoryModal = true"
           >
             <span>📸</span>
             <span>{{ $t('storyCard.shareStoryBtn') }}</span>
           </button>
           <button
-            class="px-4 py-2.5 bg-purple-700 hover:bg-purple-600 active:scale-95 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 cursor-pointer min-h-[44px] select-none"
+            class="w-full sm:w-auto px-4 py-2.5 bg-purple-700 hover:bg-purple-600 active:scale-95 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer min-h-[44px] select-none"
             @click="showReplayModal = true"
           >
             <span>⏪</span>
@@ -169,7 +169,7 @@
           </button>
         </div>
         <button
-          class="px-6 py-3 bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 active:scale-95 active:brightness-90 text-white font-bold text-sm rounded-xl shadow-lg transition-all cursor-pointer min-h-[44px] select-none"
+          class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 active:scale-95 active:brightness-90 text-white font-bold text-sm rounded-xl shadow-lg transition-all cursor-pointer min-h-[44px] select-none text-center"
           @click="startNewGame"
         >
           {{ $t('gameOver.newGame') }}

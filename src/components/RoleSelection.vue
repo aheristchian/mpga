@@ -1,7 +1,7 @@
 <template>
   <div class="w-full max-w-6xl mx-auto">
     <div
-      class="mb-6 flex justify-between items-end sticky top-0 bg-gray-900/90 backdrop-blur-sm z-50 py-4 border-b border-gray-800"
+      class="mb-6 flex flex-wrap justify-between items-end gap-3 sticky top-0 bg-gray-900/90 backdrop-blur-sm z-50 py-4 border-b border-gray-800"
     >
       <div>
         <h2 class="text-3xl font-bold text-white mb-2">{{ $t('roleSelection.title') }}</h2>
@@ -101,10 +101,10 @@
       </section>
     </div>
 
-    <div class="mt-8 flex justify-end border-t border-gray-700 pt-6">
+    <div class="mt-8 flex flex-col sm:flex-row justify-end border-t border-gray-700 pt-6">
       <button
         :disabled="totalSelected !== playerCount"
-        class="px-8 py-3.5 rounded-xl font-bold text-lg transition-all shadow-lg min-h-[44px] select-none"
+        class="w-full sm:w-auto px-8 py-3.5 rounded-xl font-bold text-lg transition-all shadow-lg min-h-[44px] select-none text-center"
         :class="
           totalSelected === playerCount
             ? 'bg-town hover:bg-blue-600 active:scale-95 active:brightness-90 text-white cursor-pointer'

@@ -11,7 +11,7 @@
     <!-- FOREGROUND CONTENT -->
     <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div class="space-y-1">
-        <div class="flex items-center gap-2.5">
+        <div class="flex flex-wrap items-center gap-2.5">
           <span class="text-2xl">{{ phaseEmoji }}</span>
           <h2 class="text-2xl font-black tracking-wide text-white capitalize">
             {{ title || defaultTitle }}
@@ -29,7 +29,7 @@
       </div>
 
       <!-- OPTIONAL ACTION / STATUS SLOT -->
-      <div v-if="$slots.action" class="shrink-0 flex items-center">
+      <div v-if="$slots.action" class="shrink-0 flex flex-wrap items-center gap-2">
         <slot name="action"></slot>
       </div>
     </div>

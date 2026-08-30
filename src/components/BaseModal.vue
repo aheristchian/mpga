@@ -52,7 +52,7 @@
 
           <!-- Footer / Actions (Sticky / Shrink-0) -->
           <div
-            class="px-6 py-4 border-t border-gray-700 bg-gray-800/95 backdrop-blur-sm shrink-0 flex justify-end gap-3"
+            class="px-6 py-4 border-t border-gray-700 bg-gray-800/95 backdrop-blur-sm shrink-0 flex flex-wrap justify-end gap-3"
           >
             <!-- FOOTER SLOT: For custom buttons. Falls back to a default "Close" button -->
             <slot name="footer">

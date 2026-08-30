@@ -13,8 +13,8 @@
   <div v-else class="min-h-screen bg-gray-900 text-white font-sans p-4 sm:p-6">
     <header class="mb-8 relative flex flex-col items-center">
       <!-- TOP ACTION BAR -->
-      <div class="w-full flex justify-between items-center mb-4 gap-1.5 sm:gap-2 flex-wrap sm:flex-nowrap">
-        <div class="flex items-center gap-1.5 sm:gap-2">
+      <div class="w-full flex justify-between items-center mb-4 gap-2 flex-wrap">
+        <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
           <!-- LANGUAGE SWITCHER -->
           <LanguageSwitcher />
 
@@ -64,7 +64,7 @@
         </div>
 
         <!-- MULTIPLAYER CONNECT PHONES & START OVER -->
-        <div class="flex items-center gap-1.5 sm:gap-2">
+        <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
           <button
             class="px-2.5 py-2 sm:px-3.5 sm:py-1.5 bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 border border-blue-500/50 text-white rounded-xl transition-all text-xs font-bold flex items-center gap-1.5 shadow-md cursor-pointer shrink-0"
             :title="$t('multiplayer.connectDevices')"

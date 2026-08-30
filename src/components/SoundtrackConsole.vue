@@ -233,12 +233,12 @@
       </div>
 
       <!-- MODAL FOOTER -->
-      <div class="px-6 py-3 border-t border-gray-800 bg-gray-950/80 flex justify-end">
+      <div class="px-6 py-3 border-t border-gray-800 bg-gray-950/80 flex flex-col sm:flex-row justify-end">
         <button
-          class="px-5 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-xl text-xs font-bold transition-all cursor-pointer"
+          class="w-full sm:w-auto px-5 py-2.5 bg-gray-800 hover:bg-gray-700 text-white rounded-xl text-xs font-bold transition-all cursor-pointer min-h-[44px] select-none text-center"
           @click="close"
         >
-          Close
+          {{ $t('gameModerator.close') }}
         </button>
       </div>
     </div>

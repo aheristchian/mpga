@@ -115,12 +115,12 @@
           </div>
         </div>
 
-        <div class="flex justify-end">
+        <div class="flex flex-col sm:flex-row justify-end">
           <button
-            class="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 active:scale-95 text-gray-950 px-8 py-3.5 rounded-xl font-black text-base shadow-lg shadow-amber-500/20 transition-all cursor-pointer select-none min-h-[44px]"
-            @click="startDayFlow"
+            class="w-full sm:w-auto bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 active:scale-95 text-gray-950 px-8 py-3.5 rounded-xl font-black text-base shadow-lg shadow-amber-500/20 transition-all cursor-pointer select-none min-h-[44px] text-center"
+            @click="startSpeeches"
           >
-            {{ $t('dayPhase.startDayFlow') }} ▶
+            {{ $t('dayPhase.startSpeeches') }} ▶
           </button>
         </div>
       </div>
@@ -337,16 +337,16 @@
         </div>
 
         <!-- NEXT SPEAKER / ADVANCE -->
-        <div class="flex justify-between items-center pt-2">
+        <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 pt-2">
           <button
-            class="text-xs text-gray-500 hover:text-red-400 underline transition-colors cursor-pointer py-2 px-1"
+            class="text-xs text-gray-500 hover:text-red-400 underline transition-colors cursor-pointer py-2 px-1 text-center sm:text-left"
             @click="forceEndDay"
           >
             {{ $t('dayPhase.forceEndDay') }}
           </button>
 
           <button
-            class="bg-blue-600 hover:bg-blue-500 active:scale-95 active:brightness-90 text-white px-8 py-3.5 rounded-xl font-bold shadow-lg shadow-blue-600/30 flex items-center gap-2 transition-all cursor-pointer select-none min-h-[44px]"
+            class="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 active:scale-95 active:brightness-90 text-white px-8 py-3.5 rounded-xl font-bold shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2 transition-all cursor-pointer select-none min-h-[44px]"
             @click="nextPlayer"
           >
             <span>{{ $t('dayPhase.nextPlayer') }}</span>
@@ -368,15 +368,15 @@
           </p>
         </div>
 
-        <div class="flex flex-wrap justify-center gap-4">
+        <div class="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4">
           <button
-            class="px-6 py-3 bg-gray-700 hover:bg-gray-600 active:scale-95 text-gray-300 rounded-xl font-semibold transition-all text-sm cursor-pointer select-none min-h-[44px]"
+            class="w-full sm:w-auto px-6 py-3 bg-gray-700 hover:bg-gray-600 active:scale-95 text-gray-300 rounded-xl font-semibold transition-all text-sm cursor-pointer select-none min-h-[44px] text-center"
             @click="stage = 'setup'"
           >
             ↺ Review Queue
           </button>
           <button
-            class="px-8 py-3.5 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 active:scale-95 text-white font-black text-base rounded-xl shadow-xl shadow-red-600/30 transition-all cursor-pointer select-none min-h-[44px]"
+            class="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 active:scale-95 text-white font-black text-base rounded-xl shadow-xl shadow-red-600/30 transition-all cursor-pointer select-none min-h-[44px] text-center"
             @click="proceedToVoting"
           >
             ⚖️ {{ $t('dayPhase.confirmProceedVoting') }}

@@ -29,7 +29,7 @@
       </div>
 
       <!-- RIGHT CONTROLS (EVENT LOG, GAME OVER, END GAME) -->
-      <div class="flex items-center gap-3">
+      <div class="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
         <!-- Game Over Summary Button -->
         <button
           v-if="store.isGameOver"

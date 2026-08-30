@@ -227,12 +227,12 @@
     </div>
 
     <template #footer>
-      <div class="flex justify-between items-center w-full">
-        <span class="text-[11px] text-gray-400">
+      <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center w-full gap-3">
+        <span class="text-[11px] text-gray-400 text-center sm:text-left">
           {{ $t('multiplayer.offlineNote') }}
         </span>
         <button
-          class="px-5 py-2.5 bg-gray-700 hover:bg-gray-600 active:scale-95 text-white font-semibold text-xs rounded-xl transition-all cursor-pointer min-h-[44px] select-none"
+          class="w-full sm:w-auto px-5 py-2.5 bg-gray-700 hover:bg-gray-600 active:scale-95 text-white font-semibold text-xs rounded-xl transition-all cursor-pointer min-h-[44px] select-none text-center"
           @click="$emit('close')"
         >
           {{ $t('gameModerator.close') }}

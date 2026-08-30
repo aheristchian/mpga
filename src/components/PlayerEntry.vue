@@ -242,7 +242,7 @@
       </div>
 
       <!-- PROCEED TO ROLES BUTTON -->
-      <div class="mt-4 pt-3 border-t border-gray-700/60 flex justify-between items-center">
+      <div class="mt-4 pt-3 border-t border-gray-700/60 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
         <p v-if="players.length < minPlayers" class="text-xs text-yellow-500">
           ⚠️ {{ $t('playerEntry.needMore', { min: minPlayers }) }}
         </p>
@@ -250,7 +250,7 @@
 
         <button
           :disabled="players.length < minPlayers"
-          class="bg-green-600 hover:bg-green-500 active:scale-95 active:brightness-90 disabled:opacity-50 disabled:cursor-not-allowed text-white px-7 py-3 rounded-xl font-bold shadow-md transition-all cursor-pointer min-h-[44px] select-none flex items-center gap-1.5"
+          class="bg-green-600 hover:bg-green-500 active:scale-95 active:brightness-90 disabled:opacity-50 disabled:cursor-not-allowed text-white px-7 py-3 rounded-xl font-bold shadow-md transition-all cursor-pointer min-h-[44px] select-none flex items-center justify-center gap-1.5 w-full sm:w-auto"
           @click="finishAddingPlayers"
         >
           <span>{{ $t('playerEntry.done') }}</span>

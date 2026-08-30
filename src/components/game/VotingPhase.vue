@@ -123,21 +123,21 @@
         </div>
 
         <!-- STAGE 1 ACTIONS -->
-        <div class="flex justify-between items-center pt-4 border-t border-gray-700">
-          <span class="text-xs text-gray-400">
+        <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 pt-4 border-t border-gray-700">
+          <span class="text-xs text-gray-400 text-center sm:text-left">
             {{ qualifiedDefenders.length }} Defender(s) qualified
           </span>
 
           <button
             v-if="qualifiedDefenders.length > 0"
-            class="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 active:scale-95 active:brightness-90 text-white px-8 py-3.5 rounded-xl font-bold shadow-lg shadow-orange-600/30 transition-all cursor-pointer min-h-[44px] select-none"
+            class="w-full sm:w-auto bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 active:scale-95 active:brightness-90 text-white px-8 py-3.5 rounded-xl font-bold shadow-lg shadow-orange-600/30 transition-all cursor-pointer min-h-[44px] select-none text-center"
             @click="startDefenseStage"
           >
             {{ $t('votingPhase.startDefense', { count: qualifiedDefenders.length }) }} ▶
           </button>
           <button
             v-else
-            class="bg-gray-700 hover:bg-gray-600 active:scale-95 text-gray-300 px-6 py-3 rounded-xl font-bold text-sm transition-all cursor-pointer min-h-[44px] select-none"
+            class="w-full sm:w-auto bg-gray-700 hover:bg-gray-600 active:scale-95 text-gray-300 px-6 py-3 rounded-xl font-bold text-sm transition-all cursor-pointer min-h-[44px] select-none text-center"
             @click="skipDefenseToNight"
           >
             {{ $t('votingPhase.proceedToNight') }}
@@ -232,9 +232,9 @@
           </div>
 
           <!-- NEXT DEFENDER BUTTON -->
-          <div class="mt-6 flex justify-end">
+          <div class="mt-6 flex flex-col sm:flex-row justify-end">
             <button
-              class="bg-orange-600 hover:bg-orange-500 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-orange-600/30 flex items-center gap-2 transition-all cursor-pointer"
+              class="w-full sm:w-auto bg-orange-600 hover:bg-orange-500 text-white px-8 py-3.5 rounded-xl font-bold shadow-lg shadow-orange-600/30 flex items-center justify-center gap-2 transition-all cursor-pointer min-h-[44px] select-none text-center"
               @click="nextDefender"
             >
               <span>{{
@@ -303,7 +303,7 @@
 
         <!-- FINAL VOTE SUMMARY & ACTIONS -->
         <div
-          class="bg-gray-800/80 p-5 rounded-xl border border-gray-700 flex justify-between items-center"
+          class="bg-gray-800/80 p-5 rounded-xl border border-gray-700 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4"
         >
           <div>
             <h4 class="text-sm font-bold text-gray-300">Vote Outcome:</h4>
@@ -320,11 +320,11 @@
             </p>
           </div>
 
-          <div class="flex gap-3">
+          <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
             <!-- TIE BREAKER BUTTON -->
             <button
               v-if="hasTie"
-              class="bg-yellow-600 hover:bg-yellow-500 text-gray-950 px-6 py-3 rounded-xl font-black shadow-lg shadow-yellow-600/30 animate-pulse transition-all cursor-pointer"
+              class="w-full sm:w-auto bg-yellow-600 hover:bg-yellow-500 text-gray-950 px-6 py-3.5 rounded-xl font-black shadow-lg shadow-yellow-600/30 animate-pulse transition-all cursor-pointer min-h-[44px] select-none text-center"
               @click="resolveTieSpin"
             >
               🎲 {{ $t('votingPhase.resolveTie') }}
@@ -333,7 +333,7 @@
             <!-- CONFIRM ELIMINATION / PROCEED -->
             <button
               v-else-if="eliminatedCandidate"
-              class="bg-red-600 hover:bg-red-500 text-white px-8 py-3 rounded-xl font-black shadow-lg shadow-red-600/30 transition-all cursor-pointer"
+              class="w-full sm:w-auto bg-red-600 hover:bg-red-500 text-white px-8 py-3.5 rounded-xl font-black shadow-lg shadow-red-600/30 transition-all cursor-pointer min-h-[44px] select-none text-center"
               @click="confirmElimination(eliminatedCandidate)"
             >
               💀 {{ $t('votingPhase.eliminate', { name: eliminatedCandidate.name }) }}
@@ -341,7 +341,7 @@
 
             <button
               v-else
-              class="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-3 rounded-xl font-bold shadow-lg transition-all cursor-pointer"
+              class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-3.5 rounded-xl font-bold shadow-lg transition-all cursor-pointer min-h-[44px] select-none text-center"
               @click="confirmNobodyDies"
             >
               🌙 {{ $t('votingPhase.proceedStraightToNight') }}

@@ -58,7 +58,7 @@
         </div>
 
         <!-- PLAYBACK NAVIGATION CONTROLS -->
-        <div class="flex items-center justify-center gap-2 sm:gap-3 pt-1">
+        <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 pt-1">
           <button
             class="p-2.5 sm:px-3.5 bg-gray-800 hover:bg-gray-700 active:scale-95 text-gray-300 font-bold text-xs rounded-xl border border-gray-700 transition-all cursor-pointer select-none"
             :title="$t('replay.firstStep')"

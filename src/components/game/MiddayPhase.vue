@@ -103,9 +103,9 @@
           </div>
         </div>
 
-        <div class="flex justify-end pt-2">
+        <div class="flex flex-col sm:flex-row justify-end pt-2">
           <button
-            class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 active:scale-95 active:brightness-90 text-white px-8 py-3.5 rounded-xl font-bold shadow-lg shadow-purple-600/30 flex items-center gap-2 transition-all cursor-pointer min-h-[44px] select-none"
+            class="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 active:scale-95 active:brightness-90 text-white px-8 py-3.5 rounded-xl font-bold shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2 transition-all cursor-pointer min-h-[44px] select-none"
             @click="proceedToCardStage"
           >
             <span>{{ $t('middayPhase.proceedToCardDraw') }}</span>
@@ -138,45 +138,37 @@
           >
             <div v-if="isSpinning" class="space-y-4">
               <div class="text-6xl animate-bounce">🎲</div>
-              <div
-                class="text-2xl font-black text-purple-300 font-mono tracking-wider py-4 bg-gray-800 rounded-xl border border-gray-700"
-              >
+              <p class="text-xl font-black text-purple-300 tracking-wider font-mono">
                 {{ spinningCardName }}
-              </div>
-              <p class="text-xs text-gray-400 animate-pulse">
-                {{ $t('middayPhase.drawingCard', { count: store.lastWordDeck.length }) }}
               </p>
             </div>
 
             <div v-else class="space-y-4">
-              <div class="text-6xl">🎴</div>
-              <p class="text-sm text-gray-300 max-w-sm mx-auto">
-                Draw one random Last Word Card for {{ targetPlayer?.name || 'the player' }}. Once
-                drawn, the card is retired from the deck.
+              <div class="text-6xl">🃏</div>
+              <p class="text-gray-300 text-sm max-w-sm mx-auto">
+                {{ $t('middayPhase.spinCardPrompt') }}
               </p>
               <button
-                :disabled="store.lastWordDeck.length === 0"
-                class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 disabled:opacity-40 text-white px-8 py-3.5 rounded-xl font-black text-base shadow-lg shadow-purple-600/30 transition-all cursor-pointer"
+                class="w-full sm:w-auto bg-purple-600 hover:bg-purple-500 active:scale-95 active:brightness-90 text-white px-8 py-3.5 rounded-xl font-bold shadow-lg shadow-purple-600/40 transition-all cursor-pointer min-h-[44px] select-none"
                 @click="spinRoulette"
               >
-                {{ $t('middayPhase.spinRoulette') }}
+                {{ $t('middayPhase.drawCardBtn') }}
               </button>
             </div>
           </div>
 
-          <!-- DRAWN CARD REVEAL CARD -->
-          <div
-            v-else
-            class="bg-gradient-to-br from-purple-950 via-gray-900 to-indigo-950 border-2 border-purple-400 p-6 rounded-2xl shadow-2xl space-y-4"
-          >
-            <div class="flex items-center gap-3">
-              <span class="text-4xl">{{ drawnCard.icon }}</span>
-              <div>
-                <span class="text-[10px] text-purple-400 font-extrabold uppercase tracking-widest"
-                  >Card Drawn</span
-                >
-                <h4 class="text-2xl font-black text-white">{{ $t(drawnCard.nameKey) }}</h4>
-              </div>
+          <!-- REVEALED CARD -->
+          <div v-else class="space-y-4">
+            <div
+              class="p-5 rounded-2xl border-2 border-purple-500/60 bg-gradient-to-br from-purple-950/40 via-gray-900 to-pink-950/30 text-center space-y-2"
+            >
+              <span class="text-4xl block mb-2">✨</span>
+              <h4 class="text-2xl font-black text-white">
+                {{ $t(drawnCard.nameKey) }}
+              </h4>
+              <span class="text-xs font-mono text-purple-400 font-bold uppercase tracking-widest">
+                {{ drawnCard.type }}
+              </span>
             </div>
 
             <div
@@ -188,9 +180,9 @@
         </div>
 
         <!-- PROCEED TO NIGHT -->
-        <div class="flex justify-end pt-2">
+        <div class="flex flex-col sm:flex-row justify-end pt-2">
           <button
-            class="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-3.5 rounded-xl font-black text-base shadow-lg shadow-indigo-600/30 flex items-center gap-2 transition-all cursor-pointer"
+            class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-3.5 rounded-xl font-black text-base shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 transition-all cursor-pointer min-h-[44px] select-none"
             @click="proceedToNight"
           >
             <span>{{ $t('middayPhase.proceedToNight') }}</span>
