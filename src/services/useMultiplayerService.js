@@ -400,8 +400,11 @@ export function useMultiplayer() {
         onPlayerActionCallback({
           action: 'NIGHT_ACTION',
           actorName: data.actorName,
+          actor: data.actorName,
           actorRole: data.actorRole,
           targetPlayerName: data.targetPlayerName,
+          target: data.targetPlayerName,
+          actionId: data.actionId,
           peerId: senderId,
         });
       }
@@ -965,7 +968,7 @@ export function useMultiplayer() {
     }
   };
 
-  const sendNightAction = (targetPlayerName) => {
+  const sendNightAction = (targetPlayerName, actionId = null) => {
     if (!clientPlayerIdentity.value) return;
 
     if (transportMode.value === 'cloud') {
@@ -978,6 +981,7 @@ export function useMultiplayer() {
             actorName: clientPlayerIdentity.value.name,
             actorRole: clientPlayerIdentity.value.role?.name,
             targetPlayerName,
+            actionId,
           }),
           { qos: 0 }
         );
@@ -989,6 +993,7 @@ export function useMultiplayer() {
           actorName: clientPlayerIdentity.value.name,
           actorRole: clientPlayerIdentity.value.role?.name,
           targetPlayerName,
+          actionId,
         });
       }
     }

@@ -127,4 +127,42 @@ describe('Game Engine - resolveNight', () => {
       result.log.some((l) => l.includes('Detective found out Suspect is on team: mafia'))
     ).toBe(true);
   });
+
+  it('should support object action payloads with explicit actionId', () => {
+    const players = [
+      createMockPlayer('GodfatherPlayer', 'mafia-shot', [], 'mafia'),
+      createMockPlayer('DoctorPlayer', 'treat', [], 'town'),
+      createMockPlayer('TargetPlayer', null, [], 'town'),
+    ];
+    const actionMap = {
+      GodfatherPlayer: { target: 'TargetPlayer', actionId: 'mafia-shot' },
+      DoctorPlayer: { target: 'TargetPlayer', actionId: 'treat' },
+    };
+
+    const result = resolveNight(players, actionMap);
+
+    expect(result.deaths).not.toContain('TargetPlayer');
+    expect(result.log.some((l) => l.includes('[SAVE]'))).toBe(true);
+  });
+
+  it('should prioritize block (90) before doctor save (80) and shots (70)', () => {
+    const players = [
+      createMockPlayer('Matador', 'block', [], 'mafia'),
+      createMockPlayer('Doctor', 'treat', [], 'town'),
+      createMockPlayer('Godfather', 'mafia-shot', [], 'mafia'),
+      createMockPlayer('Citizen', null, [], 'town'),
+    ];
+
+    const actionMap = {
+      Matador: { target: 'Doctor', actionId: 'block' },
+      Doctor: { target: 'Citizen', actionId: 'treat' },
+      Godfather: { target: 'Citizen', actionId: 'mafia-shot' },
+    };
+
+    const result = resolveNight(players, actionMap);
+
+    // Matador blocks Doctor -> Doctor fails to save -> Godfather kills Citizen
+    expect(result.deaths).toContain('Citizen');
+    expect(result.log.some((l) => l.includes('[BLOCKED] Doctor'))).toBe(true);
+  });
 });

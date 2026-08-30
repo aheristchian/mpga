@@ -325,29 +325,120 @@
             </div>
           </div>
 
-          <!-- STANDARD TARGET SELECTION (Single Target) -->
-          <div v-else class="space-y-2 mb-6">
-            <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block">
-              Select Night Target:
-            </label>
-            <select
-              v-model="actionMap[currentActor.name]"
-              class="w-full bg-gray-700 text-white text-base p-3.5 rounded-xl border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-bold min-h-[44px]"
+          <!-- TWO-STEP ACTION SELECTION FOR WAKING ROLE -->
+          <div v-else class="space-y-6 mb-6 text-left">
+            <!-- STEP 1: SELECT ACTION TYPE -->
+            <div class="space-y-2">
+              <label class="text-xs font-bold text-indigo-300 uppercase tracking-wider flex items-center gap-1.5">
+                <span>⚡</span> {{ $t('nightPhase.step1Action') }}
+              </label>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                <button
+                  v-for="action in getAvailableActionsForActor(currentActor)"
+                  :key="action.id"
+                  type="button"
+                  class="p-3.5 rounded-xl border text-left transition-all cursor-pointer select-none active:scale-98 flex items-start gap-3 min-h-[56px]"
+                  :class="
+                    getSelectedActionId(currentActor.name) === action.id
+                      ? 'bg-indigo-950/80 border-indigo-400 ring-2 ring-indigo-500/50 shadow-lg shadow-indigo-950/40 text-white'
+                      : 'bg-gray-800/80 border-gray-700 hover:bg-gray-750 text-gray-300 hover:text-white'
+                  "
+                  @click="selectActorAction(currentActor.name, action.id)"
+                >
+                  <span class="text-2xl p-1.5 bg-gray-900/80 rounded-lg shrink-0">{{ action.icon }}</span>
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center justify-between gap-1">
+                      <span class="font-bold text-sm text-white truncate">{{ $t(action.nameKey) }}</span>
+                      <span
+                        v-if="getSelectedActionId(currentActor.name) === action.id"
+                        class="text-xs text-indigo-400 font-black bg-indigo-900/60 px-1.5 py-0.5 rounded"
+                      >✓</span>
+                    </div>
+                    <p class="text-[11px] text-gray-400 mt-0.5 leading-snug">
+                      {{ $t(action.descriptionKey) }}
+                    </p>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <!-- STEP 2: CHOOSE TARGET (IF ACTION REQUIRES TARGET) -->
+            <div
+              v-if="getSelectedActionId(currentActor.name) === 'pass'"
+              class="p-4 bg-gray-900/80 border border-dashed border-gray-700 rounded-xl text-center space-y-1"
             >
-              <option :value="null">{{ $t('nightPhase.noAction') }}</option>
-              <option
-                v-for="target in getValidTargets(currentActor)"
-                :key="target.name"
-                :value="target.name"
+              <span class="text-2xl block">🚫</span>
+              <p class="text-sm font-bold text-gray-300">{{ $t('nightPhase.passNotice') }}</p>
+            </div>
+
+            <div
+              v-else-if="getSelectedActionId(currentActor.name) === 'treat-self'"
+              class="p-4 bg-emerald-950/40 border border-emerald-500/50 rounded-xl flex items-center gap-3"
+            >
+              <span class="text-3xl">🛡️</span>
+              <div>
+                <p class="text-sm font-bold text-emerald-300">{{ $t('nightPhase.selfHealNotice') }}</p>
+                <p class="text-xs text-emerald-200/80 font-medium mt-0.5">
+                  {{ currentActor.name }} ({{ $te('roles.' + currentActor.role?.id + '.name') ? $t('roles.' + currentActor.role?.id + '.name') : currentActor.role?.name }})
+                </p>
+              </div>
+            </div>
+
+            <div v-else class="space-y-2">
+              <div class="flex items-center justify-between">
+                <label class="text-xs font-bold text-indigo-300 uppercase tracking-wider flex items-center gap-1.5">
+                  <span>🎯</span> {{ $t('nightPhase.step2Target') }}
+                </label>
+                <span
+                  v-if="getCurrentTargetName(currentActor.name)"
+                  class="text-xs text-indigo-300 font-bold bg-indigo-950/80 px-2.5 py-0.5 rounded-full border border-indigo-700"
+                >
+                  {{ $t('nightPhase.selectedTarget') }}:
+                  <strong class="text-white ml-1">{{ getCurrentTargetName(currentActor.name) }}</strong>
+                </span>
+              </div>
+
+              <!-- CANDIDATE PLAYER CARDS GRID -->
+              <div
+                v-if="getValidTargetsForAction(currentActor, getSelectedActionId(currentActor.name)).length === 0"
+                class="text-center py-6 bg-gray-900/60 border border-dashed border-gray-700 rounded-xl p-4"
               >
-                {{ target.name }} ({{ $te('roles.' + target.role?.id + '.name') ? $t('roles.' + target.role?.id + '.name') : target.role?.name }})
-              </option>
-            </select>
+                <p class="text-xs text-gray-400">{{ $t('nightPhase.noDeadPlayers') }}</p>
+              </div>
+
+              <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+                <button
+                  v-for="target in getValidTargetsForAction(currentActor, getSelectedActionId(currentActor.name))"
+                  :key="target.name"
+                  type="button"
+                  class="p-3 rounded-xl border text-left transition-all cursor-pointer select-none active:scale-95 flex items-center gap-2.5 min-h-[52px]"
+                  :class="
+                    getCurrentTargetName(currentActor.name) === target.name
+                      ? 'bg-gradient-to-r from-indigo-600 to-purple-600 border-indigo-300 text-white shadow-lg shadow-indigo-600/30 ring-2 ring-indigo-400'
+                      : 'bg-gray-800/90 border-gray-700 text-gray-200 hover:bg-gray-750 hover:border-gray-600'
+                  "
+                  @click="selectActorTarget(currentActor.name, target.name)"
+                >
+                  <RoleAvatar :role="target.role" :is-dead="target.isDead" size="sm" />
+                  <div class="min-w-0 flex-1">
+                    <span class="font-bold text-sm block truncate">{{ target.name }}</span>
+                    <span class="text-[10px] block truncate opacity-80">
+                      {{ $te('roles.' + target.role?.id + '.name') ? $t('roles.' + target.role?.id + '.name') : target.role?.name }}
+                    </span>
+                  </div>
+                  <span
+                    v-if="getCurrentTargetName(currentActor.name) === target.name"
+                    class="text-sm font-black text-white shrink-0"
+                  >✓</span>
+                </button>
+              </div>
+            </div>
           </div>
 
           <!-- DETECTIVE INSTANT FEEDBACK -->
           <div
-            v-if="currentActor.role?.id === 'detective' && actionMap[currentActor.name]"
+            v-if="currentActor.role?.id === 'detective' && getCurrentTargetName(currentActor.name)"
             class="bg-blue-950/50 border border-blue-500/50 p-4 rounded-xl space-y-2 mb-6 text-left"
           >
             <span class="text-xs text-blue-400 font-bold uppercase tracking-wider block">
@@ -494,15 +585,18 @@ import { mockAbilities } from '../../data/abilities';
 import { resolveNight } from '../../services/gameEngine';
 import { useGameStore } from '../../stores/gameStore';
 import { useAudio } from '../../services/useAudioService';
+import { useMultiplayer } from '../../services/useMultiplayerService';
 import PhaseHeroBanner from '../PhaseHeroBanner.vue';
 import RoleAvatar from '../RoleAvatar.vue';
 
 const store = useGameStore();
 const audio = useAudio();
+const multiplayer = useMultiplayer();
 
 const stage = ref('sleep'); // 'sleep', 'mafia-intro', 'wizard', 'morning'
 const currentActorIndex = ref(0);
 const actionMap = ref({});
+const selectedActionTypeMap = ref({});
 const resolution = ref(null);
 
 // Nostradamus state
@@ -537,7 +631,7 @@ const actorsWithAbilities = computed(() => {
   return list.sort((a, b) => {
     const prioA = getAbilityPriority(a);
     const prioB = getAbilityPriority(b);
-    return prioA - prioB;
+    return prioB - prioA; // Descending: 99 > 90 > 80 > 70 > 50 > 10
   });
 });
 
@@ -551,28 +645,216 @@ const getAbilityPriority = (player) => {
   return ability ? ability.priority : 99;
 };
 
-const getValidTargets = (actor) => {
-  if (!actor || !actor.role?.abilityIds) return [];
-  const abilityId = actor.role.abilityIds[0];
-  const ability = mockAbilities.find((a) => a.id === abilityId);
+const getAvailableActionsForActor = (actor) => {
+  if (!actor || !actor.role) return [];
+  const roleId = actor.role.id;
 
-  // Revive targets dead players
-  if (ability && ability.id === 'revive') {
+  if (roleId === 'godfather' || roleId === 'mafia') {
+    return [
+      {
+        id: 'mafia-shot',
+        nameKey: 'nightPhase.actionMafiaShot',
+        icon: '🔫',
+        descriptionKey: 'nightPhase.actionMafiaShotDesc',
+      },
+      {
+        id: 'pass',
+        nameKey: 'nightPhase.actionPass',
+        icon: '🚫',
+        descriptionKey: 'nightPhase.actionPassDesc',
+      },
+    ];
+  }
+
+  if (roleId === 'doctor') {
+    return [
+      {
+        id: 'treat',
+        nameKey: 'nightPhase.actionTreatOther',
+        icon: '💉',
+        descriptionKey: 'nightPhase.actionTreatOtherDesc',
+      },
+      {
+        id: 'treat-self',
+        nameKey: 'nightPhase.actionTreatSelf',
+        icon: '🛡️',
+        descriptionKey: 'nightPhase.actionTreatSelfDesc',
+      },
+      {
+        id: 'pass',
+        nameKey: 'nightPhase.actionPass',
+        icon: '🚫',
+        descriptionKey: 'nightPhase.actionPassDesc',
+      },
+    ];
+  }
+
+  if (roleId === 'matador') {
+    return [
+      {
+        id: 'block',
+        nameKey: 'nightPhase.actionBlock',
+        icon: '🚫',
+        descriptionKey: 'nightPhase.actionBlockDesc',
+      },
+      {
+        id: 'pass',
+        nameKey: 'nightPhase.actionPass',
+        icon: '⏭️',
+        descriptionKey: 'nightPhase.actionPassDesc',
+      },
+    ];
+  }
+
+  if (roleId === 'leon') {
+    return [
+      {
+        id: 'vigillante-shot',
+        nameKey: 'nightPhase.actionVigilanteShot',
+        icon: '🎯',
+        descriptionKey: 'nightPhase.actionVigilanteShotDesc',
+      },
+      {
+        id: 'pass',
+        nameKey: 'nightPhase.actionPass',
+        icon: '🚫',
+        descriptionKey: 'nightPhase.actionPassDesc',
+      },
+    ];
+  }
+
+  if (roleId === 'detective') {
+    return [
+      {
+        id: 'investigate',
+        nameKey: 'nightPhase.actionInvestigate',
+        icon: '🔍',
+        descriptionKey: 'nightPhase.actionInvestigateDesc',
+      },
+      {
+        id: 'pass',
+        nameKey: 'nightPhase.actionPass',
+        icon: '🚫',
+        descriptionKey: 'nightPhase.actionPassDesc',
+      },
+    ];
+  }
+
+  if (roleId === 'constantine') {
+    return [
+      {
+        id: 'revive',
+        nameKey: 'nightPhase.actionRevive',
+        icon: '✨',
+        descriptionKey: 'nightPhase.actionReviveDesc',
+      },
+      {
+        id: 'pass',
+        nameKey: 'nightPhase.actionPass',
+        icon: '🚫',
+        descriptionKey: 'nightPhase.actionPassDesc',
+      },
+    ];
+  }
+
+  if (roleId === 'saul-goodman') {
+    return [
+      {
+        id: 'buy',
+        nameKey: 'nightPhase.actionBuy',
+        icon: '💼',
+        descriptionKey: 'nightPhase.actionBuyDesc',
+      },
+      {
+        id: 'pass',
+        nameKey: 'nightPhase.actionPass',
+        icon: '🚫',
+        descriptionKey: 'nightPhase.actionPassDesc',
+      },
+    ];
+  }
+
+  // Fallback for custom roles
+  const actions = (actor.role.abilityIds || []).map((abilityId) => {
+    const ability = mockAbilities.find((a) => a.id === abilityId);
+    return {
+      id: abilityId,
+      nameKey: ability ? ability.name : abilityId,
+      icon: '✨',
+      descriptionKey: ability ? ability.description : 'Use role night ability',
+    };
+  });
+  actions.push({
+    id: 'pass',
+    nameKey: 'nightPhase.actionPass',
+    icon: '🚫',
+    descriptionKey: 'nightPhase.actionPassDesc',
+  });
+  return actions;
+};
+
+const getSelectedActionId = (actorName) => {
+  if (selectedActionTypeMap.value[actorName]) {
+    return selectedActionTypeMap.value[actorName];
+  }
+  const actor = store.livePlayers.find((p) => p.name === actorName);
+  const actions = getAvailableActionsForActor(actor);
+  return actions[0]?.id || 'pass';
+};
+
+const getCurrentTargetName = (actorName) => {
+  const val = actionMap.value[actorName];
+  if (!val) return null;
+  if (typeof val === 'string') return val;
+  return val.target || null;
+};
+
+const getValidTargetsForAction = (actor, actionId) => {
+  if (!actor) return [];
+  if (actionId === 'revive') {
     return store.livePlayers.filter((p) => p.isDead);
   }
-
-  // Doctor can target self
-  if (ability && (ability.id === 'treat' || actor.role?.id === 'doctor')) {
-    return alivePlayers.value;
+  if (actionId === 'treat-self') {
+    return [actor];
   }
-
-  // All other roles (Leon, Detective, Godfather, Matador, Saul Goodman, Nostradamus, etc.) CANNOT target themselves
+  if (actionId === 'treat') {
+    return alivePlayers.value.filter((p) => p.name !== actor.name);
+  }
   return alivePlayers.value.filter((p) => p.name !== actor.name);
+};
+
+const getValidTargets = (actor) => {
+  const actionId = getSelectedActionId(actor?.name);
+  return getValidTargetsForAction(actor, actionId);
+};
+
+const selectActorAction = (actorName, actionId) => {
+  selectedActionTypeMap.value[actorName] = actionId;
+  if (actionId === 'pass') {
+    actionMap.value[actorName] = null;
+  } else if (actionId === 'treat-self') {
+    actionMap.value[actorName] = { target: actorName, actionId: 'treat' };
+  } else {
+    const currentTarget = getCurrentTargetName(actorName);
+    const actor = store.livePlayers.find((p) => p.name === actorName);
+    const validTargets = getValidTargetsForAction(actor, actionId).map((p) => p.name);
+    if (currentTarget && validTargets.includes(currentTarget)) {
+      actionMap.value[actorName] = { target: currentTarget, actionId };
+    } else {
+      actionMap.value[actorName] = null;
+    }
+  }
+};
+
+const selectActorTarget = (actorName, targetName) => {
+  const actionId = getSelectedActionId(actorName);
+  if (actionId === 'pass') return;
+  actionMap.value[actorName] = { target: targetName, actionId };
 };
 
 const detectiveInquiryResult = computed(() => {
   if (!currentActor.value || currentActor.value.role?.id !== 'detective') return null;
-  const targetName = actionMap.value[currentActor.value.name];
+  const targetName = getCurrentTargetName(currentActor.value.name);
   if (!targetName) return null;
 
   const targetPlayer = store.livePlayers.find((p) => p.name === targetName);
@@ -675,8 +957,26 @@ const startNextDay = () => {
 onMounted(() => {
   stage.value = 'sleep';
   actionMap.value = {};
+  selectedActionTypeMap.value = {};
   resolution.value = null;
   nostradamusSelectedNames.value = [];
   audio.playNightFall();
+
+  // Listen for mobile players submitting night actions live
+  multiplayer.setOnPlayerAction((data) => {
+    if (data && data.actor) {
+      if (data.actionId) {
+        selectedActionTypeMap.value[data.actor] = data.actionId;
+      }
+      if (data.target) {
+        actionMap.value[data.actor] = {
+          target: data.target,
+          actionId: data.actionId || selectedActionTypeMap.value[data.actor] || 'ability',
+        };
+      } else {
+        actionMap.value[data.actor] = null;
+      }
+    }
+  });
 });
 </script>

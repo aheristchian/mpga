@@ -487,13 +487,15 @@
         </div>
 
         <!-- NIGHT ACTION CONSOLE (If Night & Player is Alive & Role has abilities) -->
+        <!-- NIGHT ACTION CONSOLE (If Night & Player is Alive & Role has abilities) -->
         <div
           v-if="
             publicState?.subPhase === 'night' &&
             !playerIdentity.isDead &&
-            playerIdentity.role?.sideId !== 'citizen'
+            playerIdentity.role?.sideId !== 'citizen' &&
+            availableNightActions.length > 0
           "
-          class="bg-indigo-950/40 border border-indigo-500/40 p-4 rounded-xl space-y-3"
+          class="bg-indigo-950/40 border border-indigo-500/40 p-4 rounded-xl space-y-4"
         >
           <div class="flex items-center gap-2">
             <span class="text-xl">🌙</span>
@@ -505,30 +507,88 @@
             </div>
           </div>
 
-          <!-- Living Targets Dropdown/Grid -->
-          <div class="space-y-2">
-            <select
-              v-model="selectedNightTarget"
-              class="w-full bg-gray-900 border border-indigo-500/50 text-white text-xs p-2.5 rounded-lg focus:outline-none"
-            >
-              <option value="" disabled>{{ $t('playerClient.selectPlayerOption') }}</option>
-              <option v-for="target in livingOtherPlayers" :key="target.name" :value="target.name">
-                {{ target.name }}
-              </option>
-            </select>
-
-            <button
-              :disabled="!selectedNightTarget || submittedNightTarget"
-              class="w-full min-h-[44px] py-3 bg-indigo-600 hover:bg-indigo-500 active:scale-95 active:brightness-90 disabled:opacity-50 text-white font-bold text-sm rounded-xl transition-all cursor-pointer shadow-md select-none"
-              @click="handleNightActionSubmit"
-            >
-              {{
-                submittedNightTarget
-                  ? $t('playerClient.actionSubmitted')
-                  : $t('playerClient.submitAction')
-              }}
-            </button>
+          <!-- STEP 1: ACTION SELECTION BUTTONS -->
+          <div class="space-y-1.5 text-left">
+            <label class="text-[10px] font-bold uppercase text-indigo-400 tracking-wider">
+              {{ $t('playerClient.step1Action') }}
+            </label>
+            <div class="grid grid-cols-2 gap-2">
+              <button
+                v-for="action in availableNightActions"
+                :key="action.id"
+                type="button"
+                :disabled="submittedNightTarget"
+                class="p-2.5 rounded-xl border text-left transition-all text-xs font-bold flex items-center gap-2 cursor-pointer active:scale-95 select-none min-h-[44px]"
+                :class="
+                  currentActionId === action.id
+                    ? 'bg-indigo-600 border-indigo-300 text-white shadow-md ring-2 ring-indigo-400'
+                    : 'bg-gray-900/80 border-gray-700 text-gray-300 hover:bg-gray-800'
+                "
+                @click="selectPlayerAction(action.id)"
+              >
+                <span class="text-base shrink-0">{{ action.icon }}</span>
+                <span class="truncate">{{ $te(action.nameKey) ? $t(action.nameKey) : action.nameKey }}</span>
+              </button>
+            </div>
           </div>
+
+          <!-- STEP 2: TARGET SELECTION -->
+          <div v-if="currentActionId === 'pass'" class="p-3 bg-gray-900/80 border border-dashed border-gray-700 rounded-xl text-center">
+            <span class="text-xl block">🚫</span>
+            <p class="text-xs font-bold text-gray-300 mt-1">{{ $t('nightPhase.passNotice') }}</p>
+          </div>
+
+          <div v-else-if="currentActionId === 'treat-self'" class="p-3 bg-emerald-950/50 border border-emerald-500/50 rounded-xl text-center">
+            <span class="text-xl block">🛡️</span>
+            <p class="text-xs font-bold text-emerald-300 mt-1">{{ $t('nightPhase.selfHealNotice') }}</p>
+          </div>
+
+          <div v-else class="space-y-1.5 text-left">
+            <div class="flex items-center justify-between">
+              <label class="text-[10px] font-bold uppercase text-indigo-400 tracking-wider">
+                {{ $t('playerClient.step2Target') }}
+              </label>
+              <span v-if="selectedNightTarget" class="text-[11px] font-bold text-indigo-300">
+                {{ selectedNightTarget }}
+              </span>
+            </div>
+
+            <div v-if="validNightTargets.length === 0" class="p-3 bg-gray-900/60 rounded-lg text-center text-xs text-gray-400">
+              {{ $t('nightPhase.noDeadPlayers') }}
+            </div>
+
+            <div v-else class="grid grid-cols-2 gap-2">
+              <button
+                v-for="target in validNightTargets"
+                :key="target.name"
+                type="button"
+                :disabled="submittedNightTarget"
+                class="p-2.5 rounded-xl border text-left transition-all text-xs font-bold flex items-center gap-2 cursor-pointer active:scale-95 select-none min-h-[44px]"
+                :class="
+                  selectedNightTarget === target.name
+                    ? 'bg-gradient-to-r from-indigo-600 to-purple-600 border-indigo-300 text-white shadow-md ring-2 ring-indigo-400'
+                    : 'bg-gray-900/80 border-gray-700 text-gray-300 hover:bg-gray-800'
+                "
+                @click="selectedNightTarget = target.name"
+              >
+                <span class="truncate flex-1">{{ target.name }}</span>
+                <span v-if="selectedNightTarget === target.name" class="text-xs">✓</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- SUBMIT BUTTON -->
+          <button
+            :disabled="(!selectedNightTarget && currentActionId !== 'pass' && currentActionId !== 'treat-self') || submittedNightTarget"
+            class="w-full min-h-[44px] py-3 bg-indigo-600 hover:bg-indigo-500 active:scale-95 active:brightness-90 disabled:opacity-40 text-white font-bold text-sm rounded-xl transition-all cursor-pointer shadow-lg select-none"
+            @click="handleNightActionSubmit"
+          >
+            {{
+              submittedNightTarget
+                ? $t('playerClient.actionSubmitted')
+                : $t('playerClient.submitAction')
+            }}
+          </button>
 
           <!-- Instant Detective Result Feedback -->
           <div
@@ -630,6 +690,7 @@ const inputPasscode = ref('');
 const lobbyNameInput = ref('');
 const isEditingName = ref(false);
 const isRoleRevealed = ref(false);
+const selectedNightActionId = ref('');
 const selectedNightTarget = ref('');
 const submittedNightTarget = ref(false);
 const detectiveResult = ref(null);
@@ -648,10 +709,94 @@ const lobbyPlayersList = computed(() => {
   return [];
 });
 
+const availableNightActions = computed(() => {
+  const roleId = playerIdentity.value?.role?.id;
+  if (!roleId) return [];
+
+  if (roleId === 'godfather' || roleId === 'mafia') {
+    return [
+      { id: 'mafia-shot', nameKey: 'nightPhase.actionMafiaShot', icon: '🔫' },
+      { id: 'pass', nameKey: 'nightPhase.actionPass', icon: '🚫' },
+    ];
+  }
+  if (roleId === 'doctor') {
+    return [
+      { id: 'treat', nameKey: 'nightPhase.actionTreatOther', icon: '💉' },
+      { id: 'treat-self', nameKey: 'nightPhase.actionTreatSelf', icon: '🛡️' },
+      { id: 'pass', nameKey: 'nightPhase.actionPass', icon: '🚫' },
+    ];
+  }
+  if (roleId === 'matador') {
+    return [
+      { id: 'block', nameKey: 'nightPhase.actionBlock', icon: '🚫' },
+      { id: 'pass', nameKey: 'nightPhase.actionPass', icon: '🚫' },
+    ];
+  }
+  if (roleId === 'leon') {
+    return [
+      { id: 'vigillante-shot', nameKey: 'nightPhase.actionVigilanteShot', icon: '🎯' },
+      { id: 'pass', nameKey: 'nightPhase.actionPass', icon: '🚫' },
+    ];
+  }
+  if (roleId === 'detective') {
+    return [
+      { id: 'investigate', nameKey: 'nightPhase.actionInvestigate', icon: '🔍' },
+      { id: 'pass', nameKey: 'nightPhase.actionPass', icon: '🚫' },
+    ];
+  }
+  if (roleId === 'constantine') {
+    return [
+      { id: 'revive', nameKey: 'nightPhase.actionRevive', icon: '✨' },
+      { id: 'pass', nameKey: 'nightPhase.actionPass', icon: '🚫' },
+    ];
+  }
+  if (roleId === 'saul-goodman') {
+    return [
+      { id: 'buy', nameKey: 'nightPhase.actionBuy', icon: '💼' },
+      { id: 'pass', nameKey: 'nightPhase.actionPass', icon: '🚫' },
+    ];
+  }
+
+  const list = (playerIdentity.value?.role?.abilityIds || []).map((abId) => ({
+    id: abId,
+    nameKey: abId,
+    icon: '✨',
+  }));
+  list.push({ id: 'pass', nameKey: 'nightPhase.actionPass', icon: '🚫' });
+  return list;
+});
+
+const currentActionId = computed(() => {
+  if (selectedNightActionId.value) return selectedNightActionId.value;
+  return availableNightActions.value[0]?.id || 'pass';
+});
+
+const validNightTargets = computed(() => {
+  const actionId = currentActionId.value;
+  const allLiving = publicState.value?.livingPlayers || [];
+  const allPlayers = publicState.value?.allPlayers || publicState.value?.setupPlayers || [];
+
+  if (actionId === 'revive') {
+    const livingNames = new Set(allLiving.map((p) => p.name));
+    return allPlayers.filter((p) => !livingNames.has(p.name) || p.isDead);
+  }
+  if (actionId === 'treat-self') {
+    return [playerIdentity.value].filter(Boolean);
+  }
+  return allLiving.filter((p) => p.name !== playerIdentity.value?.name);
+});
+
+const selectPlayerAction = (actionId) => {
+  selectedNightActionId.value = actionId;
+  selectedNightTarget.value = '';
+  if (actionId === 'treat-self') {
+    selectedNightTarget.value = playerIdentity.value?.name;
+  }
+};
+
 const livingOtherPlayers = computed(() => {
   if (!publicState.value?.livingPlayers) return [];
   const myRole = playerIdentity.value?.role?.id;
-  // Doctor can target themselves; all other roles (Leon, Detective, Godfather, etc.) cannot
   if (myRole === 'doctor') {
     return publicState.value.livingPlayers;
   }
@@ -717,8 +862,18 @@ const handleDisconnect = () => {
 };
 
 const handleNightActionSubmit = () => {
-  if (!selectedNightTarget.value) return;
-  multiplayer.sendNightAction(selectedNightTarget.value);
+  const actionId = currentActionId.value;
+  let target = selectedNightTarget.value;
+
+  if (actionId === 'pass') {
+    target = null;
+  } else if (actionId === 'treat-self') {
+    target = playerIdentity.value?.name;
+  }
+
+  if (!target && actionId !== 'pass') return;
+
+  multiplayer.sendNightAction(target, actionId === 'treat-self' ? 'treat' : actionId);
   submittedNightTarget.value = true;
 
   // If player is Detective, show inquiry feedback

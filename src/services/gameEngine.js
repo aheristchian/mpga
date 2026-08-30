@@ -1,19 +1,19 @@
 import { mockAbilities } from '../data/abilities';
 
 /**
- * Resolves all night actions based on their priority.
+ * Resolves all night actions based on their priority in descending order (highest executes first).
  *
- * Priorities based on rules:
- * 1. Choose Side (Nostradamus)
- * 2. Mafia Shot (Godfather)
- * 3. Blocks/Buys (Matador/Saul) - Applies limits to lower priority
- * 4. Vig Shot (Leon) & Treat (Doctor)
- * 5. Investigate (Detective)
- * 6. Revive (Constantine)
+ * Standardized Priority Scale:
+ * - 99: Passive Immunity & Sixth Sense (Shields, Unlimited Shields)
+ * - 90: Blocks & Buys (Matador Block, Saul Goodman Bribe)
+ * - 80: Medical Treatments & Saves (Doctor Treat)
+ * - 70: Lethal Night Shots (Godfather Shot, Leon Vigilante Shot)
+ * - 50: Inquiries & Allegiances (Detective Inquiry, Nostradamus Choice)
+ * - 10: Revivals (Constantine Revival)
  *
  * @param {Array} players - Array of player objects with roles.
- * @param {Object} actionMap - Key: Player Name (actor), Value: Player Name (target)
- * @returns {Object} result - { deadPlayers: Array, log: Array }
+ * @param {Object} actionMap - Key: Player Name (actor), Value: Player Name (target) or Action Payload Object
+ * @returns {Object} result - { deaths: Array, revived: Array, log: Array }
  */
 export const resolveNight = (players, actionMap) => {
   const log = [];
@@ -24,31 +24,44 @@ export const resolveNight = (players, actionMap) => {
 
   // Extract and enrich actions with priority data
   const actions = [];
-  for (const [actorName, targetName] of Object.entries(actionMap)) {
-    if (!targetName) continue; // Skip empty actions
+  for (const [actorName, actionValue] of Object.entries(actionMap)) {
+    if (!actionValue) continue; // Skip empty actions
+
+    let targetName = null;
+    let explicitAbilityId = null;
+
+    if (typeof actionValue === 'string') {
+      targetName = actionValue;
+    } else if (typeof actionValue === 'object') {
+      targetName = actionValue.target || null;
+      explicitAbilityId = actionValue.actionId || actionValue.abilityId || null;
+    }
+
+    if (!targetName) continue;
 
     const actor = players.find((p) => p.name === actorName);
     const target = players.find((p) => p.name === targetName);
 
     if (!actor || !target || actor.isDead) continue;
 
-    // Get the actor's primary active ability (assuming 1 active per role for simplicity)
-    const activeAbilities = actor.role.abilityIds || [];
-    if (activeAbilities.length === 0) continue;
+    // Determine the active ability
+    const activeAbilities = actor.role?.abilityIds || [];
+    const targetAbilityId = explicitAbilityId || activeAbilities[0];
+    if (!targetAbilityId) continue;
 
-    const ability = mockAbilities.find((a) => a.id === activeAbilities[0]);
+    const ability = mockAbilities.find((a) => a.id === targetAbilityId);
     if (!ability) continue;
 
     actions.push({
       actor,
       target,
       ability,
-      priority: ability.priority,
+      priority: ability.priority ?? 50,
     });
   }
 
-  // Sort actions by priority (lowest number = happens first)
-  actions.sort((a, b) => a.priority - b.priority);
+  // Sort actions descending by priority (higher priority number executes first: 99 > 90 > 80 > 70 > 50 > 10)
+  actions.sort((a, b) => b.priority - a.priority);
 
   // Resolution Loop
   for (const action of actions) {

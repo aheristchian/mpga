@@ -100,14 +100,13 @@ The voting phase consists of three structured stages:
 1. **Sleep Call:** The town goes to sleep (all players close eyes).
 2. **Step 0 — Night 1 Mafia Team Introduction:**
    * On Night 1, all living Mafia members wake up together silently to recognize their teammates. No shots or kills take place.
-3. **Sequential Role Wake-Ups:** The moderator wakes up active roles one by one in order:
+3. **Sequential Role Wake-Ups (Descending Priority Order):**
+   * The moderator wakes up active roles one by one in standardized descending priority order ($99 > 90 > 80 > 70 > 50 > 10$).
+   * **Two-Step Tactile Action UI:** For each active role, both the moderator cockpit and player mobile clients feature an intuitive two-step action flow:
+     * **Step 1 (Select Action Type):** Tap explicit action buttons (e.g. `[🔫 Mafia Shot]` vs `[🚫 Pass Turn]` for Godfather; `[💉 Treat Teammate]`, `[🛡️ Self-Heal]`, or `[🚫 Pass]` for Doctor; `[🚫 Block Target]` vs `[🚫 Pass]` for Matador; `[🎯 Vigilante Shot]` vs `[🚫 Pass]` for Leon; `[✨ Revive]` for Constantine).
+     * **Step 2 (Select Candidate Player):** Tap the target candidate from a dynamically filtered visual player card grid (e.g., self-only for Doctor emergency save, living opponents for shots/blocks/investigations, dead players for Constantine revive).
    * **Nostradamus (Night 1 only):** Selects up to 3 living players. The app calculates how many are Mafia, prompting the moderator to show the number on fingers. Nostradamus also secretly chooses their allegiance (Town or Mafia).
-   * **Godfather / Mafia:** Chooses a target for the night kill (self-targeting disabled).
-   * **Matador:** Selects a target to block (self-targeting disabled).
-   * **Doctor:** Selects a player to protect/treat (self-targeting allowed).
-   * **Detective:** Investigates a player (self-targeting disabled; moderator confirms thumbs up/down).
-   * **Leon (Vigilante):** Takes a town shot (self-targeting disabled; guilt penalty kills Leon if shooting Town).
-   * **Constantine:** Chooses whether to revive a dead player.
+   * **Detective Inquiry:** When investigating a target, instant visual feedback (`👍 Guilty Mafia` / `👎 Innocent Town`) appears immediately on screen.
 4. **Night Resolution Engine:** The app resolves all actions according to priority order, accounting for shields, blocks, saves, and Leon guilt penalties.
 5. **Morning Report:** The moderator wakes the town, announces the night's public outcome (who died, or "Nobody died"), and advances to Day $N+1$.
 
