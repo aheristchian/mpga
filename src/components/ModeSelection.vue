@@ -1,11 +1,7 @@
 <template>
   <div class="w-full max-w-5xl mx-auto space-y-6">
-    <!-- HEADER -->
-    <div class="text-center space-y-2.5 mb-6">
-      <div class="inline-flex items-center gap-2 px-3.5 py-1 bg-gray-800/90 border border-gray-700/80 rounded-full text-xs font-semibold text-gray-300 shadow-sm">
-        <span class="w-4 h-4 inline-block" v-html="mpgaLogo"></span>
-        <span>{{ $t('app.badge') }}</span>
-      </div>
+    <!-- HEADER (NO REDUNDANT TOP BADGE AS APP.VUE ALREADY PROVIDES IT) -->
+    <div class="text-center space-y-2 mb-6">
       <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
         {{ $t('modeSelection.title') }}
       </h2>
@@ -31,11 +27,11 @@
           ✓
         </div>
 
-        <div>
+        <div class="flex-1 flex flex-col justify-between">
           <!-- COMPACT HEADER -->
-          <div class="p-4 sm:p-5 flex items-center justify-between gap-3">
+          <div class="p-4 sm:p-5 flex items-center justify-between gap-3 min-h-[76px]">
             <div class="flex items-center gap-3.5 min-w-0">
-              <!-- SCENARIO ICON (CLEAN VECTOR ARTWORK, NO REDUNDANT BORDER) -->
+              <!-- SCENARIO ICON (CLEAN BOLD VECTOR ARTWORK, NO REDUNDANT BORDER) -->
               <div
                 class="w-12 h-12 rounded-xl flex items-center justify-center p-2 flex-shrink-0 shadow-sm transition-transform duration-300 group-hover:scale-105"
                 :class="
@@ -88,14 +84,14 @@
 
           <!-- DETAILS DRAWER (COLLAPSIBLE ON MOBILE, ALWAYS SHOWN SIDE-BY-SIDE ON DESKTOP) -->
           <div
-            class="grid transition-all duration-300 ease-in-out md:!grid-rows-[1fr] md:!opacity-100"
+            class="grid transition-all duration-300 ease-in-out md:!grid-rows-[1fr] md:!opacity-100 flex-1"
             :class="selectedModeId === mode.id ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none md:pointer-events-auto'"
           >
-            <div class="overflow-hidden">
-              <div class="px-4 sm:px-5 pb-5 pt-0 space-y-4 border-t border-gray-800/60">
-                <!-- VECTOR ILLUSTRATION BANNER (SEAMLESS WITHOUT REDUNDANT BORDER) -->
+            <div class="overflow-hidden h-full flex flex-col justify-between">
+              <div class="px-4 sm:px-5 pb-5 pt-0 space-y-3.5 border-t border-gray-800/60 flex-1 flex flex-col justify-between">
+                <!-- VECTOR ILLUSTRATION BANNER -->
                 <div
-                  class="w-full h-32 sm:h-36 mt-3 rounded-xl overflow-hidden flex items-center justify-center relative shadow-inner bg-gradient-to-b from-gray-950/80 to-gray-900/60"
+                  class="w-full h-32 sm:h-36 mt-3 rounded-xl overflow-hidden flex items-center justify-center relative shadow-inner bg-gradient-to-b from-gray-950/80 to-gray-900/60 shrink-0"
                 >
                   <div
                     v-if="getSvg(mode.id)"
@@ -107,30 +103,33 @@
                   </div>
                 </div>
 
-                <!-- DESCRIPTION -->
-                <p class="text-xs sm:text-sm text-gray-300 leading-relaxed min-h-[44px]">
-                  {{ $t('modes.' + mode.id + '.description') }}
-                </p>
+                <!-- DESCRIPTION (UNIFORM HEIGHT FOR CRISP ALIGNMENT) -->
+                <div class="h-14 sm:h-12 flex items-center">
+                  <p class="text-xs sm:text-sm text-gray-300 leading-relaxed line-clamp-3">
+                    {{ $t('modes.' + mode.id + '.description') }}
+                  </p>
+                </div>
 
-                <!-- CORE ROLES PREVIEW -->
-                <div class="pt-2 border-t border-gray-800/80">
-                  <span class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-2">
+                <!-- CORE ROLES PREVIEW (UNIFORM HEIGHT & START ALIGNMENT) -->
+                <div class="pt-2.5 border-t border-gray-800/80">
+                  <span class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">
                     {{ $t('modeSelection.includedRoles') }}
                   </span>
-                  <div class="flex flex-wrap gap-1.5 min-h-[58px]">
+                  <div class="flex flex-wrap content-start items-start gap-1.5 h-16 sm:h-14 overflow-hidden">
                     <span
                       v-for="role in getModeRoles(mode.id)"
                       :key="role.id"
-                      class="px-2 py-0.5 rounded-lg text-xs font-medium border"
+                      class="px-2 py-0.5 rounded-lg text-xs font-medium border inline-flex items-center gap-1 self-start"
                       :class="getRoleBadgeClass(role.sideId)"
                     >
-                      {{ role.icon }} {{ $te('roles.' + role.id + '.name') ? $t('roles.' + role.id + '.name') : role.name }}
+                      <span>{{ role.icon }}</span>
+                      <span>{{ $te('roles.' + role.id + '.name') ? $t('roles.' + role.id + '.name') : role.name }}</span>
                     </span>
                   </div>
                 </div>
 
-                <!-- TIMINGS & STATS BAR -->
-                <div class="pt-2 border-t border-gray-800 grid grid-cols-3 gap-2 text-center">
+                <!-- TIMINGS & STATS BAR (UNIFORM 3-COLUMN GRID) -->
+                <div class="pt-2.5 border-t border-gray-800 grid grid-cols-3 gap-2 text-center shrink-0">
                   <div class="bg-gray-800/60 p-2 rounded-xl border border-gray-750">
                     <span class="block text-[10px] uppercase font-bold text-gray-400">{{ $t('modeSelection.speechTime') }}</span>
                     <span class="text-xs sm:text-sm font-mono font-black text-white">⏱️ {{ mode.timeToTalk }}s</span>
@@ -145,11 +144,11 @@
                   </div>
                 </div>
 
-                <!-- IN-CARD DIRECT ACTION BUTTON -->
-                <div class="pt-2">
+                <!-- IN-CARD DIRECT ACTION BUTTON (IDENTICAL HEIGHT) -->
+                <div class="pt-2 shrink-0">
                   <button
                     v-if="selectedModeId === mode.id"
-                    class="w-full bg-gradient-to-r hover:brightness-110 active:scale-[0.98] text-white py-3.5 px-4 rounded-xl font-black text-sm shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2"
+                    class="w-full h-12 bg-gradient-to-r hover:brightness-110 active:scale-[0.98] text-white px-4 rounded-xl font-black text-sm shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2"
                     :class="
                       mode.id === 'godfather'
                         ? 'from-red-600 via-rose-600 to-amber-600 shadow-red-600/30'
@@ -163,7 +162,7 @@
 
                   <button
                     v-else
-                    class="w-full bg-gray-800/90 hover:bg-gray-700 text-gray-300 hover:text-white border border-gray-700 py-3 px-4 rounded-xl font-bold text-sm transition-all cursor-pointer flex items-center justify-center gap-2"
+                    class="w-full h-12 bg-gray-800/90 hover:bg-gray-700 text-gray-300 hover:text-white border border-gray-700 px-4 rounded-xl font-bold text-sm transition-all cursor-pointer flex items-center justify-center gap-2"
                     @click.stop="selectMode(mode.id)"
                   >
                     <span>{{ $t('modeSelection.selectMode') }}</span>
@@ -202,13 +201,12 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useGameService } from '../services/useGameService';
-import { getModeIllustration, getScenarioIcon, getMpgaLogo } from '../data/modeIllustrations';
+import { getModeIllustration, getScenarioIcon } from '../data/modeIllustrations';
 
 const emit = defineEmits(['mode-selected']);
 const { modes, fetchGameData } = useGameService();
 const availableModes = ref([]);
 const selectedModeId = ref('godfather');
-const mpgaLogo = getMpgaLogo();
 
 onMounted(async () => {
   await fetchGameData();

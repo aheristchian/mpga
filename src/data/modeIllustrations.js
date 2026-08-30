@@ -179,25 +179,36 @@ export const scenarioIconSvgMap = {
       <defs>
         <linearGradient id="ic-cl-gold" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stop-color="#FDE047" />
-          <stop offset="100%" stop-color="#D97706" />
+          <stop offset="50%" stop-color="#F59E0B" />
+          <stop offset="100%" stop-color="#B45309" />
         </linearGradient>
         <linearGradient id="ic-cl-blue" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#60A5FA" />
+          <stop offset="0%" stop-color="#93C5FD" />
+          <stop offset="50%" stop-color="#3B82F6" />
           <stop offset="100%" stop-color="#1D4ED8" />
         </linearGradient>
       </defs>
-      <!-- Scales Beam -->
-      <line x1="8" y1="16" x2="32" y2="16" stroke="url(#ic-cl-gold)" stroke-width="2" stroke-linecap="round"/>
-      <line x1="20" y1="8" x2="20" y2="32" stroke="url(#ic-cl-gold)" stroke-width="2" stroke-linecap="round"/>
-      <circle cx="20" cy="8" r="3" fill="url(#ic-cl-gold)"/>
-      <!-- Left Pan -->
-      <path d="M6 22 L14 22 L10 27 Z" fill="url(#ic-cl-gold)"/>
-      <line x1="10" y1="16" x2="10" y2="22" stroke="url(#ic-cl-gold)" stroke-width="1"/>
-      <!-- Right Pan -->
-      <path d="M26 22 L34 22 L30 27 Z" fill="url(#ic-cl-gold)"/>
-      <line x1="30" y1="16" x2="30" y2="22" stroke="url(#ic-cl-gold)" stroke-width="1"/>
-      <!-- Base Stand -->
-      <path d="M14 34 H26 V32 H14 Z" fill="url(#ic-cl-gold)"/>
+      <!-- Central Pillar & Stand Base -->
+      <path d="M13 33 C13 31 27 31 27 33 L29 36 H11 Z" fill="url(#ic-cl-gold)"/>
+      <rect x="18.5" y="8" width="3" height="24" rx="1.5" fill="url(#ic-cl-gold)"/>
+      <circle cx="20" cy="8" r="3.5" fill="url(#ic-cl-gold)"/>
+
+      <!-- Sturdy Balance Beam -->
+      <path d="M6 13 C12 11 28 11 34 13 L33 16 C27 14 13 14 7 16 Z" fill="url(#ic-cl-gold)"/>
+
+      <!-- Left Hanging Pan -->
+      <line x1="7" y1="15" x2="4" y2="23" stroke="url(#ic-cl-gold)" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="11" y1="15" x2="14" y2="23" stroke="url(#ic-cl-gold)" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M3 23 C3 27.5 15 27.5 15 23 Z" fill="url(#ic-cl-gold)"/>
+
+      <!-- Right Hanging Pan -->
+      <line x1="29" y1="15" x2="26" y2="23" stroke="url(#ic-cl-gold)" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="33" y1="15" x2="36" y2="23" stroke="url(#ic-cl-gold)" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M25 23 C25 27.5 37 27.5 37 23 Z" fill="url(#ic-cl-gold)"/>
+
+      <!-- Detective Center Gem / Badge -->
+      <circle cx="20" cy="20" r="4.5" fill="#0F172A" stroke="url(#ic-cl-blue)" stroke-width="1.5"/>
+      <circle cx="20" cy="20" r="2" fill="#93C5FD"/>
     </svg>
   `,
 };
