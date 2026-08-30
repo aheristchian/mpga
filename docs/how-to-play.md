@@ -254,3 +254,14 @@ MPGA is installable as a native standalone web app:
 * **Add to Home Screen:** Install directly on iOS Safari and Android Chrome with a custom launch icon and standalone fullscreen frame.
 * **Service Worker Caching:** Automatically caches all core game assets, scripts, and fonts for smooth performance in basements and low-connectivity venues.
 
+---
+
+## 14. Post-Match Time-Travel Replay & Timeline Scrubber
+
+Review and dissect finished matches turn-by-turn:
+* When a match concludes, tap **⏪ Match Replay** in the Victory Modal.
+* **Timeline Scrubber:** Scrub through every recorded event from Step 0 (initial seating) to the final victory announcement.
+* **Simulated Seating Roster:** Visually tracks who was alive vs. eliminated at that exact second, highlighting active speakers, challengers, defense nominees, night targets, and card penalties.
+* **Auto-Playback:** Tap **▶️ Auto Play** with customizable playback speeds ($1\times, 2\times, 3\times$) to watch the game unfold like a recorded demo.
+
+

@@ -715,5 +715,27 @@
     "roster": "Player Roster",
     "projectorView": "Projector View",
     "openProjectorScreen": "Open Projector Screen"
+  },
+  "replay": {
+    "modalTitle": "Post-Match Time-Travel Replay",
+    "subtitle": "Scrub through the complete timeline and review every speech, vote, and night action step-by-step.",
+    "openReplay": "Match Replay",
+    "step": "Step {current} / {total}",
+    "day": "Day {day}",
+    "phase": "Phase",
+    "play": "Auto Play",
+    "pause": "Pause",
+    "firstStep": "Start",
+    "prevStep": "Previous",
+    "nextStep": "Next",
+    "lastStep": "End",
+    "speed": "Speed",
+    "playerRoster": "Simulated Table Roster",
+    "alive": "Alive",
+    "dead": "Eliminated",
+    "initialStepTitle": "Match Setup & Seating",
+    "initialStepDetail": "All players seated and secret roles assigned. Match begins.",
+    "eventDetail": "Event Details",
+    "noEvents": "No events recorded in this match."
   }
 }

@@ -128,6 +128,7 @@ graph TD
 * **Automated TTS Voice Narration (`useVoiceNarration.js`):** Browser-native Web Speech API synthesizing bilingual narrator cues in Persian (`fa-IR`) and English (`en-US`) for sleeping calls, role wakeups, and dawn announcements.
 * **Post-Match Shareable Story Card (`MatchStoryCardModal.vue`):** Client-side HTML5 Canvas generating crisp 9:16 vertical 1080x1920 social cards featuring match stats, victory banners, survivor badges, and instant Web Share API dispatch.
 * **Big-Screen Projector / TV View (`ProjectorView.vue`):** Dedicated television and cafe projector display (`?view=projector`) showing active speaker spotlight countdown, live vote tallies, and atmospheric stealth scenery while strictly protecting secret role privacy.
+* **Post-Match Time-Travel Replay (`useMatchReplay.js` & `MatchReplayModal.vue`):** Interactive timeline scrubber reconstructing the entire match step-by-step with simulated seating roster highlights, auto-playback, and speed controls.
 
 ---
 
@@ -147,7 +148,7 @@ graph TD
 - [ ] **Game Pack Import / Export (.json / .yaml):** One-click import and export of community-created tournament rulepacks, custom roles, and house rules.
 - [ ] **In-Browser Visual "Role Studio":** GUI creator to design custom characters, abilities, SVG icons, and faction alignments without editing code.
 - [x] **1-Step Undo / Moderator Misclick Rewind:** Fast rollback button allowing the moderator to undo accidental eliminations or premature phase advances.
-- [ ] **Post-Match Time-Travel Replay:** Interactive step-by-step match timeline scrubber to replay every turn, vote, and night ability after match completion.
+- [x] **Post-Match Time-Travel Replay:** Interactive step-by-step match timeline scrubber to replay every turn, vote, and night ability after match completion.
 
 ### 🏆 3. Tournament & Competitive League Features
 - [ ] **Tournament Bracket & Multi-Table League Management:** Master standings, table rotations, point accumulation, and match scoring across multi-table tournaments.
