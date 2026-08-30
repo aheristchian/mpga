@@ -168,6 +168,50 @@
             </div>
           </div>
         </div>
+
+        <!-- CONNECTED DEVICES LIVE STATUS BAR -->
+        <div class="bg-gray-900/80 p-3 rounded-xl border border-blue-500/20 space-y-2">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-bold text-gray-300 flex items-center gap-1.5">
+              <span
+                class="w-2 h-2 rounded-full"
+                :class="
+                  multiplayer.connectedPeers.value.length > 0
+                    ? 'bg-green-400 animate-pulse'
+                    : 'bg-gray-500'
+                "
+              ></span>
+              <span>{{
+                $t('multiplayer.connectedDevices', {
+                  count: multiplayer.connectedPeers.value.length,
+                })
+              }}</span>
+            </span>
+            <span
+              v-if="multiplayer.connectedPeers.value.length > 0"
+              class="text-[10px] text-green-400 font-medium"
+            >
+              {{ $t('multiplayer.liveSyncActive') }}
+            </span>
+          </div>
+
+          <div
+            v-if="multiplayer.connectedPeers.value.length > 0"
+            class="flex items-center gap-1.5 flex-wrap"
+          >
+            <span
+              v-for="peer in multiplayer.connectedPeers.value"
+              :key="peer.peerId"
+              class="bg-blue-950/80 border border-blue-500/50 text-blue-200 text-[11px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-sm"
+            >
+              <span>📱</span>
+              <span>{{ peer.playerName || $t('multiplayer.unnamedDevice') }}</span>
+            </span>
+          </div>
+          <p v-else class="text-[11px] text-gray-400 italic">
+            {{ $t('playerEntry.waitingForPlayers') }}
+          </p>
+        </div>
       </div>
 
       <!-- TAB 2: MANUAL QUICK ADD FORM -->

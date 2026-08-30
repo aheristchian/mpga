@@ -1116,13 +1116,13 @@ onMounted(() => {
       const savedName = (localStorage.getItem('mpga_player_name') || '').trim();
       if (savedName) {
         inputPlayerName.value = savedName;
-        multiplayer.joinRoom(
-          joinCode,
-          savedName,
-          pin,
-          transport || multiplayer.transportMode.value
-        );
       }
+      multiplayer.joinRoom(
+        joinCode,
+        savedName || '',
+        pin,
+        transport || multiplayer.transportMode.value
+      );
     }
   }
 });

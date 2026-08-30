@@ -283,8 +283,6 @@ export function useMultiplayer() {
 
   // --- HOST METHODS ---
   const startHost = (code) => {
-    cleanupAllConnections();
-
     let hostCode = code;
     if (!hostCode && typeof localStorage !== 'undefined') {
       hostCode = localStorage.getItem('mpga_room_code') || '';
@@ -292,6 +290,19 @@ export function useMultiplayer() {
     if (!hostCode) {
       hostCode = generateRoomCode();
     }
+
+    // If host is already active on this room code and connected, preserve connections
+    if (
+      isHost.value &&
+      roomCode.value === hostCode &&
+      connectionStatus.value === 'connected' &&
+      ((transportMode.value === 'cloud' && hostMqttClient && hostMqttClient.connected) ||
+        (transportMode.value === 'webrtc' && hostPeer && !hostPeer.destroyed))
+    ) {
+      return;
+    }
+
+    cleanupAllConnections();
 
     roomCode.value = hostCode;
     if (typeof localStorage !== 'undefined') {
@@ -395,13 +406,13 @@ export function useMultiplayer() {
         }
       });
 
-      // Presence cleanup: purge clients inactive for > 30s
+      // Presence cleanup: purge clients inactive for > 35s
       if (hostPresenceInterval) clearInterval(hostPresenceInterval);
       hostPresenceInterval = setInterval(() => {
         const now = Date.now();
         const beforeCount = connectedPeers.value.length;
         connectedPeers.value = connectedPeers.value.filter((p) => {
-          return !p.lastSeen || now - p.lastSeen < 30000;
+          return !p.lastSeen || now - p.lastSeen < 35000;
         });
         if (connectedPeers.value.length !== beforeCount) {
           dispatchPlayerAction({
@@ -424,15 +435,32 @@ export function useMultiplayer() {
     const senderId = data.senderId;
     if (!senderId) return;
 
-    // Update peer presence timestamp
+    // Update peer presence timestamp or register newly connected peer immediately
     const existingIndex = connectedPeers.value.findIndex((p) => p.peerId === senderId);
+    const incomingPlayerName = (data.playerName || '').trim();
+
     if (existingIndex !== -1) {
       const updated = { ...connectedPeers.value[existingIndex], lastSeen: Date.now() };
-      if (data.playerName && data.playerName.trim()) {
-        updated.playerName = data.playerName.trim();
+      if (incomingPlayerName) {
+        updated.playerName = incomingPlayerName;
       }
       connectedPeers.value[existingIndex] = updated;
       connectedPeers.value = [...connectedPeers.value];
+    } else {
+      connectedPeers.value = [
+        ...connectedPeers.value,
+        {
+          peerId: senderId,
+          playerName: incomingPlayerName,
+          lastSeen: Date.now(),
+        },
+      ];
+      dispatchPlayerAction({
+        action: 'PEER_CONNECTED',
+        type: 'PEER_CONNECTED',
+        peerId: senderId,
+        playerName: incomingPlayerName,
+      });
     }
 
     // Request State / Ping
@@ -502,18 +530,10 @@ export function useMultiplayer() {
         return;
       }
 
-      if (existingIndex === -1) {
-        connectedPeers.value = [
-          ...connectedPeers.value,
-          {
-            peerId: senderId,
-            playerName,
-            lastSeen: Date.now(),
-          },
-        ];
-      } else {
-        connectedPeers.value[existingIndex] = {
-          ...connectedPeers.value[existingIndex],
+      const peerIdx = connectedPeers.value.findIndex((p) => p.peerId === senderId);
+      if (peerIdx !== -1) {
+        connectedPeers.value[peerIdx] = {
+          ...connectedPeers.value[peerIdx],
           playerName,
           lastSeen: Date.now(),
         };
@@ -553,22 +573,14 @@ export function useMultiplayer() {
         return;
       }
 
-      if (existingIndex !== -1) {
-        connectedPeers.value[existingIndex] = {
-          ...connectedPeers.value[existingIndex],
+      const peerIdx = connectedPeers.value.findIndex((p) => p.peerId === senderId);
+      if (peerIdx !== -1) {
+        connectedPeers.value[peerIdx] = {
+          ...connectedPeers.value[peerIdx],
           playerName,
           lastSeen: Date.now(),
         };
         connectedPeers.value = [...connectedPeers.value];
-      } else {
-        connectedPeers.value = [
-          ...connectedPeers.value,
-          {
-            peerId: senderId,
-            playerName,
-            lastSeen: Date.now(),
-          },
-        ];
       }
 
       sendCloudDirect(hostCode, senderId, {
@@ -727,6 +739,19 @@ export function useMultiplayer() {
   };
 
   const handleWebRTCHostIncomingData = (conn, data) => {
+    if (!data || typeof data !== 'object') return;
+
+    const existingIdx = connectedPeers.value.findIndex((p) => p.peerId === conn.peer);
+    const incomingPlayerName = (data.playerName || '').trim();
+    if (existingIdx !== -1) {
+      const updated = { ...connectedPeers.value[existingIdx], lastSeen: Date.now() };
+      if (incomingPlayerName) {
+        updated.playerName = incomingPlayerName;
+      }
+      connectedPeers.value[existingIdx] = updated;
+      connectedPeers.value = [...connectedPeers.value];
+    }
+
     if (data.type === 'GET_STATE') {
       const reqName = (data.playerName || '').trim();
       const isClaimedByOther =
@@ -757,14 +782,6 @@ export function useMultiplayer() {
     }
 
     if (data.type === 'PONG') {
-      const idx = connectedPeers.value.findIndex((peer) => peer.peerId === conn.peer);
-      if (idx !== -1) {
-        connectedPeers.value[idx] = {
-          ...connectedPeers.value[idx],
-          lastSeen: Date.now(),
-        };
-        connectedPeers.value = [...connectedPeers.value];
-      }
       return;
     }
 

@@ -384,6 +384,7 @@
     "copyLink": "Copy Join Link",
     "copied": "Copied to Clipboard!",
     "connectedDevices": "Connected Player Devices ({count})",
+    "unnamedDevice": "Device (Joining...)",
     "liveSyncActive": "Live P2P Sync Active",
     "connected": "Connected",
     "offline": "P2P Broker Offline",

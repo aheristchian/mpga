@@ -384,6 +384,7 @@
     "copyLink": "کپی لینک ورود",
     "copied": "در کلیپ‌بورد کپی شد!",
     "connectedDevices": "گوشی‌های متصل ({count})",
+    "unnamedDevice": "دستگاه (در حال ورود...)",
     "liveSyncActive": "همگام‌سازی زنده فعال است",
     "connected": "متصل",
     "offline": "سرور ارتباطی آفلاین است",

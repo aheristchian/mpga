@@ -130,9 +130,9 @@ All messages exchanged between clients and the host are serialized JSON envelope
    * `useMultiplayerService` uses a multi-subscriber `Set` allowing simultaneous listeners across `App.vue` (global routing, lobby join, state sync), `NightPhase.vue` (live night actions), and `VotingPhase.vue` (live voting tallies).
    * Subscriptions return an unsubscription function (`const unsub = multiplayer.onPlayerAction(...)`) cleanly executed on Vue component unmount (`onUnmounted`).
 2. **Reactive Peer Presence Tracking:**
-   * Connected peers are tracked with reactive timestamped records.
-   * `isPeerConnected(playerName)` and `connectedPlayerNames` provide immediate UI indicators in setup seating, moderator host modals, and live phase screens.
-   * Inactive peers are automatically pruned after 30 seconds of silence with `PEERS_UPDATED` broadcasts.
+   * Connected peers are registered immediately upon receiving any network packet (`GET_STATE`, `PING`, or `JOIN_LOBBY`) and tracked with reactive timestamped records.
+   * `isPeerConnected(playerName)` and `connectedPlayerNames` provide immediate UI indicators in setup seating, moderator host modals, live lobby status bars, and live phase screens.
+   * Inactive peers are automatically pruned after 35 seconds of silence with `PEERS_UPDATED` broadcasts to accommodate mobile background sleep throttling.
 3. **Screen Sleep & Visibility Reconnection:**
    * When mobile clients wake from sleep or background tabs via `visibilitychange` or `online` network recovery, clients automatically re-establish broker connections and request state synchronization (`reconnectClient()`).
 
