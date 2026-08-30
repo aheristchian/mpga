@@ -18,7 +18,7 @@ graph TD
     end
 
     subgraph Network Layer
-        MQTT_H <-->|WSS wss://broker.hivemq.com:8884/mqtt| CLOUD_BROKER((Public HiveMQ Broker))
+        MQTT_H <-->|WSS Broker Pool HiveMQ / EMQX / Mosquitto| CLOUD_BROKER((Public MQTT Broker Pool))
         RTC_H <-->|STUN/TURN + DataChannels| P2P_NET((Direct WebRTC Channels))
     end
 
@@ -31,8 +31,9 @@ graph TD
 ```
 
 ### ☁️ Engine 1: Cloud Relay (MQTT over Secure WebSockets — Recommended)
-* **High Availability & Zero Drops:** Connects via `wss://broker.hivemq.com:8884/mqtt` over TLS port 8884.
-* **Carrier CGNAT & Mobile 4G/5G Resilient:** Cellular data networks and restrictive corporate Wi-Fi firewalls often block direct P2P connections; Cloud Relay provides instant, 100% reliable packet routing.
+* **Multi-Broker High-Availability Pool:** Dynamically connects across a resilient pool of public WSS brokers (`broker.hivemq.com:8884`, `broker.emqx.io:8084`, `test.mosquitto.org:8081`).
+* **Automatic Failover & WebRTC Fallback:** If a broker experiences timeout or is blocked by local firewall policies, the engine automatically attempts the next broker in the pool before seamlessly falling back to direct WebRTC P2P.
+* **Carrier CGNAT & Mobile 4G/5G Resilient:** Cellular data networks and restrictive corporate Wi-Fi firewalls often block direct P2P connections; Cloud Relay provides instant, reliable packet routing.
 * **Pub/Sub Topic Isolation:**
   * Host broadcasts public state: `mpga/{roomCode}/public`
   * Host sends private role cards: `mpga/{roomCode}/client/{senderId}`

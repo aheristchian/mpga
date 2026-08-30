@@ -197,4 +197,12 @@ describe('useMultiplayerService', () => {
     expect(mp.isPeerConnected('Charlie')).toBe(false);
     expect(mp.connectedPlayerNames.value).toEqual(['Alice', 'Bob']);
   });
+
+  it('exports valid CLOUD_BROKER_URLS fallback pool', async () => {
+    const { CLOUD_BROKER_URLS, CLOUD_BROKER_URL } = await import('./useMultiplayerService');
+    expect(Array.isArray(CLOUD_BROKER_URLS)).toBe(true);
+    expect(CLOUD_BROKER_URLS.length).toBeGreaterThanOrEqual(2);
+    expect(CLOUD_BROKER_URL).toBe(CLOUD_BROKER_URLS[0]);
+    expect(CLOUD_BROKER_URLS[0]).toContain('wss://');
+  });
 });
