@@ -132,14 +132,13 @@ graph TD
 
 ### 16. Full TypeScript Migration (v2.0.0 Major Milestone)
 * **100% Strict Type Safety:** Root `tsconfig.json`, domain models in `src/types/`, typed Pinia stores, typed composable services, typed utils, and `<script setup lang="ts">` across all 23 Vue 3 Single File Components.
-* **Zero Legacy JavaScript:** Full replacement of `.js` files with `.ts`, complete type safety on P2P/MQTT networking packets, game engine night actions, and voting states.
-* **Comprehensive Test Suite Parity:** All 11 unit test suites converted to `.spec.ts` with 100% pass rate (67/67 tests) in Vitest.
+* **Comprehensive Test Suite Parity:** All 11 unit test suites converted to `.spec.ts` with 100% pass rate (71/71 tests) in Vitest.
 
 ---
 
 ## 🚀 Upcoming Roadmap & Master TODOs
 
-### 📱 1. Multiplayer & Mobile Experience
+### 📱 1. Mobile UX & Touch Polish
 - [x] **Direct Player Actions → Host Teleprompter:** Connected players submit night ability targets and daytime voting ballots directly from smartphones; choices stream live into the moderator teleprompter with manual override controls.
 - [x] **Multiplayer Presence Healing & Auto-Heartbeat:** Continuous ping/pong health checks, reactive connection status badges, and automatic reconnection handling across Cloud MQTT and WebRTC.
 - [x] **Spectator / Projector Big-Screen View (`?view=projector`):** Dedicated television and cafe projector display showing active speaker spotlight countdown, live vote tallies, and phase scenery without exposing secret roles or moderator controls.
@@ -147,22 +146,29 @@ graph TD
 - [x] **Tactile Haptic Feedback (`navigator.vibrate`):** Silent vibration cues on speaking turn start, 5-second defense warning, and night phase wake-ups.
 - [x] **Stealth OLED Night Mode:** Ultra-low luminescence pitch-black interface to eliminate face illumination and prevent physical room tells during the night phase.
 - [x] **Progressive Web App (PWA) & Offline Cache:** "Add to Home Screen" support on iOS/Android with Workbox service worker caching for low-connectivity venues.
+- [ ] **Streamlined Mobile Header & Hamburger Drawer:** Clean up top bar of `PlayerClient.vue` by moving Room PIN, audio toggle, guide button, and language switcher into an accessible hamburger drawer (`☰`).
+- [ ] **Ergonomic One-Hand Action Pills:** Scale action selection buttons and target cards to fit mobile screens with thumb-friendly reach zones and clear visual active states.
 
 ### 🧠 2. Game Engine & Modding Architecture
 - [x] **100% Declarative Role & Ability Schema Engine:** Unified single source of truth across `roles.ts`, `abilities.ts`, and auto-generated `roleGuideData.ts` with declarative priority ladder ($99 \to 90 \to 80 \to 70 \to 50 \to 10 \to 0$), auto-generated game guide, and dynamic mobile/moderator night action resolver.
-- [ ] **Game Pack Import / Export (.json / .yaml):** One-click import and export of community-created tournament rulepacks, custom roles, and house rules.
-- [ ] **In-Browser Visual "Role Studio":** GUI creator to design custom characters, abilities, SVG icons, and faction alignments without editing code.
+- [ ] **Game Pack Import / Export (.json / .yaml):** One-click export and import of community-created tournament rulepacks, custom character decks, timer presets, and house rules.
+- [ ] **In-Browser Visual "Role Studio" & Settings Panel:** GUI customizer to design custom characters, abilities, SVG icons, speaker countdown durations ($30\text{s} \dots 120\text{s}$), and challenge quotas without code changes.
 - [x] **1-Step Undo / Moderator Misclick Rewind:** Fast rollback button allowing the moderator to undo accidental eliminations or premature phase advances.
 - [x] **Post-Match Time-Travel Replay:** Interactive step-by-step match timeline scrubber to replay every turn, vote, and night ability after match completion.
 
 ### 🏆 3. Tournament & Competitive League Features
-- [ ] **Tournament Bracket & Multi-Table League Management:** Master standings, table rotations, point accumulation, and match scoring across multi-table tournaments.
+- [ ] **Official Tournament Point Calculator:** Automated match scoring per Iranian Mafia league rules:
+  - Faction victory points (Town vs. Mafia).
+  - Individual MVP / Best Player points awarded by moderator or vote.
+  - Card penalty deductions (Yellow: -0.5, Red: -1.0).
+- [ ] **Multi-Match Standings & Leaderboard:** Aggregate player scores across multi-round tournament nights with CSV/JSON export.
 - [x] **Post-Match Social Infographics:** Canvas-rendered summary story cards (MVP, decisive doctor saves, key night actions) ready to export for Instagram/WhatsApp.
 - [ ] **Automated Multi-Device E2E Simulation (Playwright):** CI simulation testing 1 host + 10 virtual player browser clients playing through complete matches.
 
 ### 🎙️ 4. Audio & Code Quality
 - [x] **TTS Voice Narration (Web Speech API):** Optional automated speech synthesis reading the night teleprompter announcements and speaker warnings.
 - [x] **TypeScript 5+ Strict Migration (v2.0.0):** Added `<script setup lang="ts">` and strict interfaces across all Pinia stores, composables, and components.
+- [ ] **ESLint TypeScript Parser Configuration:** Update `eslint.config.js` with `vue-eslint-parser` + `typescript-eslint` for clean `npm run lint` execution across all Vue SFCs.
 
 
 
