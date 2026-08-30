@@ -10,34 +10,35 @@
   </div>
 
   <!-- MODERATOR HOST VIEW -->
-  <div v-else class="min-h-screen bg-gray-900 text-white font-sans p-4 sm:p-6">
-    <header class="mb-8 relative flex flex-col items-center">
+  <div v-else class="min-h-screen bg-gray-900 text-white font-sans p-3 sm:p-6">
+    <header class="mb-6 sm:mb-8 relative flex flex-col items-center">
       <!-- TOP ACTION BAR -->
-      <div class="w-full flex justify-between items-center mb-4 gap-2 flex-wrap">
-        <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
-          <!-- LANGUAGE SWITCHER -->
+      <div class="w-full flex justify-between items-center mb-3 sm:mb-4 gap-2">
+        <!-- LEFT: LANGUAGE SWITCHER -->
+        <div class="flex items-center gap-1.5 sm:gap-2">
           <LanguageSwitcher />
+        </div>
 
+        <!-- DESKTOP TOP ACTIONS (hidden on mobile, visible on md:) -->
+        <div class="hidden md:flex items-center gap-1.5 sm:gap-2">
           <!-- SOUND FX TOGGLE BUTTON -->
           <button
-            class="p-2 sm:px-3 sm:py-1.5 bg-gray-800 hover:bg-gray-700 active:scale-95 border border-gray-700 text-gray-300 hover:text-white rounded-xl transition-all text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow shrink-0"
+            class="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 active:scale-95 border border-gray-700 text-gray-300 hover:text-white rounded-xl transition-all text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow shrink-0"
             :title="audio.isMuted.value ? $t('audio.unmute') : $t('audio.mute')"
             @click="audio.toggleMute"
           >
             <span>{{ audio.isMuted.value ? '🔇' : '🔊' }}</span>
-            <span class="hidden sm:inline">{{
-              audio.isMuted.value ? $t('audio.unmute') : $t('audio.soundOn')
-            }}</span>
+            <span>{{ audio.isMuted.value ? $t('audio.unmute') : $t('audio.soundOn') }}</span>
           </button>
 
           <!-- SOUNDTRACK MUSIC CONSOLE BUTTON -->
           <button
-            class="p-2 sm:px-3 sm:py-1.5 bg-gray-800 hover:bg-purple-950/80 active:scale-95 border border-gray-700 hover:border-purple-500/60 text-gray-300 hover:text-white rounded-xl transition-all text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow shrink-0"
+            class="px-3 py-1.5 bg-gray-800 hover:bg-purple-950/80 active:scale-95 border border-gray-700 hover:border-purple-500/60 text-gray-300 hover:text-white rounded-xl transition-all text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow shrink-0"
             :title="$t('audio.musicConsole')"
             @click="showSoundtrackModal = true"
           >
             <span :class="{ 'animate-pulse text-purple-400': audio.isPlayingMusic.value }">🎵</span>
-            <span class="hidden sm:inline max-w-[140px] truncate">
+            <span class="max-w-[140px] truncate">
               {{
                 audio.isPlayingMusic.value
                   ? audio.currentTrack.value?.title || $t('audio.musicConsole')
@@ -48,34 +49,32 @@
 
           <!-- PROJECTOR TV MODE BUTTON -->
           <button
-            class="p-2 sm:px-3 sm:py-1.5 bg-gray-800 hover:bg-indigo-950/80 active:scale-95 border border-gray-700 hover:border-indigo-500/60 text-gray-300 hover:text-white rounded-xl transition-all text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow shrink-0"
+            class="px-3 py-1.5 bg-gray-800 hover:bg-indigo-950/80 active:scale-95 border border-gray-700 hover:border-indigo-500/60 text-gray-300 hover:text-white rounded-xl transition-all text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow shrink-0"
             :title="$t('projector.openProjectorScreen')"
             @click="isProjectorMode = true"
           >
             <span>📺</span>
-            <span class="hidden sm:inline">{{ $t('projector.projectorView') }}</span>
+            <span>{{ $t('projector.projectorView') }}</span>
           </button>
 
           <!-- IN-GAME GUIDE & ROLE HIERARCHY BUTTON -->
           <button
-            class="p-2 sm:px-3 sm:py-1.5 bg-gray-800 hover:bg-amber-950/80 active:scale-95 border border-gray-700 hover:border-amber-500/60 text-gray-300 hover:text-white rounded-xl transition-all text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow shrink-0"
+            class="px-3 py-1.5 bg-gray-800 hover:bg-amber-950/80 active:scale-95 border border-gray-700 hover:border-amber-500/60 text-gray-300 hover:text-white rounded-xl transition-all text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow shrink-0"
             :title="$t('app.gameGuide')"
             @click="showGuideModal = true"
           >
             <span>📖</span>
-            <span class="hidden sm:inline">{{ $t('app.gameGuide') }}</span>
+            <span>{{ $t('app.gameGuide') }}</span>
           </button>
-        </div>
 
-        <!-- MULTIPLAYER CONNECT PHONES & START OVER -->
-        <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+          <!-- MULTIPLAYER CONNECT PHONES -->
           <button
-            class="px-2.5 py-2 sm:px-3.5 sm:py-1.5 bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 border border-blue-500/50 text-white rounded-xl transition-all text-xs font-bold flex items-center gap-1.5 shadow-md cursor-pointer shrink-0"
+            class="px-3.5 py-1.5 bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 border border-blue-500/50 text-white rounded-xl transition-all text-xs font-bold flex items-center gap-1.5 shadow-md cursor-pointer shrink-0"
             :title="$t('multiplayer.connectDevices')"
             @click="openMultiplayerModal"
           >
             <span>📱</span>
-            <span class="hidden sm:inline">{{ $t('multiplayer.connectDevices') }}</span>
+            <span>{{ $t('multiplayer.connectDevices') }}</span>
             <span
               v-if="multiplayer.connectedPeers.value.length > 0"
               class="bg-blue-900 text-blue-200 px-1.5 py-0.2 rounded-full text-[10px]"
@@ -87,29 +86,220 @@
           <!-- GLOBAL START OVER BUTTON -->
           <button
             v-if="store.gamePhase !== 'mode-selection'"
-            class="p-2 sm:px-3 sm:py-1.5 bg-gray-800 hover:bg-red-900 border border-gray-700 hover:border-red-500 text-gray-300 hover:text-white rounded-xl transition-colors text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow shrink-0"
+            class="px-3 py-1.5 bg-gray-800 hover:bg-red-900 border border-gray-700 hover:border-red-500 text-gray-300 hover:text-white rounded-xl transition-colors text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow shrink-0"
             :title="$t('app.startOver')"
             @click="showResetModal = true"
           >
             <span>↺</span>
-            <span class="hidden sm:inline">{{ $t('app.startOver') }}</span>
+            <span>{{ $t('app.startOver') }}</span>
+          </button>
+        </div>
+
+        <!-- MOBILE COMPACT ACTIONS (< md screens) -->
+        <div class="flex md:hidden items-center gap-1.5">
+          <!-- QUICK CONNECT DEVICES PILL BUTTON -->
+          <button
+            class="px-2.5 py-1.5 bg-blue-900/80 hover:bg-blue-800 active:scale-95 border border-blue-500/50 text-blue-200 rounded-xl transition-all text-xs font-bold flex items-center gap-1.5 shadow"
+            :title="$t('multiplayer.connectDevices')"
+            @click="openMultiplayerModal"
+          >
+            <span>📱</span>
+            <span
+              v-if="multiplayer.connectedPeers.value.length > 0"
+              class="bg-green-500 text-gray-950 font-black px-1.5 py-0.2 rounded-full text-[10px]"
+            >
+              {{ multiplayer.connectedPeers.value.length }}
+            </span>
+            <span v-else class="text-[11px]">{{ $t('multiplayer.connectDevicesShort') }}</span>
+          </button>
+
+          <!-- HAMBURGER MENU BUTTON -->
+          <button
+            class="p-2 bg-gray-800 hover:bg-gray-750 active:scale-95 border border-gray-700 text-gray-200 hover:text-white rounded-xl transition-all flex items-center justify-center cursor-pointer shadow shrink-0 min-w-[38px] min-h-[38px] relative"
+            :title="$t('app.menu')"
+            @click="showMobileMenu = !showMobileMenu"
+          >
+            <span
+              v-if="audio.isPlayingMusic.value"
+              class="absolute -top-0.5 -right-0.5 rtl:-right-auto rtl:-left-0.5 w-2.5 h-2.5 rounded-full bg-purple-500 animate-ping"
+            ></span>
+            <span
+              v-if="audio.isPlayingMusic.value"
+              class="absolute -top-0.5 -right-0.5 rtl:-right-auto rtl:-left-0.5 w-2.5 h-2.5 rounded-full bg-purple-500"
+            ></span>
+            <span class="text-base leading-none">{{ showMobileMenu ? '✕' : '☰' }}</span>
           </button>
         </div>
       </div>
 
+      <!-- MOBILE MENU DRAWER / MODAL -->
+      <Teleport to="body">
+        <div
+          v-if="showMobileMenu"
+          class="fixed inset-0 z-[100] flex flex-col justify-start items-center p-3 sm:p-6"
+        >
+          <!-- BACKDROP -->
+          <div
+            class="fixed inset-0 bg-black/75 backdrop-blur-md transition-opacity"
+            @click="showMobileMenu = false"
+          ></div>
+
+          <!-- SLIDE-DOWN DROPDOWN PANEL -->
+          <div
+            class="relative w-full max-w-sm bg-gray-850 border border-gray-700/80 rounded-2xl shadow-2xl p-4 text-white z-10 space-y-3 mt-1.5 animate-fade-in"
+          >
+            <!-- HEADER -->
+            <div class="flex justify-between items-center pb-2.5 border-b border-gray-700/70">
+              <div class="flex items-center gap-2">
+                <span class="w-4 h-4 inline-block" v-html="mpgaLogo"></span>
+                <h3 class="font-bold text-sm text-gray-200">
+                  {{ $t('app.menuTitle') }}
+                </h3>
+              </div>
+              <button
+                class="w-7 h-7 rounded-lg bg-gray-800 hover:bg-gray-700 active:scale-95 text-gray-400 hover:text-white flex items-center justify-center transition-all cursor-pointer text-xs"
+                @click="showMobileMenu = false"
+              >
+                ✕
+              </button>
+            </div>
+
+            <!-- MENU ITEMS LIST -->
+            <div class="space-y-2">
+              <!-- 1. SOUND FX TOGGLE -->
+              <button
+                class="w-full px-3.5 py-2.5 rounded-xl border transition-all text-xs font-semibold flex items-center justify-between cursor-pointer active:scale-98"
+                :class="
+                  audio.isMuted.value
+                    ? 'bg-gray-800/80 border-gray-700 text-gray-400 hover:bg-gray-750'
+                    : 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300 hover:bg-emerald-900/40'
+                "
+                @click="toggleSoundFxFromMenu"
+              >
+                <div class="flex items-center gap-2.5">
+                  <span class="text-base">{{ audio.isMuted.value ? '🔇' : '🔊' }}</span>
+                  <span>{{ $t('app.soundEffects') }}</span>
+                </div>
+                <span
+                  class="text-[11px] font-bold px-2 py-0.5 rounded-full"
+                  :class="
+                    audio.isMuted.value
+                      ? 'bg-gray-700 text-gray-300'
+                      : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                  "
+                >
+                  {{ audio.isMuted.value ? $t('app.soundEffectsMuted') : $t('app.soundEffectsOn') }}
+                </span>
+              </button>
+
+              <!-- 2. SOUNDTRACK CONSOLE -->
+              <button
+                class="w-full px-3.5 py-2.5 rounded-xl border border-purple-500/30 bg-purple-950/30 hover:bg-purple-900/40 text-purple-200 transition-all text-xs font-semibold flex items-center justify-between cursor-pointer active:scale-98"
+                @click="openSoundtrackFromMenu"
+              >
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <span
+                    class="text-base shrink-0"
+                    :class="{ 'animate-pulse text-purple-400': audio.isPlayingMusic.value }"
+                  >🎵</span>
+                  <div class="flex flex-col items-start min-w-0 text-start">
+                    <span class="font-bold">{{ $t('app.musicConsole') }}</span>
+                    <span class="text-[10px] text-purple-300/70 truncate max-w-[170px]">
+                      {{
+                        audio.isPlayingMusic.value
+                          ? audio.currentTrack.value?.title || $t('app.musicPlaying', { track: '' })
+                          : $t('app.musicStopped')
+                      }}
+                    </span>
+                  </div>
+                </div>
+                <span
+                  v-if="audio.isPlayingMusic.value"
+                  class="shrink-0 flex items-center gap-1 text-[10px] font-bold text-purple-400 bg-purple-950/80 px-2 py-0.5 rounded-full border border-purple-500/40"
+                >
+                  <span class="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse"></span>
+                  <span>{{ $t('audio.autoPlayOn') }}</span>
+                </span>
+              </button>
+
+              <!-- 3. MULTIPLAYER DEVICES -->
+              <button
+                class="w-full px-3.5 py-2.5 rounded-xl border border-blue-500/40 bg-blue-950/40 hover:bg-blue-900/40 text-blue-200 transition-all text-xs font-semibold flex items-center justify-between cursor-pointer active:scale-98"
+                @click="openMultiplayerFromMenu"
+              >
+                <div class="flex items-center gap-2.5">
+                  <span class="text-base">📱</span>
+                  <span>{{ $t('multiplayer.connectDevices') }}</span>
+                </div>
+                <span
+                  class="text-[11px] font-bold px-2 py-0.5 rounded-full"
+                  :class="
+                    multiplayer.connectedPeers.value.length > 0
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-800 text-gray-400 border border-gray-700'
+                  "
+                >
+                  {{
+                    multiplayer.connectedPeers.value.length > 0
+                      ? multiplayer.connectedPeers.value.length
+                      : $t('multiplayer.offline')
+                  }}
+                </span>
+              </button>
+
+              <!-- 4. PROJECTOR TV VIEW -->
+              <button
+                class="w-full px-3.5 py-2.5 rounded-xl border border-indigo-500/30 bg-indigo-950/30 hover:bg-indigo-900/40 text-indigo-200 transition-all text-xs font-semibold flex items-center justify-between cursor-pointer active:scale-98"
+                @click="openProjectorFromMenu"
+              >
+                <div class="flex items-center gap-2.5">
+                  <span class="text-base">📺</span>
+                  <span>{{ $t('app.projectorMode') }}</span>
+                </div>
+                <span class="text-[10px] text-indigo-400 font-bold rtl:rotate-180">↗</span>
+              </button>
+
+              <!-- 5. GAME GUIDE & RULES -->
+              <button
+                class="w-full px-3.5 py-2.5 rounded-xl border border-amber-500/30 bg-amber-950/30 hover:bg-amber-900/40 text-amber-200 transition-all text-xs font-semibold flex items-center justify-between cursor-pointer active:scale-98"
+                @click="openGuideFromMenu"
+              >
+                <div class="flex items-center gap-2.5">
+                  <span class="text-base">📖</span>
+                  <span>{{ $t('app.gameGuide') }}</span>
+                </div>
+                <span class="text-[10px] text-amber-400 font-bold rtl:rotate-180">↗</span>
+              </button>
+
+              <!-- 6. START OVER / RESET -->
+              <button
+                v-if="store.gamePhase !== 'mode-selection'"
+                class="w-full px-3.5 py-2.5 rounded-xl border border-red-500/30 bg-red-950/30 hover:bg-red-900/40 text-red-300 transition-all text-xs font-semibold flex items-center justify-between cursor-pointer active:scale-98"
+                @click="openResetFromMenu"
+              >
+                <div class="flex items-center gap-2.5">
+                  <span class="text-base">↺</span>
+                  <span>{{ $t('app.startOver') }}</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </Teleport>
+
       <!-- HERO HEADER -->
-      <div class="relative text-center max-w-2xl mx-auto space-y-2.5">
+      <div class="relative text-center max-w-2xl mx-auto space-y-2 mb-1">
         <!-- Sleek Tournament Cockpit Badge with MPGA Logo -->
         <div
-          class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-red-950/40 border border-red-500/30 rounded-full text-[11px] font-semibold text-red-300 tracking-wider uppercase backdrop-blur-md shadow-sm"
+          class="inline-flex items-center gap-1.5 px-3 py-1 bg-red-950/40 border border-red-500/30 rounded-full text-[10px] sm:text-[11px] font-semibold text-red-300 tracking-wider uppercase backdrop-blur-md shadow-sm"
         >
-          <span class="w-4 h-4 inline-block" v-html="mpgaLogo"></span>
+          <span class="w-3.5 h-3.5 inline-block" v-html="mpgaLogo"></span>
           <span>{{ $t('app.badge') }}</span>
         </div>
 
         <!-- Sleek Gradient Title -->
         <h1
-          class="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-white drop-shadow-md"
+          class="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-white drop-shadow-md"
         >
           <span
             class="bg-gradient-to-r from-red-500 via-rose-400 to-amber-300 bg-clip-text text-transparent"
@@ -245,6 +435,7 @@ const mpgaLogo = getMpgaLogo();
 // Detection for projector & player client view
 const isProjectorMode = ref(false);
 const isPlayerMode = ref(false);
+const showMobileMenu = ref(false);
 const showMultiplayerModal = ref(false);
 const showResetModal = ref(false);
 const showSoundtrackModal = ref(false);
@@ -402,5 +593,34 @@ const handleRolesConfirmed = (selectedRoles) => {
 const confirmResetGame = () => {
   store.resetGame();
   showResetModal.value = false;
+};
+
+const toggleSoundFxFromMenu = () => {
+  audio.toggleMute();
+};
+
+const openSoundtrackFromMenu = () => {
+  showMobileMenu.value = false;
+  showSoundtrackModal.value = true;
+};
+
+const openProjectorFromMenu = () => {
+  showMobileMenu.value = false;
+  isProjectorMode.value = true;
+};
+
+const openGuideFromMenu = () => {
+  showMobileMenu.value = false;
+  showGuideModal.value = true;
+};
+
+const openMultiplayerFromMenu = () => {
+  showMobileMenu.value = false;
+  openMultiplayerModal();
+};
+
+const openResetFromMenu = () => {
+  showMobileMenu.value = false;
+  showResetModal.value = true;
 };
 </script>

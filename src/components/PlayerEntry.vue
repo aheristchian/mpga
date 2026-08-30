@@ -220,12 +220,12 @@
           v-model="newPlayerName"
           type="text"
           :placeholder="$t('playerEntry.placeholder')"
-          class="flex-1 bg-gray-700 text-white px-4 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-town transition-all min-h-[44px]"
+          class="flex-1 min-w-0 bg-gray-700 text-white px-3.5 sm:px-4 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-town transition-all min-h-[44px] text-sm"
         />
         <button
           type="submit"
           :disabled="!newPlayerName.trim()"
-          class="bg-town hover:bg-blue-600 active:scale-95 active:brightness-90 disabled:opacity-50 disabled:cursor-not-allowed text-white px-5 py-2.5 rounded-xl font-semibold transition-all cursor-pointer min-h-[44px] select-none"
+          class="bg-town hover:bg-blue-600 active:scale-95 active:brightness-90 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 sm:px-5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer min-h-[44px] select-none whitespace-nowrap shrink-0"
         >
           {{ $t('playerEntry.add') }}
         </button>
@@ -233,10 +233,10 @@
     </div>
 
     <!-- SEATED PLAYERS ROSTER -->
-    <div class="bg-gray-800 rounded-2xl p-6 border border-gray-700 shadow-xl space-y-4">
-      <div class="flex justify-between items-center border-b border-gray-700 pb-2">
+    <div class="bg-gray-800 rounded-2xl p-4 sm:p-6 border border-gray-700 shadow-xl space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-700 pb-2.5 gap-1.5">
         <div class="flex items-center gap-2">
-          <h3 class="text-lg font-bold text-gray-200">
+          <h3 class="text-base sm:text-lg font-bold text-gray-200">
             {{ $t('playerEntry.currentPlayers') }}
           </h3>
           <span
@@ -245,7 +245,7 @@
             {{ players.length }}
           </span>
         </div>
-        <span class="text-xs text-gray-400 font-normal">
+        <span class="text-[11px] sm:text-xs text-gray-400 font-normal">
           {{ $t('playerEntry.orderBySeating') }}
         </span>
       </div>
@@ -306,7 +306,7 @@
 
         <button
           :disabled="players.length < minPlayers"
-          class="bg-green-600 hover:bg-green-500 active:scale-95 active:brightness-90 disabled:opacity-50 disabled:cursor-not-allowed text-white px-7 py-3 rounded-xl font-bold shadow-md transition-all cursor-pointer min-h-[44px] select-none flex items-center justify-center gap-1.5 w-full sm:w-auto"
+          class="bg-green-600 hover:bg-green-500 active:scale-95 active:brightness-90 disabled:opacity-50 disabled:cursor-not-allowed text-white px-5 sm:px-7 py-2.5 sm:py-3 rounded-xl font-bold text-sm sm:text-base shadow-md transition-all cursor-pointer min-h-[44px] select-none flex items-center justify-center gap-1.5 w-full sm:w-auto"
           @click="finishAddingPlayers"
         >
           <span>{{ $t('playerEntry.done') }}</span>
