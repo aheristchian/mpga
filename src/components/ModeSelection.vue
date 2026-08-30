@@ -174,27 +174,6 @@
         </div>
       </div>
     </div>
-
-    <!-- BOTTOM PROCEED BAR (SECONDARY CONVENIENCE) -->
-    <div class="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 bg-gray-900/80 border border-gray-800 p-4 rounded-2xl shadow-xl">
-      <div class="text-center sm:text-left rtl:sm:text-right">
-        <p class="text-xs text-gray-400 font-medium">
-          {{ $t('modeSelection.selected') }}:
-          <strong class="text-white text-sm font-bold ml-1 rtl:mr-1">
-            {{ selectedModeId ? $t('modes.' + selectedModeId + '.name') : '---' }}
-          </strong>
-        </p>
-      </div>
-
-      <button
-        :disabled="!selectedModeId"
-        class="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed text-white px-8 py-3 rounded-xl font-black text-sm shadow-lg shadow-blue-500/20 transition-all cursor-pointer flex items-center justify-center gap-2"
-        @click="confirmMode"
-      >
-        <span>{{ $t('modeSelection.continue') }}</span>
-        <span class="inline-block rtl:rotate-180 transform transition-transform">➔</span>
-      </button>
-    </div>
   </div>
 </template>
 

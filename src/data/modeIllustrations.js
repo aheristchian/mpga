@@ -83,9 +83,14 @@ export const modeSvgMap = {
     <svg viewBox="0 0 200 130" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
       <defs>
         <radialGradient id="cl-spot" cx="50%" cy="40%" r="60%">
-          <stop offset="0%" stop-color="#1E3A8A" stop-opacity="0.4" />
-          <stop offset="60%" stop-color="#172554" stop-opacity="0.15" />
+          <stop offset="0%" stop-color="#1E3A8A" stop-opacity="0.45" />
+          <stop offset="60%" stop-color="#172554" stop-opacity="0.2" />
           <stop offset="100%" stop-color="#09090B" stop-opacity="0" />
+        </radialGradient>
+        <radialGradient id="cl-lamp-glow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#FBBF24" stop-opacity="0.5" />
+          <stop offset="50%" stop-color="#F59E0B" stop-opacity="0.2" />
+          <stop offset="100%" stop-color="#F59E0B" stop-opacity="0" />
         </radialGradient>
         <linearGradient id="cl-blue" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stop-color="#93C5FD" />
@@ -93,12 +98,13 @@ export const modeSvgMap = {
           <stop offset="100%" stop-color="#1D4ED8" />
         </linearGradient>
         <linearGradient id="cl-gold" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#FDE047" />
-          <stop offset="50%" stop-color="#F59E0B" />
-          <stop offset="100%" stop-color="#B45309" />
+          <stop offset="0%" stop-color="#FEF08A" />
+          <stop offset="40%" stop-color="#FBBF24" />
+          <stop offset="75%" stop-color="#D97706" />
+          <stop offset="100%" stop-color="#92400E" />
         </linearGradient>
         <filter id="cl-glow" x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur stdDeviation="6" result="blur" />
+          <feGaussianBlur stdDeviation="5" result="blur" />
           <feComposite in="SourceGraphic" in2="blur" operator="over" />
         </filter>
       </defs>
@@ -106,39 +112,68 @@ export const modeSvgMap = {
       <!-- Atmospheric Radial Spotlight & Backdrop -->
       <rect width="200" height="130" rx="12" fill="url(#cl-spot)" />
 
-      <!-- Vintage Town Hall / Clock Tower & Houses -->
-      <path d="M12 105 L26 105 L26 78 L40 64 L54 78 L54 105 L78 105 L78 50 L100 28 L122 50 L122 105 L146 105 L146 78 L160 64 L174 78 L174 105 L188 105 Z" fill="#1E293B" opacity="0.65"/>
-      <line x1="10" y1="105" x2="190" y2="105" stroke="#475569" stroke-width="1.5" stroke-linecap="round"/>
+      <!-- City Skyline in Distance with Lit Windows -->
+      <path d="M10 105 L24 105 L24 74 L38 74 L38 88 L52 88 L52 64 L68 64 L68 105 L132 105 L132 70 L146 70 L146 60 L160 60 L160 82 L176 82 L176 96 L190 96 L190 105 Z" fill="#18181B" opacity="0.75"/>
+      <!-- Distant Windows -->
+      <rect x="28" y="78" width="3" height="4" rx="0.5" fill="#FEF08A" opacity="0.4"/>
+      <rect x="33" y="78" width="3" height="4" rx="0.5" fill="#FEF08A" opacity="0.3"/>
+      <rect x="56" y="68" width="3" height="4" rx="0.5" fill="#FEF08A" opacity="0.5"/>
+      <rect x="61" y="68" width="3" height="4" rx="0.5" fill="#FEF08A" opacity="0.3"/>
+      <rect x="56" y="76" width="3" height="4" rx="0.5" fill="#FEF08A" opacity="0.4"/>
+      <rect x="136" y="74" width="3" height="4" rx="0.5" fill="#FEF08A" opacity="0.4"/>
+      <rect x="150" y="65" width="3" height="4" rx="0.5" fill="#FEF08A" opacity="0.5"/>
+      <line x1="10" y1="105" x2="190" y2="105" stroke="#334155" stroke-width="1.5" stroke-linecap="round"/>
 
-      <!-- Clock Tower Halo & Face -->
-      <circle cx="100" cy="56" r="14" fill="#0F172A" stroke="#60A5FA" stroke-width="2"/>
-      <line x1="100" y1="56" x2="100" y2="48" stroke="#93C5FD" stroke-width="2" stroke-linecap="round"/>
-      <line x1="100" y1="56" x2="106" y2="56" stroke="#93C5FD" stroke-width="2" stroke-linecap="round"/>
-      <circle cx="100" cy="56" r="2" fill="#FBBF24"/>
+      <!-- Ambient Glow Halo -->
+      <circle cx="100" cy="54" r="38" fill="#3B82F6" opacity="0.12" filter="url(#cl-glow)" />
 
-      <!-- Vintage Street Lamppost on Left -->
-      <line x1="36" y1="105" x2="36" y2="40" stroke="#64748B" stroke-width="2.5" stroke-linecap="round"/>
-      <path d="M30 40 L42 40 L39 30 L33 30 Z" fill="#D97706"/>
-      <circle cx="36" cy="35" r="14" fill="#F59E0B" opacity="0.25" filter="url(#cl-glow)"/>
-      <circle cx="36" cy="35" r="4" fill="#FEF08A"/>
+      <!-- Vintage Streetlamp on Left Casting Warm Conic Glow -->
+      <polygon points="32,28 14,105 50,105" fill="#FBBF24" opacity="0.08"/>
+      <line x1="32" y1="105" x2="32" y2="28" stroke="#64748B" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M26 28 L38 28 L35 18 L29 18 Z" fill="#B45309"/>
+      <circle cx="32" cy="23" r="16" fill="url(#cl-lamp-glow)"/>
+      <circle cx="32" cy="23" r="3.5" fill="#FEF08A"/>
 
-      <!-- Detective Magnifying Glass & Doctor Cross on Right -->
-      <circle cx="156" cy="54" r="18" stroke="#60A5FA" stroke-width="3" fill="#1E3A8A" fill-opacity="0.4"/>
-      <line x1="168" y1="67" x2="182" y2="81" stroke="#93C5FD" stroke-width="5" stroke-linecap="round"/>
-      <!-- Medical Cross inside lens -->
-      <rect x="153.5" y="45" width="5" height="18" rx="2" fill="#34D399"/>
-      <rect x="147" y="51.5" width="18" height="5" rx="2" fill="#34D399"/>
+      <!-- Center Iconic Element: Scales of Justice with Balanced Factions -->
+      <!-- Scales of Justice Center Column -->
+      <rect x="98.5" y="36" width="3" height="66" rx="1.5" fill="url(#cl-gold)"/>
+      <path d="M88 102 C88 98 112 98 112 102 L116 105 H84 Z" fill="url(#cl-gold)"/>
+      <!-- Top Finial & Sheriff Star Badge -->
+      <circle cx="100" cy="34" r="4.5" fill="url(#cl-gold)"/>
+      <polygon points="100,30 101.5,33 105,33.5 102.5,36 103,39.5 100,37.5 97,39.5 97.5,36 95,33.5 98.5,33" fill="#FEF08A"/>
 
-      <!-- Golden Scales of Justice in Foreground -->
-      <line x1="78" y1="84" x2="122" y2="84" stroke="url(#cl-gold)" stroke-width="2.5" stroke-linecap="round"/>
-      <line x1="100" y1="72" x2="100" y2="102" stroke="url(#cl-gold)" stroke-width="2.5" stroke-linecap="round"/>
-      <circle cx="100" cy="72" r="3.5" fill="url(#cl-gold)"/>
-      <!-- Left Pan -->
-      <path d="M72 92 L84 92 L78 100 Z" fill="url(#cl-gold)"/>
-      <line x1="78" y1="84" x2="78" y2="92" stroke="url(#cl-gold)" stroke-width="1.2"/>
-      <!-- Right Pan -->
-      <path d="M116 92 L128 92 L122 100 Z" fill="url(#cl-gold)"/>
-      <line x1="122" y1="84" x2="122" y2="92" stroke="url(#cl-gold)" stroke-width="1.2"/>
+      <!-- Balance Beam (Curved Ornate Brass) -->
+      <path d="M64 45 C78 40 122 40 136 45 L134 49 C122 44 78 44 66 49 Z" fill="url(#cl-gold)"/>
+
+      <!-- Left Pan (Town Shield / Innocent Symbol) -->
+      <line x1="66" y1="47" x2="56" y2="68" stroke="url(#cl-gold)" stroke-width="1.2"/>
+      <line x1="72" y1="47" x2="82" y2="68" stroke="url(#cl-gold)" stroke-width="1.2"/>
+      <path d="M54 68 C54 77 84 77 84 68 Z" fill="url(#cl-gold)"/>
+      <!-- Blue Citizen / Detective Crest inside Left Pan -->
+      <circle cx="69" cy="67" r="4.5" fill="#1D4ED8" stroke="#93C5FD" stroke-width="0.8"/>
+      <path d="M66.5 67 L68.5 69 L71.5 65" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+
+      <!-- Right Pan (Mafia Threat Symbol) -->
+      <line x1="128" y1="47" x2="118" y2="68" stroke="url(#cl-gold)" stroke-width="1.2"/>
+      <line x1="134" y1="47" x2="144" y2="68" stroke="url(#cl-gold)" stroke-width="1.2"/>
+      <path d="M116 68 C116 77 146 77 146 68 Z" fill="url(#cl-gold)"/>
+      <!-- Crimson Mafia Target inside Right Pan -->
+      <circle cx="131" cy="67" r="4.5" fill="#7F1D1D" stroke="#F87171" stroke-width="0.8"/>
+      <line x1="128.5" y1="64.5" x2="133.5" y2="69.5" stroke="#FCA5A5" stroke-width="1" stroke-linecap="round"/>
+      <line x1="133.5" y1="64.5" x2="128.5" y2="69.5" stroke="#FCA5A5" stroke-width="1" stroke-linecap="round"/>
+
+      <!-- Detective Magnifying Glass on Right with Clue Reflection -->
+      <g transform="translate(150, 36)">
+        <circle cx="16" cy="16" r="14" stroke="url(#cl-blue)" stroke-width="2.5" fill="#1E3A8A" fill-opacity="0.35"/>
+        <circle cx="16" cy="16" r="11" stroke="#93C5FD" stroke-width="0.8" opacity="0.6"/>
+        <line x1="26" y1="26" x2="36" y2="36" stroke="url(#cl-gold)" stroke-width="4" stroke-linecap="round"/>
+        <path d="M9 13 C10 9 14 7 18 7" stroke="#FFFFFF" stroke-width="1.2" stroke-linecap="round" opacity="0.8"/>
+        <text x="16" y="21" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="900" fill="#60A5FA" text-anchor="middle">🔍</text>
+      </g>
+
+      <!-- Golden Stars in Sky -->
+      <polygon points="48,18 49.5,22 53.5,22 50.5,24.5 52,28.5 48,26 44,28.5 45.5,24.5 42.5,22 46.5,22" fill="url(#cl-gold)" opacity="0.8"/>
+      <polygon points="162,18 163.5,22 167.5,22 164.5,24.5 166,28.5 162,26 158,28.5 159.5,24.5 156.5,22 160.5,22" fill="url(#cl-gold)" opacity="0.8"/>
     </svg>
   `,
 };
