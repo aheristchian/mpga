@@ -106,11 +106,10 @@ graph TD
 * **Standardized Descending Numerical Priority ($99 > 90 > 80 > 70 > 50 > 10$):** Unifed night action resolution sequence with mathematical determinism in `abilities.js` and `gameEngine.js`.
 * **Dynamic Candidate Filtering:** Target rosters dynamically filter candidates according to active ability constraints (self-target rules, dead/alive constraints, multi-target quotas).
 
-### 13. Local-First Audio Engine with Automatic Online OneDrive Stream Fallback
-* **Dual-Source Audio Architecture:** Full soundtrack suite (`src/data/soundtracks.js`) configured with local offline file paths (`/audio/soundtracks/`) and online fallback stream URLs.
-* **Intelligent Cloud URL Transformation:** Added automated URL resolvers converting Microsoft OneDrive (`/view.aspx` $\to$ `/download.aspx`, `&download=1`), SharePoint, and Suno AI web links to direct playable MP3 binary audio streams.
-* **Resilient Audio Fallback Recovery:** If local audio assets are not found or fail to load, `useAudioService` smoothly catches errors and initiates seamless fallback to online streaming URLs without stopping the music.
-* **Moderator Audio Console Settings:** Added preferences in `SoundtrackConsole.vue` for toggling local-first priority, setting remote cloud base URLs, and viewing live `[📁 Local]` / `[☁️ Online]` source badges.
+### 13. Cloud CDN Soundtrack Engine & Audio Player Console
+* **Direct High-Speed CDN Streaming:** Complete MPGA soundtrack suite composed by Ali Heristchian hosted directly on GitHub Releases CDN assets with zero local binary repo bloat.
+* **Phase-Aware Audio Management:** Dynamic background music rotation per game phase (Lobby, Day, Night, Voting, Midday, Victory) with smooth crossfading and auto-DJ capabilities.
+* **Streamlined Soundtrack Console (`SoundtrackConsole.vue`):** Interactive modal for playing, pausing, track skipping, volume control, auto-play toggling, and phase playlist browsing.
 
 ### 14. In-App Interactive Role & Ability Guide (`GameGuideModal.vue`)
 * **Interactive Faction Taxonomy:** Visual hierarchy categorized by Town 🟢, Mafia 🔴, and Neutral/Third-Party 🟣.

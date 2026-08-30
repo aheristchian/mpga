@@ -18,18 +18,6 @@ const autoPlayOnPhaseChange = ref(
     : soundtrackConfig.settings.autoPlayOnPhaseChange
 );
 
-const preferLocal = ref(
-  typeof localStorage !== 'undefined' && localStorage.getItem('mpga_audio_prefer_local') !== null
-    ? localStorage.getItem('mpga_audio_prefer_local') === 'true'
-    : (soundtrackConfig.settings.preferLocal ?? true)
-);
-
-const remoteBaseUrl = ref(
-  typeof localStorage !== 'undefined' && localStorage.getItem('mpga_audio_remote_base_url') !== null
-    ? localStorage.getItem('mpga_audio_remote_base_url')
-    : (soundtrackConfig.settings.remoteBaseUrl || '')
-);
-
 // Current Track & Playback Status
 const currentTrack = ref(null);
 const isPlayingMusic = ref(false);
@@ -88,24 +76,10 @@ export function useAudio() {
     }
   };
 
-  const setPreferLocal = (val) => {
-    preferLocal.value = Boolean(val);
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('mpga_audio_prefer_local', String(preferLocal.value));
-    }
-  };
-
-  const setRemoteBaseUrl = (url) => {
-    remoteBaseUrl.value = String(url || '').trim();
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('mpga_audio_remote_base_url', remoteBaseUrl.value);
-    }
-  };
-
   /**
-   * Internal stream player with smooth crossfade and error fallback handling
+   * Internal stream player with smooth crossfade
    */
-  const playStream = (streamUrl, fallbackUrl, track, options = { fade: true }) => {
+  const playStream = (streamUrl, track, options = { fade: true }) => {
     if (!streamUrl || isMuted.value) return;
 
     if (currentTrack.value?.id === track.id && isPlayingMusic.value && currentAudioEl && !currentAudioEl.paused) {
@@ -142,13 +116,6 @@ export function useAudio() {
       });
 
       audio.addEventListener('error', (err) => {
-        if (fallbackUrl && fallbackUrl !== streamUrl) {
-          console.info(
-            `[MPGA Audio] Primary audio stream failed for "${track.title}" (${streamUrl}). Falling back to alternative URL: ${fallbackUrl}`
-          );
-          playStream(fallbackUrl, null, track, options);
-          return;
-        }
         console.warn(`[MPGA Audio] Error playing track "${track.title}" (${streamUrl}):`, err);
         isPlayingMusic.value = false;
       });
@@ -173,23 +140,12 @@ export function useAudio() {
           }, stepTime);
         }
       }).catch((e) => {
-        if (fallbackUrl && fallbackUrl !== streamUrl) {
-          console.info(
-            `[MPGA Audio] Autoplay or playback rejected for "${streamUrl}", attempting fallback: ${fallbackUrl}`
-          );
-          playStream(fallbackUrl, null, track, options);
-          return;
-        }
         console.warn('[MPGA Audio] Playback prevented by browser autoplay policy:', e);
         isPlayingMusic.value = false;
       });
 
       currentAudioEl = audio;
     } catch (e) {
-      if (fallbackUrl && fallbackUrl !== streamUrl) {
-        playStream(fallbackUrl, null, track, options);
-        return;
-      }
       console.warn('[MPGA Audio] Audio instantiation failed:', e);
     }
   };
@@ -202,13 +158,13 @@ export function useAudio() {
   const playTrack = (track, options = { fade: true }) => {
     if (!track || isMuted.value) return;
 
-    const rawUrl = track.url || track.onlineUrl || track.localUrl || '';
+    const rawUrl = track.url || '';
     if (!rawUrl || rawUrl.endsWith('_')) return;
 
-    const primaryUrl = resolveAudioUrl(rawUrl, remoteBaseUrl.value);
+    const primaryUrl = resolveAudioUrl(rawUrl);
     if (!primaryUrl) return;
 
-    playStream(primaryUrl, null, track, options);
+    playStream(primaryUrl, track, options);
   };
 
   /**
@@ -220,7 +176,7 @@ export function useAudio() {
     activePhase.value = phaseKey;
 
     const phasePlaylist = (playlists.value[phaseKey] || []).filter(
-      (t) => Boolean(t.url || t.onlineUrl || t.localUrl) && !(t.url || t.onlineUrl || t.localUrl).endsWith('_')
+      (t) => Boolean(t.url) && !t.url.endsWith('_')
     );
     if (phasePlaylist.length === 0) return;
 
@@ -466,10 +422,6 @@ export function useAudio() {
     stopMusic,
     nextTrack,
     previousTrack,
-    preferLocal,
-    setPreferLocal,
-    remoteBaseUrl,
-    setRemoteBaseUrl,
     // SFX
     playTick,
     playUrgentTick,
