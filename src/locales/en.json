@@ -306,7 +306,10 @@
     "selfHealNotice": "Self-treatment active for this player.",
     "noDeadPlayers": "No players have been eliminated yet.",
     "selectedTarget": "Selected Target",
-    "actionType": "Action"
+    "actionType": "Action",
+    "mobileActionSynced": "📱 Mobile Device Synced: {player} selected {target}",
+    "mobileActionPass": "📱 Mobile Device Synced: {player} chose to Hold / Pass",
+    "overridePrompt": "Moderator can click any option to manually override"
   },
   "audio": {
     "mute": "Mute Sound FX",
@@ -420,6 +423,12 @@
     "votedTapToRevoke": "Voted (Tap to retract)",
     "votedToEliminate": "Voted to eliminate",
     "defenderCannotVoteSelf": "You are on the defense stand and cannot vote for yourself.",
+    "stealthMode": "OLED Stealth",
+    "stealthModeDesc": "Ultra-low luminescence mode for dark rooms",
+    "wakeLockActive": "Screen Awake Active",
+    "wakeLockDisabled": "Screen Awake Inactive",
+    "nightTargetSubmitted": "✓ Choice Sent to Moderator Teleprompter",
+    "changeNightTarget": "Change Choice",
     "switchPlayerMode": "Leave Lobby / Disconnect",
     "leaveRoom": "Leave Lobby / Disconnect",
     "returnToModerator": "👑 Return to Moderator Cockpit"

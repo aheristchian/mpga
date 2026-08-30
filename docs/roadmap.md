@@ -116,17 +116,23 @@ graph TD
 * **Detailed Ability Matrix:** Breakdown of active and passive abilities ($a_1, a_2, \dots$), priority tiers, target constraints, character lore, and tournament advice.
 * **Bilingual In-Game Access:** Accessible via top-bar `[❓ Guide]` icon on both moderator cockpit and mobile player screens with secret role shielding.
 
+### 15. Live Teleprompter Auto-Fill, Screen WakeLock, Stealth OLED & Haptics
+* **Direct Mobile Actions $\to$ Teleprompter Auto-Fill (`NightPhase.vue`):** Player night choices stream live into the host teleprompter console, auto-populating action type and target with an audio chime and `📱 Mobile Device Synced` badge, backed by 100% moderator manual override capability.
+* **Screen WakeLock API (`useWakeLock.js`):** Keeps player and host screens awake without dimming, automatically releasing on background/exit and re-acquiring on visibility restoration.
+* **Stealth OLED Pitch-Black Night Mode (`PlayerClient.vue`):** Pure pitch-black UI (`#000000`) and low-luminescence muted crimson styling preventing ambient facial glow in dark party rooms during night turns.
+* **Tactile Haptic Vibration System (`useHaptics.js`):** Multi-pattern tactile feedback delivering silent physical pulses for Night Call wake-ups, speaker spotlight warnings, and action/vote confirmations.
+
 ---
 
 ## 🚀 Upcoming Roadmap & Master TODOs
 
 ### 📱 1. Multiplayer & Mobile Experience
-- [ ] **Direct Player Actions → Host Teleprompter:** Connected players submit night ability targets and daytime voting ballots directly from smartphones; choices stream live into the moderator teleprompter with manual override controls.
-- [ ] **Multiplayer Presence Healing & Auto-Heartbeat:** Continuous ping/pong health checks, reactive connection status badges, and automatic reconnection handling across Cloud MQTT and WebRTC.
+- [x] **Direct Player Actions → Host Teleprompter:** Connected players submit night ability targets and daytime voting ballots directly from smartphones; choices stream live into the moderator teleprompter with manual override controls.
+- [x] **Multiplayer Presence Healing & Auto-Heartbeat:** Continuous ping/pong health checks, reactive connection status badges, and automatic reconnection handling across Cloud MQTT and WebRTC.
 - [ ] **Spectator / Projector Big-Screen View (`?view=projector`):** Dedicated television and cafe projector display showing active speaker spotlight countdown, live vote tallies, and phase scenery without exposing secret roles or moderator controls.
-- [ ] **Screen WakeLock API (`navigator.wakeLock`):** Prevents player and moderator phone displays from dimming or sleeping during active speaker turns and defense timers.
-- [ ] **Tactile Haptic Feedback (`navigator.vibrate`):** Silent vibration cues on speaking turn start, 5-second defense warning, and night phase wake-ups.
-- [ ] **Stealth OLED Night Mode:** Ultra-low luminescence pitch-black interface to eliminate face illumination and prevent physical room tells during the night phase.
+- [x] **Screen WakeLock API (`navigator.wakeLock`):** Prevents player and moderator phone displays from dimming or sleeping during active speaker turns and defense timers.
+- [x] **Tactile Haptic Feedback (`navigator.vibrate`):** Silent vibration cues on speaking turn start, 5-second defense warning, and night phase wake-ups.
+- [x] **Stealth OLED Night Mode:** Ultra-low luminescence pitch-black interface to eliminate face illumination and prevent physical room tells during the night phase.
 - [ ] **Progressive Web App (PWA) & Offline Cache:** "Add to Home Screen" support on iOS/Android with Workbox service worker caching for low-connectivity venues.
 
 ### 🧠 2. Game Engine & Modding Architecture

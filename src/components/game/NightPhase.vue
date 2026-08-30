@@ -327,6 +327,32 @@
 
           <!-- TWO-STEP ACTION SELECTION FOR WAKING ROLE -->
           <div v-else class="space-y-6 mb-6 text-left">
+            <!-- MOBILE ACTION SYNCED BADGE -->
+            <div
+              v-if="mobileActionSyncMap[currentActor.name]"
+              class="p-3 bg-indigo-950/70 border border-indigo-500/50 rounded-xl flex items-center justify-between gap-2 shadow-inner"
+            >
+              <div class="flex items-center gap-2.5">
+                <span class="text-xl">📱</span>
+                <div>
+                  <span class="text-xs font-bold text-indigo-300 block">
+                    {{
+                      mobileActionSyncMap[currentActor.name].target
+                        ? $t('nightPhase.mobileActionSynced', {
+                            player: currentActor.name,
+                            target: mobileActionSyncMap[currentActor.name].target,
+                          })
+                        : $t('nightPhase.mobileActionPass', { player: currentActor.name })
+                    }}
+                  </span>
+                  <span class="text-[10px] text-gray-400">{{ $t('nightPhase.overridePrompt') }}</span>
+                </div>
+              </div>
+              <span class="text-[10px] bg-emerald-950/90 text-emerald-300 border border-emerald-500/60 px-2.5 py-0.5 rounded-full font-black tracking-wider animate-pulse">
+                SYNCED
+              </span>
+            </div>
+
             <!-- STEP 1: SELECT ACTION TYPE -->
             <div class="space-y-2">
               <label class="text-xs font-bold text-indigo-300 uppercase tracking-wider flex items-center gap-1.5">
@@ -597,6 +623,7 @@ const stage = ref('sleep'); // 'sleep', 'mafia-intro', 'wizard', 'morning'
 const currentActorIndex = ref(0);
 const actionMap = ref({});
 const selectedActionTypeMap = ref({});
+const mobileActionSyncMap = ref({});
 const resolution = ref(null);
 
 // Nostradamus state
@@ -960,27 +987,47 @@ onMounted(() => {
   stage.value = 'sleep';
   actionMap.value = {};
   selectedActionTypeMap.value = {};
+  mobileActionSyncMap.value = {};
   resolution.value = null;
   nostradamusSelectedNames.value = [];
   audio.playNightFall();
 
   // Listen for mobile players submitting night actions live
   unregisterMultiplayerListener = multiplayer.onPlayerAction((data) => {
-    if (data && (data.actor || data.actorName)) {
+    if (data && (data.action === 'NIGHT_ACTION' || data.type === 'NIGHT_ACTION')) {
       const actorName = data.actor || data.actorName;
       const actionId = data.actionId;
       const targetName = data.target || data.targetPlayerName;
+      if (!actorName) return;
+
+      const actor = store.livePlayers.find(
+        (p) => p.name.trim().toLowerCase() === actorName.trim().toLowerCase()
+      );
+      const resolvedActorName = actor ? actor.name : actorName;
+
+      mobileActionSyncMap.value[resolvedActorName] = {
+        actionId: actionId || 'ability',
+        target: targetName || null,
+        timestamp: Date.now(),
+      };
 
       if (actionId) {
-        selectedActionTypeMap.value[actorName] = actionId;
+        selectedActionTypeMap.value[resolvedActorName] = actionId;
       }
-      if (targetName) {
-        actionMap.value[actorName] = {
-          target: targetName,
-          actionId: actionId || selectedActionTypeMap.value[actorName] || 'ability',
-        };
+
+      if (actionId === 'treat-self') {
+        actionMap.value[resolvedActorName] = { target: resolvedActorName, actionId: 'treat' };
+      } else if (actionId === 'pass' || !targetName) {
+        actionMap.value[resolvedActorName] = null;
       } else {
-        actionMap.value[actorName] = null;
+        actionMap.value[resolvedActorName] = {
+          target: targetName,
+          actionId: actionId || selectedActionTypeMap.value[resolvedActorName] || 'ability',
+        };
+      }
+
+      if (currentActor.value && currentActor.value.name === resolvedActorName) {
+        audio.playVoteClick();
       }
     }
   });

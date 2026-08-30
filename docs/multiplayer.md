@@ -136,3 +136,27 @@ All messages exchanged between clients and the host are serialized JSON envelope
 3. **Screen Sleep & Visibility Reconnection:**
    * When mobile clients wake from sleep or background tabs via `visibilitychange` or `online` network recovery, clients automatically re-establish broker connections and request state synchronization (`reconnectClient()`).
 
+---
+
+## 6. Mobile Player Ergonomics & Live Teleprompter Auto-Fill
+
+1. **Host Teleprompter Auto-Fill (`NightPhase.vue`):**
+   * As alive players secretly select their abilities on their personal mobile devices, `NIGHT_ACTION` events stream directly into the host teleprompter console.
+   * The moderator's wizard UI automatically selects the action type and target in real-time, plays an audio notification chime, and renders a synchronized badge banner: `📱 Mobile Device Synced: [Player] selected [Target] (SYNCED)`.
+   * The moderator retains 100% manual click override power at all times to correct or adjust selections.
+
+2. **Screen WakeLock API (`useWakeLock.js`):**
+   * Leverages the Screen Wake Lock API (`navigator.wakeLock.request('screen')`) to keep the player's mobile display awake during intense gameplay and night phases without requiring repeated screen taps.
+   * Automatically releases on app exit or tab backgrounding and intelligently re-acquires upon tab visibility restoration (`visibilitychange`). Includes manual toggle switch in client header (`🔆 / 🌙`).
+
+3. **Stealth OLED Pitch-Black Night Mode:**
+   * Eliminates room luminescence in dark party environments where screen glow could betray a player's role during night calls.
+   * Automatically activates pure pitch-black backgrounds (`#000000`), dimmed charcoal containers, and muted crimson accents. Includes an instant toggle button (`👁️ Stealth`) in the client header.
+
+4. **Tactile Haptic Vibration Cues (`useHaptics.js`):**
+   * Delivers silent, physical feedback directly to the player's hand via `navigator.vibrate`:
+     * **Night Call Wakeup:** Distinct double pulse (`[120ms, 80ms, 120ms]`) prompting players to open their eyes and submit actions silently.
+     * **Active Speaker / Warning Pulse:** Triple alert pulse (`[100ms, 50ms, 100ms, 50ms, 150ms]`) alerting a player when their turn or challenge begins.
+     * **Action & Vote Confirmation:** Crisp tactile confirmation clicks (`40ms` / `60ms`).
+
+

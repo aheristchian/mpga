@@ -1,25 +1,75 @@
 <template>
   <div
-    class="min-h-screen bg-gray-950 text-white font-sans p-4 max-w-md mx-auto flex flex-col justify-between"
+    class="min-h-screen font-sans p-4 max-w-md mx-auto flex flex-col justify-between transition-colors duration-500"
+    :class="
+      publicState?.subPhase === 'night' && isStealthMode
+        ? 'bg-black text-neutral-300'
+        : 'bg-gray-950 text-white'
+    "
   >
     <!-- TOP BAR -->
-    <header class="py-3 flex justify-between items-center border-b border-gray-850 gap-2">
+    <header
+      class="py-3 flex justify-between items-center border-b gap-2 transition-colors duration-300"
+      :class="
+        publicState?.subPhase === 'night' && isStealthMode
+          ? 'border-neutral-900'
+          : 'border-gray-850'
+      "
+    >
       <div class="flex items-center gap-2">
         <span class="text-xl">🎭</span>
         <span
-          class="font-extrabold text-sm tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-amber-500"
+          class="font-extrabold text-sm tracking-wider text-transparent bg-clip-text bg-gradient-to-r"
+          :class="
+            publicState?.subPhase === 'night' && isStealthMode
+              ? 'from-red-700 to-red-900'
+              : 'from-red-500 to-amber-500'
+          "
         >
           MPGA
         </span>
       </div>
 
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <!-- STEALTH OLED TOGGLE (Night Phase) -->
+        <button
+          v-if="publicState?.subPhase === 'night'"
+          type="button"
+          class="px-2 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer active:scale-95 border select-none"
+          :class="
+            isStealthMode
+              ? 'bg-red-950/70 border-red-900 text-red-400'
+              : 'bg-gray-900 border-gray-750 text-gray-400 hover:text-white'
+          "
+          :title="isStealthMode ? $t('playerClient.stealthMode') : $t('playerClient.stealthMode')"
+          @click="isStealthMode = !isStealthMode"
+        >
+          <span>👁️</span>
+          <span class="text-[10px] hidden sm:inline">{{ $t('playerClient.stealthMode') }}</span>
+        </button>
+
+        <!-- WAKELOCK TOGGLE -->
+        <button
+          v-if="wakeLock.isSupported"
+          type="button"
+          class="px-2 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer active:scale-95 border select-none"
+          :class="
+            wakeLock.isActive.value
+              ? 'bg-amber-950/40 border-amber-500/40 text-amber-300'
+              : 'bg-gray-900 border-gray-800 text-gray-500'
+          "
+          :title="wakeLock.isActive.value ? $t('playerClient.wakeLockActive') : $t('playerClient.wakeLockDisabled')"
+          @click="wakeLock.toggleWakeLock()"
+        >
+          <span>{{ wakeLock.isActive.value ? '🔆' : '🌙' }}</span>
+        </button>
+
         <LanguageSwitcher />
 
         <!-- IN-GAME GUIDE BUTTON -->
         <button
           type="button"
-          class="px-2.5 py-1 bg-gray-900 hover:bg-gray-800 border border-gray-750 text-amber-300 hover:text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer active:scale-95 shadow-sm"
+          class="px-2 py-1 bg-gray-900 hover:bg-gray-800 border border-gray-750 text-amber-300 hover:text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer active:scale-95 shadow-sm"
           :title="$t('app.gameGuide')"
           @click="showGuideModal = true"
         >
@@ -27,7 +77,7 @@
           <span class="hidden sm:inline">{{ $t('app.gameGuideShort') }}</span>
         </button>
 
-        <div class="flex items-center gap-1.5 bg-gray-900 px-2.5 py-1 rounded-xl border border-gray-800 text-[10px]">
+        <div class="flex items-center gap-1.5 bg-gray-900 px-2 py-1 rounded-xl border border-gray-800 text-[10px]">
           <span
             class="w-2 h-2 rounded-full"
             :class="{
@@ -38,12 +88,12 @@
                 multiplayer.connectionStatus.value === 'disconnected',
             }"
           ></span>
-          <span class="font-mono font-bold text-gray-300 uppercase">
+          <span class="font-mono font-bold text-gray-300 uppercase hidden sm:inline">
             {{ multiplayer.transportMode.value === 'cloud' ? '☁️ Cloud' : '⚡ P2P' }}
           </span>
           <span
             v-if="multiplayer.isConnected.value && multiplayer.pingLatency.value !== null"
-            class="text-[9px] font-mono text-gray-400 border-l border-gray-700 pl-1.5"
+            class="text-[9px] font-mono text-gray-400 sm:border-l sm:border-gray-700 sm:pl-1.5"
           >
             {{ multiplayer.pingLatency.value }}ms
           </span>
@@ -52,7 +102,7 @@
         <!-- RETURN TO MODERATOR BUTTON -->
         <button
           type="button"
-          class="px-2.5 py-1 bg-gray-900 hover:bg-gray-800 border border-gray-750 text-indigo-300 hover:text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer active:scale-95 shadow-sm"
+          class="px-2 py-1 bg-gray-900 hover:bg-gray-800 border border-gray-750 text-indigo-300 hover:text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer active:scale-95 shadow-sm"
           :title="$t('playerClient.returnToModerator')"
           @click="emit('returnToModerator')"
         >
@@ -519,7 +569,6 @@
         </div>
 
         <!-- NIGHT ACTION CONSOLE (If Night & Player is Alive & Role has abilities) -->
-        <!-- NIGHT ACTION CONSOLE (If Night & Player is Alive & Role has abilities) -->
         <div
           v-if="
             publicState?.subPhase === 'night' &&
@@ -527,21 +576,37 @@
             playerIdentity.role?.sideId !== 'citizen' &&
             availableNightActions.length > 0
           "
-          class="bg-indigo-950/40 border border-indigo-500/40 p-4 rounded-xl space-y-4"
+          class="p-4 rounded-xl space-y-4 border transition-colors duration-300"
+          :class="
+            isStealthMode
+              ? 'bg-neutral-950 border-neutral-900 text-neutral-300'
+              : 'bg-indigo-950/40 border-indigo-500/40 text-white'
+          "
         >
           <div class="flex items-center gap-2">
             <span class="text-xl">🌙</span>
             <div>
-              <h4 class="text-xs font-black text-indigo-300 uppercase tracking-wider">
+              <h4
+                class="text-xs font-black uppercase tracking-wider"
+                :class="isStealthMode ? 'text-red-400' : 'text-indigo-300'"
+              >
                 {{ $t('playerClient.nightActionPrompt') }}
               </h4>
-              <p class="text-[11px] text-gray-300">{{ $t('playerClient.chooseTargetPrompt') }}</p>
+              <p
+                class="text-[11px]"
+                :class="isStealthMode ? 'text-neutral-400' : 'text-gray-300'"
+              >
+                {{ $t('playerClient.chooseTargetPrompt') }}
+              </p>
             </div>
           </div>
 
           <!-- STEP 1: ACTION SELECTION BUTTONS -->
           <div class="space-y-1.5 text-left">
-            <label class="text-[10px] font-bold uppercase text-indigo-400 tracking-wider">
+            <label
+              class="text-[10px] font-bold uppercase tracking-wider"
+              :class="isStealthMode ? 'text-red-400/90' : 'text-indigo-400'"
+            >
               {{ $t('playerClient.step1Action') }}
             </label>
             <div class="grid grid-cols-2 gap-2">
@@ -553,8 +618,12 @@
                 class="p-2.5 rounded-xl border text-left transition-all text-xs font-bold flex items-center gap-2 cursor-pointer active:scale-95 select-none min-h-[44px]"
                 :class="
                   currentActionId === action.id
-                    ? 'bg-indigo-600 border-indigo-300 text-white shadow-md ring-2 ring-indigo-400'
-                    : 'bg-gray-900/80 border-gray-700 text-gray-300 hover:bg-gray-800'
+                    ? (isStealthMode
+                        ? 'bg-red-950/90 border-red-800 text-red-200 ring-1 ring-red-700 shadow-none'
+                        : 'bg-indigo-600 border-indigo-300 text-white shadow-md ring-2 ring-indigo-400')
+                    : (isStealthMode
+                        ? 'bg-neutral-900/90 border-neutral-800 text-neutral-400 hover:text-neutral-200'
+                        : 'bg-gray-900/80 border-gray-700 text-gray-300 hover:bg-gray-800')
                 "
                 @click="selectPlayerAction(action.id)"
               >
@@ -565,27 +634,54 @@
           </div>
 
           <!-- STEP 2: TARGET SELECTION -->
-          <div v-if="currentActionId === 'pass'" class="p-3 bg-gray-900/80 border border-dashed border-gray-700 rounded-xl text-center">
+          <div
+            v-if="currentActionId === 'pass'"
+            class="p-3 border border-dashed rounded-xl text-center"
+            :class="
+              isStealthMode
+                ? 'bg-neutral-900/90 border-neutral-800 text-neutral-400'
+                : 'bg-gray-900/80 border-gray-700 text-gray-300'
+            "
+          >
             <span class="text-xl block">🚫</span>
-            <p class="text-xs font-bold text-gray-300 mt-1">{{ $t('nightPhase.passNotice') }}</p>
+            <p class="text-xs font-bold mt-1">{{ $t('nightPhase.passNotice') }}</p>
           </div>
 
-          <div v-else-if="currentActionId === 'treat-self'" class="p-3 bg-emerald-950/50 border border-emerald-500/50 rounded-xl text-center">
+          <div
+            v-else-if="currentActionId === 'treat-self'"
+            class="p-3 border rounded-xl text-center"
+            :class="
+              isStealthMode
+                ? 'bg-red-950/40 border-red-900 text-red-300'
+                : 'bg-emerald-950/50 border-emerald-500/50 text-emerald-300'
+            "
+          >
             <span class="text-xl block">🛡️</span>
-            <p class="text-xs font-bold text-emerald-300 mt-1">{{ $t('nightPhase.selfHealNotice') }}</p>
+            <p class="text-xs font-bold mt-1">{{ $t('nightPhase.selfHealNotice') }}</p>
           </div>
 
           <div v-else class="space-y-1.5 text-left">
             <div class="flex items-center justify-between">
-              <label class="text-[10px] font-bold uppercase text-indigo-400 tracking-wider">
+              <label
+                class="text-[10px] font-bold uppercase tracking-wider"
+                :class="isStealthMode ? 'text-red-400/90' : 'text-indigo-400'"
+              >
                 {{ $t('playerClient.step2Target') }}
               </label>
-              <span v-if="selectedNightTarget" class="text-[11px] font-bold text-indigo-300">
+              <span
+                v-if="selectedNightTarget"
+                class="text-[11px] font-bold"
+                :class="isStealthMode ? 'text-red-300' : 'text-indigo-300'"
+              >
                 {{ selectedNightTarget }}
               </span>
             </div>
 
-            <div v-if="validNightTargets.length === 0" class="p-3 bg-gray-900/60 rounded-lg text-center text-xs text-gray-400">
+            <div
+              v-if="validNightTargets.length === 0"
+              class="p-3 rounded-lg text-center text-xs"
+              :class="isStealthMode ? 'bg-neutral-900/60 text-neutral-500' : 'bg-gray-900/60 text-gray-400'"
+            >
               {{ $t('nightPhase.noDeadPlayers') }}
             </div>
 
@@ -598,8 +694,12 @@
                 class="p-2.5 rounded-xl border text-left transition-all text-xs font-bold flex items-center gap-2 cursor-pointer active:scale-95 select-none min-h-[44px]"
                 :class="
                   selectedNightTarget === target.name
-                    ? 'bg-gradient-to-r from-indigo-600 to-purple-600 border-indigo-300 text-white shadow-md ring-2 ring-indigo-400'
-                    : 'bg-gray-900/80 border-gray-700 text-gray-300 hover:bg-gray-800'
+                    ? (isStealthMode
+                        ? 'bg-red-950/90 border-red-800 text-red-200 ring-1 ring-red-700'
+                        : 'bg-gradient-to-r from-indigo-600 to-purple-600 border-indigo-300 text-white shadow-md ring-2 ring-indigo-400')
+                    : (isStealthMode
+                        ? 'bg-neutral-900/90 border-neutral-800 text-neutral-400 hover:text-neutral-200'
+                        : 'bg-gray-900/80 border-gray-700 text-gray-300 hover:bg-gray-800')
                 "
                 @click="selectedNightTarget = target.name"
               >
@@ -609,17 +709,54 @@
             </div>
           </div>
 
-          <!-- SUBMIT BUTTON -->
+          <!-- SUBMITTED CONFIRMATION & CHANGE CHOICE -->
+          <div
+            v-if="submittedNightTarget"
+            class="p-3.5 rounded-xl border flex items-center justify-between gap-3 text-left animate-fade-in"
+            :class="
+              isStealthMode
+                ? 'bg-red-950/40 border-red-900/60 text-red-300'
+                : 'bg-emerald-950/60 border-emerald-500/60 text-emerald-300'
+            "
+          >
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="text-lg shrink-0">✓</span>
+              <div class="min-w-0 flex-1">
+                <span class="text-xs font-bold block truncate">{{ $t('playerClient.nightTargetSubmitted') }}</span>
+                <span class="text-[10px] opacity-80 block truncate">
+                  {{
+                    selectedNightTarget || (currentActionId === 'pass' ? $t('nightPhase.actionPass') : $t('nightPhase.actionTreatSelf'))
+                  }}
+                </span>
+              </div>
+            </div>
+            <button
+              type="button"
+              class="px-2.5 py-1 text-[11px] font-bold rounded-lg border transition-all active:scale-95 cursor-pointer select-none shrink-0"
+              :class="
+                isStealthMode
+                  ? 'bg-neutral-900 border-neutral-800 text-neutral-300 hover:text-white'
+                  : 'bg-gray-900 border-gray-700 text-gray-200 hover:text-white'
+              "
+              @click="submittedNightTarget = false"
+            >
+              ✏️ {{ $t('playerClient.changeNightTarget') }}
+            </button>
+          </div>
+
+          <!-- SUBMIT BUTTON (When not yet submitted) -->
           <button
-            :disabled="(!selectedNightTarget && currentActionId !== 'pass' && currentActionId !== 'treat-self') || submittedNightTarget"
-            class="w-full min-h-[44px] py-3 bg-indigo-600 hover:bg-indigo-500 active:scale-95 active:brightness-90 disabled:opacity-40 text-white font-bold text-sm rounded-xl transition-all cursor-pointer shadow-lg select-none"
+            v-else
+            :disabled="(!selectedNightTarget && currentActionId !== 'pass' && currentActionId !== 'treat-self')"
+            class="w-full min-h-[44px] py-3 text-white font-bold text-sm rounded-xl transition-all cursor-pointer shadow-lg select-none disabled:opacity-40 active:scale-95"
+            :class="
+              isStealthMode
+                ? 'bg-red-900 hover:bg-red-800 border border-red-700 text-red-100 shadow-none'
+                : 'bg-indigo-600 hover:bg-indigo-500'
+            "
             @click="handleNightActionSubmit"
           >
-            {{
-              submittedNightTarget
-                ? $t('playerClient.actionSubmitted')
-                : $t('playerClient.submitAction')
-            }}
+            {{ $t('playerClient.submitAction') }}
           </button>
 
           <!-- Instant Detective Result Feedback -->
@@ -628,8 +765,8 @@
             class="p-3 rounded-lg border text-center font-bold text-xs"
             :class="
               detectiveResult === 'mafia'
-                ? 'bg-red-950/80 border-red-500 text-red-200'
-                : 'bg-blue-950/80 border-blue-500 text-blue-200'
+                ? (isStealthMode ? 'bg-red-950/90 border-red-700 text-red-200' : 'bg-red-950/80 border-red-500 text-red-200')
+                : (isStealthMode ? 'bg-neutral-900 border-neutral-700 text-neutral-200' : 'bg-blue-950/80 border-blue-500 text-blue-200')
             "
           >
             <span class="text-2xl block mb-1">{{ detectiveResult === 'mafia' ? '👍' : '👎' }}</span>
@@ -770,10 +907,14 @@ import RoleAvatar from '../RoleAvatar.vue';
 import LanguageSwitcher from '../LanguageSwitcher.vue';
 import GameGuideModal from '../GameGuideModal.vue';
 import { useMultiplayer } from '../../services/useMultiplayerService';
+import { useWakeLock } from '../../services/useWakeLock';
+import { useHaptics } from '../../services/useHaptics';
 
 const emit = defineEmits(['returnToModerator']);
 const appVersion = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '1.1.0';
 const multiplayer = useMultiplayer();
+const wakeLock = useWakeLock();
+const haptics = useHaptics();
 
 const showGuideModal = ref(false);
 const nameInputRef = ref(null);
@@ -783,6 +924,7 @@ const inputPasscode = ref('');
 const lobbyNameInput = ref('');
 const isEditingName = ref(false);
 const isRoleRevealed = ref(false);
+const isStealthMode = ref(true);
 const selectedNightActionId = ref('');
 const selectedNightTarget = ref('');
 const submittedNightTarget = ref(false);
@@ -916,6 +1058,8 @@ const livingOtherPlayers = computed(() => {
 });
 
 onMounted(() => {
+  wakeLock.requestWakeLock();
+
   if (typeof window !== 'undefined') {
     const urlParams = new URLSearchParams(window.location.search);
     const joinCode = urlParams.get('join') || urlParams.get('room');
@@ -947,6 +1091,7 @@ const handleJoin = () => {
     inputPasscode.value.trim(),
     multiplayer.transportMode.value
   );
+  wakeLock.requestWakeLock();
 };
 
 const submitLobbyName = () => {
@@ -955,6 +1100,7 @@ const submitLobbyName = () => {
   inputPlayerName.value = name;
   multiplayer.joinLobby(name, inputPasscode.value);
   isEditingName.value = false;
+  wakeLock.requestWakeLock();
 };
 
 const toggleEditName = () => {
@@ -967,9 +1113,11 @@ const toggleEditName = () => {
 const handleClaimSeat = (name) => {
   inputPlayerName.value = name;
   multiplayer.claimSeat(name);
+  wakeLock.requestWakeLock();
 };
 
 const handleDisconnect = () => {
+  wakeLock.releaseWakeLock();
   multiplayer.disconnect();
 };
 
@@ -987,13 +1135,20 @@ const handleNightActionSubmit = () => {
 
   multiplayer.sendNightAction(target, actionId === 'treat-self' ? 'treat' : actionId);
   submittedNightTarget.value = true;
+  haptics.vibrateSuccess();
 
-  // If player is Detective, show inquiry feedback
+  // If player is Detective, calculate accurate inquiry feedback
   if (
     playerIdentity.value?.role?.id === 'detective' ||
     playerIdentity.value?.role?.name?.toLowerCase().includes('detective')
   ) {
-    detectiveResult.value = 'town';
+    const allLiving = publicState.value?.allPlayers || publicState.value?.livingPlayers || [];
+    const targetObj = allLiving.find((p) => p.name === target);
+    if (targetObj?.role?.sideId === 'mafia' && targetObj?.role?.id !== 'godfather') {
+      detectiveResult.value = 'mafia';
+    } else {
+      detectiveResult.value = 'town';
+    }
   }
 };
 
@@ -1013,7 +1168,17 @@ const isMeQualifiedDefender = computed(() => {
 
 watch(
   () => publicState.value?.subPhase,
-  (newPhase) => {
+  (newPhase, oldPhase) => {
+    if (newPhase === 'night') {
+      haptics.vibrateNightCall();
+      selectedNightTarget.value = '';
+      selectedNightActionId.value = '';
+      submittedNightTarget.value = false;
+      detectiveResult.value = null;
+    } else if (newPhase === 'day' && oldPhase === 'night') {
+      haptics.vibrateWarning();
+    }
+
     if (newPhase !== 'voting') {
       myPreVotes.value = [];
       myFinalVote.value = null;
@@ -1042,9 +1207,7 @@ const handleCastVote = (candidateName, voteType = 'pre') => {
       myPreVotes.value.push(candidateName);
     }
     multiplayer.sendVote(candidateName, 'pre');
-    if (typeof navigator !== 'undefined' && navigator.vibrate) {
-      navigator.vibrate(40);
-    }
+    haptics.vibrateLight();
   } else if (voteType === 'final') {
     if (myFinalVote.value === candidateName) {
       myFinalVote.value = null;
@@ -1052,9 +1215,7 @@ const handleCastVote = (candidateName, voteType = 'pre') => {
       myFinalVote.value = candidateName;
     }
     multiplayer.sendVote(candidateName, 'final');
-    if (typeof navigator !== 'undefined' && navigator.vibrate) {
-      navigator.vibrate(60);
-    }
+    haptics.vibrateSuccess();
   }
 };
 

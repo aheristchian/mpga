@@ -165,8 +165,12 @@ Players can connect their mobile devices directly to the host's screen without i
 5. **Live Synchronization:**
    * Player screens highlight the active speaker during the Day phase.
    * When their role wakes up during the Night phase, an interactive console lets them select their night ability target silently.
+   * **Host Teleprompter Auto-Fill:** Player night choices stream straight to the moderator's console, auto-selecting the action and target with an audio chime and `📱 Mobile Device Synced` badge, while the moderator retains full manual click override capability.
    * Voting ballots allow players to record their votes directly on their phones.
-6. **Mobile Touch Feedback & Ping Indicator:**
+6. **Mobile Ergonomics, WakeLock, Stealth OLED & Haptic Feedback:**
+   * **Screen WakeLock API:** Automatically keeps player mobile screens awake during active play and night phases without dimming or locking (`🔆 / 🌙` header toggle).
+   * **Stealth OLED Pitch-Black Night Mode:** Minimizes screen luminance with pitch-black backgrounds (`#000000`) and dimmed crimson tones to prevent facial glow from exposing night actors in dark rooms (`👁️ Stealth` toggle).
+   * **Tactile Haptics:** Delivers distinct physical vibration cues to the player's palm for Night Call wake-ups, speaker spotlight warnings, and action/vote confirmations.
    * All mobile buttons, controls, and candidate cards feature tactile active touch states (`active:scale-95 active:brightness-90`) and meet accessibility standards ($\ge 44\text{px}$ touch targets).
    * Live latency badge displays real-time connection responsiveness (e.g., `🟢 42ms`).
 
