@@ -104,18 +104,18 @@
                 </div>
 
                 <!-- DESCRIPTION (UNIFORM HEIGHT FOR CRISP ALIGNMENT) -->
-                <div class="h-14 sm:h-12 flex items-center">
-                  <p class="text-xs sm:text-sm text-gray-300 leading-relaxed line-clamp-3">
+                <div class="min-h-[36px] md:min-h-[44px] flex items-center">
+                  <p class="text-xs sm:text-sm text-gray-300 leading-relaxed">
                     {{ $t('modes.' + mode.id + '.description') }}
                   </p>
                 </div>
 
-                <!-- CORE ROLES PREVIEW (UNIFORM HEIGHT & START ALIGNMENT) -->
+                <!-- CORE ROLES PREVIEW (FULL VISIBILITY ON MOBILE, MIN-HEIGHT ON DESKTOP) -->
                 <div class="pt-2.5 border-t border-gray-800/80">
                   <span class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">
                     {{ $t('modeSelection.includedRoles') }}
                   </span>
-                  <div class="flex flex-wrap content-start items-start gap-1.5 h-16 sm:h-14 overflow-hidden">
+                  <div class="flex flex-wrap content-start items-start gap-1.5 md:min-h-[58px]">
                     <span
                       v-for="role in getModeRoles(mode.id)"
                       :key="role.id"
@@ -157,7 +157,7 @@
                     @click.stop="confirmMode"
                   >
                     <span>{{ $t('modeSelection.selectAndProceed', { name: $t('modes.' + mode.id + '.name') }) }}</span>
-                    <span class="rtl:rotate-180">➔</span>
+                    <span class="inline-block rtl:rotate-180 transform transition-transform">➔</span>
                   </button>
 
                   <button
@@ -192,7 +192,7 @@
         @click="confirmMode"
       >
         <span>{{ $t('modeSelection.continue') }}</span>
-        <span class="rtl:rotate-180">➔</span>
+        <span class="inline-block rtl:rotate-180 transform transition-transform">➔</span>
       </button>
     </div>
   </div>

@@ -33,7 +33,7 @@
             >
               {{ $t('nightPhase.step0Badge') }}
             </span>
-            <span v-if="store.currentDay === 1" class="text-gray-600">→</span>
+            <span v-if="store.currentDay === 1" class="text-gray-600 inline-block rtl:rotate-180 transform transition-transform">→</span>
             <span
               class="px-2.5 py-1 rounded-lg transition-colors"
               :class="
@@ -42,7 +42,7 @@
             >
               {{ $t('nightPhase.step1Badge') }}
             </span>
-            <span class="text-gray-600">→</span>
+            <span class="text-gray-600 inline-block rtl:rotate-180 transform transition-transform">→</span>
             <span
               class="px-2.5 py-1 rounded-lg transition-colors"
               :class="
@@ -51,7 +51,7 @@
             >
               {{ $t('nightPhase.step2Badge') }}
             </span>
-            <span class="text-gray-600">→</span>
+            <span class="text-gray-600 inline-block rtl:rotate-180 transform transition-transform">→</span>
             <span
               class="px-2.5 py-1 rounded-lg transition-colors"
               :class="
@@ -524,11 +524,12 @@
           <!-- NAVIGATION CONTROLS -->
           <div class="flex justify-between items-center pt-2">
             <button
-              class="px-5 py-3 bg-gray-700 hover:bg-gray-600 active:scale-95 text-gray-300 rounded-xl font-semibold transition-all text-sm disabled:opacity-30 min-h-[44px] cursor-pointer select-none"
+              class="px-5 py-3 bg-gray-700 hover:bg-gray-600 active:scale-95 text-gray-300 rounded-xl font-semibold transition-all text-sm disabled:opacity-30 min-h-[44px] cursor-pointer select-none flex items-center gap-1.5"
               :disabled="currentActorIndex === 0"
               @click="prevRole"
             >
-              ← {{ $t('nightPhase.prevRole') }}
+              <span class="inline-block rtl:rotate-180 transform transition-transform">←</span>
+              <span>{{ $t('nightPhase.prevRole') }}</span>
             </button>
 
             <button
@@ -540,7 +541,7 @@
                   ? $t('nightPhase.nextRole')
                   : $t('nightPhase.reviewActions')
               }}</span>
-              <span>→</span>
+              <span class="inline-block rtl:rotate-180 transform transition-transform">→</span>
             </button>
           </div>
         </div>

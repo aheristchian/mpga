@@ -250,10 +250,11 @@
 
         <button
           :disabled="players.length < minPlayers"
-          class="bg-green-600 hover:bg-green-500 active:scale-95 active:brightness-90 disabled:opacity-50 disabled:cursor-not-allowed text-white px-7 py-3 rounded-xl font-bold shadow-md transition-all cursor-pointer min-h-[44px] select-none"
+          class="bg-green-600 hover:bg-green-500 active:scale-95 active:brightness-90 disabled:opacity-50 disabled:cursor-not-allowed text-white px-7 py-3 rounded-xl font-bold shadow-md transition-all cursor-pointer min-h-[44px] select-none flex items-center gap-1.5"
           @click="finishAddingPlayers"
         >
-          {{ $t('playerEntry.done') }} →
+          <span>{{ $t('playerEntry.done') }}</span>
+          <span class="inline-block rtl:rotate-180 transform transition-transform">→</span>
         </button>
       </div>
     </div>

@@ -434,10 +434,11 @@
                 </span>
                 <button
                   v-else-if="!effectivePlayerName"
-                  class="text-[11px] bg-amber-600/80 hover:bg-amber-500 text-white font-medium px-2 py-0.5 rounded-lg transition-colors cursor-pointer"
+                  class="text-[11px] bg-amber-600/80 hover:bg-amber-500 text-white font-medium px-2.5 py-0.5 rounded-lg transition-colors cursor-pointer inline-flex items-center gap-1"
                   @click="handleClaimSeat(p.name)"
                 >
-                  {{ $t('playerClient.imThisPlayer') }} →
+                  <span>{{ $t('playerClient.imThisPlayer') }}</span>
+                  <span class="inline-block rtl:rotate-180 transform transition-transform">→</span>
                 </button>
               </div>
             </div>
@@ -454,10 +455,11 @@
         </div>
 
         <button
-          class="w-full py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-semibold rounded-xl transition-all cursor-pointer"
+          class="w-full py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-semibold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5"
           @click="handleDisconnect"
         >
-          ← {{ $t('playerClient.leaveRoom') }}
+          <span class="inline-block rtl:rotate-180 transform transition-transform">←</span>
+          <span>{{ $t('playerClient.leaveRoom') }}</span>
         </button>
       </div>
 
