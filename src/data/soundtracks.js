@@ -1,9 +1,9 @@
 /**
  * MPGA Soundtrack Configuration.
  *
- * Soundtracks created by Ali Heristchian in Suno AI for MPGA gameplay.
- * Local MP3s are stored in /audio/soundtracks/ (offline-ready & instant playback).
- * Online / OneDrive fallback URLs are supported for zero-footprint web deployments.
+ * Built-in tracks composed by Ali Heristchian for MPGA gameplay.
+ * General audio engine supporting any local MP3 files (/audio/soundtracks/), direct web streams,
+ * OneDrive downloads, Suno AI tracks, and remote CDN URLs.
  *
  * Victory Tracks:
  * - Victory 1: Mafia Victory (Win 1)
@@ -31,7 +31,7 @@ export const soundtrackConfig = {
         title: 'Lobby 1',
         artist: 'Ali Heristchian',
         localUrl: '/audio/soundtracks/Lobby-1.mp3',
-        onlineUrl: 'https://1drv.ms/u/c/8c71a8dd4e180e9b/IQB2CGFmMzeJS7qwQ_4vta1zAV3b8axCsalByxBgsjZ0_1s?e=Bgpu8r',
+        onlineUrl: 'https://1drv.ms/u/c/8c71a8dd4e180e9b/IQR2CGFmMzeJS7qwQ_4vta1zAblLvIa8Aegz8K_LGcPGARI',
         volumeMultiplier: 0.8,
       },
       {
@@ -39,7 +39,7 @@ export const soundtrackConfig = {
         title: 'Lobby 2',
         artist: 'Ali Heristchian',
         localUrl: '/audio/soundtracks/Lobby-2.mp3',
-        onlineUrl: 'https://1drv.ms/u/c/8c71a8dd4e180e9b/IQCSGIXwqN2LSLGQUpNtKMJnAXf3c2vZo5205sWu-y-_rLM?e=LJfJvd',
+        onlineUrl: 'https://1drv.ms/u/c/8c71a8dd4e180e9b/IQSSGIXwqN2LSLGQUpNtKMJnAVPYlJ_7lfq7uBD2vMtwwdA',
         volumeMultiplier: 0.8,
       },
     ],
@@ -53,7 +53,7 @@ export const soundtrackConfig = {
         title: 'Day 1',
         artist: 'Ali Heristchian',
         localUrl: '/audio/soundtracks/Day-1.mp3',
-        onlineUrl: 'https://1drv.ms/u/c/8c71a8dd4e180e9b/IQCAeIC5C00nRozoZ9mo1_edAZMJWcPDD8hKMpVoWwoT2-k?e=xEZuuQ',
+        onlineUrl: 'https://1drv.ms/u/c/8c71a8dd4e180e9b/IQSAeIC5C00nRozoZ9mo1_edAaWIvSnBPgbkkPU_CbD62Nc',
         volumeMultiplier: 0.8,
       },
       {
@@ -61,7 +61,7 @@ export const soundtrackConfig = {
         title: 'Day 2',
         artist: 'Ali Heristchian',
         localUrl: '/audio/soundtracks/Day-2.mp3',
-        onlineUrl: 'https://1drv.ms/u/c/8c71a8dd4e180e9b/IQBgOLOFyZFUTowSQPaFR8QtAT_x44bnir9O4Rhf-pLWtYU?e=QBKknK',
+        onlineUrl: 'https://1drv.ms/u/c/8c71a8dd4e180e9b/IQRgOLOFyZFUTowSQPaFR8QtAUBv6b91eAw9kDakwkpE3tE',
         volumeMultiplier: 0.8,
       },
     ],
@@ -75,7 +75,7 @@ export const soundtrackConfig = {
         title: 'Trial 1',
         artist: 'Ali Heristchian',
         localUrl: '/audio/soundtracks/Trial-1.mp3',
-        onlineUrl: 'https://1drv.ms/u/c/8c71a8dd4e180e9b/IQDhfXd1TRXXRJETbHFZSP4nAbcGuJfjeuk2yqcxtMX-QtY?e=exs5KF',
+        onlineUrl: 'https://1drv.ms/u/c/8c71a8dd4e180e9b/IQThfXd1TRXXRJETbHFZSP4nAVkggAlfQba0aCOyfuYoQSQ',
         volumeMultiplier: 0.85,
       },
       {
@@ -83,7 +83,7 @@ export const soundtrackConfig = {
         title: 'Trial 2',
         artist: 'Ali Heristchian',
         localUrl: '/audio/soundtracks/Trial-2.mp3',
-        onlineUrl: 'https://1drv.ms/u/c/8c71a8dd4e180e9b/IQDhfXd1TRXXRJETbHFZSP4nAbcGuJfjeuk2yqcxtMX-QtY?e=exs5KF',
+        onlineUrl: 'https://1drv.ms/u/c/8c71a8dd4e180e9b/IQT30M8aQ0LRQ6zQ6Rmb4-98AQLKuimPc70k5Gh3bpfw5V8',
         volumeMultiplier: 0.85,
       },
     ],
@@ -97,7 +97,7 @@ export const soundtrackConfig = {
         title: 'Midday 1',
         artist: 'Ali Heristchian',
         localUrl: '/audio/soundtracks/Midday-1.mp3',
-        onlineUrl: 'https://1drv.ms/u/c/8c71a8dd4e180e9b/IQAzk7sA27V0SZCu9XYVbdsoAbvpzqeyvZM7ocQAPWfw9nA?e=cCaiTs',
+        onlineUrl: 'https://1drv.ms/u/c/8c71a8dd4e180e9b/IQQzk7sA27V0SZCu9XYVbdsoAYQ_MeGo73pHW7XuubkBhcg',
         volumeMultiplier: 0.8,
       },
     ],
@@ -111,7 +111,7 @@ export const soundtrackConfig = {
         title: 'Night 1',
         artist: 'Ali Heristchian',
         localUrl: '/audio/soundtracks/Night-1.mp3',
-        onlineUrl: 'https://1drv.ms/u/c/8c71a8dd4e180e9b/IQAzk7sA27V0SZCu9XYVbdsoAbvpzqeyvZM7ocQAPWfw9nA?e=cCaiTs',
+        onlineUrl: 'https://1drv.ms/u/c/8c71a8dd4e180e9b/IQSYMt6tfMejQowlGMo0DsMuAdUK_okJX7cMy0FGpcKmeBs',
         volumeMultiplier: 0.85,
       },
       {
@@ -119,7 +119,7 @@ export const soundtrackConfig = {
         title: 'Night 2',
         artist: 'Ali Heristchian',
         localUrl: '/audio/soundtracks/Night-2.mp3',
-        onlineUrl: 'https://1drv.ms/u/c/8c71a8dd4e180e9b/IQD_zRSeToTkRYesOT5OW-jfAUry2iOlEYxpFLuWvBQ9CSc?e=EQQiNp',
+        onlineUrl: 'https://1drv.ms/u/c/8c71a8dd4e180e9b/IQT_zRSeToTkRYesOT5OW-jfAfFcRd0nTHlsBt3ODVHVszo',
         volumeMultiplier: 0.85,
       },
     ],
@@ -134,7 +134,7 @@ export const soundtrackConfig = {
         title: 'Win 1 (Mafia Victory)',
         artist: 'Ali Heristchian',
         localUrl: '/audio/soundtracks/Victory-1.mp3',
-        onlineUrl: 'https://1drv.ms/u/c/8c71a8dd4e180e9b/IQBPyPoOlQDpQ4e_ICWZTJ_-ASSUwlpSMLZLf-8E9uLjkGY?e=O9gTiA',
+        onlineUrl: 'https://1drv.ms/u/c/8c71a8dd4e180e9b/IQRPyPoOlQDpQ4e_ICWZTJ_-AUsLWyp5uTc4n9GQz45y41A',
         winner: 'mafia',
         volumeMultiplier: 0.9,
       },
@@ -143,7 +143,7 @@ export const soundtrackConfig = {
         title: 'Win 2 (Town Victory)',
         artist: 'Ali Heristchian',
         localUrl: '/audio/soundtracks/Victory-2.mp3',
-        onlineUrl: 'https://1drv.ms/u/c/8c71a8dd4e180e9b/IQD8zm40jslzSr1V0nCsAdPBAUlz5V8DMsdsgnToq-i77a8?e=KNeVKF',
+        onlineUrl: 'https://1drv.ms/u/c/8c71a8dd4e180e9b/IQT8zm40jslzSr1V0nCsAdPBARIWadF1ITrAAiBPUejX5Jg',
         winner: 'town',
         volumeMultiplier: 0.9,
       },
@@ -152,7 +152,7 @@ export const soundtrackConfig = {
         title: 'Win 3 (Third Party Victory)',
         artist: 'Ali Heristchian',
         localUrl: '/audio/soundtracks/Victory-3.mp3',
-        onlineUrl: 'https://1drv.ms/u/c/8c71a8dd4e180e9b/IQD8zm40jslzSr1V0nCsAdPBAUlz5V8DMsdsgnToq-i77a8?e=KNeVKF',
+        onlineUrl: 'https://1drv.ms/u/c/8c71a8dd4e180e9b/IQR5ktX7N5-lSJX61rJfXGzxAb3oYWZUpUXO_Nldm0BcB48',
         winner: 'third-party',
         volumeMultiplier: 0.9,
       },
