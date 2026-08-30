@@ -96,11 +96,31 @@ describe('useAudioService', () => {
 
     expect(() => {
       audio.playPhaseMusic('night');
+      audio.playPhaseMusic('midday');
+      audio.playPhaseMusic('day');
+      audio.playPhaseMusic('voting');
+      audio.playPhaseMusic('lobby');
       audio.nextTrack();
       audio.previousTrack();
       audio.pauseMusic();
       audio.resumeMusic();
       audio.stopMusic();
+    }).not.toThrow();
+  });
+
+  it('correctly handles winner-specific victory music for mafia, town, and third-party', () => {
+    const audio = useAudio();
+    audio.isMuted.value = false;
+
+    expect(() => {
+      audio.playVictoryMusic('mafia');
+      expect(audio.currentTrack.value?.winner).toBe('mafia');
+
+      audio.playVictoryMusic('town');
+      expect(audio.currentTrack.value?.winner).toBe('town');
+
+      audio.playVictoryMusic('third-party');
+      expect(audio.currentTrack.value?.winner).toBe('third-party');
     }).not.toThrow();
   });
 });

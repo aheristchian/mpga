@@ -180,9 +180,27 @@
                   <h5 class="text-sm font-bold text-white truncate">
                     {{ track.title }}
                   </h5>
+                  <span
+                    v-if="track.winner === 'mafia'"
+                    class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-950/80 border border-red-600/60 text-red-300"
+                  >
+                    {{ $t('audio.mafiaWinTrack') }}
+                  </span>
+                  <span
+                    v-else-if="track.winner === 'town'"
+                    class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-950/80 border border-blue-600/60 text-blue-300"
+                  >
+                    {{ $t('audio.townWinTrack') }}
+                  </span>
+                  <span
+                    v-else-if="track.winner === 'third-party'"
+                    class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-950/80 border border-purple-600/60 text-purple-300"
+                  >
+                    {{ $t('audio.thirdPartyWinTrack') }}
+                  </span>
                 </div>
                 <p class="text-xs text-gray-400 truncate mt-0.5">
-                  {{ track.description || track.artist }}
+                  {{ track.artist || 'Ali Heristchian' }}
                 </p>
               </div>
 
@@ -241,6 +259,7 @@
                 <option value="night">{{ $t('audio.phaseNight') }}</option>
                 <option value="day">{{ $t('audio.phaseDay') }}</option>
                 <option value="voting">{{ $t('audio.phaseVoting') }}</option>
+                <option value="midday">{{ $t('audio.phaseMidday') }}</option>
                 <option value="victory">{{ $t('audio.phaseVictory') }}</option>
                 <option value="lobby">{{ $t('audio.phaseLobby') }}</option>
               </select>
@@ -326,6 +345,7 @@ const phaseTabs = [
   { id: 'night', labelKey: 'audio.phaseNight', icon: '🌙' },
   { id: 'day', labelKey: 'audio.phaseDay', icon: '☀️' },
   { id: 'voting', labelKey: 'audio.phaseVoting', icon: '🗳️' },
+  { id: 'midday', labelKey: 'audio.phaseMidday', icon: '⏳' },
   { id: 'victory', labelKey: 'audio.phaseVictory', icon: '🏆' },
   { id: 'lobby', labelKey: 'audio.phaseLobby', icon: '🎲' },
 ];

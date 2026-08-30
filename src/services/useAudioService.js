@@ -160,7 +160,7 @@ export function useAudio() {
   };
 
   /**
-   * Plays music for a given phase (e.g. 'night', 'day', 'voting', 'victory', 'lobby')
+   * Plays music for a given phase (e.g. 'night', 'day', 'voting', 'midday', 'victory', 'lobby')
    */
   const playPhaseMusic = (phaseKey, options = { fade: true }) => {
     if (!phaseKey) return;
@@ -173,6 +173,44 @@ export function useAudio() {
     const playableTrack = phasePlaylist.find((t) => Boolean(t.url) && !t.url.endsWith('_'));
     if (playableTrack) {
       playTrack(playableTrack, options);
+    }
+  };
+
+  /**
+   * Plays winner-specific victory theme (Mafia -> Win 1, Town -> Win 2, 3rd Party -> Win 3)
+   */
+  const playVictoryMusic = (winnerSide = 'town', options = { fade: true }) => {
+    activePhase.value = 'victory';
+    const victoryTracks = playlists.value.victory || [];
+    if (victoryTracks.length === 0) return;
+
+    let targetTrack = null;
+    const side = String(winnerSide || 'town').toLowerCase();
+
+    if (side === 'mafia') {
+      targetTrack = victoryTracks.find(
+        (t) => t.winner === 'mafia' || t.id.includes('mafia') || t.id.includes('1')
+      );
+    } else if (side === 'town') {
+      targetTrack = victoryTracks.find(
+        (t) => t.winner === 'town' || t.id.includes('town') || t.id.includes('2')
+      );
+    } else if (side === 'third-party' || side === 'thirdparty' || side === 'nostradamus') {
+      targetTrack = victoryTracks.find(
+        (t) =>
+          t.winner === 'third-party' ||
+          t.winner === 'nostradamus' ||
+          t.id.includes('third') ||
+          t.id.includes('3')
+      );
+    }
+
+    if (!targetTrack) {
+      targetTrack = victoryTracks[0];
+    }
+
+    if (targetTrack) {
+      playTrack(targetTrack, options);
     }
   };
 
@@ -353,6 +391,7 @@ export function useAudio() {
     playlists,
     playTrack,
     playPhaseMusic,
+    playVictoryMusic,
     pauseMusic,
     resumeMusic,
     toggleMusic,

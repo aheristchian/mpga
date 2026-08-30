@@ -305,8 +305,12 @@
     "phaseNight": "🌙 Night Phase",
     "phaseDay": "☀️ Day Discussion",
     "phaseVoting": "🗳️ Voting & Trial",
+    "phaseMidday": "⏳ Midday / Last Words",
     "phaseVictory": "🏆 Victory & Finale",
-    "phaseLobby": "🎲 Room Lobby"
+    "phaseLobby": "🎲 Room Lobby",
+    "mafiaWinTrack": "Mafia Win",
+    "townWinTrack": "Town Win",
+    "thirdPartyWinTrack": "3rd Party Win"
   },
   "multiplayer": {
     "connectDevices": "Connect Devices",

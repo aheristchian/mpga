@@ -305,8 +305,12 @@
     "phaseNight": "🌙 فاز شب",
     "phaseDay": "☀️ گفتگوی روز",
     "phaseVoting": "🗳️ دادگاه و رأی‌گیری",
+    "phaseMidday": "⏳ نیمروز و آخرین کلمات",
     "phaseVictory": "🏆 پیروزی و فینال",
-    "phaseLobby": "🎲 لابی اتاق"
+    "phaseLobby": "🎲 لابی اتاق",
+    "mafiaWinTrack": "پیروزی مافیا",
+    "townWinTrack": "پیروزی شهروندان",
+    "thirdPartyWinTrack": "پیروزی ساید مستقل"
   },
   "multiplayer": {
     "connectDevices": "اتصال گوشی بازیکنان",

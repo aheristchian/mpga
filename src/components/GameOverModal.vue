@@ -188,6 +188,9 @@ watch(
   (open) => {
     if (open) {
       audio.playFanfare();
+      if (audio.autoPlayOnPhaseChange.value && !audio.isMuted.value) {
+        audio.playVictoryMusic(evaluation.value.winner);
+      }
     }
   }
 );

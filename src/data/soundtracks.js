@@ -1,137 +1,152 @@
 /**
- * MPGA Soundtrack & Suno Music Configuration.
+ * MPGA Soundtrack Configuration.
  *
- * This configuration file defines the playlists for each game phase and scenario.
- * You can add your downloaded Suno MP3s, public CDN streams, or any MP3 files.
+ * Soundtracks created by Ali Heristchian in Suno AI for MPGA gameplay.
+ * Local MP3s are stored in /audio/soundtracks/ (offline-ready & instant playback).
  *
- * Supported URL formats:
- * - Local MP3 in public directory: "/audio/soundtracks/speakeasy.mp3" (Recommended for offline & instant play)
- * - Any standard MP3 / AAC / WAV stream URL: "https://my-server.com/music/track.mp3"
- * - Public CDN or GitHub Raw audio stream
+ * Victory Tracks:
+ * - Victory 1: Mafia Victory
+ * - Victory 2: Town Victory
+ * - Victory 3: 3rd Party / Nostradamus Victory
  */
 
 export const soundtrackConfig = {
-  // Global audio playback settings
   settings: {
-    defaultVolume: 0.35, // Volume scale 0.0 to 1.0
-    autoPlayOnPhaseChange: true, // Automatically change music when game phase changes
-    crossfadeDuration: 1.2, // Crossfade transition in seconds
-    loopPlaylist: true, // Continuous loop through the phase playlist
+    defaultVolume: 0.35,
+    autoPlayOnPhaseChange: true,
+    crossfadeDuration: 1.2,
+    loopPlaylist: true,
   },
 
-  // Playlists organized by game phase / scene
   playlists: {
     /**
-     * 🌙 NIGHT PHASE (Dark Noir, Mystery, Ambient, Suspense)
-     * Plays while players close their eyes and night abilities are cast.
+     * 🎲 LOBBY & PREGAME
      */
-    night: [
+    lobby: [
       {
-        id: 'night-noir-1',
-        title: 'The Fog Holds Breath',
+        id: 'lobby-1',
+        title: 'Lobby 1',
         artist: 'Ali Heristchian',
-        url: '/audio/soundtracks/The_Fog_Holds_Breath.mp3_',
-        description: 'Atmospheric dark noir jazz & slow cello suspense',
-        volumeMultiplier: 0.85,
+        url: '/audio/soundtracks/Lobby-1.mp3',
+        volumeMultiplier: 0.8,
       },
       {
-        id: 'night-noir-2',
-        title: 'Neon Shadows',
+        id: 'lobby-2',
+        title: 'Lobby 2',
         artist: 'Ali Heristchian',
-        url: '/audio/soundtracks/Neon_Shadows.mp3_',
-        description: 'Midnight Cyber Noir Synth',
+        url: '/audio/soundtracks/Lobby-2.mp3',
         volumeMultiplier: 0.8,
       },
     ],
 
     /**
-     * ☀️ DAY PHASE (Debate, Speeches, Ticking Clock Tension)
-     * Plays during player turn speeches and open discussions.
+     * ☀️ DAY PHASE
      */
     day: [
       {
-        id: 'day-debate-1',
-        title: 'Courtroom Tension & Ticking Clock',
-        artist: 'Suno AI',
-        url: 'https://cdn1.suno.ai/44a19b82-9012-4c22-99ab-62a9390f7721.mp3_',
-        description: 'Rhythmic acoustic tension with clock pulse',
-        volumeMultiplier: 0.75,
+        id: 'day-1',
+        title: 'Day 1',
+        artist: 'Ali Heristchian',
+        url: '/audio/soundtracks/Day-1.mp3',
+        volumeMultiplier: 0.8,
       },
       {
-        id: 'day-debate-2',
-        title: 'Trial of Truth',
-        artist: 'Suno AI',
-        url: 'https://cdn1.suno.ai/55b28c31-9012-4d22-99ab-77c88a149021.mp3_',
-        description: 'Subtle cinematic pulse and investigation tempo',
-        volumeMultiplier: 0.7,
+        id: 'day-2',
+        title: 'Day 2',
+        artist: 'Ali Heristchian',
+        url: '/audio/soundtracks/Day-2.mp3',
+        volumeMultiplier: 0.8,
       },
     ],
 
     /**
-     * 🗳️ VOTING & DEFENSE PHASE (High Stakes, Accusations, Guillotine)
-     * Plays during primary voting, runoff defense, and elimination roulette.
+     * 🗳️ VOTING & TRIAL PHASE
      */
     voting: [
       {
-        id: 'voting-trial-1',
-        title: 'Judgement Hour (High Stakes Trial)',
-        artist: 'Suno AI',
-        url: 'https://cdn1.suno.ai/77b819f2-2244-4819-a9a3-55919ac90019.mp3_',
-        description: 'Intense cinematic strings and ominous heavy percussion',
-        volumeMultiplier: 0.9,
+        id: 'trial-1',
+        title: 'Trial 1',
+        artist: 'Ali Heristchian',
+        url: '/audio/soundtracks/Trial-1.mp3',
+        volumeMultiplier: 0.85,
       },
       {
-        id: 'voting-trial-2',
-        title: 'The Final Defense',
-        artist: 'Suno AI',
-        url: 'https://cdn1.suno.ai/88c920f3-3355-4920-ba4b-66020bd01120.mp3_',
-        description: 'Fast-paced heartbeat pulse and building climax',
+        id: 'trial-2',
+        title: 'Trial 2',
+        artist: 'Ali Heristchian',
+        url: '/audio/soundtracks/Trial-2.mp3',
         volumeMultiplier: 0.85,
       },
     ],
 
     /**
-     * 🏆 VICTORY & GAME OVER (Mafia Victory / Town Victory / Nostradamus Triumph)
-     * Plays on victory screen and match summary.
+     * ⏳ MIDDAY PHASE (Last Words)
      */
-    victory: [
+    midday: [
       {
-        id: 'Mafia Victory',
-        title: 'Final Reckoning (Victory Theme)',
-        artist: 'Suno AI',
-        url: '/audio/soundtracks/Mafia_Victory.mp3_',
-        description: 'Mafia Victory (The Syndicate Triumphs 🔴)',
-        volumeMultiplier: 1.0,
+        id: 'midday-1',
+        title: 'Midday 1',
+        artist: 'Ali Heristchian',
+        url: '/audio/soundtracks/Midday-1.mp3',
+        volumeMultiplier: 0.8,
       },
     ],
 
     /**
-     * 🎲 LOBBY & PREGAME (Setup, Seating, Role Selection)
-     * Plays while players connect devices and configure roles.
+     * 🌙 NIGHT PHASE
      */
-    lobby: [
+    night: [
       {
-        id: 'lobby-theme-1',
-        title: 'Midnight in the Speakeasy',
+        id: 'night-1',
+        title: 'Night 1',
         artist: 'Ali Heristchian',
-        url: '/audio/soundtracks/Midnight_in_the_Speakeasy.mp3_',
-        description: '1930s Speakeasy Lounge Jazz',
-        volumeMultiplier: 0.7,
+        url: '/audio/soundtracks/Night-1.mp3',
+        volumeMultiplier: 0.85,
       },
       {
-        id: 'lobby-theme-2',
-        title: 'Midnight Dust',
+        id: 'night-2',
+        title: 'Night 2',
         artist: 'Ali Heristchian',
-        url: '/audio/soundtracks/Midnight_Dust.mp3_',
-        description: 'Modern Lo-Fi Mafia Beats',
-        volumeMultiplier: 0.7,
+        url: '/audio/soundtracks/Night-2.mp3',
+        volumeMultiplier: 0.85,
+      },
+    ],
+
+    /**
+     * 🏆 VICTORY & GAME OVER
+     * Win 1: Mafia, Win 2: Town, Win 3: 3rd Party
+     */
+    victory: [
+      {
+        id: 'victory-mafia',
+        title: 'Mafia Victory (Win 1)',
+        artist: 'Ali Heristchian',
+        url: '/audio/soundtracks/Victory-1.mp3',
+        winner: 'mafia',
+        volumeMultiplier: 0.9,
+      },
+      {
+        id: 'victory-town',
+        title: 'Town Victory (Win 2)',
+        artist: 'Ali Heristchian',
+        url: '/audio/soundtracks/Victory-2.mp3',
+        winner: 'town',
+        volumeMultiplier: 0.9,
+      },
+      {
+        id: 'victory-third-party',
+        title: 'Third Party Victory (Win 3)',
+        artist: 'Ali Heristchian',
+        url: '/audio/soundtracks/Victory-3.mp3',
+        winner: 'third-party',
+        volumeMultiplier: 0.9,
       },
     ],
   },
 };
 
 /**
- * Resolves any Suno URL into a direct playable CDN audio URL.
+ * Resolves any Suno URL or local path into a playable audio URL.
  * Automatically converts web pages like `https://suno.com/song/<id>` to `https://cdn1.suno.ai/<id>.mp3`
  *
  * @param {string} inputUrl

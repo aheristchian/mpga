@@ -212,6 +212,7 @@ import PlayerClient from './components/player/PlayerClient.vue';
 import LanguageSwitcher from './components/LanguageSwitcher.vue';
 import SoundtrackConsole from './components/SoundtrackConsole.vue';
 import GameGuideModal from './components/GameGuideModal.vue';
+import { evaluateGameStatus } from './services/useWinCondition';
 
 const store = useGameStore();
 const audio = useAudio();
@@ -227,19 +228,24 @@ const showGuideModal = ref(false);
 
 // Auto-DJ watcher for phase transitions
 watch(
-  () => store.gamePhase,
-  (newPhase) => {
+  [() => store.gamePhase, () => store.subPhase],
+  ([newPhase, newSubPhase]) => {
     if (!audio.autoPlayOnPhaseChange.value || audio.isMuted.value) return;
-    if (newPhase === 'night') {
-      audio.playPhaseMusic('night');
-    } else if (newPhase === 'day') {
-      audio.playPhaseMusic('day');
-    } else if (newPhase === 'voting') {
-      audio.playPhaseMusic('voting');
-    } else if (newPhase === 'game-over') {
-      audio.playPhaseMusic('victory');
-    } else if (newPhase === 'mode-selection' || newPhase === 'setup' || newPhase === 'role-selection') {
+    if (newPhase === 'game-over') {
+      const evaluation = evaluateGameStatus(store.livePlayers, store.gameLogs, store.nostradamusChoice);
+      audio.playVictoryMusic(evaluation.winner || 'town');
+    } else if (['mode-selection', 'setup', 'role-selection'].includes(newPhase)) {
       audio.playPhaseMusic('lobby');
+    } else if (newPhase === 'moderator') {
+      if (newSubPhase === 'day') {
+        audio.playPhaseMusic('day');
+      } else if (newSubPhase === 'voting') {
+        audio.playPhaseMusic('voting');
+      } else if (newSubPhase === 'midday') {
+        audio.playPhaseMusic('midday');
+      } else if (newSubPhase === 'night') {
+        audio.playPhaseMusic('night');
+      }
     }
   },
   { immediate: true }

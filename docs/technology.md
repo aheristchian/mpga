@@ -186,9 +186,11 @@ graph TD
   * **Roulette Wheel:** Mechanical tick sound during Destiny Spin and Last Word Card selection.
   * **Victory Fanfare:** Triumphant brass-like major chord fanfare upon match conclusion.
 * **Soundtrack Configuration & Suno AI Music Playback ([`src/data/soundtracks.js`](file:///Users/ali.heristchian/Documents/learning/mpga/src/data/soundtracks.js)):**
-  * **Phase Playlists:** Dedicated music playlists for each game phase (`night`, `day`, `voting`, `victory`, `lobby`).
+  * **Phase Playlists:** Dedicated music playlists for all game phases and scenes (`lobby`, `day`, `voting`, `midday`, `night`, `victory`).
+  * **Winner-Specific Victory Soundtracks:** Automatically plays faction-tailored victory themes upon match resolution (`Victory-1.mp3` for Mafia, `Victory-2.mp3` for Town, `Victory-3.mp3` for Third-Party / Nostradamus).
+  * **Midday & Last Words Soundtrack:** Plays tailored tension music (`Midday-1.mp3`) while eliminated players give their final speech and draw cards.
   * **Smart Suno URL Resolver (`resolveSunoAudioUrl`):** Automatically detects and parses Suno song URLs (`https://suno.com/song/<id>`) into direct playable CDN audio streams (`https://cdn1.suno.ai/<id>.mp3`).
-  * **Auto-DJ Crossfading:** Seamlessly switches and crossfades background tracks when transitioning between game phases.
+  * **Auto-DJ Crossfading:** Seamlessly switches and crossfades background tracks when transitioning between game phases and sub-phases.
   * **Moderator Music Console (`SoundtrackConsole.vue`):** Dedicated UI for testing tracks, managing volume, toggling Auto-DJ, and pasting live Suno URLs on the fly.
 * **Persistent Preferences:** Reactive volume and mute states (`useAudio().musicVolume`, `useAudio().autoPlayOnPhaseChange`, `useAudio().isMuted`) synchronized with `localStorage`.
 
