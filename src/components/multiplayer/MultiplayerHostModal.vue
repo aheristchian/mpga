@@ -111,6 +111,17 @@
           </button>
         </div>
 
+        <!-- PROJECTOR SCREEN SHORTCUT -->
+        <div class="flex items-center justify-center mb-3">
+          <button
+            class="px-3.5 py-1.5 bg-gray-800 hover:bg-gray-700 active:scale-95 text-gray-200 border border-gray-600 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
+            @click="openProjectorTab"
+          >
+            <span>📺</span>
+            <span>{{ $t('projector.openProjectorScreen') }}</span>
+          </button>
+        </div>
+
         <!-- LOCALHOST LAN HELPER -->
         <div
           v-if="isLocalhost"
@@ -328,6 +339,13 @@ const copyJoinUrl = async () => {
     }, 2000);
   } catch {
     // Fallback
+  }
+};
+
+const openProjectorTab = () => {
+  if (typeof window !== 'undefined') {
+    const origin = customHost.value ? `${window.location.protocol}//${customHost.value}` : window.location.origin;
+    window.open(`${origin}${window.location.pathname}?view=projector`, '_blank');
   }
 };
 </script>

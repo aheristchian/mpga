@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { loadEncoded, clearGameStorage } from '../utils/storage';
 import { mockLastWordCards } from '../data/lastWordCards';
 import { evaluateGameStatus } from '../services/useWinCondition';
@@ -29,6 +29,62 @@ export const useGameStore = defineStore('game', () => {
     qualifiedDefenders: [],
     threshold: 0,
   });
+
+  // Undo History Snapshot Stack
+  const undoStack = ref([]);
+  const canUndo = computed(() => undoStack.value.length > 0);
+
+  const takeSnapshot = (description = '') => {
+    const snapshot = {
+      description,
+      timestamp: Date.now(),
+      gamePhase: gamePhase.value,
+      gameMode: gameMode.value ? JSON.parse(JSON.stringify(gameMode.value)) : null,
+      players: JSON.parse(JSON.stringify(players.value)),
+      livePlayers: JSON.parse(JSON.stringify(livePlayers.value)),
+      subPhase: subPhase.value,
+      currentDay: currentDay.value,
+      gameLogs: JSON.parse(JSON.stringify(gameLogs.value)),
+      lastWordDeck: JSON.parse(JSON.stringify(lastWordDeck.value)),
+      drawnLastWordCards: JSON.parse(JSON.stringify(drawnLastWordCards.value)),
+      eliminatedPlayer: eliminatedPlayer.value
+        ? JSON.parse(JSON.stringify(eliminatedPlayer.value))
+        : null,
+      isGameOver: isGameOver.value,
+      winner: winner.value,
+      nostradamusChoice: nostradamusChoice.value,
+      votingState: JSON.parse(JSON.stringify(votingState.value)),
+    };
+    undoStack.value.push(snapshot);
+    if (undoStack.value.length > 20) {
+      undoStack.value.shift();
+    }
+  };
+
+  const undoLastAction = () => {
+    if (!undoStack.value.length) return null;
+    const snapshot = undoStack.value.pop();
+    if (snapshot) {
+      gamePhase.value = snapshot.gamePhase;
+      gameMode.value = snapshot.gameMode;
+      players.value = snapshot.players;
+      livePlayers.value = snapshot.livePlayers;
+      subPhase.value = snapshot.subPhase;
+      currentDay.value = snapshot.currentDay;
+      gameLogs.value = snapshot.gameLogs;
+      lastWordDeck.value = snapshot.lastWordDeck;
+      drawnLastWordCards.value = snapshot.drawnLastWordCards;
+      eliminatedPlayer.value = snapshot.eliminatedPlayer;
+      isGameOver.value = snapshot.isGameOver;
+      winner.value = snapshot.winner;
+      nostradamusChoice.value = snapshot.nostradamusChoice;
+      votingState.value = snapshot.votingState;
+
+      addLog('moderator', 'Action Undone', `Rolled back: ${snapshot.description || 'Previous State'}`);
+      return snapshot;
+    }
+    return null;
+  };
 
   const setVotingState = (state) => {
     votingState.value = {
@@ -154,6 +210,7 @@ export const useGameStore = defineStore('game', () => {
   const setPlayerDeathStatus = (playerName, isDead, reason = '') => {
     const p = livePlayers.value.find((player) => player.name === playerName);
     if (p) {
+      takeSnapshot(isDead ? `Eliminate ${playerName}` : `Revive ${playerName}`);
       const prev = p.isDead;
       p.isDead = isDead;
 
@@ -184,6 +241,8 @@ export const useGameStore = defineStore('game', () => {
     const p = livePlayers.value.find((player) => player.name === playerName);
     if (!p) return;
 
+    takeSnapshot(`Penalty on ${playerName}`);
+
     if (warningDelta !== 0) {
       p.warnings = Math.max(0, (p.warnings || 0) + warningDelta);
       addLog(
@@ -210,6 +269,7 @@ export const useGameStore = defineStore('game', () => {
   };
 
   const setNostradamusChoice = (sideId) => {
+    takeSnapshot('Nostradamus Alignment Choice');
     nostradamusChoice.value = sideId;
     addLog(
       'night',
@@ -223,6 +283,8 @@ export const useGameStore = defineStore('game', () => {
    */
   const drawLastWordCard = (playerName) => {
     if (!lastWordDeck.value.length) return null;
+
+    takeSnapshot(`Draw Last Word Card for ${playerName}`);
 
     const randomIndex = Math.floor(Math.random() * lastWordDeck.value.length);
     const drawnCard = lastWordDeck.value.splice(randomIndex, 1)[0];
@@ -251,6 +313,7 @@ export const useGameStore = defineStore('game', () => {
   };
 
   const proceedToNextDay = () => {
+    takeSnapshot(`Advance to Day ${currentDay.value + 1}`);
     currentDay.value++;
     subPhase.value = 'day';
     eliminatedPlayer.value = null;
@@ -267,6 +330,7 @@ export const useGameStore = defineStore('game', () => {
   };
 
   const setSubPhase = (phase) => {
+    takeSnapshot(`Transition to ${phase}`);
     subPhase.value = phase;
     addLog(phase, `Phase Transition -> ${phase.toUpperCase()}`, `Entering ${phase} phase.`);
   };
@@ -295,6 +359,7 @@ export const useGameStore = defineStore('game', () => {
     winner.value = null;
     showGameOverModal.value = false;
     nostradamusChoice.value = null;
+    undoStack.value = [];
   };
 
   return {
@@ -314,6 +379,8 @@ export const useGameStore = defineStore('game', () => {
     showGameOverModal,
     nostradamusChoice,
     votingState,
+    undoStack,
+    canUndo,
     // Actions
     addLog,
     checkWinCondition,
@@ -331,6 +398,8 @@ export const useGameStore = defineStore('game', () => {
     proceedToNextDay,
     setSubPhase,
     setVotingState,
+    takeSnapshot,
+    undoLastAction,
     dismissGameOverModal,
     reopenGameOverModal,
     resetGame,

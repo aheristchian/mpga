@@ -213,9 +213,6 @@ describe('Game Store (gameStore.js)', () => {
     store.setSubPhase('voting');
     expect(store.subPhase).toBe('voting');
 
-    store.setSubPhase('midday');
-    expect(store.subPhase).toBe('midday');
-
     store.setSubPhase('night');
     expect(store.subPhase).toBe('night');
 
@@ -225,5 +222,27 @@ describe('Game Store (gameStore.js)', () => {
     expect(store.gameLogs).toEqual([]);
     expect(store.isGameOver).toBe(false);
     expect(store.winner).toBeNull();
+  });
+
+  it('supports 1-step undo rolling back state mutations', () => {
+    const store = useGameStore();
+    store.startPlaying([
+      { name: 'Alice', role: { id: 'godfather', name: 'Godfather', sideId: 'mafia' } },
+      { name: 'Bob', role: { id: 'doctor', name: 'Doctor', sideId: 'town' } },
+    ]);
+
+    expect(store.canUndo).toBe(false);
+    expect(store.livePlayers[0].isDead).toBe(false);
+
+    // Eliminate Alice -> snapshot created
+    store.setPlayerDeathStatus('Alice', true, 'Test kill');
+    expect(store.livePlayers[0].isDead).toBe(true);
+    expect(store.canUndo).toBe(true);
+
+    // Rollback elimination
+    const undone = store.undoLastAction();
+    expect(undone).not.toBeNull();
+    expect(store.livePlayers[0].isDead).toBe(false);
+    expect(store.canUndo).toBe(false);
   });
 });

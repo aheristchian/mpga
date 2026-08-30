@@ -3,50 +3,66 @@
     <!-- ATMOSPHERIC HERO BANNER -->
     <PhaseHeroBanner phase="night" :day="store.currentDay">
       <template #action>
-        <!-- STEP INDICATOR -->
-        <div
-          class="flex items-center gap-2 text-xs font-bold bg-gray-900/60 p-1.5 rounded-xl border border-indigo-500/30"
-        >
-          <span
-            v-if="store.currentDay === 1"
-            class="px-2.5 py-1 rounded-lg transition-colors"
+        <!-- VOICE NARRATION TOGGLE & STEP INDICATOR -->
+        <div class="flex items-center gap-3">
+          <button
+            class="px-2.5 py-1 text-xs font-bold rounded-xl border transition-all flex items-center gap-1.5 cursor-pointer"
             :class="
-              stage === 'mafia-intro'
-                ? 'bg-red-600 text-white font-black shadow-md'
-                : 'text-gray-400'
+              narration.isEnabled.value
+                ? 'bg-indigo-600 border-indigo-400 text-white shadow-md'
+                : 'bg-gray-900/80 border-gray-700 text-gray-400 hover:text-white'
             "
+            :title="$t('tts.voiceNarrationTitle')"
+            @click="toggleVoiceNarration"
           >
-            {{ $t('nightPhase.step0Badge') }}
-          </span>
-          <span v-if="store.currentDay === 1" class="text-gray-600">→</span>
-          <span
-            class="px-2.5 py-1 rounded-lg transition-colors"
-            :class="
-              stage === 'sleep' ? 'bg-indigo-600 text-white font-black shadow-md' : 'text-gray-400'
-            "
+            <span>🗣️</span>
+            <span>{{ narration.isEnabled.value ? $t('tts.voiceOn') : $t('tts.voiceOff') }}</span>
+          </button>
+
+          <div
+            class="hidden sm:flex items-center gap-2 text-xs font-bold bg-gray-900/60 p-1.5 rounded-xl border border-indigo-500/30"
           >
-            {{ $t('nightPhase.step1Badge') }}
-          </span>
-          <span class="text-gray-600">→</span>
-          <span
-            class="px-2.5 py-1 rounded-lg transition-colors"
-            :class="
-              stage === 'wizard' ? 'bg-indigo-600 text-white font-black shadow-md' : 'text-gray-400'
-            "
-          >
-            {{ $t('nightPhase.step2Badge') }}
-          </span>
-          <span class="text-gray-600">→</span>
-          <span
-            class="px-2.5 py-1 rounded-lg transition-colors"
-            :class="
-              stage === 'morning'
-                ? 'bg-indigo-600 text-white font-black shadow-md'
-                : 'text-gray-400'
-            "
-          >
-            {{ $t('nightPhase.step3Badge') }}
-          </span>
+            <span
+              v-if="store.currentDay === 1"
+              class="px-2.5 py-1 rounded-lg transition-colors"
+              :class="
+                stage === 'mafia-intro'
+                  ? 'bg-red-600 text-white font-black shadow-md'
+                  : 'text-gray-400'
+              "
+            >
+              {{ $t('nightPhase.step0Badge') }}
+            </span>
+            <span v-if="store.currentDay === 1" class="text-gray-600">→</span>
+            <span
+              class="px-2.5 py-1 rounded-lg transition-colors"
+              :class="
+                stage === 'sleep' ? 'bg-indigo-600 text-white font-black shadow-md' : 'text-gray-400'
+              "
+            >
+              {{ $t('nightPhase.step1Badge') }}
+            </span>
+            <span class="text-gray-600">→</span>
+            <span
+              class="px-2.5 py-1 rounded-lg transition-colors"
+              :class="
+                stage === 'wizard' ? 'bg-indigo-600 text-white font-black shadow-md' : 'text-gray-400'
+              "
+            >
+              {{ $t('nightPhase.step2Badge') }}
+            </span>
+            <span class="text-gray-600">→</span>
+            <span
+              class="px-2.5 py-1 rounded-lg transition-colors"
+              :class="
+                stage === 'morning'
+                  ? 'bg-indigo-600 text-white font-black shadow-md'
+                  : 'text-gray-400'
+              "
+            >
+              {{ $t('nightPhase.step3Badge') }}
+            </span>
+          </div>
         </div>
       </template>
     </PhaseHeroBanner>
@@ -606,18 +622,22 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { mockAbilities } from '../../data/abilities';
 import { resolveNight } from '../../services/gameEngine';
 import { useGameStore } from '../../stores/gameStore';
 import { useAudio } from '../../services/useAudioService';
 import { useMultiplayer } from '../../services/useMultiplayerService';
+import { useVoiceNarration } from '../../services/useVoiceNarration';
 import PhaseHeroBanner from '../PhaseHeroBanner.vue';
 import RoleAvatar from '../RoleAvatar.vue';
 
+const { t, locale } = useI18n();
 const store = useGameStore();
 const audio = useAudio();
 const multiplayer = useMultiplayer();
+const narration = useVoiceNarration();
 
 const stage = ref('sleep'); // 'sleep', 'mafia-intro', 'wizard', 'morning'
 const currentActorIndex = ref(0);
@@ -625,6 +645,41 @@ const actionMap = ref({});
 const selectedActionTypeMap = ref({});
 const mobileActionSyncMap = ref({});
 const resolution = ref(null);
+
+const toggleVoiceNarration = () => {
+  narration.toggleEnabled();
+  if (narration.isEnabled.value) {
+    narrateCurrentStep();
+  }
+};
+
+const narrateCurrentStep = () => {
+  if (!narration.isEnabled.value) return;
+  const lang = locale.value === 'fa' ? 'fa-IR' : 'en-US';
+
+  if (stage.value === 'sleep') {
+    const text = locale.value === 'fa'
+      ? 'شب فرارسیده است. تمامی بازیکنان به خواب بروند.'
+      : 'Night has fallen. All players go to sleep.';
+    narration.speak(text, lang);
+  } else if (stage.value === 'mafia-intro') {
+    const text = locale.value === 'fa'
+      ? 'اعضای مافیا چشمان خود را باز کنند و یکدیگر را شناسایی کنند.'
+      : 'Mafia members, open your eyes and identify each other.';
+    narration.speak(text, lang);
+  } else if (stage.value === 'wizard' && currentActor.value) {
+    const actorRole = currentActor.value.role?.name || '';
+    const text = locale.value === 'fa'
+      ? `${actorRole}، بیدار شو و اقدام خود را انتخاب کن.`
+      : `${actorRole}, wake up and choose your action.`;
+    narration.speak(text, lang);
+  } else if (stage.value === 'morning') {
+    const text = locale.value === 'fa'
+      ? 'صبح فرارسیده است. شهروندان بیدار شوید.'
+      : 'Dawn breaks. Citizens wake up.';
+    narration.speak(text, lang);
+  }
+};
 
 // Nostradamus state
 const nostradamusSelectedNames = ref([]);
@@ -925,6 +980,7 @@ const toggleNostradamusTarget = (name) => {
 const handleProceedFromSleep = () => {
   if (store.currentDay === 1) {
     stage.value = 'mafia-intro';
+    narrateCurrentStep();
   } else {
     startRoleWakeupWizard();
   }
@@ -936,18 +992,21 @@ const startRoleWakeupWizard = () => {
   } else {
     currentActorIndex.value = 0;
     stage.value = 'wizard';
+    narrateCurrentStep();
   }
 };
 
 const prevRole = () => {
   if (currentActorIndex.value > 0) {
     currentActorIndex.value--;
+    narrateCurrentStep();
   }
 };
 
 const nextRole = () => {
   if (currentActorIndex.value < actorsWithAbilities.value.length - 1) {
     currentActorIndex.value++;
+    narrateCurrentStep();
   } else {
     executeNightResolution();
   }
@@ -957,6 +1016,7 @@ const executeNightResolution = () => {
   resolution.value = resolveNight(store.livePlayers, actionMap.value);
   stage.value = 'morning';
   audio.playDawnRise();
+  narrateCurrentStep();
 
   store.addLog(
     'night',
@@ -1031,9 +1091,12 @@ onMounted(() => {
       }
     }
   });
+
+  narrateCurrentStep();
 });
 
 onUnmounted(() => {
+  narration.stop();
   if (typeof unregisterMultiplayerListener === 'function') {
     unregisterMultiplayerListener();
   }

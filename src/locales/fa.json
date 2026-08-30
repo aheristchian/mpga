@@ -101,7 +101,9 @@
     "openLogs": "گزارش رویدادها",
     "logsCount": "{count} رویداد",
     "gameGuide": "راهنمای بازی و نقش‌ها",
-    "gameGuideShort": "راهنما"
+    "gameGuideShort": "راهنما",
+    "undo": "بازگردانی",
+    "undoLastAction": "بازگردانی آخرین اقدام"
   },
   "playerEntry": {
     "addPlayers": "ورود بازیکنان و چیدمان صندلی‌ها",
@@ -677,5 +679,41 @@
     "scenarioTitle": "مشخصات سناریوی فعال",
     "scenarioDetails": "تنظیمات زمان و قوانین مسابقه",
     "noRolesFound": "هیچ نقشی مطابق فیلتر جستجوی شما یافت نشد."
+  },
+  "tts": {
+    "toggleVoiceNarration": "روایت صوتی هوشمند (TTS)",
+    "enabled": "روایت صوتی فعال است",
+    "disabled": "روایت صوتی غیرفعال است"
+  },
+  "storyCard": {
+    "modalTitle": "کارت استوری رسمی بازی",
+    "subtitle": "کارت عمودی ۹:۱۶ تولید شده آماده انتشار در استوری اینستاگرام و پیام‌رسان‌ها.",
+    "shareStoryBtn": "استوری بازی",
+    "downloadPng": "دانلود تصویر (PNG)",
+    "shareStory": "اشتراک‌گذاری"
+  },
+  "projector": {
+    "remoteSpectator": "نمایشگر تماشاگران ریموت",
+    "localDisplay": "نمایشگر بزرگ تماشاگران و ویدئو پروژکتور",
+    "day": "روز {day}",
+    "alive": "زنده",
+    "fullscreen": "تمام‌صفحه",
+    "exitView": "خروج از حالت پروژکتور",
+    "discussionFloor": "تریبون صحبت آزاد",
+    "openFloor": "صحبت آزاد بازیکنان",
+    "challengeTurn": "زمان نوبت چالش",
+    "secondsRemaining": "ثانیه باقی‌مانده",
+    "votingStage": "صحن رای‌گیری",
+    "nomineesVoteTally": "لیست نامزدها و شمارش آرا",
+    "votes": "رای",
+    "middayCourt": "دادگاه نیمروزی",
+    "finalDefenseCourt": "دفاعیه نهایی متهم",
+    "eliminatedPlayer": "بازیکن خارج‌شده",
+    "townAsleep": "شهر در خواب فرو رفته است",
+    "townAsleepDesc": "تمامی شهروندان چشمان خود را ببندند. نقش‌های شبانه به صورت مخفیانه در حال انجام اقدامات خود هستند.",
+    "privacyShieldActive": "حفاظت ضد تقلب تماشاگران فعال است",
+    "roster": "فهرست بازیکنان",
+    "projectorView": "حالت پروژکتور",
+    "openProjectorScreen": "باز کردن صفحه پروژکتور / TV"
   }
 }

@@ -50,6 +50,17 @@
           <span class="hidden sm:inline">{{ $t('app.gameGuideShort') }}</span>
         </button>
 
+        <!-- 1-Step Undo Button -->
+        <button
+          v-if="store.canUndo"
+          class="bg-amber-700/80 hover:bg-amber-600 active:scale-95 text-white border border-amber-500/60 px-3 py-2 rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5 cursor-pointer"
+          :title="$t('app.undoLastAction')"
+          @click="handleUndo"
+        >
+          <span>⏪</span>
+          <span class="hidden sm:inline">{{ $t('app.undo') }}</span>
+        </button>
+
         <!-- Event Log Button -->
         <button
           class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer"
@@ -259,7 +270,12 @@ import NightPhase from './game/NightPhase.vue';
 import GameGuideModal from './GameGuideModal.vue';
 import { useGameStore } from '../stores/gameStore';
 
+import { useMultiplayer } from '../services/useMultiplayerService';
+import { useAudio } from '../services/useAudioService';
+
 const store = useGameStore();
+const multiplayer = useMultiplayer();
+const audio = useAudio();
 
 const aliveCount = computed(() => store.livePlayers.filter((p) => !p.isDead).length);
 
@@ -268,6 +284,14 @@ const showStatusModal = ref(false);
 const showGuideModal = ref(false);
 const selectedPlayerForModal = ref(null);
 const showEndGameModal = ref(false);
+
+const handleUndo = () => {
+  const undone = store.undoLastAction();
+  if (undone) {
+    audio.playTick();
+    multiplayer.broadcastGameState();
+  }
+};
 
 const getSideColorClass = (sideId) => {
   if (sideId === 'town') return 'text-town';

@@ -146,12 +146,21 @@
 
     <template #footer>
       <div class="flex flex-wrap justify-between items-center w-full gap-3">
-        <button
-          class="px-5 py-2.5 bg-gray-700 hover:bg-gray-600 active:scale-95 text-gray-200 font-semibold text-xs rounded-xl transition-all cursor-pointer min-h-[44px] select-none"
-          @click="handleClose"
-        >
-          {{ $t('gameOver.reviewBoard') }}
-        </button>
+        <div class="flex items-center gap-2">
+          <button
+            class="px-5 py-2.5 bg-gray-700 hover:bg-gray-600 active:scale-95 text-gray-200 font-semibold text-xs rounded-xl transition-all cursor-pointer min-h-[44px] select-none"
+            @click="handleClose"
+          >
+            {{ $t('gameOver.reviewBoard') }}
+          </button>
+          <button
+            class="px-4 py-2.5 bg-indigo-700 hover:bg-indigo-600 active:scale-95 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 cursor-pointer min-h-[44px] select-none"
+            @click="showStoryModal = true"
+          >
+            <span>📸</span>
+            <span>{{ $t('storyCard.shareStoryBtn') }}</span>
+          </button>
+        </div>
         <button
           class="px-6 py-3 bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 active:scale-95 active:brightness-90 text-white font-bold text-sm rounded-xl shadow-lg transition-all cursor-pointer min-h-[44px] select-none"
           @click="startNewGame"
@@ -161,15 +170,28 @@
       </div>
     </template>
   </BaseModal>
+
+  <!-- MATCH STORY CARD EXPORT MODAL -->
+  <MatchStoryCardModal
+    :is-open="showStoryModal"
+    :winner="evaluation.winner || 'town'"
+    :survivors="survivingPlayers"
+    :current-day="store.currentDay"
+    :total-players="store.livePlayers.length"
+    @close="showStoryModal = false"
+  />
 </template>
 
 <script setup>
-import { computed, watch } from 'vue';
+import { ref, computed, watch } from 'vue';
 import BaseModal from './BaseModal.vue';
 import RoleAvatar from './RoleAvatar.vue';
+import MatchStoryCardModal from './game/MatchStoryCardModal.vue';
 import { useGameStore } from '../stores/gameStore';
 import { useAudio } from '../services/useAudioService';
 import { evaluateGameStatus } from '../services/useWinCondition';
+
+const showStoryModal = ref(false);
 
 const props = defineProps({
   isOpen: {

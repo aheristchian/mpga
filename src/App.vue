@@ -1,6 +1,11 @@
 <template>
+  <!-- BIG-SCREEN PROJECTOR / TV VIEW -->
+  <div v-if="isProjectorMode" class="min-h-screen bg-gray-950">
+    <ProjectorView @exit="isProjectorMode = false" />
+  </div>
+
   <!-- PLAYER MOBILE CLIENT VIEW -->
-  <div v-if="isPlayerMode" class="min-h-screen bg-gray-950">
+  <div v-else-if="isPlayerMode" class="min-h-screen bg-gray-950">
     <PlayerClient @return-to-moderator="isPlayerMode = false" />
   </div>
 
@@ -35,6 +40,16 @@
             <span class="hidden sm:inline max-w-[140px] truncate">
               {{ audio.isPlayingMusic.value ? audio.currentTrack.value?.title || $t('audio.musicConsole') : $t('audio.musicConsole') }}
             </span>
+          </button>
+
+          <!-- PROJECTOR TV MODE BUTTON -->
+          <button
+            class="p-2 sm:px-3 sm:py-1.5 bg-gray-800 hover:bg-indigo-950/80 active:scale-95 border border-gray-700 hover:border-indigo-500/60 text-gray-300 hover:text-white rounded-xl transition-all text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow shrink-0"
+            :title="$t('projector.openProjectorScreen')"
+            @click="isProjectorMode = true"
+          >
+            <span>📺</span>
+            <span class="hidden sm:inline">{{ $t('projector.projectorView') }}</span>
           </button>
 
           <!-- IN-GAME GUIDE & ROLE HIERARCHY BUTTON -->
@@ -212,6 +227,7 @@ import GameModerator from './components/GameModerator.vue';
 import BaseModal from './components/BaseModal.vue';
 import MultiplayerHostModal from './components/multiplayer/MultiplayerHostModal.vue';
 import PlayerClient from './components/player/PlayerClient.vue';
+import ProjectorView from './components/projector/ProjectorView.vue';
 import LanguageSwitcher from './components/LanguageSwitcher.vue';
 import SoundtrackConsole from './components/SoundtrackConsole.vue';
 import GameGuideModal from './components/GameGuideModal.vue';
@@ -222,7 +238,8 @@ const audio = useAudio();
 const multiplayer = useMultiplayer();
 const appVersion = __APP_VERSION__;
 
-// Detection for player client view
+// Detection for projector & player client view
+const isProjectorMode = ref(false);
 const isPlayerMode = ref(false);
 const showMultiplayerModal = ref(false);
 const showResetModal = ref(false);
@@ -276,7 +293,9 @@ onMounted(() => {
     window.addEventListener('touchstart', handleFirstInteraction, { once: true });
 
     const params = new URLSearchParams(window.location.search);
-    if (params.has('join') || params.has('room') || params.has('player')) {
+    if (params.get('view') === 'projector') {
+      isProjectorMode.value = true;
+    } else if (params.has('join') || params.has('room') || params.has('player')) {
       isPlayerMode.value = true;
     } else {
       // Auto-start host listener so host is always ready for mobile scans

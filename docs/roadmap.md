@@ -122,6 +122,13 @@ graph TD
 * **Stealth OLED Pitch-Black Night Mode (`PlayerClient.vue`):** Pure pitch-black UI (`#000000`) and low-luminescence muted crimson styling preventing ambient facial glow in dark party rooms during night turns.
 * **Tactile Haptic Vibration System (`useHaptics.js`):** Multi-pattern tactile feedback delivering silent physical pulses for Night Call wake-ups, speaker spotlight warnings, and action/vote confirmations.
 
+### 14. PWA Offline Engine, 1-Step Undo, Voice Narration & Spectator Ecosystem
+* **Progressive Web App (PWA) & Service Worker:** Full offline capability with standalone web app manifest (`manifest.json`), asset pre-caching, and stale-while-revalidate fetch strategy (`sw.js`).
+* **1-Step Undo / Moderator Rewind:** In-memory reactive state snapshot stack in `gameStore.js` enabling immediate rollback for accidental eliminations, penalty cards, Nostradamus picks, or phase shifts with live peer broadcast sync.
+* **Automated TTS Voice Narration (`useVoiceNarration.js`):** Browser-native Web Speech API synthesizing bilingual narrator cues in Persian (`fa-IR`) and English (`en-US`) for sleeping calls, role wakeups, and dawn announcements.
+* **Post-Match Shareable Story Card (`MatchStoryCardModal.vue`):** Client-side HTML5 Canvas generating crisp 9:16 vertical 1080x1920 social cards featuring match stats, victory banners, survivor badges, and instant Web Share API dispatch.
+* **Big-Screen Projector / TV View (`ProjectorView.vue`):** Dedicated television and cafe projector display (`?view=projector`) showing active speaker spotlight countdown, live vote tallies, and atmospheric stealth scenery while strictly protecting secret role privacy.
+
 ---
 
 ## 🚀 Upcoming Roadmap & Master TODOs
@@ -129,26 +136,26 @@ graph TD
 ### 📱 1. Multiplayer & Mobile Experience
 - [x] **Direct Player Actions → Host Teleprompter:** Connected players submit night ability targets and daytime voting ballots directly from smartphones; choices stream live into the moderator teleprompter with manual override controls.
 - [x] **Multiplayer Presence Healing & Auto-Heartbeat:** Continuous ping/pong health checks, reactive connection status badges, and automatic reconnection handling across Cloud MQTT and WebRTC.
-- [ ] **Spectator / Projector Big-Screen View (`?view=projector`):** Dedicated television and cafe projector display showing active speaker spotlight countdown, live vote tallies, and phase scenery without exposing secret roles or moderator controls.
+- [x] **Spectator / Projector Big-Screen View (`?view=projector`):** Dedicated television and cafe projector display showing active speaker spotlight countdown, live vote tallies, and phase scenery without exposing secret roles or moderator controls.
 - [x] **Screen WakeLock API (`navigator.wakeLock`):** Prevents player and moderator phone displays from dimming or sleeping during active speaker turns and defense timers.
 - [x] **Tactile Haptic Feedback (`navigator.vibrate`):** Silent vibration cues on speaking turn start, 5-second defense warning, and night phase wake-ups.
 - [x] **Stealth OLED Night Mode:** Ultra-low luminescence pitch-black interface to eliminate face illumination and prevent physical room tells during the night phase.
-- [ ] **Progressive Web App (PWA) & Offline Cache:** "Add to Home Screen" support on iOS/Android with Workbox service worker caching for low-connectivity venues.
+- [x] **Progressive Web App (PWA) & Offline Cache:** "Add to Home Screen" support on iOS/Android with Workbox service worker caching for low-connectivity venues.
 
 ### 🧠 2. Game Engine & Modding Architecture
 - [ ] **100% Declarative Config Engine:** Eliminate hardcoded role logic in favor of declarative action schemas (`actions`, `passives`, `inquiryResponse`, `priorityLadder`).
 - [ ] **Game Pack Import / Export (.json / .yaml):** One-click import and export of community-created tournament rulepacks, custom roles, and house rules.
 - [ ] **In-Browser Visual "Role Studio":** GUI creator to design custom characters, abilities, SVG icons, and faction alignments without editing code.
-- [ ] **1-Step Undo / Moderator Misclick Rewind:** Fast rollback button allowing the moderator to undo accidental eliminations or premature phase advances.
+- [x] **1-Step Undo / Moderator Misclick Rewind:** Fast rollback button allowing the moderator to undo accidental eliminations or premature phase advances.
 - [ ] **Post-Match Time-Travel Replay:** Interactive step-by-step match timeline scrubber to replay every turn, vote, and night ability after match completion.
 
 ### 🏆 3. Tournament & Competitive League Features
 - [ ] **Tournament Bracket & Multi-Table League Management:** Master standings, table rotations, point accumulation, and match scoring across multi-table tournaments.
-- [ ] **Post-Match Social Infographics:** Canvas-rendered summary story cards (MVP, decisive doctor saves, key night actions) ready to export for Instagram/WhatsApp.
+- [x] **Post-Match Social Infographics:** Canvas-rendered summary story cards (MVP, decisive doctor saves, key night actions) ready to export for Instagram/WhatsApp.
 - [ ] **Automated Multi-Device E2E Simulation (Playwright):** CI simulation testing 1 host + 10 virtual player browser clients playing through complete matches.
 
 ### 🎙️ 4. Audio & Code Quality
-- [ ] **TTS Voice Narration (Web Speech API):** Optional automated speech synthesis reading the night teleprompter announcements and speaker warnings.
+- [x] **TTS Voice Narration (Web Speech API):** Optional automated speech synthesis reading the night teleprompter announcements and speaker warnings.
 - [ ] **TypeScript 5 Strict Migration:** Adding `<script setup lang="ts">` and strict interfaces across all Pinia stores, composables, and components.
 
 

@@ -212,3 +212,45 @@ MPGA features a zero-asset procedural sound engine powered by the Web Audio API:
 * **Victory Fanfare:** Triumphant fanfare upon game over and card draws.
 * **Sound Toggle:** A dedicated mute button (🔊 / 🔇) in the top navigation bar allows silencing sound effects at any time.
 
+---
+
+## 9. 1-Step Undo & Moderator Misclick Rewind
+
+Moderators running live games often need to correct accidental clicks. MPGA features a non-destructive state snapshot stack:
+* Whenever an action occurs (e.g. killing a player, applying a yellow/red card, advancing a phase, or drawing a card), a state snapshot is recorded in memory.
+* Tapping **⏪ Undo** in the top action bar restores the previous game state, player statuses, and drawn decks.
+* State restorations automatically emit an informational game log and sync with connected player devices via multiplayer broadcast.
+
+---
+
+## 10. Automated TTS Voice Narration
+
+For hands-free moderation, MPGA includes browser-native Speech Synthesis (TTS):
+* Tap **🗣️ Voice** in the Night phase teleprompter header to toggle automated narration.
+* Synthesizes bilingual narrator cues in Persian (`fa-IR`) and English (`en-US`) announcing "Town is sleeping", individual role wakeup calls (e.g., "Doctor, wake up and choose your patient"), and morning wake-up calls.
+
+---
+
+## 11. Big-Screen Projector / TV View (`?view=projector`)
+
+Connect a second monitor, living room TV, or cafe overhead projector to display match status without leaking secret roles:
+* Launch via the top bar **📺 Projector** button or by visiting `/?view=projector`.
+* Features a large countdown timer, active speaker spotlight name, challenge indicators, live voting nominee tallies, and night phase sleeping graphics with anti-cheat protection.
+
+---
+
+## 12. Post-Match Shareable Story Card
+
+Celebrate match victories on social media:
+* When a game concludes, tap **📸 Share Story** in the Victory Modal.
+* Renders an ultra-crisp 9:16 vertical 1080x1920 card with match statistics (total days, total players, survivors list) and winner badges.
+* Supports **📥 Download PNG** and one-tap **📲 Web Share** for Instagram and WhatsApp stories.
+
+---
+
+## 13. Progressive Web App (PWA) & Offline Mode
+
+MPGA is installable as a native standalone web app:
+* **Add to Home Screen:** Install directly on iOS Safari and Android Chrome with a custom launch icon and standalone fullscreen frame.
+* **Service Worker Caching:** Automatically caches all core game assets, scripts, and fonts for smooth performance in basements and low-connectivity venues.
+

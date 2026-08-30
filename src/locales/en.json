@@ -101,7 +101,9 @@
     "openLogs": "Event Log",
     "logsCount": "{count} logs",
     "gameGuide": "Game Guide & Roles",
-    "gameGuideShort": "Guide"
+    "gameGuideShort": "Guide",
+    "undo": "Undo",
+    "undoLastAction": "Undo Last Action"
   },
   "playerEntry": {
     "addPlayers": "Player Setup & Seating",
@@ -677,5 +679,41 @@
     "scenarioTitle": "Active Scenario Specifications",
     "scenarioDetails": "Game Configuration & Timings",
     "noRolesFound": "No roles match your search filter."
+  },
+  "tts": {
+    "toggleVoiceNarration": "Smart Voice Narration (TTS)",
+    "enabled": "Voice Narration Active",
+    "disabled": "Voice Narration Disabled"
+  },
+  "storyCard": {
+    "modalTitle": "Match Story Card",
+    "subtitle": "Generated 9:16 vertical card ready for Instagram and WhatsApp stories.",
+    "shareStoryBtn": "Share Story",
+    "downloadPng": "Download Image (PNG)",
+    "shareStory": "Share"
+  },
+  "projector": {
+    "remoteSpectator": "Remote Spectator Display",
+    "localDisplay": "Big-Screen Spectator View",
+    "day": "Day {day}",
+    "alive": "Alive",
+    "fullscreen": "Fullscreen",
+    "exitView": "Exit View",
+    "discussionFloor": "Discussion Floor",
+    "openFloor": "Open Discussion",
+    "challengeTurn": "Challenge Turn Active",
+    "secondsRemaining": "Seconds Remaining",
+    "votingStage": "Voting Court",
+    "nomineesVoteTally": "Nominees & Vote Tally",
+    "votes": "Votes",
+    "middayCourt": "Midday Tribunal",
+    "finalDefenseCourt": "Final Defense",
+    "eliminatedPlayer": "Eliminated Player",
+    "townAsleep": "The City is Sleeping",
+    "townAsleepDesc": "All citizens close your eyes. Roles are taking their night actions secretly.",
+    "privacyShieldActive": "Spectator Privacy Shield Active",
+    "roster": "Player Roster",
+    "projectorView": "Projector View",
+    "openProjectorScreen": "Open Projector Screen"
   }
 }
