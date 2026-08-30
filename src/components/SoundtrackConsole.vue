@@ -246,7 +246,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useAudio } from '../services/useAudioService';
 
 const props = defineProps({
