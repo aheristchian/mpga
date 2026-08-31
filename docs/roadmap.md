@@ -168,6 +168,7 @@ graph TD
 ### 🎙️ 4. Audio & Code Quality
 - [x] **TTS Voice Narration (Web Speech API):** Optional automated speech synthesis reading the night teleprompter announcements and speaker warnings.
 - [x] **TypeScript 5+ Strict Migration (v2.0.0):** Added `<script setup lang="ts">` and strict interfaces across all Pinia stores, composables, and components.
+- [ ] **Audio Stream Singleton & Undo/Phase-Shift Cleanup:** Resolve track overlap bug where multiple background songs play simultaneously during undo or fast phase navigation; enforce strict singleton audio player teardown and immediate pause of orphan audio instances.
 - [ ] **ESLint TypeScript Parser Configuration:** Update `eslint.config.js` with `vue-eslint-parser` + `typescript-eslint` for clean `npm run lint` execution across all Vue SFCs.
 
 
