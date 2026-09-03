@@ -14,7 +14,7 @@ export interface GameStats {
 
 export interface GameStatusEvaluation {
   isGameOver: boolean;
-  winner: 'town' | 'mafia' | 'draw' | null;
+  winner: 'town' | 'mafia' | 'draw' | 'third-party' | null;
   livingTown: Player[];
   livingMafia: Player[];
   livingThirdParty: Player[];
@@ -47,14 +47,15 @@ export const evaluateGameStatus = (
   const livingTown = livingPlayers.filter((p) => p.role?.sideId === 'town');
   const livingMafia = livingPlayers.filter((p) => p.role?.sideId === 'mafia');
   const livingThirdParty = livingPlayers.filter((p) => p.role?.sideId === 'third-party');
+  const livingHostileThirdParty = livingThirdParty.filter((p) => p.role?.id === 'zodiac');
 
   let isGameOver = false;
-  let winner: 'town' | 'mafia' | 'draw' | null = null;
+  let winner: 'town' | 'mafia' | 'draw' | 'third-party' | null = null;
 
   const livingNonMafia = livingPlayers.filter((p) => p.role?.sideId !== 'mafia');
 
-  // 1. Town Victory: All Mafia players are eliminated
-  if (livingMafia.length === 0 && livingTown.length > 0) {
+  // 1. Town Victory: All Mafia and hostile third-party killers (Zodiac) are eliminated, Town survives
+  if (livingMafia.length === 0 && livingHostileThirdParty.length === 0 && livingTown.length > 0) {
     isGameOver = true;
     winner = 'town';
   }
@@ -63,7 +64,12 @@ export const evaluateGameStatus = (
     isGameOver = true;
     winner = 'mafia';
   }
-  // 3. Mutual annihilation or only third-party surviving
+  // 3. Third-party solo victory: All Town and Mafia are wiped out, Third-party survives
+  else if (livingTown.length === 0 && livingMafia.length === 0 && livingThirdParty.length > 0) {
+    isGameOver = true;
+    winner = 'third-party';
+  }
+  // 4. Mutual annihilation: Everyone eliminated
   else if (livingTown.length === 0 && livingMafia.length === 0) {
     isGameOver = true;
     winner = 'draw';

@@ -176,6 +176,88 @@ export const modeSvgMap: Record<string, string> = {
       <polygon points="162,18 163.5,22 167.5,22 164.5,24.5 166,28.5 162,26 158,28.5 159.5,24.5 156.5,22 160.5,22" fill="url(#cl-gold)" opacity="0.8"/>
     </svg>
   `,
+
+  zodiac: `
+    <svg viewBox="0 0 200 130" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+      <defs>
+        <radialGradient id="zd-spot" cx="50%" cy="40%" r="60%">
+          <stop offset="0%" stop-color="#581C87" stop-opacity="0.55" />
+          <stop offset="60%" stop-color="#3B0764" stop-opacity="0.25" />
+          <stop offset="100%" stop-color="#09090B" stop-opacity="0" />
+        </radialGradient>
+        <linearGradient id="zd-purple" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#E9D5FF" />
+          <stop offset="50%" stop-color="#A855F7" />
+          <stop offset="100%" stop-color="#6B21A8" />
+        </linearGradient>
+        <linearGradient id="zd-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#FDE047" />
+          <stop offset="100%" stop-color="#CA8A04" />
+        </linearGradient>
+      </defs>
+      <rect width="200" height="130" rx="12" fill="url(#zd-spot)" />
+      <!-- Starry Night Background -->
+      <circle cx="28" cy="24" r="1" fill="#E9D5FF" opacity="0.6"/>
+      <circle cx="54" cy="18" r="1.5" fill="#E9D5FF" opacity="0.8"/>
+      <circle cx="145" cy="22" r="1.2" fill="#E9D5FF" opacity="0.7"/>
+      <circle cx="178" cy="32" r="1" fill="#E9D5FF" opacity="0.5"/>
+      <circle cx="168" cy="15" r="1.5" fill="#E9D5FF" opacity="0.9"/>
+
+      <!-- Celestial Zodiac Crosshair -->
+      <circle cx="100" cy="54" r="32" stroke="url(#zd-purple)" stroke-width="1.5" stroke-dasharray="3 3"/>
+      <circle cx="100" cy="54" r="22" stroke="url(#zd-purple)" stroke-width="2"/>
+      <circle cx="100" cy="54" r="6" fill="#A855F7" opacity="0.3"/>
+      <line x1="100" y1="16" x2="100" y2="92" stroke="url(#zd-purple)" stroke-width="1.5"/>
+      <line x1="62" y1="54" x2="138" y2="54" stroke="url(#zd-purple)" stroke-width="1.5"/>
+
+      <!-- Shadow Assassin Dagger / Bow Silhouette -->
+      <path d="M100 24 L103 48 L100 52 L97 48 Z" fill="url(#zd-gold)"/>
+      <rect x="94" y="52" width="12" height="3" rx="1.5" fill="#CA8A04"/>
+      <path d="M98 55 L102 55 L101 68 L99 68 Z" fill="#4B5563"/>
+      <circle cx="100" cy="71" r="2.5" fill="url(#zd-gold)"/>
+
+      <!-- Base Skyline Silhouettes -->
+      <path d="M10 105 L30 105 L30 85 L45 85 L45 95 L65 95 L65 78 L80 78 L80 105 L120 105 L120 80 L135 80 L135 92 L155 92 L155 84 L170 84 L170 105 L190 105" stroke="#4C1D95" stroke-width="1.5"/>
+    </svg>
+  `,
+
+  vendetta: `
+    <svg viewBox="0 0 200 130" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+      <defs>
+        <radialGradient id="vd-spot" cx="50%" cy="40%" r="60%">
+          <stop offset="0%" stop-color="#78350F" stop-opacity="0.55" />
+          <stop offset="60%" stop-color="#451A03" stop-opacity="0.25" />
+          <stop offset="100%" stop-color="#09090B" stop-opacity="0" />
+        </radialGradient>
+        <linearGradient id="vd-amber" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#FDE68A" />
+          <stop offset="50%" stop-color="#F59E0B" />
+          <stop offset="100%" stop-color="#B45309" />
+        </linearGradient>
+        <linearGradient id="vd-red" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#EF4444" />
+          <stop offset="100%" stop-color="#991B1B" />
+        </linearGradient>
+      </defs>
+      <rect width="200" height="130" rx="12" fill="url(#vd-spot)" />
+
+      <!-- Shadowy Alleyway Walls -->
+      <polygon points="10,105 40,20 40,105" fill="#1C1917" opacity="0.8"/>
+      <polygon points="190,105 160,20 160,105" fill="#1C1917" opacity="0.8"/>
+
+      <!-- Center Operative Silhouette with Mask -->
+      <!-- Cloak Collar -->
+      <path d="M70 70 L100 88 L130 70 L140 105 L60 105 Z" fill="#292524" stroke="#78350F" stroke-width="1.5"/>
+      <!-- Masquerade / Secret Operative Mask -->
+      <path d="M72 44 C72 38 84 34 100 34 C116 34 128 38 128 44 C128 52 114 56 100 56 C86 56 72 52 72 44 Z" fill="url(#vd-amber)" stroke="#78350F" stroke-width="1.5"/>
+      <!-- Eye Slits -->
+      <ellipse cx="88" cy="44" rx="5" ry="3" fill="#0C0A09"/>
+      <ellipse cx="112" cy="44" rx="5" ry="3" fill="#0C0A09"/>
+      <!-- Red Vendetta Blood Drop / Wax Seal -->
+      <path d="M100 62 C96 68 96 74 100 77 C104 74 104 68 100 62 Z" fill="url(#vd-red)"/>
+      <line x1="10" y1="105" x2="190" y2="105" stroke="#78350F" stroke-width="1.5"/>
+    </svg>
+  `,
 };
 
 /**
@@ -244,6 +326,27 @@ export const scenarioIconSvgMap: Record<string, string> = {
       <!-- Detective Center Gem / Badge -->
       <circle cx="20" cy="20" r="4.5" fill="#0F172A" stroke="url(#ic-cl-blue)" stroke-width="1.5"/>
       <circle cx="20" cy="20" r="2" fill="#93C5FD"/>
+    </svg>
+  `,
+
+  zodiac: `
+    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+      <circle cx="20" cy="20" r="16" stroke="#A855F7" stroke-width="1.5" stroke-dasharray="2 2"/>
+      <circle cx="20" cy="20" r="11" stroke="#C084FC" stroke-width="2"/>
+      <line x1="20" y1="4" x2="20" y2="36" stroke="#E9D5FF" stroke-width="1.5"/>
+      <line x1="4" y1="20" x2="36" y2="20" stroke="#E9D5FF" stroke-width="1.5"/>
+      <circle cx="20" cy="20" r="3" fill="#FBBF24"/>
+    </svg>
+  `,
+
+  vendetta: `
+    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+      <!-- Operative Half Mask -->
+      <path d="M6 18 C6 13 13 11 20 11 C27 11 34 13 34 18 C34 23 27 25 20 25 C13 25 6 23 6 18 Z" fill="#F59E0B" stroke="#B45309" stroke-width="1.5"/>
+      <ellipse cx="14" cy="18" rx="3" ry="2" fill="#1C1917"/>
+      <ellipse cx="26" cy="18" rx="3" ry="2" fill="#1C1917"/>
+      <!-- V dagger -->
+      <path d="M20 26 L23 35 L20 37 L17 35 Z" fill="#EF4444"/>
     </svg>
   `,
 };

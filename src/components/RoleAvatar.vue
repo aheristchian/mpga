@@ -92,6 +92,14 @@ const roleIcon = computed(() => {
       return '✨';
     case 'leon':
       return '🎯';
+    case 'zodiac':
+      return '🏹';
+    case 'bodyguard':
+      return '🛡️';
+    case 'silencer':
+      return '🤐';
+    case 'priest':
+      return '🕊️';
     default:
       return '🎭';
   }

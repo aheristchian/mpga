@@ -220,6 +220,15 @@
             >
               🤫 {{ $t('gameModerator.silencedBadge') }}
             </span>
+
+            <!-- Silenced Alert Banner -->
+            <div
+              v-if="(activeChallenger || currentPlayer).isSilenced"
+              class="mt-3 p-3 bg-red-950/90 border border-red-500/80 rounded-xl flex items-center justify-center gap-3 text-red-200 font-bold text-sm shadow-lg animate-pulse"
+            >
+              <span class="text-2xl">🤐</span>
+              <span>{{ $t('dayPhase.playerSilencedWarning', { name: (activeChallenger || currentPlayer).name }) }}</span>
+            </div>
           </div>
 
           <!-- Large Digital Timer -->

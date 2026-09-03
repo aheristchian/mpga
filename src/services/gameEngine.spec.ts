@@ -230,4 +230,95 @@ describe('Game Engine - resolveNight', () => {
     expect(result.deaths).toContain('Citizen');
     expect(result.log.some((l) => l.includes('[BLOCKED] Doctor'))).toBe(true);
   });
+
+  it('should silence a player when Silencer uses silence', () => {
+    const players: Player[] = [
+      createMockPlayer('SilencerPlayer', 'silence', [], 'mafia'),
+      createMockPlayer('ChattyTownie', null, [], 'town'),
+    ];
+
+    const actionMap = {
+      SilencerPlayer: { target: 'ChattyTownie', actionId: 'silence' },
+    };
+
+    const result = resolveNight(players, actionMap);
+
+    expect(result.silenced).toContain('ChattyTownie');
+    expect(result.log.some((l) => l.includes('[SILENCE]'))).toBe(true);
+  });
+
+  it('should remove silence when Priest absolves the silenced player', () => {
+    const players: Player[] = [
+      createMockPlayer('SilencerPlayer', 'silence', [], 'mafia'),
+      createMockPlayer('PriestPlayer', 'absolve', [], 'town'),
+      createMockPlayer('TargetTownie', null, [], 'town'),
+    ];
+
+    const actionMap = {
+      SilencerPlayer: { target: 'TargetTownie', actionId: 'silence' },
+      PriestPlayer: { target: 'TargetTownie', actionId: 'absolve' },
+    };
+
+    const result = resolveNight(players, actionMap);
+
+    // Priest lifts the silence
+    expect(result.silenced).not.toContain('TargetTownie');
+    expect(result.log.some((l) => l.includes('[ABSOLVE]'))).toBe(true);
+  });
+
+  it('should protect a player from fatal attacks when Bodyguard guards them', () => {
+    const players: Player[] = [
+      createMockPlayer('GodfatherPlayer', 'mafia-shot', [], 'mafia'),
+      createMockPlayer('BodyguardPlayer', 'protect', ['shield'], 'town'),
+      createMockPlayer('TargetTownie', null, [], 'town'),
+    ];
+
+    const actionMap = {
+      GodfatherPlayer: { target: 'TargetTownie', actionId: 'mafia-shot' },
+      BodyguardPlayer: { target: 'TargetTownie', actionId: 'protect' },
+    };
+
+    const result = resolveNight(players, actionMap);
+
+    expect(result.deaths).not.toContain('TargetTownie');
+    expect(result.log.some((l) => l.includes('[PROTECT]'))).toBe(true);
+    expect(result.log.some((l) => l.includes('[SAVE]'))).toBe(true);
+  });
+
+  it('should eliminate a player when Zodiac delivers a lethal shot', () => {
+    const players: Player[] = [
+      createMockPlayer('ZodiacKiller', 'zodiac-shot', ['shield', 'clean-inquiry'], 'third-party'),
+      createMockPlayer('VictimPlayer', null, [], 'town'),
+    ];
+
+    const actionMap = {
+      ZodiacKiller: { target: 'VictimPlayer', actionId: 'zodiac-shot' },
+    };
+
+    const result = resolveNight(players, actionMap);
+
+    expect(result.deaths).toContain('VictimPlayer');
+    expect(result.log.some((l) => l.includes('[ZODIAC_SHOT]'))).toBe(true);
+    expect(result.log.some((l) => l.includes('[DEATH]'))).toBe(true);
+  });
+
+  it('should return innocent inquiry when Detective investigates Zodiac due to clean-inquiry passive', () => {
+    const players: Player[] = [
+      createMockPlayer('DetectivePlayer', 'investigate', [], 'town'),
+      {
+        name: 'ZodiacPlayer',
+        isDead: false,
+        role: {
+          id: 'zodiac',
+          name: 'Zodiac',
+          sideId: 'third-party',
+          abilityIds: ['zodiac-shot'],
+          passiveAbilityIds: ['shield', 'clean-inquiry'],
+        },
+      },
+    ];
+
+    const result = resolveNight(players, { DetectivePlayer: 'ZodiacPlayer' });
+    expect(result.log.some((l) => l.includes('Innocent/Clean (Town)'))).toBe(true);
+  });
 });

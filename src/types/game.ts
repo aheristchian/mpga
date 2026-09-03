@@ -78,6 +78,7 @@ export interface GameStateSnapshot {
   winner: string | null;
   nostradamusChoice: string | null;
   votingState: VotingState;
+  silencedPlayers?: string[];
 }
 
 export interface WinResult {

@@ -34,18 +34,14 @@
               <!-- SCENARIO ICON (CLEAN BOLD VECTOR ARTWORK, NO REDUNDANT BORDER) -->
               <div
                 class="w-12 h-12 rounded-xl flex items-center justify-center p-2 flex-shrink-0 shadow-sm transition-transform duration-300 group-hover:scale-105"
-                :class="
-                  mode.id === 'godfather'
-                    ? 'bg-red-950/60 text-red-400'
-                    : 'bg-blue-950/60 text-blue-400'
-                "
+                :class="getModeIconClass(mode.id)"
               >
                 <div
                   v-if="getScenarioSvg(mode.id)"
                   class="w-full h-full flex items-center justify-center"
                   v-html="getScenarioSvg(mode.id)"
                 ></div>
-                <span v-else class="text-2xl">{{ mode.id === 'godfather' ? '🎩' : '⚖️' }}</span>
+                <span v-else class="text-2xl">{{ mode.id === 'godfather' ? '🎩' : mode.id === 'zodiac' ? '🏹' : mode.id === 'vendetta' ? '🤐' : '⚖️' }}</span>
               </div>
 
               <!-- TITLE & BADGES -->
@@ -53,17 +49,9 @@
                 <div class="flex items-center gap-2 flex-wrap mb-1">
                   <span
                     class="px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold tracking-wide uppercase border shadow-sm"
-                    :class="
-                      mode.id === 'godfather'
-                        ? 'bg-red-950/80 text-red-400 border-red-800/80'
-                        : 'bg-blue-950/80 text-blue-400 border-blue-800/80'
-                    "
+                    :class="getModeBadgeClass(mode.id)"
                   >
-                    {{
-                      mode.id === 'godfather'
-                        ? $t('modeSelection.tournamentStandardBadge')
-                        : $t('modeSelection.classicStandardBadge')
-                    }}
+                    {{ $t(getModeBadgeTextKey(mode.id)) }}
                   </span>
                   <span class="text-[11px] font-mono font-medium text-gray-400">
                     {{ mode.minPlayers }} {{ $t('modeSelection.players') }} • ⏱️
@@ -84,9 +72,7 @@
                 class="w-8 h-8 rounded-full flex items-center justify-center border text-xs sm:text-sm transition-all duration-300"
                 :class="
                   selectedModeId === mode.id
-                    ? mode.id === 'godfather'
-                      ? 'bg-red-500/20 border-red-500 text-red-400 rotate-180'
-                      : 'bg-blue-500/20 border-blue-500 text-blue-400 rotate-180'
+                    ? 'bg-amber-500/20 border-amber-500 text-amber-400 rotate-180'
                     : 'bg-gray-800 border-gray-700 text-gray-400'
                 "
               >
@@ -184,11 +170,7 @@
                   <button
                     v-if="selectedModeId === mode.id"
                     class="w-full h-12 bg-gradient-to-r hover:brightness-110 active:scale-[0.98] text-white px-4 rounded-xl font-black text-sm shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2"
-                    :class="
-                      mode.id === 'godfather'
-                        ? 'from-red-600 via-rose-600 to-amber-600 shadow-red-600/30'
-                        : 'from-blue-600 via-indigo-600 to-cyan-600 shadow-blue-600/30'
-                    "
+                    :class="getModeButtonGradientClass(mode.id)"
                     @click.stop="confirmMode"
                   >
                     <span>{{
@@ -251,10 +233,44 @@ const selectMode = (modeId: string) => {
   selectedModeId.value = modeId;
 };
 
+const getModeIconClass = (modeId: string) => {
+  if (modeId === 'godfather') return 'bg-red-950/60 text-red-400';
+  if (modeId === 'zodiac') return 'bg-purple-950/60 text-purple-400';
+  if (modeId === 'vendetta') return 'bg-amber-950/60 text-amber-400';
+  return 'bg-blue-950/60 text-blue-400';
+};
+
+const getModeBadgeClass = (modeId: string) => {
+  if (modeId === 'godfather') return 'bg-red-950/80 text-red-400 border-red-800/80';
+  if (modeId === 'zodiac') return 'bg-purple-950/80 text-purple-400 border-purple-800/80';
+  if (modeId === 'vendetta') return 'bg-amber-950/80 text-amber-400 border-amber-800/80';
+  return 'bg-blue-950/80 text-blue-400 border-blue-800/80';
+};
+
+const getModeBadgeTextKey = (modeId: string) => {
+  if (modeId === 'godfather') return 'modeSelection.tournamentStandardBadge';
+  if (modeId === 'zodiac') return 'modeSelection.zodiacBadge';
+  if (modeId === 'vendetta') return 'modeSelection.vendettaBadge';
+  return 'modeSelection.classicStandardBadge';
+};
+
+const getModeButtonGradientClass = (modeId: string) => {
+  if (modeId === 'godfather') return 'from-red-600 via-rose-600 to-amber-600 shadow-red-600/30';
+  if (modeId === 'zodiac') return 'from-purple-600 via-fuchsia-600 to-indigo-600 shadow-purple-600/30';
+  if (modeId === 'vendetta') return 'from-amber-600 via-orange-600 to-red-600 shadow-amber-600/30';
+  return 'from-blue-600 via-indigo-600 to-cyan-600 shadow-blue-600/30';
+};
+
 const getCardClasses = (modeId: string) => {
   if (selectedModeId.value === modeId) {
     if (modeId === 'godfather') {
       return 'border-red-500 ring-2 ring-red-500/30 bg-gradient-to-b from-red-950/20 via-gray-900/90 to-gray-900 shadow-red-900/30';
+    }
+    if (modeId === 'zodiac') {
+      return 'border-purple-500 ring-2 ring-purple-500/30 bg-gradient-to-b from-purple-950/20 via-gray-900/90 to-gray-900 shadow-purple-900/30';
+    }
+    if (modeId === 'vendetta') {
+      return 'border-amber-500 ring-2 ring-amber-500/30 bg-gradient-to-b from-amber-950/20 via-gray-900/90 to-gray-900 shadow-amber-900/30';
     }
     return 'border-blue-500 ring-2 ring-blue-500/30 bg-gradient-to-b from-blue-950/20 via-gray-900/90 to-gray-900 shadow-blue-900/30';
   }
@@ -272,6 +288,30 @@ const getModeRoles = (modeId: string) => {
       { id: 'leon', name: 'Leon', icon: '🎯', sideId: 'town' },
       { id: 'constantine', name: 'Constantine', icon: '✨', sideId: 'town' },
       { id: 'nostradamus', name: 'Nostradamus', icon: '🔮', sideId: 'third-party' },
+    ];
+  }
+  if (modeId === 'zodiac') {
+    return [
+      { id: 'zodiac', name: 'Zodiac', icon: '🏹', sideId: 'third-party' },
+      { id: 'godfather', name: 'Godfather', icon: '🎩', sideId: 'mafia' },
+      { id: 'mafia', name: 'Mafia', icon: '🕶️', sideId: 'mafia' },
+      { id: 'bodyguard', name: 'Bodyguard', icon: '🛡️', sideId: 'town' },
+      { id: 'doctor', name: 'Doctor', icon: '💉', sideId: 'town' },
+      { id: 'detective', name: 'Detective', icon: '🔍', sideId: 'town' },
+      { id: 'leon', name: 'Leon', icon: '🎯', sideId: 'town' },
+      { id: 'citizen', name: 'Citizen', icon: '👤', sideId: 'town' },
+    ];
+  }
+  if (modeId === 'vendetta') {
+    return [
+      { id: 'godfather', name: 'Godfather', icon: '🎩', sideId: 'mafia' },
+      { id: 'silencer', name: 'Silencer', icon: '🤐', sideId: 'mafia' },
+      { id: 'matador', name: 'Matador', icon: '🧣', sideId: 'mafia' },
+      { id: 'priest', name: 'Priest', icon: '🕊️', sideId: 'town' },
+      { id: 'constantine', name: 'Constantine', icon: '✨', sideId: 'town' },
+      { id: 'doctor', name: 'Doctor', icon: '💉', sideId: 'town' },
+      { id: 'detective', name: 'Detective', icon: '🔍', sideId: 'town' },
+      { id: 'citizen', name: 'Citizen', icon: '👤', sideId: 'town' },
     ];
   }
   return [

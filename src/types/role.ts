@@ -9,6 +9,10 @@ export type RoleId =
   | 'nostradamus'
   | 'constantine'
   | 'leon'
+  | 'zodiac'
+  | 'bodyguard'
+  | 'silencer'
+  | 'priest'
   | string;
 
 export type SideId = 'town' | 'mafia' | 'third-party' | string;

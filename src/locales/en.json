@@ -7,6 +7,14 @@
     "classic": {
       "name": "Classic Mafia",
       "description": "Traditional Mafia rules with Godfather, Doctor, Detective, and Citizens."
+    },
+    "zodiac": {
+      "name": "Zodiac",
+      "description": "Fast-paced tournament scenario featuring the deadly solo third-party Zodiac killer, Bodyguard, and rapid 45s turns."
+    },
+    "vendetta": {
+      "name": "Noir Vendetta",
+      "description": "Tactical suspense scenario featuring the mafia Silencer and the town Priest who can absolve silenced citizens."
     }
   },
   "sides": {
@@ -54,6 +62,22 @@
     "leon": {
       "name": "Leon (Vigilante)",
       "description": "Town sniper who can eliminate suspects at night. If Leon shoots an innocent citizen, Leon dies from penalty/guilt!"
+    },
+    "zodiac": {
+      "name": "Zodiac",
+      "description": "Solo independent assassin equipped with an armored bulletproof vest and a lethal night shot. Appears innocent to Detective inquiries. Wins by outlasting both Town and Mafia."
+    },
+    "bodyguard": {
+      "name": "Bodyguard",
+      "description": "Loyal town protector who guards one player each night from deadly shots. Has one personal shield protecting against death."
+    },
+    "silencer": {
+      "name": "Silencer",
+      "description": "Feared Mafia operative who silences one target player each night, forbidding them from speaking during the subsequent Day phase."
+    },
+    "priest": {
+      "name": "Priest",
+      "description": "Spiritual town ally who can purge silences, absolving targeted players so they can freely speak during the Day."
     }
   },
   "language": {
@@ -87,6 +111,8 @@
     "players": "Players",
     "tournamentStandardBadge": "🏆 Tournament Standard",
     "classicStandardBadge": "⚖️ Timeless Classic",
+    "zodiacBadge": "🏹 Solo Assassin",
+    "vendettaBadge": "🤐 Secret Order",
     "includedRoles": "Included Roles",
     "selected": "Selected Scenario",
     "selectMode": "Select this Scenario",
@@ -216,7 +242,8 @@
     "challengeUsed": "Used challenge time ({seconds}s)",
     "allSpoken": "All living players have spoken for Day {day}.",
     "confirmProceedVoting": "Proceed to Voting Phase",
-    "startDayFlow": "Start Day Speaking Turns"
+    "startDayFlow": "Start Day Speaking Turns",
+    "playerSilencedWarning": "🤐 {name} is Silenced for this Day and may NOT speak during discussion!"
   },
   "votingPhase": {
     "title": "Voting Phase",
@@ -315,6 +342,7 @@
     "noDeaths": "Nobody died last night.",
     "wasKilled": "was killed in the night.",
     "wasRevived": "was brought back to life.",
+    "wasSilenced": "was silenced and cannot speak today.",
     "moderatorLog": "Moderator Private Log & Calculations",
     "startNextDay": "Advance to Day {day}",
     "investigationResult": "Investigation Result (Is target Mafia?):",
@@ -339,12 +367,20 @@
     "actionMafiaShotDesc": "Order a lethal night assassination on an opponent",
     "actionVigilanteShot": "Vigilante Shot",
     "actionVigilanteShotDesc": "Fire town justice bullet (Leon dies if target is innocent Town)",
+    "actionZodiacShot": "Zodiac Elimination Shot",
+    "actionZodiacShotDesc": "Lethal arrow strike against designated target",
     "actionTreatOther": "Treat Teammate",
     "actionTreatOtherDesc": "Protect another player from lethal night shots",
+    "actionProtect": "Guard Target",
+    "actionProtectDesc": "Protects target from fatal night attacks",
     "actionTreatSelf": "Self-Heal",
     "actionTreatSelfDesc": "Use doctor's personal emergency save on themselves",
     "actionBlock": "Block Target",
     "actionBlockDesc": "Prevent a player from using their night ability",
+    "actionSilence": "Silence Target",
+    "actionSilenceDesc": "Forbids target from speaking during tomorrow's Day phase",
+    "actionAbsolve": "Absolve Target",
+    "actionAbsolveDesc": "Purges silence from target, restoring their voice for the Day",
     "actionInvestigate": "Investigate Inquiry",
     "actionInvestigateDesc": "Inquire side alignment (Godfather appears innocent)",
     "actionRevive": "Revive Fallen Player",
@@ -567,6 +603,9 @@
     "townVictorySubtitle": "The citizens have uncovered and eliminated every single Mafia member. Peace returns to the city.",
     "mafiaVictoryTitle": "Mafia Victory!",
     "mafiaVictorySubtitle": "The Mafia has taken total control of the town. The remaining citizens are powerless.",
+    "thirdPartyVictoryTitle": "Zodiac Domination!",
+    "thirdPartyVictorySubtitle": "The solo predator outlasted both Town and Mafia!",
+    "drawTitle": "Mutual Annihilation!",
     "nostradamusVictory": "Nostradamus also wins!",
     "nostradamusSubtitle": "Nostradamus correctly predicted the winning side ({side}) on Night 1.",
     "survivingHeroes": "Surviving Players",
@@ -689,6 +728,22 @@
       "sixthSense": {
         "name": "Sixth Sense",
         "desc": "Intuitively senses danger and threat levels."
+      },
+      "silence": {
+        "name": "Vow of Silence",
+        "desc": "Silences a player for the upcoming day, preventing them from speaking."
+      },
+      "absolve": {
+        "name": "Absolution",
+        "desc": "Purifies the target, removing any silence placed upon them."
+      },
+      "protect": {
+        "name": "Bodyguard Protection",
+        "desc": "Guards target player from deadly night shots."
+      },
+      "zodiacShot": {
+        "name": "Zodiac Shot",
+        "desc": "Unleashes a lethal night shot against any target player."
       }
     },
     "tactics": {
@@ -701,7 +756,11 @@
       "leon": "Only shoot with strong day evidence to avoid triggering the fatal guilt penalty.",
       "constantine": "Wait for a critical power role (like Doctor or Detective) to die before using your revive.",
       "nostradamus": "Choose the 3 most vocal players on Night 1 to gauge table balance.",
-      "citizen": "Observe voting patterns and challenge inconsistencies during speech turns."
+      "citizen": "Observe voting patterns and challenge inconsistencies during speech turns.",
+      "zodiac": "Keep suspicion directed between Town and Mafia, strike high-value roles at night, and preserve your shield.",
+      "bodyguard": "Guard key town investigators or healers, and rely on your passive vest if targeted.",
+      "silencer": "Silence persuasive or influential town debaters before crucial voting phases.",
+      "priest": "Predict who the mafia silenced to restore vital town voices to the debate."
     },
     "nightSteps": {
       "step1": {

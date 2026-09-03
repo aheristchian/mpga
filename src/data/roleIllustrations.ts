@@ -143,6 +143,69 @@ export const roleSvgMap: Record<string, string> = {
     </svg>
   `,
 
+  zodiac: `
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+      <circle cx="50" cy="50" r="48" fill="#2E1065" stroke="#A855F7" stroke-width="2"/>
+      <!-- Zodiac Constellation Crosshairs -->
+      <circle cx="50" cy="50" r="28" stroke="#C084FC" stroke-width="1.5" stroke-dasharray="3 3"/>
+      <circle cx="50" cy="50" r="14" stroke="#E9D5FF" stroke-width="1.5"/>
+      <line x1="50" y1="16" x2="50" y2="84" stroke="#C084FC" stroke-width="1.5"/>
+      <line x1="16" y1="50" x2="84" y2="50" stroke="#C084FC" stroke-width="1.5"/>
+      <!-- Golden Arrow / Assassin Dagger -->
+      <path d="M50 22 L54 44 L50 48 L46 44 Z" fill="#FBBF24"/>
+      <line x1="50" y1="48" x2="50" y2="70" stroke="#FDE047" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="50" cy="72" r="2" fill="#FBBF24"/>
+      <!-- Moon & Star Accent -->
+      <path d="M72 26 C68 28 66 34 68 38 C64 36 62 30 65 24 Z" fill="#FDE047"/>
+    </svg>
+  `,
+
+  bodyguard: `
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+      <circle cx="50" cy="50" r="48" fill="#064E3B" stroke="#10B981" stroke-width="2"/>
+      <!-- Heavy Aegis Shield -->
+      <path d="M50 18 L76 28 V54 C76 72 50 86 50 86 C50 86 24 72 24 54 V28 Z" fill="#047857" stroke="#34D399" stroke-width="2"/>
+      <path d="M50 24 L70 32 V52 C70 66 50 78 50 78 C50 78 30 66 30 52 V32 Z" fill="#065F46"/>
+      <!-- Star of Protection -->
+      <polygon points="50,38 53,46 62,46 55,51 58,59 50,54 42,59 45,51 38,46 47,46" fill="#FDE047" stroke="#F59E0B" stroke-width="1"/>
+      <circle cx="50" cy="50" r="3" fill="#D97706"/>
+    </svg>
+  `,
+
+  silencer: `
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+      <circle cx="50" cy="50" r="48" fill="#1C1917" stroke="#DC2626" stroke-width="2"/>
+      <!-- Mute Mask & Zipped Lips -->
+      <circle cx="50" cy="45" r="22" fill="#292524" stroke="#78350F" stroke-width="1.5"/>
+      <ellipse cx="42" cy="40" rx="3" ry="4" fill="#0C0A09"/>
+      <ellipse cx="58" cy="40" rx="3" ry="4" fill="#0C0A09"/>
+      <!-- Zipper / Padlock over Mouth -->
+      <rect x="36" y="52" width="28" height="6" rx="2" fill="#DC2626"/>
+      <line x1="40" y1="52" x2="40" y2="58" stroke="#FFFFFF" stroke-width="1.5"/>
+      <line x1="46" y1="52" x2="46" y2="58" stroke="#FFFFFF" stroke-width="1.5"/>
+      <line x1="54" y1="52" x2="54" y2="58" stroke="#FFFFFF" stroke-width="1.5"/>
+      <line x1="60" y1="52" x2="60" y2="58" stroke="#FFFFFF" stroke-width="1.5"/>
+      <!-- Finger on lips gesture silhouette -->
+      <path d="M48 46 L52 46 L52 64 L48 64 Z" fill="#78350F" opacity="0.4"/>
+      <!-- Cancel / Mute Slash -->
+      <line x1="28" y1="72" x2="72" y2="28" stroke="#EF4444" stroke-width="2" stroke-dasharray="4 2"/>
+    </svg>
+  `,
+
+  priest: `
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+      <circle cx="50" cy="50" r="48" fill="#1E1B4B" stroke="#F59E0B" stroke-width="2"/>
+      <!-- Radiant Halo Aura -->
+      <circle cx="50" cy="48" r="30" stroke="#FDE047" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.6"/>
+      <!-- Holy Dove of Peace & Cleansing -->
+      <path d="M50 30 C45 36 32 38 24 34 C30 46 44 46 46 54 C48 50 54 44 68 44 C72 38 62 34 56 36 C54 33 52 30 50 30 Z" fill="#F8FAFC" opacity="0.9"/>
+      <!-- Golden Cross of Absolution -->
+      <rect x="47" y="44" width="6" height="34" rx="2" fill="#FBBF24"/>
+      <rect x="38" y="52" width="24" height="6" rx="2" fill="#FBBF24"/>
+      <circle cx="50" cy="55" r="3" fill="#FFFFFF"/>
+    </svg>
+  `,
+
   default: `
     <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
       <circle cx="50" cy="50" r="48" fill="#1E293B" stroke="#64748B" stroke-width="2"/>

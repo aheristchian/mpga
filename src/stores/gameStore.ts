@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { loadEncoded, clearGameStorage } from '../utils/storage';
+import { loadEncoded, saveEncoded, clearGameStorage } from '../utils/storage';
 import { mockLastWordCards } from '../data/lastWordCards';
 import { evaluateGameStatus } from '../services/useWinCondition';
 import type {
@@ -54,6 +54,25 @@ export const useGameStore = defineStore('game', () => {
     loadEncoded<number>('mpga_constantineRevivesUsed') || 0
   );
 
+  // Silenced Players Tracking (for Silencer ability)
+  const silencedPlayers = ref<string[]>(loadEncoded<string[]>('mpga_silencedPlayers') || []);
+
+  const setSilencedPlayers = (names: string[]) => {
+    silencedPlayers.value = names;
+    saveEncoded('mpga_silencedPlayers', names);
+    livePlayers.value.forEach((p) => {
+      p.isSilenced = names.includes(p.name);
+    });
+  };
+
+  const clearSilencedPlayers = () => {
+    silencedPlayers.value = [];
+    saveEncoded('mpga_silencedPlayers', []);
+    livePlayers.value.forEach((p) => {
+      p.isSilenced = false;
+    });
+  };
+
   // Active Speaker & Speech Timer Tracking (for Projector TV and Multiplayer sync)
   const activeSpeaker = ref<string | null>(null);
   const speakerTimeRemaining = ref<number>(0);
@@ -97,6 +116,7 @@ export const useGameStore = defineStore('game', () => {
       winner: winner.value,
       nostradamusChoice: nostradamusChoice.value,
       votingState: JSON.parse(JSON.stringify(votingState.value)),
+      silencedPlayers: JSON.parse(JSON.stringify(silencedPlayers.value)),
     };
     undoStack.value.push(snapshot);
     if (undoStack.value.length > 20) {
@@ -122,6 +142,12 @@ export const useGameStore = defineStore('game', () => {
       winner.value = snapshot.winner;
       nostradamusChoice.value = snapshot.nostradamusChoice;
       votingState.value = snapshot.votingState;
+      if (snapshot.silencedPlayers) {
+        silencedPlayers.value = snapshot.silencedPlayers;
+        livePlayers.value.forEach((p) => {
+          p.isSilenced = silencedPlayers.value.includes(p.name);
+        });
+      }
 
       addLog(
         'moderator',
@@ -410,9 +436,7 @@ export const useGameStore = defineStore('game', () => {
     eliminatedPlayer.value = null;
 
     // Reset temporary day statuses like daily silence
-    livePlayers.value.forEach((p) => {
-      p.isSilenced = false;
-    });
+    clearSilencedPlayers();
 
     addLog('day', `Day ${currentDay.value} Begun`, `Dawn breaks for Day ${currentDay.value}.`);
 
@@ -452,6 +476,7 @@ export const useGameStore = defineStore('game', () => {
     nostradamusChoice.value = null;
     doctorSelfHealsUsed.value = 0;
     constantineRevivesUsed.value = 0;
+    clearSilencedPlayers();
     undoStack.value = [];
   };
 
@@ -474,6 +499,7 @@ export const useGameStore = defineStore('game', () => {
     votingState,
     doctorSelfHealsUsed,
     constantineRevivesUsed,
+    silencedPlayers,
     undoStack,
     canUndo,
     activeSpeaker,
@@ -495,6 +521,8 @@ export const useGameStore = defineStore('game', () => {
     convertPlayerSide,
     recordDoctorSelfHeal,
     recordConstantineRevive,
+    setSilencedPlayers,
+    clearSilencedPlayers,
     setActiveSpeaker,
     updateSpeakerTimer,
     setNostradamusChoice,

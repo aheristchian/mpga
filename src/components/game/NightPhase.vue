@@ -671,6 +671,16 @@
               💚 {{ revived }} {{ $t('nightPhase.wasRevived') }}
             </div>
           </div>
+
+          <div v-if="resolution.silenced && resolution.silenced.length > 0" class="space-y-2">
+            <div
+              v-for="silenced in resolution.silenced"
+              :key="silenced"
+              class="text-amber-400 font-black p-4 bg-amber-950/30 border border-amber-600/40 rounded-xl text-center text-lg"
+            >
+              🤐 {{ silenced }} {{ $t('nightPhase.wasSilenced') }}
+            </div>
+          </div>
         </div>
 
         <!-- MODERATOR PRIVATE LOG -->
@@ -888,13 +898,17 @@ const detectiveInquiryResult = computed(() => {
   const targetPlayer = store.livePlayers.find((p) => p.name === targetName);
   if (!targetPlayer) return null;
 
-  // Godfather appears as innocent in inquiry
+  // Godfather and Zodiac appear as innocent in inquiry
   const isGodfather = targetPlayer.role?.id === 'godfather';
+  const isZodiac = targetPlayer.role?.id === 'zodiac';
+  const appearsClean =
+    targetPlayer.role?.inquiryAppearsAs === 'town' ||
+    targetPlayer.role?.passiveAbilityIds?.includes('clean-inquiry');
   const isMafia = targetPlayer.role?.sideId === 'mafia';
 
   return {
     target: targetName,
-    isGuilty: isMafia && !isGodfather,
+    isGuilty: isMafia && !isGodfather && !isZodiac && !appearsClean,
   };
 });
 
@@ -967,7 +981,7 @@ const executeNightResolution = () => {
   store.addLog(
     'night',
     `Night ${store.currentDay} Actions Resolved`,
-    `Deaths: ${resolution.value.deaths.length ? resolution.value.deaths.join(', ') : 'None'}. Revived: ${resolution.value.revived.length ? resolution.value.revived.join(', ') : 'None'}.`
+    `Deaths: ${resolution.value.deaths.length ? resolution.value.deaths.join(', ') : 'None'}. Revived: ${resolution.value.revived.length ? resolution.value.revived.join(', ') : 'None'}. Silenced: ${resolution.value.silenced?.length ? resolution.value.silenced.join(', ') : 'None'}.`
   );
 };
 
@@ -995,6 +1009,11 @@ const startNextDay = () => {
   });
 
   store.proceedToNextDay();
+
+  // Commit silenced status for Day
+  if (resolution.value.silenced && resolution.value.silenced.length > 0) {
+    store.setSilencedPlayers(resolution.value.silenced);
+  }
 };
 
 let unregisterMultiplayerListener = null;

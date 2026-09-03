@@ -19,6 +19,7 @@ export interface ConvertedPlayer {
 export interface NightResolutionResult {
   deaths: string[];
   revived: string[];
+  silenced: string[];
   brokenShields: string[];
   converted: ConvertedPlayer[];
   log: string[];
@@ -36,9 +37,10 @@ interface QueuedAction {
  *
  * Standardized Priority Scale:
  * - 99: Passive Immunity & Sixth Sense (Shields, Unlimited Shields)
- * - 90: Blocks & Buys (Matador Block, Saul Goodman Bribe)
- * - 80: Medical Treatments & Saves (Doctor Treat)
- * - 70: Lethal Night Shots (Godfather Shot, Leon Vigilante Shot)
+ * - 90: Blocks, Buys & Silences (Matador Block, Saul Goodman Bribe, Silencer Silence)
+ * - 85: Cleansing & Absolutions (Priest Absolve)
+ * - 80: Medical Treatments & Bodyguard Saves (Doctor Treat, Bodyguard Protect)
+ * - 70: Lethal Night Shots (Godfather Shot, Leon Vigilante Shot, Zodiac Shot)
  * - 50: Inquiries & Allegiances (Detective Inquiry, Nostradamus Choice)
  * - 10: Revivals (Constantine Revival)
  */
@@ -47,6 +49,7 @@ export const resolveNight = (players: Player[], actionMap: ActionMap): NightReso
   const killedThisNight = new Set<string>();
   const unpreventableDeaths = new Set<string>();
   const revivedThisNight = new Set<string>();
+  const silencedPlayers = new Set<string>();
   const blockedPlayers = new Set<string>(); // Prevented from using abilities
   const treatedPlayers = new Set<string>(); // Saved from kills
   const brokenShields: string[] = [];
@@ -107,6 +110,26 @@ export const resolveNight = (players: Player[], actionMap: ActionMap): NightReso
         blockedPlayers.add(target.name);
         break;
 
+      case 'silence':
+        silencedPlayers.add(target.name);
+        log.push(
+          `[SILENCE] ${actor.name} (Silencer) muted ${target.name} for the upcoming day.`
+        );
+        break;
+
+      case 'absolve':
+        if (silencedPlayers.has(target.name)) {
+          silencedPlayers.delete(target.name);
+          log.push(
+            `[ABSOLVE] ${actor.name} (Priest) purified ${target.name}, breaking the silence penalty!`
+          );
+        } else {
+          log.push(
+            `[ABSOLVE] ${actor.name} (Priest) granted spiritual sanctuary to ${target.name}.`
+          );
+        }
+        break;
+
       case 'buy':
         if (target.role?.sideId === 'town') {
           converted.push({
@@ -124,11 +147,25 @@ export const resolveNight = (players: Player[], actionMap: ActionMap): NightReso
         }
         break;
 
+      case 'protect':
+        treatedPlayers.add(target.name);
+        log.push(
+          `[PROTECT] ${actor.name} (Bodyguard) guarded ${target.name} against attacks.`
+        );
+        break;
+
       case 'treat':
         treatedPlayers.add(target.name);
         break;
 
       case 'mafia-shot':
+        killedThisNight.add(target.name);
+        break;
+
+      case 'zodiac-shot':
+        log.push(
+          `[ZODIAC_SHOT] ${actor.name} (Zodiac) unleashed a lethal night strike on ${target.name}.`
+        );
         killedThisNight.add(target.name);
         break;
 
@@ -150,10 +187,15 @@ export const resolveNight = (players: Player[], actionMap: ActionMap): NightReso
         break;
 
       case 'investigate':
-        // Expose side info in the log for the moderator (Godfather appears clean/innocent)
-        if (target.role?.id === 'godfather') {
+        // Expose side info in the log for the moderator (Godfather and Zodiac appear clean/innocent)
+        if (
+          target.role?.id === 'godfather' ||
+          target.role?.id === 'zodiac' ||
+          target.role?.inquiryAppearsAs === 'town' ||
+          target.role?.passiveAbilityIds?.includes('clean-inquiry')
+        ) {
           log.push(
-            `[INQUIRY] ${actor.name} (Detective) investigated ${target.name} (Godfather). Result: Innocent/Clean (Town).`
+            `[INQUIRY] ${actor.name} (Detective) investigated ${target.name} (${target.role?.name || target.role?.id}). Result: Innocent/Clean (Town).`
           );
         } else {
           const isGuilty = target.role?.sideId === 'mafia';
@@ -175,7 +217,7 @@ export const resolveNight = (players: Player[], actionMap: ActionMap): NightReso
   const actualDeaths: string[] = [];
   for (const name of killedThisNight) {
     if (treatedPlayers.has(name) && !unpreventableDeaths.has(name)) {
-      log.push(`[SAVE] ${name} was shot, but saved by the Doctor.`);
+      log.push(`[SAVE] ${name} was shot, but saved by medical treatment or bodyguard protection.`);
     } else {
       // Check passive shields
       const targetPlayer = players.find((p) => p.name === name);
@@ -199,6 +241,7 @@ export const resolveNight = (players: Player[], actionMap: ActionMap): NightReso
   return {
     deaths: actualDeaths,
     revived: Array.from(revivedThisNight),
+    silenced: Array.from(silencedPlayers),
     brokenShields,
     converted,
     log,

@@ -35,4 +35,38 @@ export const mockModes: GameMode[] = [
       },
     },
   },
+  {
+    id: 'zodiac',
+    nameKey: 'modes.zodiac.name',
+    minPlayers: 6,
+    timeToTalk: 45,
+    borrowedTimeToTalk: 25,
+    defenseTimeToTalk: 60,
+    challengesPerDay: 2,
+    nextDayShift: 2,
+    votingThresholdRounding: 'ceil',
+    balanceRules: {
+      warnIfSideExceedsRatio: {
+        sideId: 'mafia',
+        maxRatio: 0.34,
+      },
+    },
+  },
+  {
+    id: 'vendetta',
+    nameKey: 'modes.vendetta.name',
+    minPlayers: 6,
+    timeToTalk: 50,
+    borrowedTimeToTalk: 25,
+    defenseTimeToTalk: 60,
+    challengesPerDay: 1,
+    nextDayShift: 1,
+    votingThresholdRounding: 'ceil',
+    balanceRules: {
+      warnIfSideExceedsRatio: {
+        sideId: 'mafia',
+        maxRatio: 0.34,
+      },
+    },
+  },
 ];

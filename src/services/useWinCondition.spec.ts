@@ -131,4 +131,48 @@ describe('Win Condition Evaluator (useWinCondition.ts)', () => {
     expect(stats.doctorSaves).toBe(1);
     expect(stats.detectiveHits).toBe(1);
   });
+
+  it('prevents Town victory when all Mafia are dead but Zodiac (hostile third-party) is alive', () => {
+    const zodiac: Player = {
+      name: 'KillerZodiac',
+      isDead: false,
+      role: { id: 'zodiac', name: 'Zodiac', sideId: 'third-party' },
+    };
+
+    const players: Player[] = [
+      { ...townCitizen, isDead: false },
+      { ...townDoctor, isDead: false },
+      { ...mafiaGodfather, isDead: true },
+      { ...mafiaGrunt, isDead: true },
+      zodiac,
+    ];
+
+    const result = evaluateGameStatus(players, []);
+
+    // Game should NOT be over with Town win while Zodiac lives
+    expect(result.isGameOver).toBe(false);
+    expect(result.winner).toBeNull();
+  });
+
+  it('declares third-party victory when Zodiac is the last player alive', () => {
+    const zodiac: Player = {
+      name: 'KillerZodiac',
+      isDead: false,
+      role: { id: 'zodiac', name: 'Zodiac', sideId: 'third-party' },
+    };
+
+    const players: Player[] = [
+      { ...townCitizen, isDead: true },
+      { ...townDoctor, isDead: true },
+      { ...mafiaGodfather, isDead: true },
+      { ...mafiaGrunt, isDead: true },
+      zodiac,
+    ];
+
+    const result = evaluateGameStatus(players, []);
+
+    expect(result.isGameOver).toBe(true);
+    expect(result.winner).toBe('third-party');
+    expect(result.survivingPlayers.map((p) => p.name)).toEqual(['KillerZodiac']);
+  });
 });

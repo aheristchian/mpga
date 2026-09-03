@@ -215,19 +215,23 @@
       <!-- 5. GAME OVER CONCLUSION -->
       <div v-else-if="isGameOver" class="w-full space-y-6 animate-fade-in">
         <div class="text-7xl sm:text-8xl animate-bounce my-2">
-          {{ isTownWin ? '🏆' : isMafiaWin ? '👑' : '⚖️' }}
+          {{ isTownWin ? '🏆' : isMafiaWin ? '👑' : isThirdPartyWin ? '🏹' : '⚖️' }}
         </div>
 
         <h2
           class="text-4xl sm:text-6xl font-black tracking-tight"
-          :class="isTownWin ? 'text-blue-400' : isMafiaWin ? 'text-red-400' : 'text-purple-400'"
+          :class="isTownWin ? 'text-blue-400' : isMafiaWin ? 'text-red-400' : isThirdPartyWin ? 'text-amber-400' : 'text-purple-400'"
         >
           {{
             isTownWin
               ? $t('gameOver.townVictoryTitle')
               : isMafiaWin
                 ? $t('gameOver.mafiaVictoryTitle')
-                : 'Match Concluded'
+                : isThirdPartyWin
+                  ? $t('gameOver.thirdPartyVictoryTitle')
+                  : isDraw
+                    ? $t('gameOver.drawTitle')
+                    : 'Match Concluded'
           }}
         </h2>
 
@@ -237,7 +241,9 @@
               ? $t('gameOver.townVictorySubtitle')
               : isMafiaWin
                 ? $t('gameOver.mafiaVictorySubtitle')
-                : ''
+                : isThirdPartyWin
+                  ? $t('gameOver.thirdPartyVictorySubtitle')
+                  : ''
           }}
         </p>
       </div>
@@ -347,6 +353,8 @@ const winner = computed(() => {
 
 const isTownWin = computed(() => winner.value === 'town');
 const isMafiaWin = computed(() => winner.value === 'mafia');
+const isThirdPartyWin = computed(() => winner.value === 'third-party');
+const isDraw = computed(() => winner.value === 'draw');
 
 // Speaker & Timer synced from store or remote public state
 const activeSpeakerName = computed(() => {

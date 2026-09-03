@@ -13,7 +13,7 @@
       >
         <!-- Background Ambient Glow -->
         <div class="text-5xl sm:text-6xl mb-2 animate-bounce">
-          {{ isTownWin ? '🏆' : isMafiaWin ? '👑' : '⚖️' }}
+          {{ isTownWin ? '🏆' : isMafiaWin ? '👑' : isThirdPartyWin ? '🏹' : '⚖️' }}
         </div>
 
         <h3 class="text-2xl sm:text-3xl font-black tracking-wide text-white mb-1.5">
@@ -22,7 +22,11 @@
               ? $t('gameOver.townVictoryTitle')
               : isMafiaWin
                 ? $t('gameOver.mafiaVictoryTitle')
-                : 'Game Concluded'
+                : isThirdPartyWin
+                  ? $t('gameOver.thirdPartyVictoryTitle')
+                  : isDraw
+                    ? $t('gameOver.drawTitle')
+                    : 'Game Concluded'
           }}
         </h3>
         <p class="text-xs sm:text-sm max-w-lg mx-auto opacity-90 font-medium">
@@ -31,7 +35,9 @@
               ? $t('gameOver.townVictorySubtitle')
               : isMafiaWin
                 ? $t('gameOver.mafiaVictorySubtitle')
-                : ''
+                : isThirdPartyWin
+                  ? $t('gameOver.thirdPartyVictorySubtitle')
+                  : ''
           }}
         </p>
 
@@ -237,6 +243,8 @@ const evaluation = computed(() => {
 
 const isTownWin = computed(() => evaluation.value.winner === 'town');
 const isMafiaWin = computed(() => evaluation.value.winner === 'mafia');
+const isThirdPartyWin = computed(() => evaluation.value.winner === 'third-party');
+const isDraw = computed(() => evaluation.value.winner === 'draw');
 
 const survivingPlayers = computed(() => evaluation.value.survivingPlayers || []);
 const stats = computed(() => evaluation.value.stats || {});
@@ -247,6 +255,9 @@ const winnerBannerClasses = computed(() => {
   }
   if (isMafiaWin.value) {
     return 'bg-gradient-to-r from-red-950 via-gray-900 to-red-900/60 border-red-500 text-red-100 shadow-red-950/60';
+  }
+  if (isThirdPartyWin.value) {
+    return 'bg-gradient-to-r from-amber-950 via-gray-900 to-purple-900/60 border-amber-500 text-amber-100 shadow-amber-950/60';
   }
   return 'bg-gradient-to-r from-purple-950 via-gray-900 to-purple-900/60 border-purple-500 text-purple-100';
 });

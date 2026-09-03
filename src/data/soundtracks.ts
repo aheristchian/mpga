@@ -39,6 +39,27 @@ export const soundtrackConfig: SoundtrackConfig = {
         url: 'https://github.com/aheristchian/mpga/releases/download/v1.0.0-audio/Lobby-2.mp3',
         volumeMultiplier: 0.8,
       },
+      {
+        id: 'lobby-3',
+        title: 'Lobby 3',
+        artist: 'Ali Heristchian',
+        url: 'https://github.com/aheristchian/mpga/releases/download/v1.0.0-audio/Lobby-3.mp3',
+        volumeMultiplier: 0.8,
+      },
+      {
+        id: 'lobby-4',
+        title: 'Lobby 4',
+        artist: 'Ali Heristchian',
+        url: 'https://github.com/aheristchian/mpga/releases/download/v1.0.0-audio/Lobby-4.mp3',
+        volumeMultiplier: 0.8,
+      },
+      {
+        id: 'lobby-5',
+        title: 'Lobby 5',
+        artist: 'Ali Heristchian',
+        url: 'https://github.com/aheristchian/mpga/releases/download/v1.0.0-audio/Lobby-5.mp3',
+        volumeMultiplier: 0.8,
+      },
     ],
 
     /**
