@@ -30,62 +30,13 @@
         </span>
       </div>
 
-      <div class="flex flex-wrap items-center justify-end gap-1.5 sm:gap-2">
-        <!-- STEALTH OLED TOGGLE (Night Phase) -->
-        <button
-          v-if="publicState?.subPhase === 'night'"
-          type="button"
-          class="px-2 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer active:scale-95 border select-none"
-          :class="
-            isStealthMode
-              ? 'bg-red-950/70 border-red-900 text-red-400'
-              : 'bg-gray-900 border-gray-750 text-gray-400 hover:text-white'
-          "
-          :title="isStealthMode ? $t('playerClient.stealthMode') : $t('playerClient.stealthMode')"
-          @click="isStealthMode = !isStealthMode"
-        >
-          <span>👁️</span>
-          <span class="text-[10px] hidden sm:inline">{{ $t('playerClient.stealthMode') }}</span>
-        </button>
-
-        <!-- WAKELOCK TOGGLE -->
-        <button
-          v-if="wakeLock.isSupported"
-          type="button"
-          class="px-2 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer active:scale-95 border select-none"
-          :class="
-            wakeLock.isActive.value
-              ? 'bg-amber-950/40 border-amber-500/40 text-amber-300'
-              : 'bg-gray-900 border-gray-800 text-gray-500'
-          "
-          :title="
-            wakeLock.isActive.value
-              ? $t('playerClient.wakeLockActive')
-              : $t('playerClient.wakeLockDisabled')
-          "
-          @click="wakeLock.toggleWakeLock()"
-        >
-          <span>{{ wakeLock.isActive.value ? '🔆' : '🌙' }}</span>
-        </button>
-
-        <LanguageSwitcher />
-
-        <!-- IN-GAME GUIDE BUTTON -->
-        <button
-          type="button"
-          class="px-2 py-1 bg-gray-900 hover:bg-gray-800 border border-gray-750 text-amber-300 hover:text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer active:scale-95 shadow-sm"
-          :title="$t('app.gameGuide')"
-          @click="showGuideModal = true"
-        >
-          <span>📖</span>
-          <span class="hidden sm:inline">{{ $t('app.gameGuideShort') }}</span>
-        </button>
-
+      <div class="flex items-center gap-2">
+        <!-- CONNECTION STATUS PILL -->
         <div
-          class="flex items-center gap-1.5 bg-gray-900 px-2 py-1 rounded-xl border border-gray-800 text-[10px]"
+          class="flex items-center gap-1.5 bg-gray-900 px-2.5 py-1.5 rounded-xl border border-gray-800 text-[11px]"
         >
           <span
-            class="w-2 h-2 rounded-full"
+            class="w-2.5 h-2.5 rounded-full"
             :class="{
               'bg-green-500 animate-pulse': multiplayer.isConnected.value,
               'bg-yellow-500': multiplayer.connectionStatus.value === 'connecting',
@@ -94,35 +45,29 @@
                 multiplayer.connectionStatus.value === 'disconnected',
             }"
           ></span>
-          <span class="font-mono font-bold text-gray-300 uppercase hidden sm:inline">
-            {{ multiplayer.transportMode.value === 'cloud' ? '☁️ Cloud' : '⚡ P2P' }}
+          <span class="font-mono font-bold text-gray-300 uppercase">
+            {{ multiplayer.transportMode.value === 'cloud' ? '☁️' : '⚡' }}
           </span>
           <span
             v-if="multiplayer.isConnected.value && multiplayer.pingLatency.value !== null"
-            class="text-[9px] font-mono text-gray-400 sm:border-l sm:border-gray-700 sm:pl-1.5"
+            class="text-[10px] font-mono text-gray-400 border-l rtl:border-l-0 rtl:border-r border-gray-700 px-1"
           >
             {{ multiplayer.pingLatency.value }}ms
           </span>
         </div>
 
-        <!-- RETURN TO MODERATOR BUTTON -->
+        <!-- HAMBURGER DRAWER BUTTON -->
         <button
           type="button"
-          class="px-2 py-1 bg-gray-900 hover:bg-gray-800 border border-gray-750 text-indigo-300 hover:text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer active:scale-95 shadow-sm"
-          :title="$t('playerClient.returnToModerator')"
-          @click="emit('returnToModerator')"
+          class="min-w-[42px] min-h-[42px] px-2.5 py-1.5 bg-gray-850 hover:bg-gray-800 active:scale-95 border border-gray-700 text-gray-200 hover:text-white rounded-xl transition-all flex items-center justify-center cursor-pointer shadow-sm relative text-base font-bold"
+          :title="$t('playerClientDrawer.menuTitle')"
+          @click="isDrawerOpen = !isDrawerOpen"
         >
-          <span>👑</span>
-          <span class="hidden sm:inline">{{ $t('playerClient.returnToModerator') }}</span>
-        </button>
-
-        <button
-          v-if="multiplayer.isConnected.value"
-          class="text-xs text-gray-500 hover:text-red-400 p-1 active:scale-95 cursor-pointer"
-          :title="$t('playerClient.leaveRoom')"
-          @click="handleDisconnect"
-        >
-          ✕
+          <span
+            v-if="isStealthMode && publicState?.subPhase === 'night'"
+            class="absolute -top-0.5 -right-0.5 rtl:-right-auto rtl:-left-0.5 w-2.5 h-2.5 rounded-full bg-red-500"
+          ></span>
+          <span>{{ isDrawerOpen ? '✕' : '☰' }}</span>
         </button>
       </div>
     </header>
@@ -612,32 +557,35 @@
           </div>
 
           <!-- STEP 1: ACTION SELECTION BUTTONS -->
-          <div class="space-y-1.5 text-left">
+          <div class="space-y-1.5 text-left rtl:text-right">
             <label
               class="text-[10px] font-bold uppercase tracking-wider"
               :class="isStealthMode ? 'text-red-400/90' : 'text-indigo-400'"
             >
               {{ $t('playerClient.step1Action') }}
             </label>
-            <div class="grid grid-cols-2 gap-2">
+            <div class="grid grid-cols-2 gap-2.5">
               <button
                 v-for="action in availableNightActions"
                 :key="action.id"
                 type="button"
                 :disabled="submittedNightTarget"
-                class="p-2.5 rounded-xl border text-left transition-all text-xs font-bold flex items-center gap-2 cursor-pointer active:scale-95 select-none min-h-[44px]"
+                class="p-3 rounded-xl border text-left rtl:text-right transition-all text-xs font-bold flex items-center gap-2 cursor-pointer active:scale-95 select-none min-h-[48px]"
                 :class="
                   currentActionId === action.id
                     ? isStealthMode
-                      ? 'bg-red-950/90 border-red-800 text-red-200 ring-1 ring-red-700 shadow-none'
+                      ? 'bg-red-950/90 border-red-800 text-red-200 ring-2 ring-red-700 shadow-none'
                       : 'bg-indigo-600 border-indigo-300 text-white shadow-md ring-2 ring-indigo-400'
                     : isStealthMode
                       ? 'bg-neutral-900/90 border-neutral-800 text-neutral-400 hover:text-neutral-200'
                       : 'bg-gray-900/80 border-gray-700 text-gray-300 hover:bg-gray-800'
                 "
-                @click="selectPlayerAction(action.id)"
+                @click="
+                  haptics.vibrateImpact();
+                  selectPlayerAction(action.id);
+                "
               >
-                <span class="text-base shrink-0">{{ action.icon }}</span>
+                <span class="text-lg shrink-0">{{ action.icon }}</span>
                 <span class="truncate">{{
                   $te(action.nameKey) ? $t(action.nameKey) : action.nameKey
                 }}</span>
@@ -672,7 +620,7 @@
             <p class="text-xs font-bold mt-1">{{ $t('nightPhase.selfHealNotice') }}</p>
           </div>
 
-          <div v-else class="space-y-1.5 text-left">
+          <div v-else class="space-y-1.5 text-left rtl:text-right">
             <div class="flex items-center justify-between">
               <label
                 class="text-[10px] font-bold uppercase tracking-wider"
@@ -701,23 +649,26 @@
               {{ $t('nightPhase.noDeadPlayers') }}
             </div>
 
-            <div v-else class="grid grid-cols-2 gap-2">
+            <div v-else class="grid grid-cols-2 gap-2.5">
               <button
                 v-for="target in validNightTargets"
                 :key="target.name"
                 type="button"
                 :disabled="submittedNightTarget"
-                class="p-2.5 rounded-xl border text-left transition-all text-xs font-bold flex items-center gap-2 cursor-pointer active:scale-95 select-none min-h-[44px]"
+                class="p-3 rounded-xl border text-left rtl:text-right transition-all text-xs font-bold flex items-center gap-2 cursor-pointer active:scale-95 select-none min-h-[48px]"
                 :class="
                   selectedNightTarget === target.name
                     ? isStealthMode
-                      ? 'bg-red-950/90 border-red-800 text-red-200 ring-1 ring-red-700'
+                      ? 'bg-red-950/90 border-red-800 text-red-200 ring-2 ring-red-700'
                       : 'bg-gradient-to-r from-indigo-600 to-purple-600 border-indigo-300 text-white shadow-md ring-2 ring-indigo-400'
                     : isStealthMode
                       ? 'bg-neutral-900/90 border-neutral-800 text-neutral-400 hover:text-neutral-200'
                       : 'bg-gray-900/80 border-gray-700 text-gray-300 hover:bg-gray-800'
                 "
-                @click="selectedNightTarget = target.name"
+                @click="
+                  haptics.vibrateImpact();
+                  selectedNightTarget = target.name;
+                "
               >
                 <span class="truncate flex-1">{{ target.name }}</span>
                 <span v-if="selectedNightTarget === target.name" class="text-xs">✓</span>
@@ -831,17 +782,20 @@
           </div>
 
           <!-- STAGE 1: PRE-VOTE -->
-          <div v-if="currentVotingStage === 'pre-vote'" class="grid grid-cols-2 gap-2">
+          <div v-if="currentVotingStage === 'pre-vote'" class="grid grid-cols-2 gap-2.5">
             <button
               v-for="target in livingOtherPlayers"
               :key="target.name"
               :class="[
-                'p-3 min-h-[44px] rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-between select-none active:scale-95 active:brightness-90',
+                'p-3 min-h-[48px] rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-between select-none active:scale-95 active:brightness-90',
                 myPreVotes.includes(target.name)
-                  ? 'bg-emerald-950/80 border-2 border-emerald-500 text-emerald-200 shadow-md shadow-emerald-950/50 ring-1 ring-emerald-500/40'
+                  ? 'bg-emerald-950/90 border-2 border-emerald-500 text-emerald-200 shadow-md shadow-emerald-950/50 ring-2 ring-emerald-500/40'
                   : 'bg-gray-900 border border-gray-700 hover:border-orange-500 text-white hover:bg-orange-950/40',
               ]"
-              @click="handleCastVote(target.name, 'pre')"
+              @click="
+                haptics.vibrateImpact();
+                handleCastVote(target.name, 'pre');
+              "
             >
               <span class="truncate">{{ target.name }}</span>
               <span
@@ -876,17 +830,20 @@
             >
               ⚠️ {{ $t('playerClient.defenderCannotVoteSelf') }}
             </div>
-            <div class="grid grid-cols-2 gap-2">
+            <div class="grid grid-cols-2 gap-2.5">
               <button
                 v-for="target in qualifiedDefenders"
                 :key="target.name"
                 :class="[
-                  'p-3 min-h-[44px] rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-between select-none active:scale-95 active:brightness-90',
+                  'p-3 min-h-[48px] rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-between select-none active:scale-95 active:brightness-90',
                   myFinalVote === target.name
-                    ? 'bg-red-950/90 border-2 border-red-500 text-red-200 shadow-md shadow-red-950/50 ring-1 ring-red-500/50'
+                    ? 'bg-red-950/90 border-2 border-red-500 text-red-200 shadow-md shadow-red-950/50 ring-2 ring-red-500/50'
                     : 'bg-gray-900 border border-gray-700 hover:border-red-500 text-white hover:bg-red-950/40',
                 ]"
-                @click="handleCastVote(target.name, 'final')"
+                @click="
+                  haptics.vibrateImpact();
+                  handleCastVote(target.name, 'final');
+                "
               >
                 <span class="truncate">{{ target.name }}</span>
                 <span
@@ -939,6 +896,214 @@
       :is-player-view="true"
       @close="showGuideModal = false"
     />
+
+    <!-- SLIDE-OVER MOBILE DRAWER -->
+    <Teleport to="body">
+      <div
+        v-if="isDrawerOpen"
+        class="fixed inset-0 z-[100] flex justify-end"
+      >
+        <!-- BACKDROP -->
+        <div
+          class="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
+          @click="isDrawerOpen = false"
+        ></div>
+
+        <!-- DRAWER CONTENT -->
+        <div
+          class="relative w-full max-w-xs sm:max-w-sm bg-gray-900 border-l rtl:border-l-0 rtl:border-r border-gray-800 shadow-2xl p-5 text-white z-10 flex flex-col justify-between overflow-y-auto animate-fade-in"
+        >
+          <div class="space-y-4">
+            <!-- DRAWER HEADER -->
+            <div class="flex items-center justify-between pb-3 border-b border-gray-800">
+              <div class="flex items-center gap-2">
+                <span class="text-xl">🎭</span>
+                <h3 class="font-bold text-sm text-gray-200">
+                  {{ $t('playerClientDrawer.menuTitle') }}
+                </h3>
+              </div>
+              <button
+                type="button"
+                class="w-8 h-8 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white flex items-center justify-center transition-all cursor-pointer text-xs"
+                @click="isDrawerOpen = false"
+              >
+                ✕
+              </button>
+            </div>
+
+            <!-- ROOM & NETWORK TELEMETRY -->
+            <div class="p-3 bg-gray-850 border border-gray-750 rounded-xl space-y-2">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-gray-400 font-medium">{{ $t('playerClientDrawer.pinCode') }}</span>
+                <span class="font-mono font-black text-amber-400 text-sm">
+                  {{ multiplayer.roomCode.value || inputRoomCode || '---' }}
+                </span>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-gray-400 font-medium">{{ $t('multiplayer.transport') }}</span>
+                <span class="font-mono text-xs font-bold text-indigo-300">
+                  {{ multiplayer.transportMode.value === 'cloud' ? '☁️ Cloud MQTT' : '⚡ WebRTC P2P' }}
+                </span>
+              </div>
+              <div
+                v-if="multiplayer.isConnected.value && multiplayer.pingLatency.value !== null"
+                class="flex items-center justify-between text-xs"
+              >
+                <span class="text-gray-400 font-medium">{{ $t('multiplayer.latency') }}</span>
+                <span class="font-mono text-xs font-bold text-green-400">
+                  {{ multiplayer.pingLatency.value }}ms
+                </span>
+              </div>
+            </div>
+
+            <!-- SETTINGS & CONTROLS -->
+            <div class="space-y-2">
+              <!-- STEALTH OLED MODE (Available when in night phase or anywhere for night preview) -->
+              <button
+                type="button"
+                class="w-full p-3 rounded-xl border text-left rtl:text-right transition-all flex items-center justify-between cursor-pointer active:scale-98"
+                :class="
+                  isStealthMode
+                    ? 'bg-red-950/60 border-red-700/60 text-red-200 shadow-sm'
+                    : 'bg-gray-800/80 border-gray-700 text-gray-300 hover:bg-gray-750'
+                "
+                @click="isStealthMode = !isStealthMode"
+              >
+                <div class="flex items-center gap-3">
+                  <span class="text-lg">👁️</span>
+                  <div>
+                    <div class="text-xs font-bold">{{ $t('playerClientDrawer.stealthOled') }}</div>
+                    <div class="text-[10px] text-gray-400 leading-tight mt-0.5">
+                      {{ $t('playerClientDrawer.stealthOledDesc') }}
+                    </div>
+                  </div>
+                </div>
+                <span
+                  class="w-9 h-5 rounded-full p-0.5 transition-colors flex items-center shrink-0"
+                  :class="isStealthMode ? 'bg-red-600 justify-end' : 'bg-gray-700 justify-start'"
+                >
+                  <span class="w-4 h-4 rounded-full bg-white block shadow"></span>
+                </span>
+              </button>
+
+              <!-- SCREEN WAKELOCK -->
+              <button
+                v-if="wakeLock.isSupported"
+                type="button"
+                class="w-full p-3 rounded-xl border text-left rtl:text-right transition-all flex items-center justify-between cursor-pointer active:scale-98"
+                :class="
+                  wakeLock.isActive.value
+                    ? 'bg-amber-950/50 border-amber-500/50 text-amber-200 shadow-sm'
+                    : 'bg-gray-800/80 border-gray-700 text-gray-300 hover:bg-gray-750'
+                "
+                @click="wakeLock.toggleWakeLock()"
+              >
+                <div class="flex items-center gap-3">
+                  <span class="text-lg">🔆</span>
+                  <div>
+                    <div class="text-xs font-bold">{{ $t('playerClientDrawer.wakeLock') }}</div>
+                    <div class="text-[10px] text-gray-400 leading-tight mt-0.5">
+                      {{ $t('playerClientDrawer.wakeLockDesc') }}
+                    </div>
+                  </div>
+                </div>
+                <span
+                  class="w-9 h-5 rounded-full p-0.5 transition-colors flex items-center shrink-0"
+                  :class="wakeLock.isActive.value ? 'bg-amber-500 justify-end' : 'bg-gray-700 justify-start'"
+                >
+                  <span class="w-4 h-4 rounded-full bg-white block shadow"></span>
+                </span>
+              </button>
+
+              <!-- SOUND EFFECTS -->
+              <button
+                type="button"
+                class="w-full p-3 rounded-xl border text-left rtl:text-right transition-all flex items-center justify-between cursor-pointer active:scale-98"
+                :class="
+                  !audio.isMuted.value
+                    ? 'bg-indigo-950/50 border-indigo-500/50 text-indigo-200 shadow-sm'
+                    : 'bg-gray-800/80 border-gray-700 text-gray-400 hover:bg-gray-750'
+                "
+                @click="audio.toggleMute()"
+              >
+                <div class="flex items-center gap-3">
+                  <span class="text-lg">{{ audio.isMuted.value ? '🔇' : '🔊' }}</span>
+                  <div>
+                    <div class="text-xs font-bold">{{ $t('playerClientDrawer.soundFx') }}</div>
+                    <div class="text-[10px] text-gray-400 leading-tight mt-0.5">
+                      {{ audio.isMuted.value ? $t('audio.mute') : $t('audio.soundOn') }}
+                    </div>
+                  </div>
+                </div>
+                <span
+                  class="w-9 h-5 rounded-full p-0.5 transition-colors flex items-center shrink-0"
+                  :class="!audio.isMuted.value ? 'bg-indigo-500 justify-end' : 'bg-gray-700 justify-start'"
+                >
+                  <span class="w-4 h-4 rounded-full bg-white block shadow"></span>
+                </span>
+              </button>
+
+              <!-- IN-GAME GUIDE -->
+              <button
+                type="button"
+                class="w-full p-3 bg-gray-850 hover:bg-gray-800 border border-gray-700 text-amber-300 rounded-xl text-left rtl:text-right text-xs font-bold transition-all flex items-center gap-3 cursor-pointer active:scale-98"
+                @click="
+                  showGuideModal = true;
+                  isDrawerOpen = false;
+                "
+              >
+                <span class="text-lg">📖</span>
+                <div>
+                  <div>{{ $t('playerClientDrawer.inGameGuide') }}</div>
+                  <div class="text-[10px] text-gray-400 font-normal leading-tight mt-0.5">
+                    {{ $t('app.gameGuide') }}
+                  </div>
+                </div>
+              </button>
+
+              <!-- LANGUAGE SWITCHER -->
+              <div class="p-3 bg-gray-850/80 border border-gray-700/80 rounded-xl flex items-center justify-between">
+                <span class="text-xs font-bold text-gray-300 flex items-center gap-2">
+                  <span>🌐</span>
+                  <span>{{ $t('playerClientDrawer.changeLanguage') }}</span>
+                </span>
+                <LanguageSwitcher />
+              </div>
+            </div>
+          </div>
+
+          <!-- FOOTER ACTIONS -->
+          <div class="pt-4 border-t border-gray-800 space-y-2">
+            <!-- RETURN TO MODERATOR -->
+            <button
+              type="button"
+              class="w-full py-2.5 px-3 bg-indigo-900/40 hover:bg-indigo-900/60 border border-indigo-700/60 text-indigo-200 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+              @click="
+                isDrawerOpen = false;
+                emit('returnToModerator');
+              "
+            >
+              <span>👑</span>
+              <span>{{ $t('playerClientDrawer.returnToModerator') }}</span>
+            </button>
+
+            <!-- LEAVE ROOM -->
+            <button
+              v-if="multiplayer.isConnected.value"
+              type="button"
+              class="w-full py-2.5 px-3 bg-red-950/40 hover:bg-red-950/70 border border-red-800/50 text-red-300 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+              @click="
+                isDrawerOpen = false;
+                handleDisconnect();
+              "
+            >
+              <span>✕</span>
+              <span>{{ $t('playerClientDrawer.disconnect') }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -951,6 +1116,7 @@ import { useMultiplayer } from '../../services/useMultiplayerService';
 import { useWakeLock } from '../../services/useWakeLock';
 import { useHaptics } from '../../services/useHaptics';
 import { useGameService } from '../../services/useGameService';
+import { useAudio } from '../../services/useAudioService';
 
 const emit = defineEmits<{
   (e: 'returnToModerator'): void;
@@ -960,7 +1126,9 @@ const multiplayer = useMultiplayer();
 const wakeLock = useWakeLock();
 const haptics = useHaptics();
 const gameService = useGameService();
+const audio = useAudio();
 
+const isDrawerOpen = ref(false);
 const showGuideModal = ref(false);
 const nameInputRef = ref<HTMLInputElement | null>(null);
 const inputRoomCode = ref('');

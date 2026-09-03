@@ -4,8 +4,9 @@
  * Embeds __APP_VERSION__ to automatically invalidate stale cache when the app updates.
  */
 export const saveEncoded = <T>(key: string, data: T): void => {
+  if (typeof localStorage === 'undefined') return;
   try {
-    const payload = { v: __APP_VERSION__, d: data };
+    const payload = { v: typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.0.0', d: data };
     const stringified = JSON.stringify(payload);
     // encodeURIComponent ensures UTF-8 characters are safely converted to Base64
     const encoded = btoa(encodeURIComponent(stringified));
@@ -33,6 +34,7 @@ export const isVersionCompatible = (
  * Utility to load and decode data from localStorage.
  */
 export const loadEncoded = <T = any>(key: string): T | null => {
+  if (typeof localStorage === 'undefined') return null;
   try {
     const encoded = localStorage.getItem(key);
     if (!encoded) return null;

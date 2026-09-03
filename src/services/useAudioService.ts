@@ -562,3 +562,5 @@ export function useAudio() {
     resolveAudioUrl,
   };
 }
+
+export const useAudioService = useAudio;
