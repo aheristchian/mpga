@@ -5,6 +5,7 @@ import { mockAbilities } from '../data/abilities';
 import { mockPhases } from '../data/phases';
 import { mockModes } from '../data/modes';
 import { generateRoleGuideData, generateNightResolutionSteps } from '../data/roleGuideData';
+import { useGamePackService } from './useGamePackService';
 import type {
   Role,
   Side,
@@ -19,6 +20,7 @@ import type {
 
 // A Vue Composable (conventionally starts with "use")
 export function useGameService() {
+  const packService = useGamePackService();
   const roles = ref<Role[]>([]);
   const sides = ref<Side[]>([]);
   const abilities = ref<Ability[]>([]);
@@ -33,11 +35,11 @@ export function useGameService() {
     error.value = null;
 
     try {
-      roles.value = mockRoles;
+      roles.value = packService.getAllRoles();
       sides.value = mockSides;
       abilities.value = mockAbilities;
       phases.value = mockPhases;
-      modes.value = mockModes;
+      modes.value = packService.getAllModes();
     } catch (err) {
       error.value = 'Failed to load game data.';
       console.error(err);
@@ -48,7 +50,7 @@ export function useGameService() {
 
   // Helper method to "Hydrate" a role (join it with its side & full ability objects)
   const getFullRoleDetails = (roleId: string): HydratedRole | null => {
-    const roleList = roles.value.length > 0 ? roles.value : mockRoles;
+    const roleList = roles.value.length > 0 ? roles.value : packService.getAllRoles();
     const sideList = sides.value.length > 0 ? sides.value : mockSides;
     const abilityList = abilities.value.length > 0 ? abilities.value : mockAbilities;
 

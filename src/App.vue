@@ -67,6 +67,16 @@
             <span>{{ $t('app.gameGuide') }}</span>
           </button>
 
+          <!-- IN-BROWSER ROLE STUDIO & GAME PACKS -->
+          <button
+            class="px-3 py-1.5 bg-gray-800 hover:bg-purple-950/80 active:scale-95 border border-gray-700 hover:border-purple-500/60 text-gray-300 hover:text-white rounded-xl transition-all text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow shrink-0"
+            :title="$t('studio.button')"
+            @click="showStudioModal = true"
+          >
+            <span>🎨</span>
+            <span>{{ $t('studio.button') }}</span>
+          </button>
+
           <!-- MULTIPLAYER CONNECT PHONES -->
           <button
             class="px-3.5 py-1.5 bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 border border-blue-500/50 text-white rounded-xl transition-all text-xs font-bold flex items-center gap-1.5 shadow-md cursor-pointer shrink-0"
@@ -272,7 +282,22 @@
                 <span class="text-[10px] text-amber-400 font-bold rtl:rotate-180">↗</span>
               </button>
 
-              <!-- 6. START OVER / RESET -->
+              <!-- 6. ROLE STUDIO & RULES -->
+              <button
+                class="w-full px-3.5 py-2.5 rounded-xl border border-purple-500/30 bg-purple-950/30 hover:bg-purple-900/40 text-purple-200 transition-all text-xs font-semibold flex items-center justify-between cursor-pointer active:scale-98"
+                @click="
+                  showMobileMenu = false;
+                  showStudioModal = true;
+                "
+              >
+                <div class="flex items-center gap-2.5">
+                  <span class="text-base">🎨</span>
+                  <span>{{ $t('studio.button') }}</span>
+                </div>
+                <span class="text-[10px] text-purple-400 font-bold rtl:rotate-180">↗</span>
+              </button>
+
+              <!-- 7. START OVER / RESET -->
               <button
                 v-if="store.gamePhase !== 'mode-selection'"
                 class="w-full px-3.5 py-2.5 rounded-xl border border-red-500/30 bg-red-950/30 hover:bg-red-900/40 text-red-300 transition-all text-xs font-semibold flex items-center justify-between cursor-pointer active:scale-98"
@@ -320,7 +345,9 @@
       <!-- MODE SELECTION PHASE -->
       <ModeSelection
         v-if="store.gamePhase === 'mode-selection'"
+        :key="modeSelectionKey"
         @mode-selected="handleModeSelected"
+        @open-studio="showStudioModal = true"
       />
 
       <!-- SETUP PHASE -->
@@ -404,6 +431,13 @@
 
     <!-- IN-GAME GUIDE & ROLE HIERARCHY MODAL -->
     <GameGuideModal :is-open="showGuideModal" @close="showGuideModal = false" />
+
+    <!-- ROLE STUDIO & GAME PACKS MODAL -->
+    <RoleStudioModal
+      :is-open="showStudioModal"
+      @close="showStudioModal = false"
+      @pack-updated="handlePackUpdated"
+    />
   </div>
 </template>
 
@@ -424,6 +458,7 @@ import ProjectorView from './components/projector/ProjectorView.vue';
 import LanguageSwitcher from './components/LanguageSwitcher.vue';
 import SoundtrackConsole from './components/SoundtrackConsole.vue';
 import GameGuideModal from './components/GameGuideModal.vue';
+import RoleStudioModal from './components/studio/RoleStudioModal.vue';
 import { evaluateGameStatus } from './services/useWinCondition';
 import { getMpgaLogo } from './data/modeIllustrations';
 import { fisherYatesShuffle } from './utils/shuffle';
@@ -442,6 +477,12 @@ const showMultiplayerModal = ref(false);
 const showResetModal = ref(false);
 const showSoundtrackModal = ref(false);
 const showGuideModal = ref(false);
+const showStudioModal = ref(false);
+const modeSelectionKey = ref(0);
+
+const handlePackUpdated = () => {
+  modeSelectionKey.value++;
+};
 
 // Auto-DJ watcher for phase transitions
 watch(

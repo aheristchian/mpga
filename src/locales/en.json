@@ -19,6 +19,14 @@
     "cyber-breach": {
       "name": "Cyber Breach",
       "description": "High-stakes information warfare scenario pitting Blue Team defenders against Black-Hat syndicate hackers and an emergent Rogue AI."
+    },
+    "tehranPro": {
+      "name": "Tehran Pro League",
+      "description": "Competitive ruleset with 45s speaking turns, 1 challenge per day, strict ceiling threshold, and balanced role limits."
+    },
+    "speedBlitz": {
+      "name": "Speed Blitz (Fast 30s)",
+      "description": "High-octane quick rounds with 30s speaking turns and 2 daily challenges for rapid games."
     }
   },
   "sides": {
@@ -122,6 +130,11 @@
     "rogue-ai": {
       "name": "Rogue AI",
       "description": "Autonomous, self-evolving threat protocol. Neutralizes nodes with targeted malware purges. Possesses neural core shielding and evades basic scans. Wins solo."
+    },
+    "judge": {
+      "name": "Judge",
+      "description": "Independent arbiter who can absolve one accused defender from final execution once per tournament.",
+      "tactics": "Use your one-time pardon wisely to save a pivotal town power or disrupt a mafia frame-up."
     }
   },
   "language": {
@@ -158,6 +171,8 @@
     "zodiacBadge": "🏹 Solo Assassin",
     "vendettaBadge": "🤐 Secret Order",
     "cyberBreachBadge": "💻 Cyber Breach",
+    "tehranProBadge": "🏆 Pro Tournament",
+    "speedBlitzBadge": "⚡ Fast Blitz",
     "includedRoles": "Included Roles",
     "selected": "Selected Scenario",
     "selectMode": "Select this Scenario",
@@ -979,5 +994,86 @@
     "initialStepDetail": "All players seated and secret roles assigned. Match begins.",
     "eventDetail": "Event Details",
     "noEvents": "No events recorded in this match."
+  },
+  "playerClientDrawer": {
+    "menuTitle": "Player Controls",
+    "roomInfo": "Room Information",
+    "pinCode": "Room PIN",
+    "stealthOled": "OLED Stealth Mode",
+    "stealthOledDesc": "Zero-luminescence pure black theme for dark rooms",
+    "wakeLock": "Keep Screen Awake",
+    "wakeLockDesc": "Prevents display sleep during the match",
+    "soundFx": "Sound Effects",
+    "inGameGuide": "Role & Ability Guide",
+    "changeLanguage": "Language",
+    "sessionActions": "Game Session",
+    "returnToModerator": "Return to Moderator View",
+    "disconnect": "Leave Game Room"
+  },
+  "studio": {
+    "button": "Studio & Rules",
+    "title": "Game Studio & Modding",
+    "subtitle": "Customize tournament rules, timers, and design custom character roles.",
+    "tabs": {
+      "rules": "Rules & Timers",
+      "roles": "Role Studio",
+      "packs": "Game Packs"
+    },
+    "rules": {
+      "selectMode": "Preset Mode to Customize",
+      "speakingTime": "Speaking Time per Player (sec)",
+      "borrowedTime": "Challenge Speech Time (sec)",
+      "defenseTime": "Defense Speech Time (sec)",
+      "challengesPerDay": "Daily Challenges Quota",
+      "speakerShift": "Daily Speaker Shift",
+      "votingThreshold": "Voting Elimination Threshold",
+      "thresholdCeil": "Ceiling (Strict Round Up)",
+      "thresholdHalf": "Exact Half of Alive Players",
+      "thresholdFloor": "Floor (Permissive Round Down)",
+      "mafiaRatio": "Mafia Warning Ratio (%)",
+      "saveRuleChanges": "Save Mode Rules",
+      "rulesSaved": "Mode configuration saved successfully!"
+    },
+    "roles": {
+      "createNew": "Create Custom Character",
+      "roleName": "Character Name",
+      "roleNamePlaceholder": "e.g. Bounty Hunter, Cyber Infiltrator",
+      "alignment": "Faction / Alignment",
+      "alignmentTown": "Town (Citizen)",
+      "alignmentMafia": "Mafia (Syndicate)",
+      "alignmentThirdParty": "Third-Party (Independent)",
+      "icon": "Character Icon / Emoji",
+      "description": "Character Description",
+      "descriptionPlaceholder": "Describe this character's secret mission and night actions...",
+      "tactics": "Strategy & Tactics",
+      "tacticsPlaceholder": "Tips for playing this role effectively...",
+      "abilities": "Night Abilities",
+      "inquiry": "Inquiry Appears As",
+      "inquiryTown": "Innocent (Town)",
+      "inquiryMafia": "Guilty (Mafia)",
+      "limit": "Max Limit per Game",
+      "saveRole": "Save Custom Role",
+      "deleteRole": "Delete Role",
+      "roleSaved": "Role saved to your custom deck!",
+      "preview": "Live Card Preview",
+      "customRolesList": "Custom Roles in Library ({count})"
+    },
+    "packs": {
+      "exportTitle": "Export Custom Pack (.json)",
+      "exportDesc": "Download your custom rules, timer presets, and character roles as a JSON file to share across devices.",
+      "exportBtn": "Download Game Pack (.json)",
+      "importTitle": "Import Game Pack",
+      "importDesc": "Load community tournament rulepacks or decks from a JSON file or paste JSON text.",
+      "chooseFile": "Upload .json Pack File",
+      "pasteJson": "Or paste JSON payload directly:",
+      "importBtn": "Verify & Import Pack",
+      "importSuccess": "Pack successfully imported! Custom modes and roles are now active.",
+      "presetsTitle": "Community Rulepacks",
+      "loadPreset": "Load Preset",
+      "resetTitle": "Factory Reset",
+      "resetDesc": "Clear all custom rules, timer presets, and custom characters, restoring standard defaults.",
+      "resetBtn": "Reset Everything to Factory Defaults",
+      "resetConfirm": "Are you sure you want to delete all custom rules and roles?"
+    }
   }
 }

@@ -8,6 +8,18 @@
       <p class="text-gray-400 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
         {{ $t('modeSelection.subtitle') }}
       </p>
+
+      <!-- ROLE STUDIO & CUSTOM RULES SHORTCUT -->
+      <div class="pt-2 flex justify-center">
+        <button
+          type="button"
+          class="px-3.5 py-1.5 bg-gray-800/90 hover:bg-purple-950/80 border border-gray-750 hover:border-purple-500/60 text-purple-300 hover:text-white rounded-xl text-xs font-bold transition-all shadow cursor-pointer active:scale-95 flex items-center gap-2"
+          @click="emit('open-studio')"
+        >
+          <span>🎨</span>
+          <span>{{ $t('studio.button') }}</span>
+        </button>
+      </div>
     </div>
 
     <!-- MODE CARDS LIST / GRID -->
@@ -208,6 +220,7 @@ import type { GameMode } from '../types';
 
 const emit = defineEmits<{
   (e: 'mode-selected', mode: GameMode | undefined): void;
+  (e: 'open-studio'): void;
 }>();
 const { modes, fetchGameData } = useGameService();
 const availableModes = ref<GameMode[]>([]);
@@ -238,6 +251,8 @@ const getModeIconClass = (modeId: string) => {
   if (modeId === 'zodiac') return 'bg-purple-950/60 text-purple-400';
   if (modeId === 'vendetta') return 'bg-amber-950/60 text-amber-400';
   if (modeId === 'cyber-breach') return 'bg-emerald-950/60 text-emerald-400';
+  if (modeId === 'tehran-pro-league') return 'bg-amber-950/60 text-amber-400';
+  if (modeId === 'speed-blitz-mafia') return 'bg-cyan-950/60 text-cyan-400';
   return 'bg-blue-950/60 text-blue-400';
 };
 
@@ -246,6 +261,8 @@ const getModeBadgeClass = (modeId: string) => {
   if (modeId === 'zodiac') return 'bg-purple-950/80 text-purple-400 border-purple-800/80';
   if (modeId === 'vendetta') return 'bg-amber-950/80 text-amber-400 border-amber-800/80';
   if (modeId === 'cyber-breach') return 'bg-emerald-950/80 text-emerald-400 border-emerald-800/80';
+  if (modeId === 'tehran-pro-league') return 'bg-amber-950/80 text-amber-400 border-amber-800/80';
+  if (modeId === 'speed-blitz-mafia') return 'bg-cyan-950/80 text-cyan-400 border-cyan-800/80';
   return 'bg-blue-950/80 text-blue-400 border-blue-800/80';
 };
 
@@ -254,6 +271,8 @@ const getModeBadgeTextKey = (modeId: string) => {
   if (modeId === 'zodiac') return 'modeSelection.zodiacBadge';
   if (modeId === 'vendetta') return 'modeSelection.vendettaBadge';
   if (modeId === 'cyber-breach') return 'modeSelection.cyberBreachBadge';
+  if (modeId === 'tehran-pro-league') return 'modeSelection.tehranProBadge';
+  if (modeId === 'speed-blitz-mafia') return 'modeSelection.speedBlitzBadge';
   return 'modeSelection.classicStandardBadge';
 };
 
@@ -262,6 +281,8 @@ const getModeButtonGradientClass = (modeId: string) => {
   if (modeId === 'zodiac') return 'from-purple-600 via-fuchsia-600 to-indigo-600 shadow-purple-600/30';
   if (modeId === 'vendetta') return 'from-amber-600 via-orange-600 to-red-600 shadow-amber-600/30';
   if (modeId === 'cyber-breach') return 'from-emerald-600 via-teal-600 to-cyan-600 shadow-emerald-600/30';
+  if (modeId === 'tehran-pro-league') return 'from-amber-600 via-yellow-600 to-orange-600 shadow-amber-600/30';
+  if (modeId === 'speed-blitz-mafia') return 'from-cyan-600 via-blue-600 to-indigo-600 shadow-cyan-600/30';
   return 'from-blue-600 via-indigo-600 to-cyan-600 shadow-blue-600/30';
 };
 
@@ -332,6 +353,26 @@ const getModeRoles = (modeId: string) => {
       { id: 'white-hat', name: 'White-Hat', icon: '⚡', sideId: 'town' },
       { id: 'devops-admin', name: 'DevOps Admin', icon: '🔑', sideId: 'town' },
       { id: 'sys-user', name: 'Sys User', icon: '👤', sideId: 'town' },
+    ];
+  }
+  if (modeId === 'tehran-pro-league') {
+    return [
+      { id: 'godfather', name: 'Godfather', icon: '🎩', sideId: 'mafia' },
+      { id: 'matador', name: 'Matador', icon: '🧣', sideId: 'mafia' },
+      { id: 'saul-goodman', name: 'Saul Goodman', icon: '💼', sideId: 'mafia' },
+      { id: 'judge', name: 'Judge', icon: '🧑‍⚖️', sideId: 'town' },
+      { id: 'doctor', name: 'Doctor', icon: '💉', sideId: 'town' },
+      { id: 'detective', name: 'Detective', icon: '🔍', sideId: 'town' },
+      { id: 'leon', name: 'Leon', icon: '🎯', sideId: 'town' },
+      { id: 'citizen', name: 'Citizen', icon: '👤', sideId: 'town' },
+    ];
+  }
+  if (modeId === 'speed-blitz-mafia') {
+    return [
+      { id: 'godfather', name: 'Godfather', icon: '🎩', sideId: 'mafia' },
+      { id: 'doctor', name: 'Doctor', icon: '💉', sideId: 'town' },
+      { id: 'detective', name: 'Detective', icon: '🔍', sideId: 'town' },
+      { id: 'citizen', name: 'Citizen', icon: '👤', sideId: 'town' },
     ];
   }
   return [
