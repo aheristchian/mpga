@@ -8,16 +8,16 @@ This document provides a comprehensive reference for game mechanics, faction rul
 
 | Faction | Objective | Win Condition | Color Theme |
 | :--- | :--- | :--- | :--- |
-| **Town (Citizens)** | Identify and eliminate all Mafia members and hostile threats. | All living Mafia and hostile Third-Party (Zodiac) players are eliminated (`livingMafia === 0 && livingHostileThirdParty === 0`). | `text-town` (Blue / `#3B82F6`) |
-| **Mafia** | Eliminate Town members and take control of the town. | The number of living Mafia players equals or exceeds the number of living Town players (`livingMafia >= livingTown`), and no hostile third party remains. | `text-mafia` (Red / `#EF4444`) |
+| **Town (Citizens / Blue Team)** | Identify and eliminate all Mafia / Syndicate members and hostile threats. | All living Mafia and hostile Third-Party (Zodiac / Rogue AI) players are eliminated (`livingMafia === 0 && livingHostileThirdParty === 0`). | `text-town` (Blue / `#3B82F6` / Emerald `#10B981`) |
+| **Mafia (Syndicate / Red Team)** | Eliminate Town / Blue Team members and control the network. | The number of living Mafia players equals or exceeds the number of living Town players (`livingMafia >= livingTown`), and no hostile third party remains. | `text-mafia` (Red / `#EF4444` / Rose `#F43F5E`) |
 | **Third Party (Nostradamus)** | Align with a chosen faction on Night 1 and survive/assist them. | Wins alongside whichever team (`town` or `mafia`) they pledged allegiance to on Night 1. | `text-thirdParty` (Purple / `#A855F7`) |
-| **Third Party (Zodiac)** | Solo elimination of all other factions. | Outlasts both Town and Mafia (`livingMafia === 0 && livingTown === 0 && livingHostileThirdParty > 0`). | `text-amber-400` (Amber / `#F59E0B`) |
+| **Third Party (Zodiac / Rogue AI)** | Solo elimination of all other factions. | Outlasts both Town and Mafia (`livingMafia === 0 && livingTown === 0 && livingHostileThirdParty > 0`). | `text-amber-400` (Amber / `#F59E0B` / Violet `#8B5CF6`) |
 
 ### Automatic Win Calculation Logic
 The calculation engine in [`src/services/useWinCondition.ts`](file:///Users/ali.heristchian/Documents/learning/mpga/src/services/useWinCondition.ts) evaluates live player states on every status change:
 1. **Town Victory (`winner: 'town'`):** Triggered when `livingMafiaCount === 0 && livingTownCount > 0 && livingHostileThirdPartyCount === 0`.
 2. **Mafia Victory (`winner: 'mafia'`):** Triggered when `livingMafiaCount >= livingNonMafiaCount && livingMafiaCount > 0 && livingHostileThirdPartyCount === 0`.
-3. **Third-Party Solo Victory (`winner: 'third-party'`):** Triggered when Town and Mafia have both been eliminated while the Zodiac survives.
+3. **Third-Party Solo Victory (`winner: 'third-party'`):** Triggered when Town and Mafia have both been eliminated while a hostile third-party (Zodiac or Rogue AI) survives.
 4. **Draw / Stalemate (`winner: 'draw'`):** Triggered if both living counts reach `0`.
 5. **Nostradamus Co-Victory (`nostradamusWon: true`):** If a Nostradamus is in play and their recorded Night 1 choice matches the calculated `winner`, Nostradamus is credited with a co-victory.
 6. **Match Statistics Aggregation:** When game over occurs, the engine automatically collates metrics from `gameLogs` (total Doctor saves, Detective positive hits, total eliminations, total match days, and surviving player list).
@@ -52,8 +52,19 @@ The calculation engine in [`src/services/useWinCondition.ts`](file:///Users/ali.
   * *Passive Ability (`shield`):* Possesses a single-use bulletproof shield that absorbs one deadly shot.
 * **Priest (`priest`)**
   * *Active Ability (`absolve`):* Chooses one player each night to cleanse from silence, canceling the Silencer's gag before sunrise.
+* **Firewall Server (`firewall-server`)**
+  * *Active Ability (`patch-sandbox`):* Quarantines and patches one node each night, shielding them from fatal zero-day exploits or malware purges.
+  * *Passive Ability (`shield`):* Equipped with a hardware fallback shield protecting against one attack.
+* **Security Analyst (`sec-analyst`)**
+  * *Active Ability (`port-scan`):* Deep packet inspection of a target node. Detects Black-Hat Syndicate members (Zero-Day and Rogue AI appear clean).
+* **White-Hat Hacker (`white-hat`)**
+  * *Active Ability (`counter-hack`):* Launches a surgical counter-strike against a suspected intruder. Eliminates Black-Hat operatives; if an innocent Town user is hit, the White-Hat is eliminated by the guilt authorization penalty!
+* **DevOps Admin (`devops-admin`)**
+  * *Active Ability (`auth-restore`):* Reissues revoked credentials and restores voice access to silenced nodes.
+* **System User (`sys-user`)**
+  * *Passive (`deduction`):* Standard verified user with no active night tools; relies on daytime log telemetry, discussion, and consensus votes.
 
-### Mafia Faction (`sideId: 'mafia'`)
+### Mafia & Black-Hat Factions (`sideId: 'mafia'`)
 
 * **Godfather (`godfather`)**
   * *Active Ability (`mafia-shot`):* Directs the Mafia's deadly night shot. Cannot target themselves.
@@ -68,8 +79,17 @@ The calculation engine in [`src/services/useWinCondition.ts`](file:///Users/ali.
 * **Mafia Grunt (`mafia`)**
   * *Description:* Regular Mafia member who participates in team deliberations and voting during the day.
   * *Night 1 Familiarization:* On Night 1, all Mafia members wake up together silently to recognize their teammates.
+* **Zero-Day (`zero-day`)**
+  * *Active Ability (`zero-day-exploit`):* Syndicate mastermind directing fatal remote code execution payloads.
+  * *Passive Abilities:* Single-use cryptographic shield (`shield`) and clean telemetry inquiry (`clean-inquiry`).
+* **Botnet Operator (`botnet-op`)**
+  * *Active Ability (`ddos-flood`):* Floods a target node with high-volume DDoS traffic, disabling their active night ability for that night.
+* **Phisher (`phisher`)**
+  * *Active Ability (`credential-lock`):* Deploys spear-phishing lures to lock down target credentials, muting their daytime speech.
+* **Black-Hat Operative (`black-hat`)**
+  * *Active Ability (`zero-day-exploit`):* Tactical operative executing coordinated exploits and night eliminations with the syndicate.
 
-### Third Party (`sideId: 'third-party'`)
+### Third Party & Autonomous Entities (`sideId: 'third-party'`)
 
 * **Zodiac (`zodiac`)**
   * *Active Ability (`zodiac-shot`):* Delivers a lethal night shot to eliminate any targeted player.
@@ -77,6 +97,12 @@ The calculation engine in [`src/services/useWinCondition.ts`](file:///Users/ali.
     * *Bulletproof Shield (`shield`):* Single-use armor absorbing one deadly attack.
     * *Clean Inquiry (`clean-inquiry`):* Registers as Innocent / Negative inquiry (Thumbs Down 👎) to the Detective.
   * *Win Condition:* Outlasts both Town and Mafia factions. Town cannot claim victory while Zodiac is alive.
+* **Rogue AI (`rogue-ai`)**
+  * *Active Ability (`malware-purge`):* Executes autonomous polymorphic malware purges against any target player.
+  * *Passive Abilities:*
+    * *Neural Shield (`shield`):* Single-use defense absorbing one fatal attack.
+    * *Clean Telemetry (`clean-inquiry`):* Registers as Innocent / Clean during Security Analyst port scans and Detective inquiries.
+  * *Win Condition:* Independent malicious system. Wins alone when all Town and Syndicate nodes have been purged.
 * **Nostradamus (`nostradamus`)**
   * *Night 1 3-Player Inquiry:* On Night 1, Nostradamus selects 3 living players. The moderator counts how many of those 3 are Mafia members and silently shows the count using fingers (e.g., 2 fingers = 2 Mafias). The identities of *which* players are Mafia remain hidden.
   * *Majority Threshold & Tactical Rule:* If the count of Mafia members among the 3 choices exceeds half of the total living Mafias in the game ($> N_{\text{mafia}}/2$, e.g., $\ge 2$ Mafias in a 3-Mafia game), Nostradamus is strategically recommended to side with the **Mafia**.
@@ -123,18 +149,17 @@ flowchart TD
 
 | Priority | Action / Ability | Actor | Target Restrictions | Effect / Logic |
 | :---: | :--- | :--- | :--- | :--- |
-| **N/A** | *Mafia Introduction* | All Living Mafia | Self Team (Night 1 only) | Familiarization wake-up (no shot/kill). |
-| **99** | `shield` / `unlimited-shield` | Godfather, Nostradamus, Zodiac, Bodyguard | Self (Passive) | Protects bearer against deadly shots. |
-| **90** | `block` | Matador | Other living players | Cancels the target's ability execution for the night. |
-| **90** | `silence` | Silencer | Other living players | Gags target; removes speech and challenge rights for the next Day phase. |
+| **N/A** | *Mafia / Syndicate Intro* | All Living Mafia | Self Team (Night 1 only) | Familiarization wake-up (no shot/kill). |
+| **99** | `shield` / `unlimited-shield` | Godfather, Nostradamus, Zodiac, Bodyguard, Zero-Day, Firewall Server, Rogue AI | Self (Passive) | Protects bearer against deadly attacks. |
+| **90** | `block` / `ddos-flood` | Matador, Botnet Operator | Other living players | Cancels the target's ability execution for the night. |
+| **90** | `silence` / `credential-lock` | Silencer, Phisher | Other living players | Gags target; removes speech and challenge rights for the next Day phase. |
 | **90** | `buy` | Saul Goodman | Other living players | Applies bribe effect for the night/day. |
-| **85** | `absolve` | Priest | Any living player | Cleanses target from silence, lifting the Silencer's gag. |
-| **80** | `treat` | Doctor | Any living player (self-target allowed) | Saves target from elimination if shot on the same night. |
-| **80** | `protect` | Bodyguard | Any living player | Protects target from lethal attacks on the same night. |
-| **70** | `mafia-shot` | Godfather | Other living players | Marks target for elimination unless saved or shielded. |
-| **70** | `zodiac-shot` | Zodiac | Any other living player | Marks target for elimination unless saved or shielded. |
-| **70** | `vigillante-shot` | Leon (Vigilante) | Other living players | If target is Town: Leon dies, target safe. If target is Mafia: Mafia dies. |
-| **50** | `investigate` | Detective | Other living players | Reveals target's faction (`town` vs. `mafia`). Godfather and Zodiac register as negative/innocent. |
+| **85** | `absolve` / `auth-restore` | Priest, DevOps Admin | Any living player | Cleanses target from silence, lifting the gag/lockout. |
+| **80** | `treat` / `protect` / `patch-sandbox` | Doctor, Bodyguard, Firewall Server | Any living player | Saves/shields target from elimination if attacked on the same night. |
+| **70** | `mafia-shot` / `zero-day-exploit` | Godfather, Zero-Day, Black-Hat | Other living players | Marks target for elimination unless saved or shielded. |
+| **70** | `zodiac-shot` / `malware-purge` | Zodiac, Rogue AI | Any other living player | Marks target for elimination unless saved or shielded. |
+| **70** | `vigillante-shot` / `counter-hack` | Leon (Vigilante), White-Hat | Other living players | If target is Town: Shooter dies from guilt penalty, target safe. If target is Mafia: Mafia dies. |
+| **50** | `investigate` / `port-scan` | Detective, Security Analyst | Other living players | Reveals target's faction (`town` vs. `mafia`). Clean inquiry passives appear clean. |
 | **50** | `choose-side` | Nostradamus | Up to 3 players + Town/Mafia choice | Moderator signals Mafia count; records chosen win condition. |
 | **10** | `revive` | Constantine | Dead players only | Restores a dead player back to life (`isDead: false`). |
 
@@ -179,6 +204,16 @@ Modes are configured in [`src/data/modes.ts`](file:///Users/ali.heristchian/Docu
   * Daily Turn Shift: 1 seat
   * Voting Rounding: `ceil`
   * Balance Constraint: Silencer and Priest tactical counter-play.
+* **Cyber Breach Mode (`cyber-breach`):**
+  * **Allowed Roles:** Zero-Day, Botnet Operator, Phisher, Black-Hat, Firewall Server, Security Analyst, White-Hat, DevOps Admin, System User, Rogue AI.
+  * Minimum Players: 6 (standard: 8–12 players)
+  * Speaking Time: 45 seconds
+  * Borrowed / Challenge Time: 25 seconds
+  * Defense Speech Time: 60 seconds
+  * Daily Max Challenges: 2 challenges per day
+  * Daily Turn Shift: 2 seats
+  * Voting Rounding: `ceil`
+  * Balance Constraint: Information warfare between Blue Team defenders, Black-Hat syndicate, and an autonomous Rogue AI threat. Maximum Mafia ratio is 34%.
 
 ---
 

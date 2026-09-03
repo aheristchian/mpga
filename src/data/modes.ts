@@ -69,4 +69,21 @@ export const mockModes: GameMode[] = [
       },
     },
   },
+  {
+    id: 'cyber-breach',
+    nameKey: 'modes.cyberBreach.name',
+    minPlayers: 6,
+    timeToTalk: 45,
+    borrowedTimeToTalk: 25,
+    defenseTimeToTalk: 60,
+    challengesPerDay: 2,
+    nextDayShift: 2,
+    votingThresholdRounding: 'ceil',
+    balanceRules: {
+      warnIfSideExceedsRatio: {
+        sideId: 'mafia',
+        maxRatio: 0.34,
+      },
+    },
+  },
 ];

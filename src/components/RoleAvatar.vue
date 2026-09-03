@@ -100,6 +100,26 @@ const roleIcon = computed(() => {
       return '🤐';
     case 'priest':
       return '🕊️';
+    case 'zero-day':
+      return '💻';
+    case 'botnet-op':
+      return '📡';
+    case 'phisher':
+      return '🎣';
+    case 'black-hat':
+      return '👾';
+    case 'firewall-server':
+      return '🛡️';
+    case 'sec-analyst':
+      return '🔍';
+    case 'white-hat':
+      return '⚡';
+    case 'devops-admin':
+      return '🔑';
+    case 'sys-user':
+      return '👤';
+    case 'rogue-ai':
+      return '🤖';
     default:
       return '🎭';
   }

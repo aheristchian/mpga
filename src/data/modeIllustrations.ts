@@ -258,6 +258,68 @@ export const modeSvgMap: Record<string, string> = {
       <line x1="10" y1="105" x2="190" y2="105" stroke="#78350F" stroke-width="1.5"/>
     </svg>
   `,
+
+  'cyber-breach': `
+    <svg viewBox="0 0 200 130" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+      <defs>
+        <radialGradient id="cb-spot" cx="50%" cy="45%" r="65%">
+          <stop offset="0%" stop-color="#064E3B" stop-opacity="0.5" />
+          <stop offset="60%" stop-color="#022C22" stop-opacity="0.2" />
+          <stop offset="100%" stop-color="#09090B" stop-opacity="0" />
+        </radialGradient>
+        <linearGradient id="cb-neon" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#34D399" />
+          <stop offset="50%" stop-color="#10B981" />
+          <stop offset="100%" stop-color="#059669" />
+        </linearGradient>
+        <linearGradient id="cb-cyan" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#22D3EE" />
+          <stop offset="100%" stop-color="#06B6D4" />
+        </linearGradient>
+      </defs>
+
+      <rect width="200" height="130" rx="12" fill="url(#cb-spot)" />
+
+      <!-- Circuit grid lines in background -->
+      <path d="M10 30 H50 L65 45 H135 L150 30 H190" stroke="#059669" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.4"/>
+      <path d="M10 100 H60 L75 85 H125 L140 100 H190" stroke="#06B6D4" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.4"/>
+      <line x1="100" y1="10" x2="100" y2="40" stroke="#10B981" stroke-width="0.8" opacity="0.3"/>
+      <line x1="100" y1="90" x2="100" y2="120" stroke="#10B981" stroke-width="0.8" opacity="0.3"/>
+
+      <!-- Server Racks Left & Right -->
+      <rect x="25" y="40" width="22" height="52" rx="3" fill="#0F172A" stroke="#10B981" stroke-width="1.2"/>
+      <line x1="28" y1="48" x2="44" y2="48" stroke="#34D399" stroke-width="1"/>
+      <line x1="28" y1="56" x2="44" y2="56" stroke="#34D399" stroke-width="1"/>
+      <line x1="28" y1="64" x2="44" y2="64" stroke="#34D399" stroke-width="1"/>
+      <line x1="28" y1="72" x2="44" y2="72" stroke="#34D399" stroke-width="1"/>
+      <circle cx="30" cy="84" r="1.5" fill="#34D399"/>
+      <circle cx="35" cy="84" r="1.5" fill="#EF4444"/>
+      <circle cx="40" cy="84" r="1.5" fill="#38BDF8"/>
+
+      <rect x="153" y="40" width="22" height="52" rx="3" fill="#0F172A" stroke="#06B6D4" stroke-width="1.2"/>
+      <line x1="156" y1="48" x2="172" y2="48" stroke="#22D3EE" stroke-width="1"/>
+      <line x1="156" y1="56" x2="172" y2="56" stroke="#22D3EE" stroke-width="1"/>
+      <line x1="156" y1="64" x2="172" y2="64" stroke="#22D3EE" stroke-width="1"/>
+      <line x1="156" y1="72" x2="172" y2="72" stroke="#22D3EE" stroke-width="1"/>
+      <circle cx="158" cy="84" r="1.5" fill="#22D3EE"/>
+      <circle cx="163" cy="84" r="1.5" fill="#34D399"/>
+      <circle cx="168" cy="84" r="1.5" fill="#EF4444"/>
+
+      <!-- Central Mainframe Terminal & Shield Lock -->
+      <rect x="70" y="32" width="60" height="66" rx="6" fill="#022C22" stroke="url(#cb-neon)" stroke-width="1.8"/>
+      <!-- Terminal Header Bar -->
+      <rect x="70" y="32" width="60" height="12" rx="6" fill="#064E3B"/>
+      <circle cx="76" cy="38" r="2" fill="#EF4444"/>
+      <circle cx="82" cy="38" r="2" fill="#FBBF24"/>
+      <circle cx="88" cy="38" r="2" fill="#34D399"/>
+
+      <!-- Digital Shield / Zero-Day Glitch in Center -->
+      <path d="M100 50 L115 56 V72 C115 80 100 87 100 87 C100 87 85 80 85 72 V56 Z" fill="#0F172A" stroke="url(#cb-cyan)" stroke-width="1.5"/>
+      <!-- Terminal Prompt Symbol >_ -->
+      <path d="M93 64 L98 68 L93 72" stroke="#34D399" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="101" y1="72" x2="107" y2="72" stroke="#22D3EE" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+  `,
 };
 
 /**
@@ -347,6 +409,17 @@ export const scenarioIconSvgMap: Record<string, string> = {
       <ellipse cx="26" cy="18" rx="3" ry="2" fill="#1C1917"/>
       <!-- V dagger -->
       <path d="M20 26 L23 35 L20 37 L17 35 Z" fill="#EF4444"/>
+    </svg>
+  `,
+
+  'cyber-breach': `
+    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+      <rect x="6" y="8" width="28" height="24" rx="4" fill="#022C22" stroke="#10B981" stroke-width="1.5"/>
+      <line x1="6" y1="15" x2="34" y2="15" stroke="#10B981" stroke-width="1"/>
+      <circle cx="10" cy="11.5" r="1.2" fill="#34D399"/>
+      <circle cx="13" cy="11.5" r="1.2" fill="#38BDF8"/>
+      <path d="M13 22 L17 25 L13 28" stroke="#34D399" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="19" y1="28" x2="25" y2="28" stroke="#22D3EE" stroke-width="1.5" stroke-linecap="round"/>
     </svg>
   `,
 };

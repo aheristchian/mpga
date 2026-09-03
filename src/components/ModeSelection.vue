@@ -41,7 +41,7 @@
                   class="w-full h-full flex items-center justify-center"
                   v-html="getScenarioSvg(mode.id)"
                 ></div>
-                <span v-else class="text-2xl">{{ mode.id === 'godfather' ? '🎩' : mode.id === 'zodiac' ? '🏹' : mode.id === 'vendetta' ? '🤐' : '⚖️' }}</span>
+                <span v-else class="text-2xl">{{ mode.id === 'godfather' ? '🎩' : mode.id === 'zodiac' ? '🏹' : mode.id === 'vendetta' ? '🤐' : mode.id === 'cyber-breach' ? '💻' : '⚖️' }}</span>
               </div>
 
               <!-- TITLE & BADGES -->
@@ -237,6 +237,7 @@ const getModeIconClass = (modeId: string) => {
   if (modeId === 'godfather') return 'bg-red-950/60 text-red-400';
   if (modeId === 'zodiac') return 'bg-purple-950/60 text-purple-400';
   if (modeId === 'vendetta') return 'bg-amber-950/60 text-amber-400';
+  if (modeId === 'cyber-breach') return 'bg-emerald-950/60 text-emerald-400';
   return 'bg-blue-950/60 text-blue-400';
 };
 
@@ -244,6 +245,7 @@ const getModeBadgeClass = (modeId: string) => {
   if (modeId === 'godfather') return 'bg-red-950/80 text-red-400 border-red-800/80';
   if (modeId === 'zodiac') return 'bg-purple-950/80 text-purple-400 border-purple-800/80';
   if (modeId === 'vendetta') return 'bg-amber-950/80 text-amber-400 border-amber-800/80';
+  if (modeId === 'cyber-breach') return 'bg-emerald-950/80 text-emerald-400 border-emerald-800/80';
   return 'bg-blue-950/80 text-blue-400 border-blue-800/80';
 };
 
@@ -251,6 +253,7 @@ const getModeBadgeTextKey = (modeId: string) => {
   if (modeId === 'godfather') return 'modeSelection.tournamentStandardBadge';
   if (modeId === 'zodiac') return 'modeSelection.zodiacBadge';
   if (modeId === 'vendetta') return 'modeSelection.vendettaBadge';
+  if (modeId === 'cyber-breach') return 'modeSelection.cyberBreachBadge';
   return 'modeSelection.classicStandardBadge';
 };
 
@@ -258,6 +261,7 @@ const getModeButtonGradientClass = (modeId: string) => {
   if (modeId === 'godfather') return 'from-red-600 via-rose-600 to-amber-600 shadow-red-600/30';
   if (modeId === 'zodiac') return 'from-purple-600 via-fuchsia-600 to-indigo-600 shadow-purple-600/30';
   if (modeId === 'vendetta') return 'from-amber-600 via-orange-600 to-red-600 shadow-amber-600/30';
+  if (modeId === 'cyber-breach') return 'from-emerald-600 via-teal-600 to-cyan-600 shadow-emerald-600/30';
   return 'from-blue-600 via-indigo-600 to-cyan-600 shadow-blue-600/30';
 };
 
@@ -271,6 +275,9 @@ const getCardClasses = (modeId: string) => {
     }
     if (modeId === 'vendetta') {
       return 'border-amber-500 ring-2 ring-amber-500/30 bg-gradient-to-b from-amber-950/20 via-gray-900/90 to-gray-900 shadow-amber-900/30';
+    }
+    if (modeId === 'cyber-breach') {
+      return 'border-emerald-500 ring-2 ring-emerald-500/30 bg-gradient-to-b from-emerald-950/20 via-gray-900/90 to-gray-900 shadow-emerald-900/30';
     }
     return 'border-blue-500 ring-2 ring-blue-500/30 bg-gradient-to-b from-blue-950/20 via-gray-900/90 to-gray-900 shadow-blue-900/30';
   }
@@ -312,6 +319,19 @@ const getModeRoles = (modeId: string) => {
       { id: 'doctor', name: 'Doctor', icon: '💉', sideId: 'town' },
       { id: 'detective', name: 'Detective', icon: '🔍', sideId: 'town' },
       { id: 'citizen', name: 'Citizen', icon: '👤', sideId: 'town' },
+    ];
+  }
+  if (modeId === 'cyber-breach') {
+    return [
+      { id: 'zero-day', name: 'Zero-Day', icon: '💻', sideId: 'mafia' },
+      { id: 'botnet-op', name: 'Botnet Op', icon: '📡', sideId: 'mafia' },
+      { id: 'phisher', name: 'Phisher', icon: '🎣', sideId: 'mafia' },
+      { id: 'rogue-ai', name: 'Rogue AI', icon: '🤖', sideId: 'third-party' },
+      { id: 'firewall-server', name: 'Firewall', icon: '🛡️', sideId: 'town' },
+      { id: 'sec-analyst', name: 'Sec Analyst', icon: '🔍', sideId: 'town' },
+      { id: 'white-hat', name: 'White-Hat', icon: '⚡', sideId: 'town' },
+      { id: 'devops-admin', name: 'DevOps Admin', icon: '🔑', sideId: 'town' },
+      { id: 'sys-user', name: 'Sys User', icon: '👤', sideId: 'town' },
     ];
   }
   return [

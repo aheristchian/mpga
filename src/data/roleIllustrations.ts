@@ -206,6 +206,160 @@ export const roleSvgMap: Record<string, string> = {
     </svg>
   `,
 
+  'zero-day': `
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+      <circle cx="50" cy="50" r="48" fill="#09090B" stroke="#DC2626" stroke-width="2"/>
+      <!-- Terminal window frame -->
+      <rect x="22" y="24" width="56" height="52" rx="4" fill="#18181B" stroke="#EF4444" stroke-width="1.5"/>
+      <rect x="22" y="24" width="56" height="10" rx="4" fill="#27272A"/>
+      <circle cx="28" cy="29" r="1.5" fill="#EF4444"/>
+      <circle cx="33" cy="29" r="1.5" fill="#FBBF24"/>
+      <circle cx="38" cy="29" r="1.5" fill="#10B981"/>
+      <!-- Zero Day skull mask -->
+      <path d="M38 42 C38 36 44 34 50 34 C56 34 62 36 62 42 C62 48 58 52 58 56 H42 C42 52 38 48 38 42 Z" fill="#DC2626"/>
+      <circle cx="45" cy="44" r="2.5" fill="#09090B"/>
+      <circle cx="55" cy="44" r="2.5" fill="#09090B"/>
+      <!-- Teeth / binary bars -->
+      <rect x="44" y="58" width="3" height="4" fill="#DC2626"/>
+      <rect x="49" y="58" width="3" height="4" fill="#DC2626"/>
+      <rect x="54" y="58" width="3" height="4" fill="#DC2626"/>
+      <text x="50" y="71" font-size="7" font-weight="900" fill="#EF4444" text-anchor="middle" font-family="monospace">0-DAY</text>
+    </svg>
+  `,
+
+  'botnet-op': `
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+      <circle cx="50" cy="50" r="48" fill="#18181B" stroke="#F97316" stroke-width="2"/>
+      <!-- Central Satellite Dish / Transmitter -->
+      <path d="M35 60 C35 44 55 35 65 45 C75 55 66 75 50 75" stroke="#FB923C" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <line x1="50" y1="52" x2="68" y2="34" stroke="#EA580C" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="68" cy="34" r="3" fill="#EF4444"/>
+      <!-- Pulse Attack Waves -->
+      <path d="M72 26 C76 30 76 38 72 42" stroke="#EF4444" stroke-width="2" stroke-linecap="round"/>
+      <path d="M78 20 C84 26 84 44 78 50" stroke="#EF4444" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="2 2"/>
+      <!-- Base stand -->
+      <polygon points="40,82 60,82 52,68 48,68" fill="#7C2D12"/>
+    </svg>
+  `,
+
+  phisher: `
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+      <circle cx="50" cy="50" r="48" fill="#1C1917" stroke="#A855F7" stroke-width="2"/>
+      <!-- Digital Fishing Hook -->
+      <path d="M50 22 V50 C50 62 38 62 38 52 C38 46 44 46 44 50" stroke="#C084FC" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <!-- Snared Padlock / Credentials -->
+      <rect x="52" y="44" width="22" height="18" rx="3" fill="#6B21A8" stroke="#E9D5FF" stroke-width="1.5"/>
+      <path d="M57 44 V38 C57 34 69 34 69 38 V44" stroke="#E9D5FF" stroke-width="1.8" fill="none"/>
+      <circle cx="63" cy="52" r="2" fill="#FDE047"/>
+      <!-- Bait sparkles -->
+      <circle cx="48" cy="20" r="1.5" fill="#E9D5FF"/>
+      <circle cx="34" cy="52" r="1.5" fill="#EF4444"/>
+    </svg>
+  `,
+
+  'black-hat': `
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+      <circle cx="50" cy="50" r="48" fill="#111827" stroke="#EF4444" stroke-width="2"/>
+      <!-- Black Fedora with Red Cyber Visor -->
+      <path d="M30 42 C30 32 38 26 50 26 C62 26 70 32 70 42 Z" fill="#1F2937" stroke="#374151" stroke-width="1.5"/>
+      <line x1="20" y1="42" x2="80" y2="42" stroke="#374151" stroke-width="3" stroke-linecap="round"/>
+      <!-- Glowing Red Cyber Visor -->
+      <rect x="32" y="48" width="36" height="8" rx="2" fill="#DC2626"/>
+      <line x1="34" y1="52" x2="66" y2="52" stroke="#FCA5A5" stroke-width="1.5"/>
+      <!-- Trench Coat / Hood -->
+      <path d="M32 60 L50 74 L68 60 L50 84 Z" fill="#1F2937" stroke="#EF4444" stroke-width="1.2"/>
+    </svg>
+  `,
+
+  'firewall-server': `
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+      <circle cx="50" cy="50" r="48" fill="#022C22" stroke="#10B981" stroke-width="2"/>
+      <!-- Server Unit -->
+      <rect x="26" y="24" width="48" height="52" rx="4" fill="#064E3B" stroke="#059669" stroke-width="1.5"/>
+      <line x1="30" y1="36" x2="70" y2="36" stroke="#34D399" stroke-width="1"/>
+      <line x1="30" y1="48" x2="70" y2="48" stroke="#34D399" stroke-width="1"/>
+      <line x1="30" y1="60" x2="70" y2="60" stroke="#34D399" stroke-width="1"/>
+      <!-- Blinking Status LEDs -->
+      <circle cx="34" cy="30" r="2" fill="#34D399"/>
+      <circle cx="40" cy="30" r="2" fill="#38BDF8"/>
+      <circle cx="34" cy="42" r="2" fill="#34D399"/>
+      <circle cx="40" cy="42" r="2" fill="#34D399"/>
+      <!-- Glowing Shield Core Overlay -->
+      <path d="M50 40 L64 46 V58 C64 68 50 74 50 74 C50 74 36 68 36 58 V46 Z" fill="#0F172A" stroke="#10B981" stroke-width="2"/>
+      <path d="M50 46 L58 50 V58 C58 64 50 68 50 68 C50 68 42 64 42 58 V50 Z" fill="#10B981" opacity="0.6"/>
+    </svg>
+  `,
+
+  'sec-analyst': `
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+      <circle cx="50" cy="50" r="48" fill="#0B132B" stroke="#38BDF8" stroke-width="2"/>
+      <!-- Sniffer Radar / Magnifying Glass -->
+      <circle cx="45" cy="45" r="20" stroke="#38BDF8" stroke-width="3" fill="#1C2541" fill-opacity="0.5"/>
+      <line x1="58" y1="58" x2="76" y2="76" stroke="#38BDF8" stroke-width="5" stroke-linecap="round"/>
+      <line x1="58" y1="58" x2="76" y2="76" stroke="#0284C7" stroke-width="2" stroke-linecap="round"/>
+      <!-- Pulse Sweep & Target Grid -->
+      <line x1="45" y1="30" x2="45" y2="60" stroke="#7DD3FC" stroke-width="1" stroke-dasharray="2 2"/>
+      <line x1="30" y1="45" x2="60" y2="45" stroke="#7DD3FC" stroke-width="1" stroke-dasharray="2 2"/>
+      <circle cx="45" cy="45" r="8" stroke="#BAE6FD" stroke-width="1.2"/>
+      <circle cx="50" cy="40" r="2" fill="#34D399"/>
+    </svg>
+  `,
+
+  'white-hat': `
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+      <circle cx="50" cy="50" r="48" fill="#0F172A" stroke="#F8FAFC" stroke-width="2"/>
+      <!-- Pure White Hat Crown & Brim -->
+      <path d="M30 42 C30 30 38 24 50 24 C62 24 70 30 70 42 Z" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5"/>
+      <line x1="18" y1="42" x2="82" y2="42" stroke="#F8FAFC" stroke-width="3.5" stroke-linecap="round"/>
+      <rect x="30" y="39" width="40" height="3" fill="#0EA5E9"/>
+      <!-- Electric Counter-Strike Lightning Bolt -->
+      <polygon points="52,48 44,60 49,60 46,74 58,58 51,58" fill="#38BDF8" stroke="#0284C7" stroke-width="1"/>
+    </svg>
+  `,
+
+  'devops-admin': `
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+      <circle cx="50" cy="50" r="48" fill="#1E1B4B" stroke="#F59E0B" stroke-width="2"/>
+      <!-- Golden Authentication Key & Credentials Token -->
+      <circle cx="40" cy="40" r="14" stroke="#FBBF24" stroke-width="3.5" fill="#312E81"/>
+      <circle cx="40" cy="40" r="6" fill="#FDE047"/>
+      <!-- Key Stem and Teeth -->
+      <path d="M50 50 L72 72 L66 78 L60 72 L58 74 L52 68" stroke="#FBBF24" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <!-- Infinite Terminal Infinity Loop -->
+      <path d="M34 74 C30 70 30 64 34 60 C38 56 42 64 46 68 C50 72 54 74 58 70" stroke="#A78BFA" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+    </svg>
+  `,
+
+  'sys-user': `
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+      <circle cx="50" cy="50" r="48" fill="#0F172A" stroke="#64748B" stroke-width="2"/>
+      <!-- User Head & Torso with Code Brackets -->
+      <circle cx="50" cy="38" r="13" fill="#475569" stroke="#94A3B8" stroke-width="1.5"/>
+      <path d="M28 72 C28 58 38 54 50 54 C62 54 72 58 72 72 Z" fill="#334155" stroke="#94A3B8" stroke-width="1.5"/>
+      <!-- Code Brackets { } -->
+      <text x="22" y="52" font-size="20" font-weight="900" fill="#38BDF8" font-family="monospace">{</text>
+      <text x="70" y="52" font-size="20" font-weight="900" fill="#38BDF8" font-family="monospace">}</text>
+    </svg>
+  `,
+
+  'rogue-ai': `
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+      <circle cx="50" cy="50" r="48" fill="#180D2B" stroke="#A855F7" stroke-width="2"/>
+      <!-- Neural Network Tentacles / Circuit Pathways -->
+      <path d="M50 20 L50 32 M24 38 L36 44 M76 38 L64 44 M28 66 L38 58 M72 66 L62 58 M50 80 L50 68" stroke="#C084FC" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="50" cy="20" r="2.5" fill="#E879F9"/>
+      <circle cx="24" cy="38" r="2.5" fill="#E879F9"/>
+      <circle cx="76" cy="38" r="2.5" fill="#E879F9"/>
+      <circle cx="28" cy="66" r="2.5" fill="#E879F9"/>
+      <circle cx="72" cy="66" r="2.5" fill="#E879F9"/>
+      <circle cx="50" cy="80" r="2.5" fill="#E879F9"/>
+      <!-- Central Glowing AI Aperture Core -->
+      <circle cx="50" cy="50" r="16" fill="#4C1D95" stroke="#A855F7" stroke-width="2.5"/>
+      <circle cx="50" cy="50" r="9" fill="#7C3AED" stroke="#E879F9" stroke-width="1.5"/>
+      <circle cx="50" cy="50" r="4" fill="#EF4444"/>
+    </svg>
+  `,
+
   default: `
     <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
       <circle cx="50" cy="50" r="48" fill="#1E293B" stroke="#64748B" stroke-width="2"/>

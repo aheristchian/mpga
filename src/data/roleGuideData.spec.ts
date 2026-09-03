@@ -25,6 +25,9 @@ describe('Role Guide Data Integrity & Declarative Engine', () => {
     expect(roleIds).toContain('constantine');
     expect(roleIds).toContain('nostradamus');
     expect(roleIds).toContain('citizen');
+    expect(roleIds).toContain('zero-day');
+    expect(roleIds).toContain('firewall-server');
+    expect(roleIds).toContain('rogue-ai');
   });
 
   it('should dynamically generate guide data from mockRoles and mockAbilities', () => {

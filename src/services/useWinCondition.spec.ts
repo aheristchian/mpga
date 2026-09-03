@@ -175,4 +175,47 @@ describe('Win Condition Evaluator (useWinCondition.ts)', () => {
     expect(result.winner).toBe('third-party');
     expect(result.survivingPlayers.map((p) => p.name)).toEqual(['KillerZodiac']);
   });
+
+  it('prevents Town victory when all Mafia are dead but Rogue AI is alive', () => {
+    const rogueAi: Player = {
+      name: 'AutonomousWorm',
+      isDead: false,
+      role: { id: 'rogue-ai', name: 'Rogue AI', sideId: 'third-party' },
+    };
+
+    const players: Player[] = [
+      { ...townCitizen, isDead: false },
+      { ...townDoctor, isDead: false },
+      { ...mafiaGodfather, isDead: true },
+      { ...mafiaGrunt, isDead: true },
+      rogueAi,
+    ];
+
+    const result = evaluateGameStatus(players, []);
+
+    expect(result.isGameOver).toBe(false);
+    expect(result.winner).toBeNull();
+  });
+
+  it('declares third-party victory when Rogue AI eliminates all Town and Syndicate nodes', () => {
+    const rogueAi: Player = {
+      name: 'AutonomousWorm',
+      isDead: false,
+      role: { id: 'rogue-ai', name: 'Rogue AI', sideId: 'third-party' },
+    };
+
+    const players: Player[] = [
+      { ...townCitizen, isDead: true },
+      { ...townDoctor, isDead: true },
+      { ...mafiaGodfather, isDead: true },
+      { ...mafiaGrunt, isDead: true },
+      rogueAi,
+    ];
+
+    const result = evaluateGameStatus(players, []);
+
+    expect(result.isGameOver).toBe(true);
+    expect(result.winner).toBe('third-party');
+    expect(result.survivingPlayers.map((p) => p.name)).toEqual(['AutonomousWorm']);
+  });
 });

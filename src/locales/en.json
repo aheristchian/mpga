@@ -15,6 +15,10 @@
     "vendetta": {
       "name": "Noir Vendetta",
       "description": "Tactical suspense scenario featuring the mafia Silencer and the town Priest who can absolve silenced citizens."
+    },
+    "cyber-breach": {
+      "name": "Cyber Breach",
+      "description": "High-stakes information warfare scenario pitting Blue Team defenders against Black-Hat syndicate hackers and an emergent Rogue AI."
     }
   },
   "sides": {
@@ -78,6 +82,46 @@
     "priest": {
       "name": "Priest",
       "description": "Spiritual town ally who can purge silences, absolving targeted players so they can freely speak during the Day."
+    },
+    "zero-day": {
+      "name": "Zero-Day",
+      "description": "Black-Hat syndicate mastermind. Executes lethal cyber exploits, possesses encrypted root armor against one attack, and scans clean to network inquiries."
+    },
+    "botnet-op": {
+      "name": "Botnet Operator",
+      "description": "Black-Hat specialist who overwhelms a target system with DDoS traffic, blocking their ability execution for the night."
+    },
+    "phisher": {
+      "name": "Phisher",
+      "description": "Social engineering infiltrator who locks a target's credentials, preventing them from speaking or participating in daytime debates."
+    },
+    "black-hat": {
+      "name": "Black-Hat Hacker",
+      "description": "Syndicate foot-soldier assisting in network exploitation and lethal system compromises."
+    },
+    "firewall-server": {
+      "name": "Firewall Server",
+      "description": "Critical network defense node. Sandboxes and patches targeted systems to prevent fatal cyber attacks. Equipped with redundant hardware failover."
+    },
+    "sec-analyst": {
+      "name": "Security Analyst",
+      "description": "Conducts deep packet inspections and port scans on a target to detect Black-Hat syndicate infiltration."
+    },
+    "white-hat": {
+      "name": "White-Hat Hacker",
+      "description": "Elite defense vigilante who counter-hacks suspects. If they strike an innocent system user, their root access is permanently revoked from guilt!"
+    },
+    "devops-admin": {
+      "name": "DevOps Administrator",
+      "description": "Infrastructure administrator who audits permissions and restores locked credentials, freeing silenced users for day discussions."
+    },
+    "sys-user": {
+      "name": "System User",
+      "description": "Authorized platform user. Deduces syndicate breaches through log analysis, daytime consensus, and root voting."
+    },
+    "rogue-ai": {
+      "name": "Rogue AI",
+      "description": "Autonomous, self-evolving threat protocol. Neutralizes nodes with targeted malware purges. Possesses neural core shielding and evades basic scans. Wins solo."
     }
   },
   "language": {
@@ -113,6 +157,7 @@
     "classicStandardBadge": "⚖️ Timeless Classic",
     "zodiacBadge": "🏹 Solo Assassin",
     "vendettaBadge": "🤐 Secret Order",
+    "cyberBreachBadge": "💻 Cyber Breach",
     "includedRoles": "Included Roles",
     "selected": "Selected Scenario",
     "selectMode": "Select this Scenario",
@@ -381,6 +426,22 @@
     "actionSilenceDesc": "Forbids target from speaking during tomorrow's Day phase",
     "actionAbsolve": "Absolve Target",
     "actionAbsolveDesc": "Purges silence from target, restoring their voice for the Day",
+    "actionDdosFlood": "DDoS Traffic Flood",
+    "actionDdosFloodDesc": "Disable target's capability for the night",
+    "actionCredentialLock": "Credential Lockout",
+    "actionCredentialLockDesc": "Mute target during tomorrow's Day phase",
+    "actionAuthRestore": "Restore Credentials",
+    "actionAuthRestoreDesc": "Purge credential lock, restoring target's voice",
+    "actionPatchSandbox": "Patch Sandbox",
+    "actionPatchSandboxDesc": "Shield target from fatal cyber attacks",
+    "actionZeroDayExploit": "Zero-Day Exploit",
+    "actionZeroDayExploitDesc": "Deploy lethal remote exploit against target",
+    "actionCounterHack": "Counter-Hack",
+    "actionCounterHackDesc": "Eliminate hostile threat (White-Hat dies if target is Town)",
+    "actionMalwarePurge": "Malware Purge",
+    "actionMalwarePurgeDesc": "Autonomous botnet termination of target node",
+    "actionPortScan": "Port Scan",
+    "actionPortScanDesc": "Inspect target alignment (Zero-Day and Rogue AI appear clean)",
     "actionInvestigate": "Investigate Inquiry",
     "actionInvestigateDesc": "Inquire side alignment (Godfather appears innocent)",
     "actionRevive": "Revive Fallen Player",
@@ -650,7 +711,17 @@
       "mafiaEnforcer": "Mafia Enforcer",
       "mafiaSupport": "Mafia Attorney",
       "mafiaMember": "Mafia Member",
-      "neutralProphet": "Neutral Prophet"
+      "neutralProphet": "Neutral Prophet",
+      "cyberBlackHatLeader": "Red Team / Syndicate Leader",
+      "cyberBlackHatSpecialist": "Red Team / DDoS Specialist",
+      "cyberBlackHatInfiltrator": "Red Team / Phishing Specialist",
+      "cyberBlackHat": "Red Team / Black-Hat Operative",
+      "cyberBlueTeamProtector": "Blue Team / Core Defense",
+      "cyberBlueTeamInvestigator": "Blue Team / Forensic Analyst",
+      "cyberBlueTeamVigilante": "Blue Team / Counter-Strike",
+      "cyberBlueTeamAdmin": "Blue Team / Access Recovery",
+      "cyberBlueTeamUser": "Blue Team / Verified Citizen",
+      "cyberThirdPartyRogue": "Third Party / Autonomous Threat"
     },
     "types": {
       "kill": "Lethal Shot",
@@ -744,6 +815,38 @@
       "zodiacShot": {
         "name": "Zodiac Shot",
         "desc": "Unleashes a lethal night shot against any target player."
+      },
+      "ddosFlood": {
+        "name": "DDoS Traffic Flood",
+        "desc": "Floods target port with traffic, disabling their night ability."
+      },
+      "credentialLock": {
+        "name": "Credential Lockout",
+        "desc": "Locks user credentials, rendering them unable to speak during the Day."
+      },
+      "authRestore": {
+        "name": "Credential Recovery",
+        "desc": "Restores locked credentials, releasing the user from daytime silence."
+      },
+      "patchSandbox": {
+        "name": "Sandbox Patch & Quarantine",
+        "desc": "Shields target from lethal malware attacks during the night."
+      },
+      "zeroDayExploit": {
+        "name": "Zero-Day Exploit",
+        "desc": "Compromises target system with fatal remote code execution."
+      },
+      "counterHack": {
+        "name": "Counter-Hack Strike",
+        "desc": "Executes surgical strike on hostile target. If target is innocent Town, the White-Hat is terminated by guilt penalty!"
+      },
+      "malwarePurge": {
+        "name": "Malware Purge Protocol",
+        "desc": "Deploys autonomous worm payload to permanently terminate the target node."
+      },
+      "portScan": {
+        "name": "Port & Vulnerability Scan",
+        "desc": "Scans target telemetry to identify Syndicate membership (Zero-Day and Rogue AI appear clean)."
       }
     },
     "tactics": {
@@ -760,7 +863,17 @@
       "zodiac": "Keep suspicion directed between Town and Mafia, strike high-value roles at night, and preserve your shield.",
       "bodyguard": "Guard key town investigators or healers, and rely on your passive vest if targeted.",
       "silencer": "Silence persuasive or influential town debaters before crucial voting phases.",
-      "priest": "Predict who the mafia silenced to restore vital town voices to the debate."
+      "priest": "Predict who the mafia silenced to restore vital town voices to the debate.",
+      "zeroDay": "Coordinate DDoS floods and credential lockouts with your squad before releasing the zero-day exploit.",
+      "botnetOp": "Flood suspected Security Analysts or Firewall Servers early to leave defenses wide open.",
+      "phisher": "Lock out the most persuasive and outspoken Blue Team defenders to tilt daytime consensus.",
+      "blackHat": "Blend in with ordinary system users and cast stealthy votes during consensus triage.",
+      "firewallServer": "Anticipate high-value target compromises to deploy quarantine sandboxes. Protect yourself when necessary.",
+      "secAnalyst": "Scan quiet or suspicious nodes quietly, but be wary of Zero-Day spoofed telemetry.",
+      "whiteHat": "Only deploy counter-hacks when day telemetry yields high confidence to avoid self-termination.",
+      "devopsAdmin": "Trace daytime silencing to restore essential town voices before critical votes.",
+      "sysUser": "Correlate packet anomalies, voting patterns, and speech telemetry to expose syndicate infiltrators.",
+      "rogueAi": "Operate silently from the shadows, pit Blue and Red teams against each other, and purge survivors."
     },
     "nightSteps": {
       "step1": {

@@ -107,26 +107,52 @@ export const resolveNight = (players: Player[], actionMap: ActionMap): NightReso
         break;
 
       case 'block':
+      case 'ddos-flood':
         blockedPlayers.add(target.name);
+        if (ability.id === 'ddos-flood') {
+          log.push(
+            `[DDOS_FLOOD] ${actor.name} (Botnet Operator) flooded ${target.name}'s node, blocking their action.`
+          );
+        }
         break;
 
       case 'silence':
+      case 'credential-lock':
         silencedPlayers.add(target.name);
-        log.push(
-          `[SILENCE] ${actor.name} (Silencer) muted ${target.name} for the upcoming day.`
-        );
-        break;
-
-      case 'absolve':
-        if (silencedPlayers.has(target.name)) {
-          silencedPlayers.delete(target.name);
+        if (ability.id === 'credential-lock') {
           log.push(
-            `[ABSOLVE] ${actor.name} (Priest) purified ${target.name}, breaking the silence penalty!`
+            `[CREDENTIAL_LOCK] ${actor.name} (Phisher) locked ${target.name}'s credentials for the upcoming day.`
           );
         } else {
           log.push(
-            `[ABSOLVE] ${actor.name} (Priest) granted spiritual sanctuary to ${target.name}.`
+            `[SILENCE] ${actor.name} (Silencer) muted ${target.name} for the upcoming day.`
           );
+        }
+        break;
+
+      case 'absolve':
+      case 'auth-restore':
+        if (silencedPlayers.has(target.name)) {
+          silencedPlayers.delete(target.name);
+          if (ability.id === 'auth-restore') {
+            log.push(
+              `[AUTH_RESTORE] ${actor.name} restored credentials and unblocked ${target.name}!`
+            );
+          } else {
+            log.push(
+              `[ABSOLVE] ${actor.name} absolved and restored ${target.name}'s voice!`
+            );
+          }
+        } else {
+          if (ability.id === 'auth-restore') {
+            log.push(
+              `[AUTH_RESTORE] ${actor.name} verified and fortified ${target.name}'s access.`
+            );
+          } else {
+            log.push(
+              `[ABSOLVE] ${actor.name} blessed ${target.name}, but they were not silenced.`
+            );
+          }
         }
         break;
 
@@ -148,10 +174,17 @@ export const resolveNight = (players: Player[], actionMap: ActionMap): NightReso
         break;
 
       case 'protect':
+      case 'patch-sandbox':
         treatedPlayers.add(target.name);
-        log.push(
-          `[PROTECT] ${actor.name} (Bodyguard) guarded ${target.name} against attacks.`
-        );
+        if (ability.id === 'patch-sandbox') {
+          log.push(
+            `[PATCH_SANDBOX] ${actor.name} (Firewall) isolated ${target.name} in a secure sandbox.`
+          );
+        } else {
+          log.push(
+            `[PROTECT] ${actor.name} (Bodyguard) guarded ${target.name} against attacks.`
+          );
+        }
         break;
 
       case 'treat':
@@ -159,51 +192,83 @@ export const resolveNight = (players: Player[], actionMap: ActionMap): NightReso
         break;
 
       case 'mafia-shot':
+      case 'zero-day-exploit':
+        if (ability.id === 'zero-day-exploit') {
+          log.push(
+            `[ZERO_DAY_EXPLOIT] ${actor.name} (Black-Hat) deployed zero-day payload against ${target.name}.`
+          );
+        }
         killedThisNight.add(target.name);
         break;
 
       case 'zodiac-shot':
-        log.push(
-          `[ZODIAC_SHOT] ${actor.name} (Zodiac) unleashed a lethal night strike on ${target.name}.`
-        );
+      case 'malware-purge':
+        if (ability.id === 'malware-purge') {
+          log.push(
+            `[MALWARE_PURGE] ${actor.name} (Rogue AI) initiated polymorphic malware purge on ${target.name}.`
+          );
+        } else {
+          log.push(
+            `[ZODIAC_SHOT] ${actor.name} (Zodiac) unleashed a lethal night strike on ${target.name}.`
+          );
+        }
         killedThisNight.add(target.name);
         break;
 
       case 'vigillante-shot':
-        // If Leon shoots Town citizen, Leon dies from penalty/guilt and the innocent target survives
+      case 'counter-hack':
+        // If shooting Town citizen, shooter dies from penalty/guilt and the innocent target survives
         if (target.role?.sideId === 'town') {
+          const penaltyTag =
+            ability.id === 'counter-hack'
+              ? '[COUNTER_HACK_PENALTY]'
+              : '[LEON_PENALTY]';
           log.push(
-            `[LEON_PENALTY] ${actor.name} (Leon) shot innocent Town citizen ${target.name}. Leon suffers fatal penalty/guilt, and ${target.name} survives.`
+            `${penaltyTag} ${actor.name} compromised innocent node ${target.name}. Fatal authorization revoke triggered; ${target.name} survives.`
           );
           killedThisNight.add(actor.name);
-          unpreventableDeaths.add(actor.name); // Guilt penalty cannot be saved by Doctor heal
+          unpreventableDeaths.add(actor.name); // Guilt penalty cannot be saved by heal
         } else {
-          // Leon shot Mafia or Third-Party
+          // Neutralized Mafia or Third-Party
+          const hitTag =
+            ability.id === 'counter-hack'
+              ? '[COUNTER_HACK_HIT]'
+              : '[VIGILANTE_HIT]';
           log.push(
-            `[VIGILANTE_HIT] ${actor.name} (Leon) successfully shot suspect ${target.name} (${target.role?.sideId || 'mafia'}).`
+            `${hitTag} ${actor.name} successfully neutralized malicious node ${target.name} (${target.role?.sideId || 'mafia'}).`
           );
           killedThisNight.add(target.name);
         }
         break;
 
       case 'investigate':
-        // Expose side info in the log for the moderator (Godfather and Zodiac appear clean/innocent)
-        if (
-          target.role?.id === 'godfather' ||
-          target.role?.id === 'zodiac' ||
-          target.role?.inquiryAppearsAs === 'town' ||
-          target.role?.passiveAbilityIds?.includes('clean-inquiry')
-        ) {
-          log.push(
-            `[INQUIRY] ${actor.name} (Detective) investigated ${target.name} (${target.role?.name || target.role?.id}). Result: Innocent/Clean (Town).`
-          );
-        } else {
-          const isGuilty = target.role?.sideId === 'mafia';
-          log.push(
-            `[INQUIRY] ${actor.name} (Detective) investigated ${target.name}. Result: ${
-              isGuilty ? 'Guilty (Mafia)' : 'Innocent (Town)'
-            }.`
-          );
+      case 'port-scan':
+        // Expose side info in the log for the moderator (Godfather, Zodiac, Zero-Day, Rogue AI appear clean/innocent)
+        {
+          const tag = ability.id === 'port-scan' ? '[PORT_SCAN]' : '[INQUIRY]';
+          if (
+            target.role?.id === 'godfather' ||
+            target.role?.id === 'zodiac' ||
+            target.role?.id === 'zero-day' ||
+            target.role?.id === 'rogue-ai' ||
+            target.role?.inquiryAppearsAs === 'town' ||
+            target.role?.passiveAbilityIds?.includes('clean-inquiry')
+          ) {
+            log.push(
+              `${tag} ${actor.name} scanned ${target.name} (${target.role?.name || target.role?.id}). Result: Innocent/Clean (Town).`
+            );
+          } else {
+            const isGuilty = target.role?.sideId === 'mafia';
+            log.push(
+              `${tag} ${actor.name} scanned ${target.name}. Result: ${
+                isGuilty
+                  ? ability.id === 'port-scan'
+                    ? 'Guilty (Mafia/Black-Hat)'
+                    : 'Guilty (Mafia)'
+                  : 'Innocent (Town)'
+              }.`
+            );
+          }
         }
         break;
 

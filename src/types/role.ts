@@ -13,6 +13,16 @@ export type RoleId =
   | 'bodyguard'
   | 'silencer'
   | 'priest'
+  | 'zero-day'
+  | 'botnet-op'
+  | 'phisher'
+  | 'black-hat'
+  | 'firewall-server'
+  | 'sec-analyst'
+  | 'white-hat'
+  | 'devops-admin'
+  | 'sys-user'
+  | 'rogue-ai'
   | string;
 
 export type SideId = 'town' | 'mafia' | 'third-party' | string;

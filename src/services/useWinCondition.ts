@@ -47,7 +47,9 @@ export const evaluateGameStatus = (
   const livingTown = livingPlayers.filter((p) => p.role?.sideId === 'town');
   const livingMafia = livingPlayers.filter((p) => p.role?.sideId === 'mafia');
   const livingThirdParty = livingPlayers.filter((p) => p.role?.sideId === 'third-party');
-  const livingHostileThirdParty = livingThirdParty.filter((p) => p.role?.id === 'zodiac');
+  const livingHostileThirdParty = livingThirdParty.filter(
+    (p) => p.role?.id === 'zodiac' || p.role?.id === 'rogue-ai'
+  );
 
   let isGameOver = false;
   let winner: 'town' | 'mafia' | 'draw' | 'third-party' | null = null;

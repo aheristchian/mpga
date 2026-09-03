@@ -321,4 +321,171 @@ describe('Game Engine - resolveNight', () => {
     const result = resolveNight(players, { DetectivePlayer: 'ZodiacPlayer' });
     expect(result.log.some((l) => l.includes('Innocent/Clean (Town)'))).toBe(true);
   });
+
+  describe('Cyber Breach Scenarios', () => {
+    it('should block night abilities when Botnet Op uses ddos-flood', () => {
+      const players: Player[] = [
+        createMockPlayer('BotnetPlayer', 'ddos-flood', [], 'mafia'),
+        createMockPlayer('FirewallPlayer', 'patch-sandbox', ['shield'], 'town'),
+        createMockPlayer('ZeroDayPlayer', 'zero-day-exploit', ['shield', 'clean-inquiry'], 'mafia'),
+        createMockPlayer('TargetServer', null, [], 'town'),
+      ];
+
+      const actionMap = {
+        BotnetPlayer: { target: 'FirewallPlayer', actionId: 'ddos-flood' },
+        FirewallPlayer: { target: 'TargetServer', actionId: 'patch-sandbox' },
+        ZeroDayPlayer: { target: 'TargetServer', actionId: 'zero-day-exploit' },
+      };
+
+      const result = resolveNight(players, actionMap);
+
+      expect(result.deaths).toContain('TargetServer');
+      expect(result.log.some((l) => l.includes('[DDOS_FLOOD] BotnetPlayer'))).toBe(true);
+      expect(result.log.some((l) => l.includes('[BLOCKED] FirewallPlayer'))).toBe(true);
+    });
+
+    it('should protect target from zero-day exploit when Firewall Server uses patch-sandbox', () => {
+      const players: Player[] = [
+        createMockPlayer('FirewallPlayer', 'patch-sandbox', ['shield'], 'town'),
+        createMockPlayer('ZeroDayPlayer', 'zero-day-exploit', ['shield', 'clean-inquiry'], 'mafia'),
+        createMockPlayer('TargetServer', null, [], 'town'),
+      ];
+
+      const actionMap = {
+        FirewallPlayer: { target: 'TargetServer', actionId: 'patch-sandbox' },
+        ZeroDayPlayer: { target: 'TargetServer', actionId: 'zero-day-exploit' },
+      };
+
+      const result = resolveNight(players, actionMap);
+
+      expect(result.deaths).not.toContain('TargetServer');
+      expect(result.log.some((l) => l.includes('[PATCH_SANDBOX]'))).toBe(true);
+      expect(result.log.some((l) => l.includes('[SAVE]'))).toBe(true);
+    });
+
+    it('should eliminate hostile Black-Hat when White-Hat executes counter-hack', () => {
+      const players: Player[] = [
+        createMockPlayer('WhiteHatPlayer', 'counter-hack', [], 'town'),
+        createMockPlayer('BlackHatPlayer', 'zero-day-exploit', [], 'mafia'),
+      ];
+
+      const actionMap = {
+        WhiteHatPlayer: { target: 'BlackHatPlayer', actionId: 'counter-hack' },
+      };
+
+      const result = resolveNight(players, actionMap);
+
+      expect(result.deaths).toContain('BlackHatPlayer');
+      expect(result.deaths).not.toContain('WhiteHatPlayer');
+      expect(result.log.some((l) => l.includes('[COUNTER_HACK_HIT]'))).toBe(true);
+    });
+
+    it('should eliminate White-Hat with guilt penalty if counter-hack hits innocent system user', () => {
+      const players: Player[] = [
+        createMockPlayer('WhiteHatPlayer', 'counter-hack', [], 'town'),
+        createMockPlayer('SysUserPlayer', null, ['deduction'], 'town'),
+      ];
+
+      const actionMap = {
+        WhiteHatPlayer: { target: 'SysUserPlayer', actionId: 'counter-hack' },
+      };
+
+      const result = resolveNight(players, actionMap);
+
+      expect(result.deaths).toContain('WhiteHatPlayer');
+      expect(result.deaths).not.toContain('SysUserPlayer');
+      expect(result.log.some((l) => l.includes('[COUNTER_HACK_PENALTY]'))).toBe(true);
+    });
+
+    it('should silence target with credential-lock, and restore credentials with auth-restore', () => {
+      const playersLocked: Player[] = [
+        createMockPlayer('PhisherPlayer', 'credential-lock', [], 'mafia'),
+        createMockPlayer('SysUserPlayer', null, [], 'town'),
+      ];
+
+      const resultLocked = resolveNight(playersLocked, {
+        PhisherPlayer: { target: 'SysUserPlayer', actionId: 'credential-lock' },
+      });
+
+      expect(resultLocked.silenced).toContain('SysUserPlayer');
+      expect(resultLocked.log.some((l) => l.includes('[CREDENTIAL_LOCK]'))).toBe(true);
+
+      // Now with DevOps Admin restoring credentials
+      const playersRestored: Player[] = [
+        createMockPlayer('PhisherPlayer', 'credential-lock', [], 'mafia'),
+        createMockPlayer('DevOpsPlayer', 'auth-restore', [], 'town'),
+        createMockPlayer('SysUserPlayer', null, [], 'town'),
+      ];
+
+      const resultRestored = resolveNight(playersRestored, {
+        PhisherPlayer: { target: 'SysUserPlayer', actionId: 'credential-lock' },
+        DevOpsPlayer: { target: 'SysUserPlayer', actionId: 'auth-restore' },
+      });
+
+      expect(resultRestored.silenced).not.toContain('SysUserPlayer');
+      expect(resultRestored.log.some((l) => l.includes('[AUTH_RESTORE]'))).toBe(true);
+    });
+
+    it('should eliminate target when Rogue AI executes malware-purge', () => {
+      const players: Player[] = [
+        createMockPlayer('RogueAiPlayer', 'malware-purge', ['shield', 'clean-inquiry'], 'third-party'),
+        createMockPlayer('VictimNode', null, [], 'town'),
+      ];
+
+      const actionMap = {
+        RogueAiPlayer: { target: 'VictimNode', actionId: 'malware-purge' },
+      };
+
+      const result = resolveNight(players, actionMap);
+
+      expect(result.deaths).toContain('VictimNode');
+      expect(result.log.some((l) => l.includes('[MALWARE_PURGE]'))).toBe(true);
+    });
+
+    it('should perform port-scan correctly identifying Black-Hat as guilty, but Zero-Day and Rogue AI as clean', () => {
+      const players: Player[] = [
+        createMockPlayer('SecAnalystPlayer', 'port-scan', [], 'town'),
+        createMockPlayer('BlackHatPlayer', 'zero-day-exploit', [], 'mafia'),
+        {
+          name: 'ZeroDayPlayer',
+          isDead: false,
+          role: {
+            id: 'zero-day',
+            name: 'Zero-Day',
+            sideId: 'mafia',
+            abilityIds: ['zero-day-exploit'],
+            passiveAbilityIds: ['shield', 'clean-inquiry'],
+            inquiryAppearsAs: 'town',
+          },
+        },
+        {
+          name: 'RogueAiPlayer',
+          isDead: false,
+          role: {
+            id: 'rogue-ai',
+            name: 'Rogue AI',
+            sideId: 'third-party',
+            abilityIds: ['malware-purge'],
+            passiveAbilityIds: ['shield', 'clean-inquiry'],
+            inquiryAppearsAs: 'town',
+          },
+        },
+      ];
+
+      const scanBlackHat = resolveNight(players, {
+        SecAnalystPlayer: { target: 'BlackHatPlayer', actionId: 'port-scan' },
+      });
+      expect(scanBlackHat.log.some((l) => l.includes('Guilty (Mafia/Black-Hat)'))).toBe(true);
+
+      const scanZeroDay = resolveNight(players, {
+        SecAnalystPlayer: { target: 'ZeroDayPlayer', actionId: 'port-scan' },
+      });
+      expect(scanZeroDay.log.some((l) => l.includes('Innocent/Clean (Town)'))).toBe(true);
+
+      const scanRogueAi = resolveNight(players, {
+        SecAnalystPlayer: { target: 'RogueAiPlayer', actionId: 'port-scan' },
+      });
+      expect(scanRogueAi.log.some((l) => l.includes('Innocent/Clean (Town)'))).toBe(true);
+    });
+  });
 });
