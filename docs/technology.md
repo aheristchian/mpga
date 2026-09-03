@@ -58,8 +58,10 @@ mpga/
 │   │   │   └── MultiplayerHostModal.vue # Lobby host console with QR code & network diagnostics
 │   │   ├── player/
 │   │   │   └── PlayerClient.vue  # Mobile touch player console with private role & voting
-│   │   └── projector/
-│   │       └── ProjectorView.vue # TV/Projector public display mode for living room screens
+│   │   ├── projector/
+│   │   │   └── ProjectorView.vue # TV/Projector public display mode for living room screens
+│   │   └── studio/
+│   │       └── RoleStudioModal.vue # In-browser Rule Customizer, Character Studio & Pack Manager
 │   ├── data/                     # Flat, relational data definitions (JSON-ready)
 │   │   ├── abilities.ts          # Active/passive abilities and priority values
 │   │   ├── lastWordCards.ts      # Last Word cards data definitions
@@ -78,6 +80,8 @@ mpga/
 │   │   ├── gameEngine.ts         # Pure Night Action Priority Resolution Engine
 │   │   ├── gameEngine.spec.ts    # Unit tests for resolution logic
 │   │   ├── useAudioService.ts    # Web Audio API procedural sound synthesizer & streaming
+│   │   ├── useGamePackService.ts # Game Pack schema validation, import/export & presets
+│   │   ├── useGamePackService.spec.ts # Unit tests for game pack validation and storage
 │   │   ├── useGameService.ts     # Hydration composable connecting relational data
 │   │   ├── useHaptics.ts         # Tactile vibration feedback composable
 │   │   ├── useMatchReplay.ts     # Turn-by-turn match timeline replay engine

@@ -134,6 +134,17 @@ graph TD
 * **100% Strict Type Safety:** Root `tsconfig.json`, domain models in `src/types/`, typed Pinia stores, typed composable services, typed utils, and `<script setup lang="ts">` across all 23 Vue 3 Single File Components.
 * **Comprehensive Test Suite Parity:** All 11 unit test suites converted to `.spec.ts` with 100% pass rate (71/71 tests) in Vitest.
 
+### 17. Mobile UX & Touch Ergonomics Polish
+* **Slide-Over Top Bar Hamburger Drawer (`PlayerClient.vue`):** Replaced cluttered header with a compact mobile drawer via `<Teleport to="body">` housing Room PIN code, live MQTT/WebRTC transport telemetry & latency, OLED stealth mode toggle, screen wakelock toggle, procedural audio toggle, in-game role guide modal, language switcher, and exit/moderator return actions.
+* **Ergonomic One-Hand Action Pills & Cards:** Scaled night action selection, night target cards, pre-voting buttons, and final elimination voting buttons to thumb-friendly `min-h-[48px]` interactive touch targets with tactile haptic vibration confirmations (`useHaptics`) and active state scaling.
+
+### 18. In-Browser Visual Role Studio & JSON Game Pack Architecture
+* **Visual Rule Customizer Modal (`RoleStudioModal.vue`):** 3-tab modal accessible from the app header and mode selection:
+  1. *Rules & Timers:* Speaking duration ($30\text{s} \dots 120\text{s}$), challenge time ($15\text{s} \dots 60\text{s}$), defense speech time ($30\text{s} \dots 120\text{s}$), challenges per day ($0 \dots 5$), daily speaker shift ($1 \dots 3$), and voting threshold formulas (`ceil`, `half`, `floor`).
+  2. *Role Studio:* Custom character creator with slug ID generation, emoji picker palette, faction alignment (`town`, `mafia`, `third-party`), inquiry status, abilities multi-select with icons, tactics, live role card preview, and custom role deletion management.
+  3. *Game Packs:* One-click JSON pack export, file upload / text paste JSON import with schema validation, community presets loader (`Tehran Pro League`, `Speed Blitz Mafia`), and factory reset.
+* **Relational Game Pack Service (`useGamePackService.ts`):** Complete schema validation, Base64/JSON `localStorage` persistence, reactive integration with `useGameService.ts`, and full unit test coverage.
+
 ---
 
 ## 🚀 Upcoming Roadmap & Master TODOs
@@ -146,13 +157,13 @@ graph TD
 - [x] **Tactile Haptic Feedback (`navigator.vibrate`):** Silent vibration cues on speaking turn start, 5-second defense warning, and night phase wake-ups.
 - [x] **Stealth OLED Night Mode:** Ultra-low luminescence pitch-black interface to eliminate face illumination and prevent physical room tells during the night phase.
 - [x] **Progressive Web App (PWA) & Offline Cache:** "Add to Home Screen" support on iOS/Android with Workbox service worker caching for low-connectivity venues.
-- [ ] **Streamlined Mobile Header & Hamburger Drawer:** Clean up top bar of `PlayerClient.vue` by moving Room PIN, audio toggle, guide button, and language switcher into an accessible hamburger drawer (`☰`).
-- [ ] **Ergonomic One-Hand Action Pills:** Scale action selection buttons and target cards to fit mobile screens with thumb-friendly reach zones and clear visual active states.
+- [x] **Streamlined Mobile Header & Hamburger Drawer:** Clean up top bar of `PlayerClient.vue` by moving Room PIN, audio toggle, guide button, and language switcher into an accessible hamburger drawer (`☰`).
+- [x] **Ergonomic One-Hand Action Pills:** Scale action selection buttons and target cards to fit mobile screens with thumb-friendly reach zones and clear visual active states.
 
 ### 🧠 2. Game Engine & Modding Architecture
 - [x] **100% Declarative Role & Ability Schema Engine:** Unified single source of truth across `roles.ts`, `abilities.ts`, and auto-generated `roleGuideData.ts` with declarative priority ladder ($99 \to 90 \to 80 \to 70 \to 50 \to 10 \to 0$), auto-generated game guide, and dynamic mobile/moderator night action resolver.
-- [ ] **Game Pack Import / Export (.json / .yaml):** One-click export and import of community-created tournament rulepacks, custom character decks, timer presets, and house rules.
-- [ ] **In-Browser Visual "Role Studio" & Settings Panel:** GUI customizer to design custom characters, abilities, SVG icons, speaker countdown durations ($30\text{s} \dots 120\text{s}$), and challenge quotas without code changes.
+- [x] **Game Pack Import / Export (.json / .yaml):** One-click export and import of community-created tournament rulepacks, custom character decks, timer presets, and house rules.
+- [x] **In-Browser Visual "Role Studio" & Settings Panel:** GUI customizer to design custom characters, abilities, SVG icons, speaker countdown durations ($30\text{s} \dots 120\text{s}$), and challenge quotas without code changes.
 - [x] **1-Step Undo / Moderator Misclick Rewind:** Fast rollback button allowing the moderator to undo accidental eliminations or premature phase advances.
 - [x] **Post-Match Time-Travel Replay:** Interactive step-by-step match timeline scrubber to replay every turn, vote, and night ability after match completion.
 
@@ -170,6 +181,7 @@ graph TD
 - [x] **TypeScript 5+ Strict Migration (v2.0.0):** Added `<script setup lang="ts">` and strict interfaces across all Pinia stores, composables, and components.
 - [ ] **Audio Stream Singleton & Undo/Phase-Shift Cleanup:** Resolve track overlap bug where multiple background songs play simultaneously during undo or fast phase navigation; enforce strict singleton audio player teardown and immediate pause of orphan audio instances.
 - [ ] **ESLint TypeScript Parser Configuration:** Update `eslint.config.js` with `vue-eslint-parser` + `typescript-eslint` for clean `npm run lint` execution across all Vue SFCs.
+
 
 
 

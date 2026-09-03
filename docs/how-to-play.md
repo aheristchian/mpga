@@ -265,4 +265,41 @@ Review and dissect finished matches turn-by-turn:
 * **Simulated Seating Roster:** Visually tracks who was alive vs. eliminated at that exact second, highlighting active speakers, challengers, defense nominees, night targets, and card penalties.
 * **Auto-Playback:** Tap **▶️ Auto Play** with customizable playback speeds ($1\times, 2\times, 3\times$) to watch the game unfold like a recorded demo.
 
+---
+
+## 15. Mobile Client Slide-Over Drawer & Touch Ergonomics
+
+On player smartphones (`PlayerClient.vue`):
+* **Top Bar Hamburger Drawer (`☰`):** Replaces cluttered headers with a slide-over mobile drawer (`<Teleport to="body">`) housing:
+  * Room PIN Code & quick copy.
+  * Live MQTT / WebRTC transport badges & latency telemetry.
+  * Stealth OLED Night Mode toggle (pitch-black screen to prevent room glow).
+  * Screen WakeLock toggle (prevents sleep during speech turns).
+  * Web Audio SFX toggle.
+  * In-game Game Guide trigger.
+  * Dynamic Language Switcher (EN / FA).
+  * Disconnect / Moderator Return buttons.
+* **Ergonomic One-Hand Action Pills:** All night actions, target selection cards, pre-voting buttons, and final elimination voting buttons are scaled to `min-h-[48px]` interactive touch targets with haptic vibration confirmations (`useHaptics`).
+
+---
+
+## 16. In-Browser Role Studio, Rules Customizer & Game Packs
+
+Customize scenarios and create custom characters without writing code:
+* **Opening Role Studio:** Tap the **🎨 Studio** button in the header or directly inside the Mode Selection screen.
+* **Tab 1: Rules & Timers:**
+  * Adjust speaking time ($30\text{s} \dots 120\text{s}$), challenge time ($15\text{s} \dots 60\text{s}$), and defense speech time ($30\text{s} \dots 120\text{s}$).
+  * Configure challenges allowed per day ($0 \dots 5$) and daily speaker turn shift ($1 \dots 3$).
+  * Set defense voting threshold formulas: `ceil` ($\lceil \text{Alive}/2 \rceil$), `half` ($\text{Alive}/2$), or `floor` ($\lfloor \text{Alive}/2 \rfloor$).
+* **Tab 2: Role Studio (Character Creator):**
+  * Define character name, slug ID, and custom emoji icon.
+  * Set faction alignment (Town 🟢, Mafia 🔴, or Third-Party 🟣).
+  * Set Detective inquiry status (Innocent 🕊️ vs. Guilty 🕵️‍♂️) and deck occurrence limit.
+  * Assign abilities from the abilities repository, with live role card preview.
+* **Tab 3: Game Packs (Import & Export):**
+  * **Export Pack:** One-click download of the complete active configuration as a `.json` game pack.
+  * **Import Pack:** Upload or paste JSON game packs with schema validation.
+  * **Community Presets:** Load pre-configured tournament presets like **Tehran Pro League** and **Speed Blitz Mafia** with one tap.
+
+
 
