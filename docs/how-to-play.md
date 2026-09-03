@@ -47,11 +47,11 @@ stateDiagram-v2
   * Displays a live QR code and room join link on the moderator screen.
   * Players scan the QR code on their phones. If it's their first time, they enter their display name and tap **Join Lobby** (or if already saved, reconnect automatically). Players can edit their name directly inside the lobby and see the real-time roster of all joined players.
   * The moderator's roster updates in real-time as player devices connect and register their names (🟢).
-  * The moderator can drag-and-drop player cards to match physical seating or remove players.
+  * The moderator can drag-and-drop or use the touch-friendly Up/Down (▲/▼) reorder buttons on mobile devices to arrange physical seating, or remove players.
   * Once all players are in, the moderator clicks **Proceed to Role Selection**. When the game starts, all connected devices in the lobby automatically receive their secret role assignments.
 * **⌨️ Manual Entry Mode:**
   * For offline games without player phones, the moderator types player names manually or loads demo rosters.
-  * Drag and drop player names to match physical circular seating in the room.
+  * Drag-and-drop or tap the Up/Down (▲/▼) buttons to match circular seating in the room.
 
 ### Step 3: Role Selection & Balancing
 * Select the exact number of roles to match the player count.
@@ -234,8 +234,8 @@ For hands-free moderation, MPGA includes browser-native Speech Synthesis (TTS):
 ## 11. Big-Screen Projector / TV View (`?view=projector`)
 
 Connect a second monitor, living room TV, or cafe overhead projector to display match status without leaking secret roles:
-* Launch via the top bar **📺 Projector** button or by visiting `/?view=projector`.
-* Features a large countdown timer, active speaker spotlight name, challenge indicators, live voting nominee tallies, and night phase sleeping graphics with anti-cheat protection.
+* Launch via the top bar **📺 Projector** button or by visiting `/?view=projector` (or `/?view=projector&room=ROOM_CODE` for remote displays).
+* Auto-connects as a spectator to live multiplayer rooms, rendering real-time active speaker names, speech countdown timers, challenge notifications, living and eliminated player rosters, and night phase sleeping graphics with zero role disclosure.
 
 ---
 

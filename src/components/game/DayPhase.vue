@@ -447,7 +447,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useGameStore } from '../../stores/gameStore';
 import { useAudio } from '../../services/useAudioService';
 import PhaseHeroBanner from '../PhaseHeroBanner.vue';
@@ -658,11 +658,21 @@ const proceedToVoting = () => {
   store.setSubPhase('voting');
 };
 
+watch(
+  [currentPlayer, activeChallenger, timeLeft],
+  ([curr, chal, time]) => {
+    const speaker = chal ? chal.name : curr ? curr.name : null;
+    store.setActiveSpeaker(speaker, time, !!chal);
+  },
+  { immediate: true }
+);
+
 onMounted(() => {
   stage.value = 'setup';
 });
 
 onUnmounted(() => {
   pauseTimer();
+  store.setActiveSpeaker(null, 0, false);
 });
 </script>

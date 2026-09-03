@@ -234,7 +234,9 @@
 
     <!-- SEATED PLAYERS ROSTER -->
     <div class="bg-gray-800 rounded-2xl p-4 sm:p-6 border border-gray-700 shadow-xl space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-700 pb-2.5 gap-1.5">
+      <div
+        class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-700 pb-2.5 gap-1.5"
+      >
         <div class="flex items-center gap-2">
           <h3 class="text-base sm:text-lg font-bold text-gray-200">
             {{ $t('playerEntry.currentPlayers') }}
@@ -279,12 +281,34 @@
               </span>
             </div>
 
-            <button
-              class="text-red-400 hover:text-red-300 active:scale-95 text-xs font-medium px-3 py-1.5 bg-gray-800 rounded-lg hover:bg-gray-700 transition-all cursor-pointer min-h-[36px] select-none"
-              @click="removePlayer(index)"
-            >
-              {{ $t('playerEntry.remove') }}
-            </button>
+            <div class="flex items-center gap-1.5">
+              <button
+                type="button"
+                :disabled="index === 0"
+                class="text-gray-400 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed p-1.5 bg-gray-800 rounded-lg hover:bg-gray-750 transition-all cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center select-none text-xs"
+                :title="$t('playerEntry.moveUp')"
+                :aria-label="$t('playerEntry.moveUp')"
+                @click.stop="movePlayer(index, -1)"
+              >
+                ▲
+              </button>
+              <button
+                type="button"
+                :disabled="index === players.length - 1"
+                class="text-gray-400 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed p-1.5 bg-gray-800 rounded-lg hover:bg-gray-750 transition-all cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center select-none text-xs"
+                :title="$t('playerEntry.moveDown')"
+                :aria-label="$t('playerEntry.moveDown')"
+                @click.stop="movePlayer(index, 1)"
+              >
+                ▼
+              </button>
+              <button
+                class="text-red-400 hover:text-red-300 active:scale-95 text-xs font-medium px-3 py-1.5 bg-gray-800 rounded-lg hover:bg-gray-700 transition-all cursor-pointer min-h-[36px] select-none"
+                @click="removePlayer(index)"
+              >
+                {{ $t('playerEntry.remove') }}
+              </button>
+            </div>
           </li>
         </ul>
       </div>
@@ -420,6 +444,12 @@ const addPlayer = () => {
 
 const removePlayer = (index) => {
   store.removeSetupPlayer(index);
+};
+
+const movePlayer = (fromIndex: number, direction: -1 | 1) => {
+  const toIndex = fromIndex + direction;
+  if (toIndex < 0 || toIndex >= players.value.length) return;
+  store.reorderSetupPlayers(fromIndex, toIndex);
 };
 
 // --- DRAG AND DROP LOGIC ---

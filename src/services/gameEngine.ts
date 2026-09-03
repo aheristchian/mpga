@@ -10,9 +10,17 @@ export interface ActionPayload {
 
 export type ActionMap = Record<string, string | ActionPayload | null | undefined>;
 
+export interface ConvertedPlayer {
+  playerName: string;
+  newSideId: string;
+  reason: string;
+}
+
 export interface NightResolutionResult {
   deaths: string[];
   revived: string[];
+  brokenShields: string[];
+  converted: ConvertedPlayer[];
   log: string[];
 }
 
@@ -34,72 +42,64 @@ interface QueuedAction {
  * - 50: Inquiries & Allegiances (Detective Inquiry, Nostradamus Choice)
  * - 10: Revivals (Constantine Revival)
  */
-export const resolveNight = (
-  players: Player[],
-  actionMap: ActionMap
-): NightResolutionResult => {
+export const resolveNight = (players: Player[], actionMap: ActionMap): NightResolutionResult => {
   const log: string[] = [];
   const killedThisNight = new Set<string>();
+  const unpreventableDeaths = new Set<string>();
   const revivedThisNight = new Set<string>();
   const blockedPlayers = new Set<string>(); // Prevented from using abilities
   const treatedPlayers = new Set<string>(); // Saved from kills
+  const brokenShields: string[] = [];
+  const converted: ConvertedPlayer[] = [];
 
   // Extract and enrich actions with priority data
   const actions: QueuedAction[] = [];
-  for (const [actorName, actionValue] of Object.entries(actionMap)) {
-    if (!actionValue) continue; // Skip empty actions
-
-    let targetName: string | null = null;
-    let explicitAbilityId: string | null = null;
-
-    if (typeof actionValue === 'string') {
-      targetName = actionValue;
-    } else if (typeof actionValue === 'object') {
-      targetName = actionValue.target || null;
-      explicitAbilityId = actionValue.actionId || actionValue.abilityId || null;
-    }
-
-    if (!targetName) continue;
+  for (const [actorName, rawPayload] of Object.entries(actionMap)) {
+    if (!rawPayload) continue;
 
     const actor = players.find((p) => p.name === actorName);
+    if (!actor || actor.isDead) continue;
+
+    const targetName = typeof rawPayload === 'string' ? rawPayload : rawPayload.target;
+    if (!targetName) continue;
+
     const target = players.find((p) => p.name === targetName);
+    if (!target) continue;
 
-    if (!actor || !target || actor.isDead) continue;
+    // Determine the specific ability being used
+    const specifiedActionId =
+      typeof rawPayload === 'object' ? rawPayload.actionId || rawPayload.abilityId : undefined;
 
-    // Determine the active ability
-    const activeAbilities = actor.role?.abilityIds || [];
-    const targetAbilityId = explicitAbilityId || activeAbilities[0];
-    if (!targetAbilityId) continue;
+    let ability: Ability | undefined;
+    if (specifiedActionId) {
+      ability = mockAbilities.find((a) => a.id === specifiedActionId);
+    }
+    if (!ability && actor.role?.abilityIds?.length) {
+      ability = mockAbilities.find((a) => actor.role?.abilityIds.includes(a.id));
+    }
 
-    const ability = mockAbilities.find((a) => a.id === targetAbilityId);
-    if (!ability) continue;
-
-    actions.push({
-      actor,
-      target,
-      ability,
-      priority: ability.priority ?? 50,
-    });
+    if (ability) {
+      actions.push({
+        actor,
+        target,
+        ability,
+        priority: ability.priority || 50,
+      });
+    }
   }
 
-  // Sort actions descending by priority (higher priority number executes first: 99 > 90 > 80 > 70 > 50 > 10)
+  // Sort descending by priority: highest priority executes first
   actions.sort((a, b) => b.priority - a.priority);
 
-  // Resolution Loop
-  for (const action of actions) {
-    const { actor, target, ability } = action;
-
-    // Check if actor was blocked earlier in the resolution queue
-    if (blockedPlayers.has(actor.name) && ability.id !== 'block') {
-      log.push(`[BLOCKED] ${actor.name} tried to use ${ability.name} but was blocked.`);
+  // Execute actions
+  for (const { actor, target, ability } of actions) {
+    if (blockedPlayers.has(actor.name)) {
+      log.push(`[BLOCKED] ${actor.name} tried to use ${ability.id}, but was blocked.`);
       continue;
     }
 
-    log.push(`[ACTION] ${actor.name} used ${ability.name} on ${target.name}`);
-
     switch (ability.id) {
-      case 'choose-side':
-        // Informational log for moderator
+      case 'side-with':
         log.push(`[INFO] ${actor.name} sided with ${target.name}.`);
         break;
 
@@ -108,7 +108,20 @@ export const resolveNight = (
         break;
 
       case 'buy':
-        // Specific logic for saul goodman could go here, for now it's just logged
+        if (target.role?.sideId === 'town') {
+          converted.push({
+            playerName: target.name,
+            newSideId: 'mafia',
+            reason: 'Saul Goodman buy recruitment',
+          });
+          log.push(
+            `[BRIBE] ${actor.name} (Saul Goodman) successfully recruited ${target.name} into the Mafia!`
+          );
+        } else {
+          log.push(
+            `[BRIBE_FAILED] ${actor.name} (Saul Goodman) attempted to recruit ${target.name}, but the target could not be bought.`
+          );
+        }
         break;
 
       case 'treat':
@@ -126,6 +139,7 @@ export const resolveNight = (
             `[LEON_PENALTY] ${actor.name} (Leon) shot innocent Town citizen ${target.name}. Leon suffers fatal penalty/guilt, and ${target.name} survives.`
           );
           killedThisNight.add(actor.name);
+          unpreventableDeaths.add(actor.name); // Guilt penalty cannot be saved by Doctor heal
         } else {
           // Leon shot Mafia or Third-Party
           log.push(
@@ -160,17 +174,21 @@ export const resolveNight = (
   // Final Death Calculation
   const actualDeaths: string[] = [];
   for (const name of killedThisNight) {
-    if (treatedPlayers.has(name)) {
+    if (treatedPlayers.has(name) && !unpreventableDeaths.has(name)) {
       log.push(`[SAVE] ${name} was shot, but saved by the Doctor.`);
     } else {
       // Check passive shields
       const targetPlayer = players.find((p) => p.name === name);
       const passives = targetPlayer?.role?.passiveAbilityIds || [];
+      const hasShield = passives.includes('shield') && !targetPlayer?.isShieldBroken;
+      const hasUnlimitedShield = passives.includes('unlimited-shield');
 
-      if (passives.includes('shield') || passives.includes('unlimited-shield')) {
+      if (!unpreventableDeaths.has(name) && (hasShield || hasUnlimitedShield)) {
         log.push(`[SAVE] ${name} was shot, but their shield saved them.`);
-        // Note: basic shield should break after 1 use, requiring state management for the player.
-        // For now, it just protects.
+        if (hasShield && !hasUnlimitedShield) {
+          brokenShields.push(name);
+          log.push(`[SHIELD_BROKEN] ${name}'s bulletproof shield has shattered.`);
+        }
       } else {
         log.push(`[DEATH] ${name} was killed.`);
         actualDeaths.push(name);
@@ -181,6 +199,8 @@ export const resolveNight = (
   return {
     deaths: actualDeaths,
     revived: Array.from(revivedThisNight),
+    brokenShields,
+    converted,
     log,
   };
 };

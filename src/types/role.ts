@@ -16,15 +16,7 @@ export type SideId = 'town' | 'mafia' | 'third-party' | string;
 export type Alignment = 'Town' | 'Mafia' | 'Independent';
 
 export type AbilityType =
-  | 'kill'
-  | 'heal'
-  | 'shield'
-  | 'inquire'
-  | 'block'
-  | 'bribe'
-  | 'revive'
-  | 'prophecy'
-  | 'passive';
+  'kill' | 'heal' | 'shield' | 'inquire' | 'block' | 'bribe' | 'revive' | 'prophecy' | 'passive';
 
 export type AbilityTypeColor = 'red' | 'emerald' | 'blue' | 'purple' | 'amber';
 

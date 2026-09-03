@@ -31,9 +31,7 @@ export const useGameStore = defineStore('game', () => {
   const drawnLastWordCards = ref<DrawnCardRecord[]>(
     loadEncoded<DrawnCardRecord[]>('mpga_drawnLastWordCards') || []
   );
-  const eliminatedPlayer = ref<Player | null>(
-    loadEncoded<Player>('mpga_eliminatedPlayer') || null
-  );
+  const eliminatedPlayer = ref<Player | null>(loadEncoded<Player>('mpga_eliminatedPlayer') || null);
 
   // Win Condition & Game Over State
   const isGameOver = ref<boolean>(loadEncoded<boolean>('mpga_isGameOver') || false);
@@ -49,6 +47,31 @@ export const useGameStore = defineStore('game', () => {
     qualifiedDefenders: [],
     threshold: 0,
   });
+
+  // Role Action Usage Tracking
+  const doctorSelfHealsUsed = ref<number>(loadEncoded<number>('mpga_doctorSelfHealsUsed') || 0);
+  const constantineRevivesUsed = ref<number>(
+    loadEncoded<number>('mpga_constantineRevivesUsed') || 0
+  );
+
+  // Active Speaker & Speech Timer Tracking (for Projector TV and Multiplayer sync)
+  const activeSpeaker = ref<string | null>(null);
+  const speakerTimeRemaining = ref<number>(0);
+  const isChallengeActive = ref<boolean>(false);
+
+  const setActiveSpeaker = (
+    speaker: string | null,
+    timeRemaining: number = 0,
+    challenge: boolean = false
+  ) => {
+    activeSpeaker.value = speaker;
+    speakerTimeRemaining.value = timeRemaining;
+    isChallengeActive.value = challenge;
+  };
+
+  const updateSpeakerTimer = (timeRemaining: number) => {
+    speakerTimeRemaining.value = timeRemaining;
+  };
 
   // Undo History Snapshot Stack
   const undoStack = ref<GameStateSnapshot[]>([]);
@@ -301,6 +324,41 @@ export const useGameStore = defineStore('game', () => {
     eliminatedPlayer.value = player;
   };
 
+  const breakPlayerShield = (playerName: string) => {
+    const p = livePlayers.value.find((player) => player.name === playerName);
+    if (!p) return;
+    p.isShieldBroken = true;
+    if (p.role?.passiveAbilityIds) {
+      p.role.passiveAbilityIds = p.role.passiveAbilityIds.filter((id) => id !== 'shield');
+    }
+    addLog(
+      'night',
+      `Shield Broken: ${playerName}`,
+      `${playerName}'s bulletproof shield has shattered and will no longer protect them.`
+    );
+  };
+
+  const convertPlayerSide = (playerName: string, newSideId: string, reason: string) => {
+    const p = livePlayers.value.find((player) => player.name === playerName);
+    if (!p || !p.role) return;
+    takeSnapshot(`Convert side for ${playerName}`);
+    p.role.sideId = newSideId;
+    addLog(
+      'night',
+      `Allegiance Changed: ${playerName}`,
+      `${playerName} has joined the ${newSideId.toUpperCase()} family. Reason: ${reason}`
+    );
+    checkWinCondition();
+  };
+
+  const recordDoctorSelfHeal = () => {
+    doctorSelfHealsUsed.value++;
+  };
+
+  const recordConstantineRevive = () => {
+    constantineRevivesUsed.value++;
+  };
+
   const setNostradamusChoice = (sideId: string) => {
     takeSnapshot('Nostradamus Alignment Choice');
     nostradamusChoice.value = sideId;
@@ -392,6 +450,8 @@ export const useGameStore = defineStore('game', () => {
     winner.value = null;
     showGameOverModal.value = false;
     nostradamusChoice.value = null;
+    doctorSelfHealsUsed.value = 0;
+    constantineRevivesUsed.value = 0;
     undoStack.value = [];
   };
 
@@ -412,8 +472,13 @@ export const useGameStore = defineStore('game', () => {
     showGameOverModal,
     nostradamusChoice,
     votingState,
+    doctorSelfHealsUsed,
+    constantineRevivesUsed,
     undoStack,
     canUndo,
+    activeSpeaker,
+    speakerTimeRemaining,
+    isChallengeActive,
     // Actions
     addLog,
     checkWinCondition,
@@ -426,6 +491,12 @@ export const useGameStore = defineStore('game', () => {
     setPlayerDeathStatus,
     applyPenalty,
     setEliminatedPlayer,
+    breakPlayerShield,
+    convertPlayerSide,
+    recordDoctorSelfHeal,
+    recordConstantineRevive,
+    setActiveSpeaker,
+    updateSpeakerTimer,
     setNostradamusChoice,
     drawLastWordCard,
     proceedToNextDay,

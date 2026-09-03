@@ -34,6 +34,7 @@ export interface Player {
   isDead?: boolean;
   warnings?: number;
   isSilenced?: boolean;
+  isShieldBroken?: boolean;
 }
 
 export interface GameLog {

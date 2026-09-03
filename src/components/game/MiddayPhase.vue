@@ -168,8 +168,8 @@
               <h4 class="text-2xl font-black text-white">
                 {{ $t(drawnCard.nameKey) }}
               </h4>
-              <span class="text-xs font-mono text-purple-400 font-bold uppercase tracking-widest">
-                {{ drawnCard.type }}
+              <span class="text-sm font-mono text-purple-400 font-bold uppercase tracking-widest">
+                {{ drawnCard.icon }}
               </span>
             </div>
 

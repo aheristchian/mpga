@@ -71,6 +71,25 @@ describe('Win Condition Evaluator (useWinCondition.ts)', () => {
     expect(result.winner).toBe('mafia');
   });
 
+  it('does not declare early Mafia victory when living third-party roles maintain non-mafia majority', () => {
+    // 2 Mafia vs 1 Town + 2 Third-Party (Total non-mafia = 3 > 2 mafia)
+    const players: Player[] = [
+      { ...townCitizen, isDead: false },
+      { ...nostradamus, isDead: false },
+      {
+        name: 'Nostradamus2',
+        isDead: false,
+        role: { id: 'nostradamus', name: 'Nostradamus', sideId: 'third-party' },
+      },
+      { ...mafiaGodfather, isDead: false },
+      { ...mafiaGrunt, isDead: false },
+    ];
+    const result = evaluateGameStatus(players, []);
+
+    expect(result.isGameOver).toBe(false);
+    expect(result.winner).toBeNull();
+  });
+
   it('awards Nostradamus victory if their pledged side matches winning faction', () => {
     const players: Player[] = [
       { ...townCitizen, isDead: false },
@@ -90,8 +109,20 @@ describe('Win Condition Evaluator (useWinCondition.ts)', () => {
       { ...mafiaGodfather, isDead: true },
     ];
     const logs: GameLog[] = [
-      { id: '1', day: 1, type: 'night', title: 'Target Saved by Doctor', detail: 'Alice was saved' },
-      { id: '2', day: 2, type: 'night', title: 'Detective Inquiry', detail: 'Dave is guilty Mafia' },
+      {
+        id: '1',
+        day: 1,
+        type: 'night',
+        title: 'Target Saved by Doctor',
+        detail: 'Alice was saved',
+      },
+      {
+        id: '2',
+        day: 2,
+        type: 'night',
+        title: 'Detective Inquiry',
+        detail: 'Dave is guilty Mafia',
+      },
     ];
 
     const stats = aggregateStats(players, logs);

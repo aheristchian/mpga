@@ -1,6 +1,7 @@
 import { ref, computed } from 'vue';
 import Peer, { type DataConnection } from 'peerjs';
 import mqtt, { type MqttClient } from 'mqtt';
+import { encryptPayload, decryptPayload, isEncryptedMessage } from '../utils/crypto';
 import type {
   TransportMode,
   ConnectionStatus,
@@ -14,9 +15,9 @@ import type {
 
 // Transport Modes: 'cloud' (MQTT over WSS - ultra-stable) or 'webrtc' (P2P direct)
 const transportMode = ref<TransportMode>(
-  (typeof localStorage !== 'undefined'
+  typeof localStorage !== 'undefined'
     ? (localStorage.getItem('mpga_transport_mode') as TransportMode) || 'cloud'
-    : 'cloud')
+    : 'cloud'
 );
 
 // Reactive Singleton State
@@ -100,7 +101,12 @@ export function sanitizePlayerPayload(
 
 export function sanitizePublicGameState(
   store: any,
-  claimedPlayerNames: string[] = []
+  claimedPlayerNames: string[] = [],
+  speakerInfo?: {
+    activeSpeaker?: string | null;
+    speakerTimeRemaining?: number;
+    isChallengeActive?: boolean;
+  }
 ): ClientPublicState {
   if (!store) {
     return {
@@ -120,6 +126,9 @@ export function sanitizePublicGameState(
         qualifiedDefenders: [],
         threshold: 0,
       },
+      activeSpeaker: null,
+      speakerTimeRemaining: 0,
+      isChallengeActive: false,
     };
   }
 
@@ -170,13 +179,16 @@ export function sanitizePublicGameState(
       qualifiedDefenders: [],
       threshold: 0,
     },
+    activeSpeaker: speakerInfo?.activeSpeaker ?? store.activeSpeaker ?? null,
+    speakerTimeRemaining: speakerInfo?.speakerTimeRemaining ?? store.speakerTimeRemaining ?? 0,
+    isChallengeActive: speakerInfo?.isChallengeActive ?? store.isChallengeActive ?? false,
   };
 }
 
 export function generateRoomCode(): string {
   const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
   let result = '';
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 6; i++) {
     result += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   return result;
@@ -476,7 +488,10 @@ export function useMultiplayer() {
     const incomingPlayerName = (data.playerName || '').trim();
 
     if (existingIndex !== -1) {
-      const updated: ConnectedPeer = { ...connectedPeers.value[existingIndex], lastSeen: Date.now() };
+      const updated: ConnectedPeer = {
+        ...connectedPeers.value[existingIndex],
+        lastSeen: Date.now(),
+      };
       if (incomingPlayerName) {
         updated.playerName = incomingPlayerName;
       }
@@ -635,6 +650,14 @@ export function useMultiplayer() {
     }
 
     if (data.type === 'NIGHT_ACTION') {
+      const peer = connectedPeers.value.find((p) => p.peerId === senderId);
+      const actorName = (data.actorName || '').trim();
+      if (!peer || !peer.playerName || peer.playerName.toLowerCase() !== actorName.toLowerCase()) {
+        console.warn(
+          `[SECURITY] Cloud spoofed NIGHT_ACTION rejected: sender ${senderId} claimed to be ${actorName}`
+        );
+        return;
+      }
       dispatchPlayerAction({
         action: 'NIGHT_ACTION',
         type: 'NIGHT_ACTION',
@@ -650,6 +673,14 @@ export function useMultiplayer() {
     }
 
     if (data.type === 'CAST_VOTE') {
+      const peer = connectedPeers.value.find((p) => p.peerId === senderId);
+      const voterName = (data.voterName || '').trim();
+      if (!peer || !peer.playerName || peer.playerName.toLowerCase() !== voterName.toLowerCase()) {
+        console.warn(
+          `[SECURITY] Cloud spoofed CAST_VOTE rejected: sender ${senderId} claimed to be ${voterName}`
+        );
+        return;
+      }
       dispatchPlayerAction({
         action: 'CAST_VOTE',
         type: 'CAST_VOTE',
@@ -946,6 +977,14 @@ export function useMultiplayer() {
     }
 
     if (data.type === 'NIGHT_ACTION') {
+      const peer = connectedPeers.value.find((p) => p.peerId === conn.peer);
+      const actorName = (data.actorName || '').trim();
+      if (!peer || !peer.playerName || peer.playerName.toLowerCase() !== actorName.toLowerCase()) {
+        console.warn(
+          `[SECURITY] WebRTC spoofed NIGHT_ACTION rejected: peer ${conn.peer} claimed to be ${actorName}`
+        );
+        return;
+      }
       dispatchPlayerAction({
         action: 'NIGHT_ACTION',
         type: 'NIGHT_ACTION',
@@ -961,6 +1000,14 @@ export function useMultiplayer() {
     }
 
     if (data.type === 'CAST_VOTE') {
+      const peer = connectedPeers.value.find((p) => p.peerId === conn.peer);
+      const voterName = (data.voterName || '').trim();
+      if (!peer || !peer.playerName || peer.playerName.toLowerCase() !== voterName.toLowerCase()) {
+        console.warn(
+          `[SECURITY] WebRTC spoofed CAST_VOTE rejected: peer ${conn.peer} claimed to be ${voterName}`
+        );
+        return;
+      }
       dispatchPlayerAction({
         action: 'CAST_VOTE',
         type: 'CAST_VOTE',
@@ -973,52 +1020,76 @@ export function useMultiplayer() {
   };
 
   // Broadcast state to all connected devices
-  const broadcastHostState = (store: any) => {
+  const broadcastHostState = async (
+    store: any,
+    speakerInfo?: {
+      activeSpeaker?: string | null;
+      speakerTimeRemaining?: number;
+      isChallengeActive?: boolean;
+    }
+  ) => {
     if (!store) return;
     const isGameLive = store.gamePhase === 'playing';
     const claimedPlayerNames = connectedPeers.value
       .map((p) => p.playerName)
       .filter((n): n is string => Boolean(n && n.trim()));
 
-    const publicState = sanitizePublicGameState(store, claimedPlayerNames);
+    const publicState = sanitizePublicGameState(store, claimedPlayerNames, speakerInfo);
     const rawPlayers: Player[] =
       store.livePlayers && store.livePlayers.length > 0 ? store.livePlayers : store.players || [];
+
+    const secret = `${roomCode.value}:${roomPasscode.value || ''}`;
 
     if (transportMode.value === 'cloud') {
       if (hostMqttClient && hostMqttClient.connected) {
         const topicPublic = `mpga/${roomCode.value.toLowerCase()}/public`;
         hostMqttClient.publish(topicPublic, JSON.stringify(publicState), { qos: 0 });
 
-        connectedPeers.value.forEach((p) => {
+        for (const p of connectedPeers.value) {
           const rawPlayer = rawPlayers.find(
             (rp) => rp.name && p.playerName && rp.name.toLowerCase() === p.playerName.toLowerCase()
           );
           const privateIdentity = rawPlayer ? sanitizePlayerPayload(rawPlayer, isGameLive) : null;
+          let playerPayload: any = privateIdentity;
+          if (privateIdentity) {
+            try {
+              playerPayload = await encryptPayload(privateIdentity, secret);
+            } catch {
+              playerPayload = privateIdentity;
+            }
+          }
           sendCloudDirect(roomCode.value, p.peerId, {
             type: 'STATE_UPDATE',
-            player: privateIdentity,
+            player: playerPayload,
             public: publicState,
           });
-        });
+        }
       }
     } else {
-      connectedPeers.value.forEach((p) => {
-        if (!p.conn || !p.conn.open) return;
+      for (const p of connectedPeers.value) {
+        if (!p.conn || !p.conn.open) continue;
         const rawPlayer = rawPlayers.find(
           (rp) => rp.name && p.playerName && rp.name.toLowerCase() === p.playerName.toLowerCase()
         );
         const privateIdentity = rawPlayer ? sanitizePlayerPayload(rawPlayer, isGameLive) : null;
-
+        let playerPayload: any = privateIdentity;
+        if (privateIdentity) {
+          try {
+            playerPayload = await encryptPayload(privateIdentity, secret);
+          } catch {
+            playerPayload = privateIdentity;
+          }
+        }
         try {
           p.conn.send({
             type: 'STATE_UPDATE',
-            player: privateIdentity,
+            player: playerPayload,
             public: publicState,
           });
         } catch {
           // Send error catch
         }
-      });
+      }
     }
   };
 
@@ -1161,11 +1232,27 @@ export function useMultiplayer() {
             if (data.type === 'PONG' && data.clientTime) {
               pingLatency.value = Date.now() - data.clientTime;
             } else if (data.type === 'STATE_UPDATE') {
-              clientPlayerIdentity.value = data.player;
-              clientPublicState.value = data.public;
-              if (data.public?.setupPlayers) lobbyPlayers.value = data.public.setupPlayers;
-              if (data.public?.gamePhase === 'playing' && data.player) {
-                isInLobby.value = false;
+              const applyState = (playerIdentity: any) => {
+                clientPlayerIdentity.value = playerIdentity;
+                clientPublicState.value = data.public;
+                if (data.public?.setupPlayers) lobbyPlayers.value = data.public.setupPlayers;
+                if (data.public?.gamePhase === 'playing' && playerIdentity) {
+                  isInLobby.value = false;
+                }
+              };
+
+              if (isEncryptedMessage(data.player)) {
+                const secret = `${roomCode.value}:${roomPasscode.value || ''}`;
+                decryptPayload(data.player, secret)
+                  .then((decrypted) => {
+                    applyState(decrypted);
+                  })
+                  .catch((err) => {
+                    console.error('[SECURITY] Failed to decrypt player payload:', err);
+                    applyState(null);
+                  });
+              } else {
+                applyState(data.player);
               }
             } else if (data.type === 'LOBBY_JOINED') {
               isInLobby.value = true;
@@ -1258,13 +1345,29 @@ export function useMultiplayer() {
               pingLatency.value = Date.now() - data.time;
             }
           } else if (data && data.type === 'STATE_UPDATE') {
-            clientPlayerIdentity.value = data.player;
-            clientPublicState.value = data.public;
-            if (data.public?.setupPlayers) {
-              lobbyPlayers.value = data.public.setupPlayers;
-            }
-            if (data.public?.gamePhase === 'playing' && data.player) {
-              isInLobby.value = false;
+            const applyState = (playerIdentity: any) => {
+              clientPlayerIdentity.value = playerIdentity;
+              clientPublicState.value = data.public;
+              if (data.public?.setupPlayers) {
+                lobbyPlayers.value = data.public.setupPlayers;
+              }
+              if (data.public?.gamePhase === 'playing' && playerIdentity) {
+                isInLobby.value = false;
+              }
+            };
+
+            if (isEncryptedMessage(data.player)) {
+              const secret = `${roomCode.value}:${roomPasscode.value || ''}`;
+              decryptPayload(data.player, secret)
+                .then((decrypted) => {
+                  applyState(decrypted);
+                })
+                .catch((err) => {
+                  console.error('[SECURITY] Failed to decrypt WebRTC player payload:', err);
+                  applyState(null);
+                });
+            } else {
+              applyState(data.player);
             }
           } else if (data && data.type === 'LOBBY_JOINED') {
             isInLobby.value = true;

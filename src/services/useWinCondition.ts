@@ -51,18 +51,20 @@ export const evaluateGameStatus = (
   let isGameOver = false;
   let winner: 'town' | 'mafia' | 'draw' | null = null;
 
+  const livingNonMafia = livingPlayers.filter((p) => p.role?.sideId !== 'mafia');
+
   // 1. Town Victory: All Mafia players are eliminated
   if (livingMafia.length === 0 && livingTown.length > 0) {
     isGameOver = true;
     winner = 'town';
   }
-  // 2. Mafia Victory: Living Mafia count >= Living Town count
-  else if (livingMafia.length >= livingTown.length && livingMafia.length > 0) {
+  // 2. Mafia Victory: Living Mafia count >= Living Non-Mafia count (Town + Third-Party)
+  else if (livingMafia.length >= livingNonMafia.length && livingMafia.length > 0) {
     isGameOver = true;
     winner = 'mafia';
   }
-  // 3. Mutual annihilation edge case
-  else if (livingPlayers.length === 0) {
+  // 3. Mutual annihilation or only third-party surviving
+  else if (livingTown.length === 0 && livingMafia.length === 0) {
     isGameOver = true;
     winner = 'draw';
   }
@@ -88,10 +90,7 @@ export const evaluateGameStatus = (
 /**
  * Aggregates game stats and highlights from logs and player roster.
  */
-export const aggregateStats = (
-  players: Player[] = [],
-  logs: GameLog[] = []
-): GameStats => {
+export const aggregateStats = (players: Player[] = [], logs: GameLog[] = []): GameStats => {
   const totalDeaths = players.filter((p) => p.isDead).length;
   let maxDay = 1;
   let doctorSaves = 0;

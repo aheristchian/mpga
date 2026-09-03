@@ -185,10 +185,7 @@ export function buildTimelineSteps(
 /**
  * Match Replay Composable for reactive time-travel scrubber management.
  */
-export function useMatchReplay(
-  initialPlayers: Player[] = [],
-  rawGameLogs: GameLog[] = []
-) {
+export function useMatchReplay(initialPlayers: Player[] = [], rawGameLogs: GameLog[] = []) {
   const timelineSteps = computed(() => buildTimelineSteps(initialPlayers, rawGameLogs));
   const currentStepIndex = ref<number>(0);
   const isPlaying = ref<boolean>(false);

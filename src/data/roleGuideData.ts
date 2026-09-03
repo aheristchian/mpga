@@ -134,8 +134,7 @@ export function generateNightResolutionSteps(
       color: 'slate',
     };
 
-    const actors =
-      priority === 0 ? ['moderator'] : Array.from(priorityMap.get(priority) || []);
+    const actors = priority === 0 ? ['moderator'] : Array.from(priorityMap.get(priority) || []);
 
     return {
       step: stepNumber++,

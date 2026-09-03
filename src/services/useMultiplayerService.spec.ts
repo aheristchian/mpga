@@ -7,11 +7,11 @@ import {
 import type { Player } from '../types';
 
 describe('useMultiplayerService', () => {
-  it('generates a valid 4-character uppercase alphanumeric room code', () => {
+  it('generates a valid 6-character uppercase alphanumeric room code', () => {
     const code = generateRoomCode();
     expect(code).toBeDefined();
-    expect(code.length).toBe(4);
-    expect(/^[A-Z0-9]{4}$/.test(code)).toBe(true);
+    expect(code.length).toBe(6);
+    expect(/^[A-Z0-9]{6}$/.test(code)).toBe(true);
   });
 
   it('sanitizes personal player payload without leaking extraneous attributes', () => {
@@ -201,5 +201,26 @@ describe('useMultiplayerService', () => {
     expect(CLOUD_BROKER_URLS.length).toBeGreaterThanOrEqual(2);
     expect(CLOUD_BROKER_URL).toBe(CLOUD_BROKER_URLS[0]);
     expect(CLOUD_BROKER_URLS[0]).toContain('wss://');
+  });
+
+  it('includes activeSpeaker and speech timer in public state', () => {
+    const mockStore: any = {
+      gamePhase: 'playing',
+      subPhase: 'day',
+      currentDay: 2,
+      livePlayers: [{ name: 'Alice', isDead: false }],
+      players: [{ name: 'Alice' }],
+      votingState: { stage: 'discussion', qualifiedDefenders: [], threshold: 0 },
+    };
+
+    const state = sanitizePublicGameState(mockStore, ['Alice'], {
+      activeSpeaker: 'Alice',
+      speakerTimeRemaining: 25,
+      isChallengeActive: true,
+    });
+
+    expect(state.activeSpeaker).toBe('Alice');
+    expect(state.speakerTimeRemaining).toBe(25);
+    expect(state.isChallengeActive).toBe(true);
   });
 });

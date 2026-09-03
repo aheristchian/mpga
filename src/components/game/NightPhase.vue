@@ -974,6 +974,16 @@ const executeNightResolution = () => {
 const startNextDay = () => {
   if (!resolution.value) return;
 
+  // Commit broken shields
+  resolution.value.brokenShields?.forEach((name) => {
+    store.breakPlayerShield(name);
+  });
+
+  // Commit converted allegiances
+  resolution.value.converted?.forEach((conv) => {
+    store.convertPlayerSide(conv.playerName, conv.newSideId, conv.reason);
+  });
+
   // Commit death changes
   resolution.value.deaths.forEach((name) => {
     store.setPlayerDeathStatus(name, true, `Killed during Night ${store.currentDay}`);

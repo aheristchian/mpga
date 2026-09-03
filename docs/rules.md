@@ -13,9 +13,9 @@ This document provides a comprehensive reference for game mechanics, faction rul
 | **Third Party (Nostradamus)** | Align with a chosen faction on Night 1 and survive/assist them. | Wins alongside whichever team (`town` or `mafia`) they pledged allegiance to on Night 1. | `text-thirdParty` (Purple / `#A855F7`) |
 
 ### Automatic Win Calculation Logic
-The calculation engine in [`src/services/useWinCondition.js`](file:///Users/ali.heristchian/Documents/learning/mpga/src/services/useWinCondition.js) evaluates live player states on every status change:
+The calculation engine in [`src/services/useWinCondition.ts`](file:///Users/ali.heristchian/Documents/learning/mpga/src/services/useWinCondition.ts) evaluates live player states on every status change:
 1. **Town Victory (`winner: 'town'`):** Triggered when `livingMafiaCount === 0 && livingTownCount > 0`.
-2. **Mafia Victory (`winner: 'mafia'`):** Triggered when `livingMafiaCount >= livingTownCount && livingMafiaCount > 0`.
+2. **Mafia Victory (`winner: 'mafia'`):** Triggered when `livingMafiaCount >= livingNonMafiaCount && livingMafiaCount > 0`, where `livingNonMafiaCount` correctly accounts for both Town and Third-Party (e.g. Nostradamus) players to prevent premature Mafia wins while independent roles are active.
 3. **Draw / Stalemate (`winner: 'draw'`):** Triggered if both living counts reach `0`.
 4. **Nostradamus Co-Victory (`nostradamusWon: true`):** If a Nostradamus is in play and their recorded Night 1 choice matches the calculated `winner`, Nostradamus is credited with a co-victory.
 5. **Match Statistics Aggregation:** When game over occurs, the engine automatically collates metrics from `gameLogs` (total Doctor saves, Detective positive hits, total eliminations, total match days, and surviving player list).
@@ -44,18 +44,18 @@ The calculation engine in [`src/services/useWinCondition.js`](file:///Users/ali.
   * *Rules:* Target must be currently dead. The revived player re-enters as an active living player.
 * **Leon / Vigilante (`leon`)**
   * *Active Ability (`vigillante-shot`):* Can take a night shot to eliminate a suspected Mafia player.
-  * *Rules & Penalty:* High risk. If Leon targets an innocent Town citizen, Leon dies from guilt at sunrise while the innocent citizen survives unharmed. If Leon targets a Mafia player, the Mafia member is eliminated. Leon cannot target themselves.
+  * *Rules & Penalty:* High risk. If Leon targets an innocent Town citizen, Leon dies from guilt at sunrise while the innocent citizen survives unharmed. Under Iranian Mafia tournament rules, **Leon's guilt penalty is absolute and unpreventable** — a Doctor cannot save Leon from guilt death. If Leon targets a Mafia player, the Mafia member is eliminated. Leon cannot target themselves.
 
 ### Mafia Faction (`sideId: 'mafia'`)
 
 * **Godfather (`godfather`)**
   * *Active Ability (`mafia-shot`):* Directs the Mafia's deadly night shot. Cannot target themselves.
-  * *Passive Ability (`shield`):* Possesses a bulletproof shield that absorbs one night shot before breaking.
+  * *Passive Ability (`shield`):* Possesses a single-use bulletproof shield. Upon taking a deadly night shot, the shield absorbs the attack and shatters (`isShieldBroken = true`). On all subsequent nights, the Godfather's shield is broken and they are vulnerable to lethal shots.
 * **Matador (`matador`)**
   * *Active Ability (`block`):* Blocks one player per night, preventing them from using their active night ability. Cannot target themselves.
   * *Rules:* If the Matador blocks a Doctor, Detective, or Vigilante, their action for that night fails.
 * **Saul Goodman (`saul-goodman`)**
-  * *Active Ability (`buy`):* Can bribe or influence players, creating strategic advantages for the Mafia. Cannot target themselves.
+  * *Active Ability (`buy`):* Can bribe or recruit players. In Iranian Mafia tournament rules, if Saul Goodman buys a simple **Citizen (`citizen`)**, that citizen is corrupted and permanently converts to the Mafia team (`sideId: 'mafia'`). If used on roles other than simple Citizen, the bribe fails to recruit. Cannot target themselves.
 * **Mafia Grunt (`mafia`)**
   * *Description:* Regular Mafia member who participates in team deliberations and voting during the day.
   * *Night 1 Familiarization:* On Night 1, all Mafia members wake up together silently to recognize their teammates.

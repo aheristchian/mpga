@@ -274,7 +274,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useGameStore } from '../../stores/gameStore';
 import { useMultiplayer } from '../../services/useMultiplayerService';
@@ -310,7 +310,8 @@ const currentDay = computed(() => {
 
 const livePlayersList = computed(() => {
   if (isRemoteSpectator.value) {
-    return multiplayer.clientPublicState.value?.livePlayers || [];
+    const pub = multiplayer.clientPublicState.value;
+    return pub?.allPlayers || pub?.livingPlayers || [];
   }
   return store.livePlayers;
 });
@@ -324,6 +325,9 @@ const totalPlayersCount = computed(() => {
 });
 
 const eliminatedPlayer = computed(() => {
+  if (isRemoteSpectator.value) {
+    return multiplayer.clientPublicState.value?.eliminatedPlayer || null;
+  }
   return store.eliminatedPlayer;
 });
 
@@ -344,10 +348,27 @@ const winner = computed(() => {
 const isTownWin = computed(() => winner.value === 'town');
 const isMafiaWin = computed(() => winner.value === 'mafia');
 
-// Speaker & Timer placeholder for local or remote sync
-const activeSpeakerName = ref('');
-const isChallengeActive = ref(false);
-const remainingSeconds = ref(40);
+// Speaker & Timer synced from store or remote public state
+const activeSpeakerName = computed(() => {
+  if (isRemoteSpectator.value) {
+    return multiplayer.clientPublicState.value?.activeSpeaker || '';
+  }
+  return store.activeSpeaker || '';
+});
+
+const isChallengeActive = computed(() => {
+  if (isRemoteSpectator.value) {
+    return multiplayer.clientPublicState.value?.isChallengeActive || false;
+  }
+  return store.isChallengeActive || false;
+});
+
+const remainingSeconds = computed(() => {
+  if (isRemoteSpectator.value) {
+    return multiplayer.clientPublicState.value?.speakerTimeRemaining ?? 0;
+  }
+  return store.speakerTimeRemaining ?? 0;
+});
 
 const formattedTimer = computed(() => {
   const mins = Math.floor(remainingSeconds.value / 60);
@@ -429,4 +450,14 @@ const toggleFullscreen = () => {
     document.exitFullscreen().catch(() => {});
   }
 };
+
+onMounted(() => {
+  if (typeof window !== 'undefined') {
+    const params = new URLSearchParams(window.location.search);
+    const room = params.get('room');
+    if (room && !multiplayer.isHost.value && !multiplayer.isClient.value) {
+      multiplayer.joinRoom(room, 'Projector TV');
+    }
+  }
+});
 </script>

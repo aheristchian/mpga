@@ -191,7 +191,13 @@ export const mockAbilities: Ability[] = [
     typeKey: 'roleGuide.types.revive',
     typeColor: 'emerald',
     chargesKey: 'roleGuide.charges.onePerGame',
-    target: { selfAllowed: false, othersCount: 1, phaseLimit: 1, livingOnly: false, deadOnly: true },
+    target: {
+      selfAllowed: false,
+      othersCount: 1,
+      phaseLimit: 1,
+      livingOnly: false,
+      deadOnly: true,
+    },
   },
   {
     id: 'deduction',

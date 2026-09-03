@@ -201,7 +201,8 @@
                   <span
                     class="text-base shrink-0"
                     :class="{ 'animate-pulse text-purple-400': audio.isPlayingMusic.value }"
-                  >🎵</span>
+                    >🎵</span
+                  >
                   <div class="flex flex-col items-start min-w-0 text-start">
                     <span class="font-bold">{{ $t('app.musicConsole') }}</span>
                     <span class="text-[10px] text-purple-300/70 truncate max-w-[170px]">
@@ -425,6 +426,7 @@ import SoundtrackConsole from './components/SoundtrackConsole.vue';
 import GameGuideModal from './components/GameGuideModal.vue';
 import { evaluateGameStatus } from './services/useWinCondition';
 import { getMpgaLogo } from './data/modeIllustrations';
+import { fisherYatesShuffle } from './utils/shuffle';
 
 const store = useGameStore();
 const audio = useAudio();
@@ -580,7 +582,7 @@ const handlePlayersReady = (playersArray) => {
 };
 
 const handleRolesConfirmed = (selectedRoles) => {
-  const shuffledRoles = [...selectedRoles].sort(() => Math.random() - 0.5);
+  const shuffledRoles = fisherYatesShuffle(selectedRoles);
   const playersWithRoles = store.players.map((player, index) => {
     return {
       ...player,

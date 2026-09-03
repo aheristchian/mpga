@@ -33,9 +33,6 @@ export function useGameService() {
     error.value = null;
 
     try {
-      // Simulate network delay to see loading states
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
       roles.value = mockRoles;
       sides.value = mockSides;
       abilities.value = mockAbilities;

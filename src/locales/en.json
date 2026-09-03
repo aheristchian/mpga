@@ -154,6 +154,8 @@
     "currentPlayers": "Seating Order Roster",
     "orderBySeating": "Drag to arrange physical table seating",
     "remove": "Remove",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
     "noPlayers": "No players added yet.",
     "done": "Proceed to Role Selection",
     "needMore": "Need at least {min} players to start."

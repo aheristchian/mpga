@@ -28,7 +28,7 @@ const playlists = ref<SoundtrackPlaylists>(JSON.parse(JSON.stringify(soundtrackC
 // Audio Elements & Web Audio Context
 let audioCtx: AudioContext | null = null;
 let currentAudioEl: HTMLAudioElement | null = null;
-let activeFaders: (ReturnType<typeof setInterval>)[] = [];
+let activeFaders: ReturnType<typeof setInterval>[] = [];
 
 function clearAllFaders() {
   activeFaders.forEach((timer) => clearInterval(timer));
@@ -395,7 +395,8 @@ export function useAudio() {
   };
 
   const nextTrack = () => {
-    const playlistGroup = (playlists.value as Record<string, SoundtrackTrack[]>)[activePhase.value] || [];
+    const playlistGroup =
+      (playlists.value as Record<string, SoundtrackTrack[]>)[activePhase.value] || [];
     const list = playlistGroup.filter((t) => Boolean(t.url) && !t.url.endsWith('_'));
     if (list.length === 0) return;
 
@@ -408,7 +409,8 @@ export function useAudio() {
   };
 
   const previousTrack = () => {
-    const playlistGroup = (playlists.value as Record<string, SoundtrackTrack[]>)[activePhase.value] || [];
+    const playlistGroup =
+      (playlists.value as Record<string, SoundtrackTrack[]>)[activePhase.value] || [];
     const list = playlistGroup.filter((t) => Boolean(t.url) && !t.url.endsWith('_'));
     if (list.length === 0) return;
 

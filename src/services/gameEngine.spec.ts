@@ -104,7 +104,7 @@ describe('Game Engine - resolveNight', () => {
     expect(result.log.some((l) => l.includes('[LEON_PENALTY]'))).toBe(true);
   });
 
-  it('should save a player if they have a passive shield', () => {
+  it('should save a player if they have a passive shield and mark the shield broken', () => {
     const players: Player[] = [
       createMockPlayer('GodfatherPlayer', 'mafia-shot', [], 'mafia'),
       createMockPlayer('ShieldedPlayer', null, ['shield'], 'town'),
@@ -116,7 +116,55 @@ describe('Game Engine - resolveNight', () => {
     const result = resolveNight(players, actionMap);
 
     expect(result.deaths).not.toContain('ShieldedPlayer');
+    expect(result.brokenShields).toContain('ShieldedPlayer');
     expect(result.log.some((l) => l.includes('their shield saved them'))).toBe(true);
+    expect(result.log.some((l) => l.includes('[SHIELD_BROKEN]'))).toBe(true);
+
+    // If shot again with broken shield, player dies
+    const playersRound2: Player[] = [
+      createMockPlayer('GodfatherPlayer', 'mafia-shot', [], 'mafia'),
+      {
+        ...createMockPlayer('ShieldedPlayer', null, ['shield'], 'town'),
+        isShieldBroken: true,
+      },
+    ];
+    const result2 = resolveNight(playersRound2, actionMap);
+    expect(result2.deaths).toContain('ShieldedPlayer');
+  });
+
+  it('should not allow Doctor to save Leon from guilt penalty death', () => {
+    const players: Player[] = [
+      createMockPlayer('VigilanteLeon', 'vigillante-shot', [], 'town'),
+      createMockPlayer('InnocentCitizen', null, [], 'town'),
+      createMockPlayer('DoctorPlayer', 'treat', [], 'town'),
+    ];
+    const actionMap = {
+      VigilanteLeon: 'InnocentCitizen',
+      DoctorPlayer: 'VigilanteLeon', // Doctor tries to save Leon
+    };
+
+    const result = resolveNight(players, actionMap);
+
+    // Leon must still die despite Doctor treatment
+    expect(result.deaths).toContain('VigilanteLeon');
+    expect(result.log.some((l) => l.includes('[LEON_PENALTY]'))).toBe(true);
+  });
+
+  it('should recruit innocent town citizen into Mafia via Saul Goodman buy ability', () => {
+    const players: Player[] = [
+      createMockPlayer('SaulGoodman', 'buy', [], 'mafia'),
+      createMockPlayer('TargetCitizen', null, [], 'town'),
+    ];
+    const actionMap = {
+      SaulGoodman: { target: 'TargetCitizen', actionId: 'buy' },
+    };
+
+    const result = resolveNight(players, actionMap);
+
+    expect(result.converted).toHaveLength(1);
+    expect(result.converted[0].playerName).toBe('TargetCitizen');
+    expect(result.converted[0].newSideId).toBe('mafia');
+    expect(result.log.some((l) => l.includes('[BRIBE]'))).toBe(true);
   });
 
   it('should correctly process investigations', () => {

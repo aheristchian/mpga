@@ -16,6 +16,20 @@ export const saveEncoded = <T>(key: string, data: T): void => {
 };
 
 /**
+ * Checks if a saved cache version is compatible with the running app version.
+ * Compatible as long as the major version matches (e.g. 2.0.0 is compatible with 2.0.1 or 2.1.0).
+ */
+export const isVersionCompatible = (
+  savedVersion?: string,
+  currentVersion: string = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.0.0'
+): boolean => {
+  if (!savedVersion || typeof savedVersion !== 'string') return false;
+  const savedMajor = savedVersion.split('.')[0];
+  const currentMajor = currentVersion.split('.')[0];
+  return Boolean(savedMajor && currentMajor && savedMajor === currentMajor);
+};
+
+/**
  * Utility to load and decode data from localStorage.
  */
 export const loadEncoded = <T = any>(key: string): T | null => {
@@ -25,8 +39,8 @@ export const loadEncoded = <T = any>(key: string): T | null => {
     const decoded = decodeURIComponent(atob(encoded));
     const parsed = JSON.parse(decoded);
 
-    // If the data doesn't have our version wrapper, or the version doesn't match, clear it
-    if (!parsed || parsed.v !== __APP_VERSION__ || parsed.d === undefined) {
+    // If the data doesn't have our version wrapper, or major version doesn't match, clear it
+    if (!parsed || !isVersionCompatible(parsed.v) || parsed.d === undefined) {
       console.warn(`Version mismatch or invalid data for key: ${key}. Clearing cache.`);
       localStorage.removeItem(key);
       return null;
@@ -45,10 +59,24 @@ export const loadEncoded = <T = any>(key: string): T | null => {
  * Utility to clear all game-related storage keys.
  */
 export const clearGameStorage = (): void => {
-  const keys = Object.keys(localStorage);
-  keys.forEach((key) => {
-    if (key.startsWith('mpga_')) {
-      localStorage.removeItem(key);
+  if (typeof localStorage === 'undefined') return;
+  const keysToRemove: string[] = [];
+  const len = localStorage.length || 0;
+  for (let i = 0; i < len; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith('mpga_')) {
+      keysToRemove.push(key);
     }
-  });
+  }
+  // Check Object.keys as fallback
+  try {
+    Object.keys(localStorage).forEach((key) => {
+      if (key.startsWith('mpga_') && !keysToRemove.includes(key)) {
+        keysToRemove.push(key);
+      }
+    });
+  } catch {
+    // ignore
+  }
+  keysToRemove.forEach((key) => localStorage.removeItem(key));
 };

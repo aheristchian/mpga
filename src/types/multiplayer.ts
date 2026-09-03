@@ -33,10 +33,16 @@ export interface ClientPublicState {
   currentDay: number;
   livingPlayers: PublicPlayerInfo[];
   allPlayers: PublicPlayerInfo[];
-  setupPlayers: string[];
+  setupPlayers: any[];
+  claimedPlayers?: string[];
+  eliminatedPlayer?: { name: string; role?: string } | null;
+  drawnLastWordCards?: any[];
   isGameOver: boolean;
   winner: string | null;
   votingState?: any;
+  activeSpeaker?: string | null;
+  speakerTimeRemaining?: number;
+  isChallengeActive?: boolean;
 }
 
 export interface MultiplayerPacket {

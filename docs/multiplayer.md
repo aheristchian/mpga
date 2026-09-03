@@ -70,12 +70,13 @@ sequenceDiagram
     Host->>Player: Broadcasts current lobby state (GET_STATE response)
 ```
 
-1. **Room Codes:** 4 to 6 character alphanumeric uppercase codes (e.g., `9N8J`, `7842`).
+1. **High-Entropy Room Codes:** 6-character alphanumeric uppercase codes generated from a 32-character unambiguous alphabet ($32^6 \approx 1,073,741,824$ unique combinations), mathematically eliminating online collision and brute-force risks.
 2. **Room PIN / Passcode:** An optional 4 to 8 character passcode configured by the moderator to prevent unauthorized room joins.
 3. **URL Parameter Schema:**
    * `?join=ROOM_CODE` — Room code to connect to.
    * `&pin=PASSCODE` — Pre-filled room PIN.
    * `&t=cloud` or `&t=webrtc` — Desired transport engine.
+   * `?view=projector&room=ROOM_CODE` — Auto-connects a display as an audience/TV projector scoreboard.
 
 ---
 
@@ -99,24 +100,30 @@ All messages exchanged between clients and the host are serialized JSON envelope
 | `GET_STATE` | Client $\to$ Host | Requests immediate broadcast of public state and setup roster upon initial connect. |
 | `JOIN_LOBBY` | Client $\to$ Host | Player display name and passcode for registration in the pre-game lobby. |
 | `CLAIM_SEAT` | Client $\to$ Host | Binds device peer ID to an existing seated player name. |
-| `SYNC_FULL_STATE` | Host $\to$ Client | Broadcasts current phase, living player roster, day count, and public game status. |
+| `SYNC_FULL_STATE` | Host $\to$ Client | Broadcasts current phase, living player roster, day count, speaker status, and public game status. |
 | `ASSIGN_ROLE` | Host $\to$ Client | Direct private message delivering secret role details and abilities to a specific player. |
-| `NIGHT_ACTION` | Client $\to$ Host | Submits secret night target (e.g., Doctor heal, Mafia shot, Detective inquiry). |
-| `CAST_VOTE` | Client $\to$ Host | Submits vote against a candidate during the voting subphase (`voteType`: `'pre'` or `'final'`). Validated and deduplicated on host. |
+| `NIGHT_ACTION` | Client $\to$ Host | Submits secret night target (e.g., Doctor heal, Mafia shot, Detective inquiry). Authenticated against registered peer ID. |
+| `CAST_VOTE` | Client $\to$ Host | Submits vote against a candidate during the voting subphase (`voteType`: `'pre'` or `'final'`). Authenticated against registered peer ID and deduplicated on host. |
 | `CHALLENGE_REQUEST` | Client $\to$ Host | Requests challenge speaking time from the active day speaker. |
 | `PING` / `PONG` | Both | Lightweight keep-alive and network roundtrip latency measurement. |
 
 ---
 
-## 4. Privacy & Anti-Cheating Architecture
+## 4. Privacy, Cryptography & Anti-Cheating Architecture
 
-1. **Client-Side Obfuscation & Encrypted Local Storage:**
+1. **Web Crypto AES-GCM Payload Encryption (`src/utils/crypto.ts`):**
+   * Private player role cards and personal identities (`data.player`) transmitted across public brokers or peer channels are encrypted end-to-end using the Web Crypto API standard AES-GCM (256-bit key derived via SHA-256 over `${roomCode}:${roomPasscode}`).
+   * Each transmission generates a cryptographically secure random 12-byte initialization vector (`iv`), preventing replay attacks and eavesdropping over unauthenticated public MQTT relays.
+2. **Host-Side Sender Authentication & Anti-Spoofing:**
+   * Both Cloud (MQTT) and WebRTC host incoming message dispatchers verify that incoming `NIGHT_ACTION` (`actorName`) and `CAST_VOTE` (`voterName`) originate strictly from the peer registered for that specific player.
+   * Any packet claiming to submit an action or ballot on behalf of another seated player is immediately rejected with a security alert.
+3. **Client-Side Obfuscation & Encrypted Local Storage:**
    * Secret roles are never embedded in the public broadcast payload (`SYNC_FULL_STATE`).
    * The host sends role payloads individually via direct private messages (`ASSIGN_ROLE`).
-2. **Tap-to-Reveal Privacy Blur:**
+4. **Tap-to-Reveal Privacy Blur:**
    * Player screens initialize with an opaque frosted privacy shield (`🔒 Tap to Reveal Role`).
    * Players can tap once to inspect their secret role and tap again to immediately re-hide it from bystanders.
-3. **Cryptographic & Ballot-Level Vote Deduplication:**
+5. **Cryptographic & Ballot-Level Vote Deduplication:**
    * Voters cannot cast multiple votes or inflate counts by network packet spamming.
    * **Pre-Vote Stage:** Enforces at most 1 toggleable vote per candidate (`togglePreVote`). Voters cannot vote for themselves.
    * **Final Vote Stage:** Enforces at most 1 vote total across all defenders (`castFinalVote`), switching choices or retracting cleanly.
