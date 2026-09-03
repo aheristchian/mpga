@@ -214,23 +214,70 @@
         </div>
       </div>
 
-      <!-- TAB 2: MANUAL QUICK ADD FORM -->
-      <form v-else class="flex gap-2" @submit.prevent="addPlayer">
-        <input
-          ref="playerInputRef"
-          v-model="newPlayerName"
-          type="text"
-          :placeholder="$t('playerEntry.placeholder')"
-          class="flex-1 min-w-0 bg-gray-700 text-white px-3.5 sm:px-4 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all min-h-[44px] text-sm"
-        />
-        <button
-          type="submit"
-          class="bg-blue-600 hover:bg-blue-500 active:scale-95 active:brightness-90 text-white px-4 sm:px-5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer min-h-[44px] select-none whitespace-nowrap shrink-0 shadow-md shadow-blue-600/30 flex items-center justify-center gap-1.5"
+      <!-- TAB 2: MANUAL QUICK ADD FORM & RECENT PLAYER SUGGESTIONS -->
+      <div v-else class="space-y-3">
+        <form class="flex gap-2" @submit.prevent="addPlayer">
+          <input
+            ref="playerInputRef"
+            v-model="newPlayerName"
+            type="text"
+            :placeholder="$t('playerEntry.placeholder')"
+            class="flex-1 min-w-0 bg-gray-700/90 text-white placeholder-gray-400 px-3.5 sm:px-4 py-2.5 rounded-xl border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all min-h-[44px] text-sm"
+            @input="handleInput"
+          />
+          <button
+            type="submit"
+            class="active:scale-95 text-white px-4 sm:px-5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer min-h-[44px] select-none whitespace-nowrap shrink-0 flex items-center justify-center gap-1.5 border border-blue-400/40"
+            :class="
+              newPlayerName.trim()
+                ? 'bg-gradient-to-r from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/40 ring-2 ring-blue-400/50'
+                : 'bg-gradient-to-r from-blue-600 to-indigo-700 shadow-md shadow-blue-600/30'
+            "
+          >
+            <span class="text-base leading-none">➕</span>
+            <span>{{ $t('playerEntry.add') }}</span>
+          </button>
+        </form>
+
+        <!-- RECENT PLAYERS QUICK SUGGESTIONS -->
+        <div
+          v-if="availableSuggestions.length > 0"
+          class="bg-gray-900/60 p-3 rounded-xl border border-gray-700/60 space-y-2"
         >
-          <span class="text-base leading-none">➕</span>
-          <span>{{ $t('playerEntry.add') }}</span>
-        </button>
-      </form>
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-gray-300 flex items-center gap-1.5">
+              <span>⚡</span>
+              <span>{{ $t('playerEntry.quickSuggestions') }}</span>
+            </span>
+            <div class="flex items-center gap-2">
+              <span class="text-[11px] text-gray-400 hidden sm:inline">
+                {{ $t('playerEntry.tapToAdd') }}
+              </span>
+              <button
+                type="button"
+                class="text-[10px] text-gray-400 hover:text-red-400 underline transition-colors cursor-pointer"
+                @click="handleClearRecent"
+              >
+                {{ $t('playerEntry.clearRecent') }}
+              </button>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto pr-0.5">
+            <button
+              v-for="name in availableSuggestions"
+              :key="name"
+              type="button"
+              class="bg-gray-800 hover:bg-blue-600/30 active:scale-95 border border-gray-700 hover:border-blue-500/60 text-gray-200 hover:text-white px-2.5 py-1 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 shadow-sm cursor-pointer select-none"
+              @click="addSuggestedPlayer(name)"
+            >
+              <span class="text-xs text-gray-400">👤</span>
+              <span>{{ name }}</span>
+              <span class="text-blue-400 text-xs font-bold leading-none">➕</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- SEATED PLAYERS ROSTER -->
@@ -346,7 +393,13 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useGameStore } from '../stores/gameStore';
 import { useMultiplayer } from '../services/useMultiplayerService';
-import { saveEncoded, loadEncoded } from '../utils/storage';
+import {
+  saveEncoded,
+  loadEncoded,
+  getRecentPlayers,
+  saveRecentPlayer,
+  clearRecentPlayers,
+} from '../utils/storage';
 import QrcodeVue from 'qrcode.vue';
 
 defineProps({
@@ -366,6 +419,17 @@ const playerInputRef = ref<HTMLInputElement | null>(null);
 const passcodeInput = ref(multiplayer.roomPasscode.value || '');
 const copied = ref(false);
 
+const recentPlayerNames = ref<string[]>([]);
+
+const refreshRecentPlayers = () => {
+  recentPlayerNames.value = getRecentPlayers();
+};
+
+const handleInput = (e: Event) => {
+  const target = e.target as HTMLInputElement;
+  newPlayerName.value = target.value;
+};
+
 const players = computed({
   get: () => store.players,
   set: (val) => {
@@ -374,6 +438,21 @@ const players = computed({
 });
 
 onMounted(() => {
+  refreshRecentPlayers();
+  if (recentPlayerNames.value.length === 0) {
+    const fallbackNames = new Set<string>();
+    store.livePlayers.forEach((p) => {
+      if (p.name?.trim()) fallbackNames.add(p.name.trim());
+    });
+    store.players.forEach((p) => {
+      if (p.name?.trim()) fallbackNames.add(p.name.trim());
+    });
+    if (fallbackNames.size > 0) {
+      fallbackNames.forEach((n) => saveRecentPlayer(n));
+      refreshRecentPlayers();
+    }
+  }
+
   const savedPlayers = loadEncoded('mpga_setup_players');
   if (
     savedPlayers &&
@@ -436,13 +515,43 @@ const isPeerConnected = (playerName) => {
 const draggedIndex = ref(null);
 const dropTargetIndex = ref(null);
 
+const availableSuggestions = computed(() => {
+  const seatedSet = new Set(store.players.map((p) => p.name.trim().toLowerCase()));
+  const query = newPlayerName.value.trim().toLowerCase();
+
+  return recentPlayerNames.value
+    .filter((name) => !seatedSet.has(name.toLowerCase()))
+    .filter((name) => {
+      if (!query) return true;
+      return name.toLowerCase().includes(query);
+    })
+    .slice(0, 16);
+});
+
 const addPlayer = () => {
-  const name = newPlayerName.value.trim();
+  const inputEl = playerInputRef.value;
+  const rawValue = inputEl ? inputEl.value : newPlayerName.value;
+  const name = (rawValue || newPlayerName.value).trim();
   if (name) {
     store.addSetupPlayer(name);
     newPlayerName.value = '';
+    if (inputEl) {
+      inputEl.value = '';
+    }
+    refreshRecentPlayers();
   }
+  inputEl?.focus();
+};
+
+const addSuggestedPlayer = (name: string) => {
+  store.addSetupPlayer(name);
+  refreshRecentPlayers();
   playerInputRef.value?.focus();
+};
+
+const handleClearRecent = () => {
+  clearRecentPlayers();
+  refreshRecentPlayers();
 };
 
 const removePlayer = (index) => {

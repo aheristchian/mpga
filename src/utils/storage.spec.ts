@@ -1,5 +1,13 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { saveEncoded, loadEncoded, clearGameStorage, isVersionCompatible } from './storage';
+import {
+  saveEncoded,
+  loadEncoded,
+  clearGameStorage,
+  isVersionCompatible,
+  saveRecentPlayer,
+  getRecentPlayers,
+  clearRecentPlayers,
+} from './storage';
 
 // Mock localStorage for node test runner
 const storageMock = (() => {
@@ -84,5 +92,23 @@ describe('storage utility', () => {
     expect(loadEncoded('mpga_key1')).toBeNull();
     expect(loadEncoded('mpga_key2')).toBeNull();
     expect(localStorage.getItem('other_key')).toBe('keep_me');
+  });
+
+  it('preserves recent players on clearGameStorage by default and manages recent player list', () => {
+    saveRecentPlayer('Alice');
+    saveRecentPlayer('Bob');
+    saveRecentPlayer('Alice'); // duplicate should move to front
+
+    const recents = getRecentPlayers();
+    expect(recents).toEqual(['Alice', 'Bob']);
+
+    saveEncoded('mpga_temp', 'data');
+    clearGameStorage(true);
+
+    expect(loadEncoded('mpga_temp')).toBeNull();
+    expect(getRecentPlayers()).toEqual(['Alice', 'Bob']);
+
+    clearRecentPlayers();
+    expect(getRecentPlayers()).toEqual([]);
   });
 });

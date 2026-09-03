@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { loadEncoded, saveEncoded, clearGameStorage } from '../utils/storage';
+import { loadEncoded, saveEncoded, clearGameStorage, saveRecentPlayer } from '../utils/storage';
 import { mockLastWordCards } from '../data/lastWordCards';
 import { evaluateGameStatus } from '../services/useWinCondition';
 import type {
@@ -226,6 +226,7 @@ export const useGameStore = defineStore('game', () => {
   const setPlayers = (newPlayers: Player[]) => {
     players.value = newPlayers;
     gamePhase.value = 'role-selection';
+    newPlayers.forEach((p) => saveRecentPlayer(p.name));
     addLog('system', 'Players Registered', `${newPlayers.length} players added in seated order.`);
   };
 
@@ -235,6 +236,7 @@ export const useGameStore = defineStore('game', () => {
     const exists = players.value.some((p) => p.name.toLowerCase() === trimmed.toLowerCase());
     if (exists) return false;
     players.value.push({ name: trimmed, role: null, peerId });
+    saveRecentPlayer(trimmed);
     addLog('system', 'Player Joined Lobby', `${trimmed} joined the lobby.`);
     return true;
   };
@@ -262,6 +264,7 @@ export const useGameStore = defineStore('game', () => {
 
   const startPlaying = (playersWithRoles: Player[]) => {
     players.value = playersWithRoles;
+    playersWithRoles.forEach((p) => saveRecentPlayer(p.name));
     livePlayers.value = playersWithRoles.map((p) => ({
       ...p,
       isDead: false,

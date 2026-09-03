@@ -58,13 +58,16 @@ export const loadEncoded = <T = any>(key: string): T | null => {
 /**
  * Utility to clear all game-related storage keys.
  */
-export const clearGameStorage = (): void => {
+export const clearGameStorage = (preserveHistory = true): void => {
   if (typeof localStorage === 'undefined') return;
   const keysToRemove: string[] = [];
   const len = localStorage.length || 0;
   for (let i = 0; i < len; i++) {
     const key = localStorage.key(i);
     if (key && key.startsWith('mpga_')) {
+      if (preserveHistory && key === 'mpga_recent_players') {
+        continue;
+      }
       keysToRemove.push(key);
     }
   }
@@ -72,6 +75,9 @@ export const clearGameStorage = (): void => {
   try {
     Object.keys(localStorage).forEach((key) => {
       if (key.startsWith('mpga_') && !keysToRemove.includes(key)) {
+        if (preserveHistory && key === 'mpga_recent_players') {
+          return;
+        }
         keysToRemove.push(key);
       }
     });
@@ -80,3 +86,38 @@ export const clearGameStorage = (): void => {
   }
   keysToRemove.forEach((key) => localStorage.removeItem(key));
 };
+
+/**
+ * Utility to save a player name to the persistent history of recent players.
+ * Keeps up to 30 unique recent players, sorted most recent first.
+ */
+export const saveRecentPlayer = (name: string): void => {
+  if (!name || typeof name !== 'string') return;
+  const trimmed = name.trim();
+  if (!trimmed) return;
+  try {
+    const existing = loadEncoded<string[]>('mpga_recent_players') || [];
+    const filtered = existing.filter((n) => n.toLowerCase() !== trimmed.toLowerCase());
+    const updated = [trimmed, ...filtered].slice(0, 30);
+    saveEncoded('mpga_recent_players', updated);
+  } catch (e) {
+    console.error('Failed to save recent player:', e);
+  }
+};
+
+/**
+ * Utility to load the list of recent player names.
+ */
+export const getRecentPlayers = (): string[] => {
+  return loadEncoded<string[]>('mpga_recent_players') || [];
+};
+
+/**
+ * Utility to clear the recent player names history.
+ */
+export const clearRecentPlayers = (): void => {
+  if (typeof localStorage !== 'undefined') {
+    localStorage.removeItem('mpga_recent_players');
+  }
+};
+

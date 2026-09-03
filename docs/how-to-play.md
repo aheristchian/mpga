@@ -51,6 +51,7 @@ stateDiagram-v2
   * Once all players are in, the moderator clicks **Proceed to Role Selection**. When the game starts, all connected devices in the lobby automatically receive their secret role assignments.
 * **⌨️ Manual Entry Mode:**
   * For offline games without player phones, the moderator types player names manually or loads demo rosters.
+  * **Quick Player Suggestions:** Players from previous matches are automatically remembered in persistent storage and suggested directly beneath the name input as one-tap chips (`⚡ Previous Players`), complete with live search filtering so returning groups can be rostered in seconds.
   * Drag-and-drop or tap the Up/Down (▲/▼) buttons to match circular seating in the room.
 
 ### Step 3: Role Selection & Balancing
