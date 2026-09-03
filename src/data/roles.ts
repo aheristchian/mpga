@@ -3,7 +3,10 @@ import type { Role } from '../types';
 export const mockRoles: Role[] = [
   {
     id: 'godfather',
+    name: 'Godfather',
     nameKey: 'roles.godfather.name',
+    description:
+      'Leader of the Mafia. Bulletproof at night against one fatal attack, and appears innocent to Detective inquiries.',
     descriptionKey: 'roles.godfather.description',
     tacticsKey: 'roleGuide.tactics.godfather',
     badgeKey: 'roleGuide.factions.mafiaLeader',
@@ -19,7 +22,10 @@ export const mockRoles: Role[] = [
   },
   {
     id: 'matador',
+    name: 'Matador',
     nameKey: 'roles.matador.name',
+    description:
+      'Mafia enforcer who blocks one player each night, preventing them from using their ability.',
     descriptionKey: 'roles.matador.description',
     tacticsKey: 'roleGuide.tactics.matador',
     badgeKey: 'roleGuide.factions.mafiaEnforcer',
@@ -34,7 +40,10 @@ export const mockRoles: Role[] = [
   },
   {
     id: 'saul-goodman',
+    name: 'Saul Goodman',
     nameKey: 'roles.saul-goodman.name',
+    description:
+      'Corrupt attorney who can buy a citizen without a role into the Mafia organization under specific tournament rules.',
     descriptionKey: 'roles.saul-goodman.description',
     tacticsKey: 'roleGuide.tactics.saulGoodman',
     badgeKey: 'roleGuide.factions.mafiaSupport',
@@ -49,7 +58,10 @@ export const mockRoles: Role[] = [
   },
   {
     id: 'mafia',
+    name: 'Mafia',
     nameKey: 'roles.mafia.name',
+    description:
+      'Simple Mafia member who coordinates night shots with the team to eliminate the town.',
     descriptionKey: 'roles.mafia.description',
     tacticsKey: 'roleGuide.tactics.mafia',
     badgeKey: 'roleGuide.factions.mafiaMember',
@@ -64,7 +76,10 @@ export const mockRoles: Role[] = [
   },
   {
     id: 'doctor',
+    name: 'Doctor',
     nameKey: 'roles.doctor.name',
+    description:
+      'Can heal one player each night (including themselves) to protect them from fatal shots.',
     descriptionKey: 'roles.doctor.description',
     tacticsKey: 'roleGuide.tactics.doctor',
     badgeKey: 'roleGuide.factions.townProtector',
@@ -79,7 +94,10 @@ export const mockRoles: Role[] = [
   },
   {
     id: 'detective',
+    name: 'Detective',
     nameKey: 'roles.detective.name',
+    description:
+      'Can investigate one player each night to determine if they belong to the Mafia (Godfather appears innocent).',
     descriptionKey: 'roles.detective.description',
     tacticsKey: 'roleGuide.tactics.detective',
     badgeKey: 'roleGuide.factions.townInvestigator',
@@ -94,7 +112,10 @@ export const mockRoles: Role[] = [
   },
   {
     id: 'citizen',
+    name: 'Citizen',
     nameKey: 'roles.citizen.name',
+    description:
+      'Regular member of the Town. Must deduce and vote out Mafia members during the Day phase.',
     descriptionKey: 'roles.citizen.description',
     tacticsKey: 'roleGuide.tactics.citizen',
     badgeKey: 'roleGuide.factions.townCitizen',
@@ -109,7 +130,10 @@ export const mockRoles: Role[] = [
   },
   {
     id: 'nostradamus',
+    name: 'Nostradamus',
     nameKey: 'roles.nostradamus.name',
+    description:
+      'Neutral prophet. Inquires about 3 players on Night 1 to discover how many are Mafia, and chooses to side with Town or Mafia to win.',
     descriptionKey: 'roles.nostradamus.description',
     tacticsKey: 'roleGuide.tactics.nostradamus',
     badgeKey: 'roleGuide.factions.neutralProphet',
@@ -124,7 +148,10 @@ export const mockRoles: Role[] = [
   },
   {
     id: 'constantine',
+    name: 'Constantine',
     nameKey: 'roles.constantine.name',
+    description:
+      'Has the one-time power to revive an eliminated player from the dead back into the game.',
     descriptionKey: 'roles.constantine.description',
     tacticsKey: 'roleGuide.tactics.constantine',
     badgeKey: 'roleGuide.factions.townMystic',
@@ -139,7 +166,10 @@ export const mockRoles: Role[] = [
   },
   {
     id: 'leon',
+    name: 'Leon (Vigilante)',
     nameKey: 'roles.leon.name',
+    description:
+      'Town sniper who can eliminate suspects at night. If Leon shoots an innocent citizen, Leon dies from penalty/guilt!',
     descriptionKey: 'roles.leon.description',
     tacticsKey: 'roleGuide.tactics.leon',
     badgeKey: 'roleGuide.factions.townVigilante',
@@ -154,7 +184,10 @@ export const mockRoles: Role[] = [
   },
   {
     id: 'zodiac',
+    name: 'Zodiac',
     nameKey: 'roles.zodiac.name',
+    description:
+      'Solo independent assassin equipped with an armored bulletproof vest and a lethal night shot. Appears innocent to Detective inquiries. Wins by outlasting both Town and Mafia.',
     descriptionKey: 'roles.zodiac.description',
     tacticsKey: 'roleGuide.tactics.zodiac',
     badgeKey: 'roleGuide.factions.independentKiller',
@@ -170,7 +203,10 @@ export const mockRoles: Role[] = [
   },
   {
     id: 'bodyguard',
+    name: 'Bodyguard',
     nameKey: 'roles.bodyguard.name',
+    description:
+      'Loyal town protector who guards one player each night from deadly shots. Has one personal shield protecting against death.',
     descriptionKey: 'roles.bodyguard.description',
     tacticsKey: 'roleGuide.tactics.bodyguard',
     badgeKey: 'roleGuide.factions.townDefender',
@@ -185,7 +221,10 @@ export const mockRoles: Role[] = [
   },
   {
     id: 'silencer',
+    name: 'Silencer',
     nameKey: 'roles.silencer.name',
+    description:
+      'Feared Mafia operative who silences one target player each night, forbidding them from speaking during the subsequent Day phase.',
     descriptionKey: 'roles.silencer.description',
     tacticsKey: 'roleGuide.tactics.silencer',
     badgeKey: 'roleGuide.factions.mafiaOperative',
@@ -200,7 +239,10 @@ export const mockRoles: Role[] = [
   },
   {
     id: 'priest',
+    name: 'Priest',
     nameKey: 'roles.priest.name',
+    description:
+      'Spiritual town ally who can purge silences, absolving targeted players so they can freely speak during the Day.',
     descriptionKey: 'roles.priest.description',
     tacticsKey: 'roleGuide.tactics.priest',
     badgeKey: 'roleGuide.factions.townCounselor',
@@ -215,7 +257,10 @@ export const mockRoles: Role[] = [
   },
   {
     id: 'zero-day',
+    name: 'Zero-Day',
     nameKey: 'roles.zero-day.name',
+    description:
+      'Black-Hat syndicate mastermind. Executes lethal cyber exploits, possesses encrypted root armor against one attack, and scans clean to network inquiries.',
     descriptionKey: 'roles.zero-day.description',
     tacticsKey: 'roleGuide.tactics.zeroDay',
     badgeKey: 'roleGuide.factions.cyberBlackHatLeader',
@@ -231,7 +276,10 @@ export const mockRoles: Role[] = [
   },
   {
     id: 'botnet-op',
+    name: 'Botnet Operator',
     nameKey: 'roles.botnet-op.name',
+    description:
+      'Black-Hat specialist who overwhelms a target system with DDoS traffic, blocking their ability execution for the night.',
     descriptionKey: 'roles.botnet-op.description',
     tacticsKey: 'roleGuide.tactics.botnetOp',
     badgeKey: 'roleGuide.factions.cyberBlackHatSpecialist',
@@ -246,7 +294,10 @@ export const mockRoles: Role[] = [
   },
   {
     id: 'phisher',
+    name: 'Phisher',
     nameKey: 'roles.phisher.name',
+    description:
+      'Social engineering infiltrator who locks a target’s credentials, preventing them from speaking or participating in daytime debates.',
     descriptionKey: 'roles.phisher.description',
     tacticsKey: 'roleGuide.tactics.phisher',
     badgeKey: 'roleGuide.factions.cyberBlackHatInfiltrator',
@@ -261,7 +312,10 @@ export const mockRoles: Role[] = [
   },
   {
     id: 'black-hat',
+    name: 'Black-Hat Hacker',
     nameKey: 'roles.black-hat.name',
+    description:
+      'Syndicate foot-soldier assisting in network exploitation and lethal system compromises.',
     descriptionKey: 'roles.black-hat.description',
     tacticsKey: 'roleGuide.tactics.blackHat',
     badgeKey: 'roleGuide.factions.cyberBlackHat',
@@ -276,7 +330,10 @@ export const mockRoles: Role[] = [
   },
   {
     id: 'firewall-server',
+    name: 'Firewall Server',
     nameKey: 'roles.firewall-server.name',
+    description:
+      'Critical network defense node. Sandboxes and patches targeted systems to prevent fatal cyber attacks. Equipped with redundant hardware failover.',
     descriptionKey: 'roles.firewall-server.description',
     tacticsKey: 'roleGuide.tactics.firewallServer',
     badgeKey: 'roleGuide.factions.cyberBlueTeamProtector',
@@ -291,7 +348,10 @@ export const mockRoles: Role[] = [
   },
   {
     id: 'sec-analyst',
+    name: 'Security Analyst',
     nameKey: 'roles.sec-analyst.name',
+    description:
+      'Conducts deep packet inspections and port scans on a target to detect Black-Hat syndicate infiltration.',
     descriptionKey: 'roles.sec-analyst.description',
     tacticsKey: 'roleGuide.tactics.secAnalyst',
     badgeKey: 'roleGuide.factions.cyberBlueTeamInvestigator',
@@ -306,7 +366,10 @@ export const mockRoles: Role[] = [
   },
   {
     id: 'white-hat',
+    name: 'White-Hat Hacker',
     nameKey: 'roles.white-hat.name',
+    description:
+      'Elite defense vigilante who counter-hacks suspects. If they strike an innocent system user, their root access is permanently revoked from guilt!',
     descriptionKey: 'roles.white-hat.description',
     tacticsKey: 'roleGuide.tactics.whiteHat',
     badgeKey: 'roleGuide.factions.cyberBlueTeamVigilante',
@@ -321,7 +384,10 @@ export const mockRoles: Role[] = [
   },
   {
     id: 'devops-admin',
+    name: 'DevOps Administrator',
     nameKey: 'roles.devops-admin.name',
+    description:
+      'Infrastructure administrator who audits permissions and restores locked credentials, freeing silenced users for day discussions.',
     descriptionKey: 'roles.devops-admin.description',
     tacticsKey: 'roleGuide.tactics.devopsAdmin',
     badgeKey: 'roleGuide.factions.cyberBlueTeamAdmin',
@@ -336,7 +402,10 @@ export const mockRoles: Role[] = [
   },
   {
     id: 'sys-user',
+    name: 'System User',
     nameKey: 'roles.sys-user.name',
+    description:
+      'Authorized platform user. Deduces syndicate breaches through log analysis, daytime consensus, and root voting.',
     descriptionKey: 'roles.sys-user.description',
     tacticsKey: 'roleGuide.tactics.sysUser',
     badgeKey: 'roleGuide.factions.cyberBlueTeamUser',
@@ -351,7 +420,10 @@ export const mockRoles: Role[] = [
   },
   {
     id: 'rogue-ai',
+    name: 'Rogue AI',
     nameKey: 'roles.rogue-ai.name',
+    description:
+      'Autonomous, self-evolving threat protocol. Neutralizes nodes with targeted malware purges. Possesses neural core shielding and evades basic scans. Wins solo.',
     descriptionKey: 'roles.rogue-ai.description',
     tacticsKey: 'roleGuide.tactics.rogueAi',
     badgeKey: 'roleGuide.factions.cyberThirdPartyRogue',

@@ -13,16 +13,16 @@
             <span
               class="text-amber-400 font-bold bg-amber-950/60 border border-amber-600/40 px-3 py-0.5 rounded-full text-xs"
             >
-              Day {{ store.currentDay }}
+              {{ $t('gameModerator.filterDay', { day: store.currentDay }) }}
             </span>
             <span
               class="font-bold px-3 py-0.5 rounded-full text-xs uppercase tracking-wider"
               :class="getPhaseBadgeClass(store.subPhase)"
             >
-              {{ store.subPhase }} Phase
+              {{ $te('phases.' + store.subPhase + '.name') ? $t('phases.' + store.subPhase + '.name') : store.subPhase }} {{ $t('gameModerator.phaseLabel') }}
             </span>
             <span class="text-xs text-gray-400 font-semibold">
-              ({{ aliveCount }} Alive / {{ store.livePlayers.length }} Total)
+              ({{ aliveCount }} {{ $t('gameModerator.statusAlive') }} / {{ store.livePlayers.length }} {{ $t('gameModerator.totalPlayers') }})
             </span>
           </div>
         </div>
@@ -37,7 +37,7 @@
           @click="store.reopenGameOverModal"
         >
           <span>🏆</span>
-          <span>Match Ended ({{ store.winner?.toUpperCase() }})</span>
+          <span>{{ $t('gameModerator.matchEnded', { winner: store.winner?.toUpperCase() }) }}</span>
         </button>
 
         <!-- Game Guide Button -->
@@ -110,14 +110,14 @@
       <div
         class="lg:col-span-4 bg-gray-800 rounded-2xl shadow-xl p-5 border border-gray-700 h-fit space-y-4"
       >
-        <div class="flex justify-between items-center border-b border-gray-700 pb-3">
-          <div>
+        <div class="border-b border-gray-700 pb-3">
+          <div class="flex items-center justify-between gap-3">
             <h3 class="text-base font-bold text-white">{{ $t('gameModerator.seatedOrder') }}</h3>
-            <p class="text-[11px] text-gray-400">Click actions to override state at any point</p>
+            <span
+              class="inline-flex items-center justify-center text-xs bg-gray-700/80 border border-gray-600/60 text-gray-200 px-2.5 py-1 rounded-full font-bold leading-none text-center shrink-0 shadow-sm"
+            >{{ aliveCount }} / {{ store.livePlayers.length }} {{ $t('gameModerator.statusAlive') }}</span>
           </div>
-          <span class="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded-full font-bold">
-            {{ aliveCount }} / {{ store.livePlayers.length }} Alive
-          </span>
+          <p class="text-[11px] text-gray-400 mt-1">{{ $t('gameModerator.seatedOrderHint') }}</p>
         </div>
 
         <ul class="space-y-2.5 max-h-[75vh] overflow-y-auto pr-1">
@@ -147,7 +147,7 @@
                     class="text-[11px] font-semibold truncate"
                     :class="getSideColorClass(player.role?.sideId)"
                   >
-                    {{ player.role?.name || 'Unknown' }}
+                    {{ getRoleDisplayName(player.role) }}
                   </p>
                 </div>
               </div>
@@ -258,6 +258,8 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+import type { Role, HydratedRole } from '../types';
 import BaseModal from './BaseModal.vue';
 import GameOverModal from './GameOverModal.vue';
 import RoleAvatar from './RoleAvatar.vue';
@@ -273,9 +275,17 @@ import { useGameStore } from '../stores/gameStore';
 import { useMultiplayer } from '../services/useMultiplayerService';
 import { useAudio } from '../services/useAudioService';
 
+const { t, te } = useI18n();
 const store = useGameStore();
 const multiplayer = useMultiplayer();
 const audio = useAudio();
+
+const getRoleDisplayName = (role?: Role | HydratedRole | null): string => {
+  if (!role) return t('gameModerator.unassignedRole');
+  if (role.nameKey && te(role.nameKey)) return t(role.nameKey);
+  if (role.id && te(`roles.${role.id}.name`)) return t(`roles.${role.id}.name`);
+  return role.name || role.id || t('gameModerator.unassignedRole');
+};
 
 const aliveCount = computed(() => store.livePlayers.filter((p) => !p.isDead).length);
 

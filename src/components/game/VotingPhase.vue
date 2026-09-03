@@ -281,7 +281,11 @@
               <RoleAvatar :role="defender.role" size="md" />
               <div>
                 <span class="text-white font-bold block">{{ defender.name }}</span>
-                <span class="text-xs text-gray-400">{{ defender.role?.name }}</span>
+                <span class="text-xs text-gray-400">{{
+                  defender.role?.nameKey && $te(defender.role.nameKey)
+                    ? $t(defender.role.nameKey)
+                    : defender.role?.name || ''
+                }}</span>
               </div>
             </div>
 

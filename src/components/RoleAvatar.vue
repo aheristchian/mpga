@@ -30,7 +30,7 @@
         class="font-bold text-white text-xs truncate max-w-[100px]"
         :class="{ 'line-through text-gray-500': isDead }"
       >
-        {{ role?.name || 'Unknown' }}
+        {{ (role?.nameKey && $te(role.nameKey)) ? $t(role.nameKey) : (role?.name || role?.id || $t('gameModerator.unassignedRole')) }}
       </p>
       <p
         v-if="showSide"

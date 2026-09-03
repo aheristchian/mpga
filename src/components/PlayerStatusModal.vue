@@ -12,9 +12,11 @@
           <h4 class="text-xl font-bold text-white">{{ player.name }}</h4>
           <p class="text-sm font-semibold" :class="getSideColorClass(player.role?.sideId)">
             {{
-              $te('roles.' + player.role?.id + '.name')
-                ? $t('roles.' + player.role?.id + '.name')
-                : player.role?.name || 'Unknown Role'
+              (player.role?.nameKey && $te(player.role.nameKey))
+                ? $t(player.role.nameKey)
+                : $te('roles.' + player.role?.id + '.name')
+                  ? $t('roles.' + player.role?.id + '.name')
+                  : player.role?.name || $t('gameModerator.unassignedRole')
             }}
           </p>
           <div class="flex gap-2 mt-2">

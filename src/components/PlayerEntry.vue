@@ -217,17 +217,18 @@
       <!-- TAB 2: MANUAL QUICK ADD FORM -->
       <form v-else class="flex gap-2" @submit.prevent="addPlayer">
         <input
+          ref="playerInputRef"
           v-model="newPlayerName"
           type="text"
           :placeholder="$t('playerEntry.placeholder')"
-          class="flex-1 min-w-0 bg-gray-700 text-white px-3.5 sm:px-4 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-town transition-all min-h-[44px] text-sm"
+          class="flex-1 min-w-0 bg-gray-700 text-white px-3.5 sm:px-4 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all min-h-[44px] text-sm"
         />
         <button
           type="submit"
-          :disabled="!newPlayerName.trim()"
-          class="bg-town hover:bg-blue-600 active:scale-95 active:brightness-90 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 sm:px-5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer min-h-[44px] select-none whitespace-nowrap shrink-0"
+          class="bg-blue-600 hover:bg-blue-500 active:scale-95 active:brightness-90 text-white px-4 sm:px-5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer min-h-[44px] select-none whitespace-nowrap shrink-0 shadow-md shadow-blue-600/30 flex items-center justify-center gap-1.5"
         >
-          {{ $t('playerEntry.add') }}
+          <span class="text-base leading-none">➕</span>
+          <span>{{ $t('playerEntry.add') }}</span>
         </button>
       </form>
     </div>
@@ -361,6 +362,7 @@ const multiplayer = useMultiplayer();
 
 const activeTab = ref('lobby');
 const newPlayerName = ref('');
+const playerInputRef = ref<HTMLInputElement | null>(null);
 const passcodeInput = ref(multiplayer.roomPasscode.value || '');
 const copied = ref(false);
 
@@ -440,6 +442,7 @@ const addPlayer = () => {
     store.addSetupPlayer(name);
     newPlayerName.value = '';
   }
+  playerInputRef.value?.focus();
 };
 
 const removePlayer = (index) => {

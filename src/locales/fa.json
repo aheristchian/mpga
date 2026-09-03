@@ -606,7 +606,12 @@
     "drawerTitle": "دفترچه جامع رویدادهای گرداننده",
     "drawerSubtitle": "گاه‌شمار کامل تمام اتفاقات و تصمیمات بازی",
     "clearFilters": "پاک کردن فیلترها",
-    "close": "بستن"
+    "close": "بستن",
+    "seatedOrderHint": "برای تغییر دستی وضعیت، روی دکمه‌های روبروی هر بازیکن کلیک کنید",
+    "unassignedRole": "تخصیص‌نیافته",
+    "phaseLabel": "فاز",
+    "totalPlayers": "مجموع",
+    "matchEnded": "پایان بازی ({winner})"
   },
   "playerStatusModal": {
     "title": "تنظیم وضعیت بازیکن: {name}",

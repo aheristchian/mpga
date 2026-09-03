@@ -606,7 +606,12 @@
     "drawerTitle": "Moderator Master Event Log",
     "drawerSubtitle": "Complete chronological timeline of all game actions",
     "clearFilters": "Clear Filters",
-    "close": "Close"
+    "close": "Close",
+    "seatedOrderHint": "Click actions to override state at any point",
+    "unassignedRole": "Unassigned",
+    "phaseLabel": "Phase",
+    "totalPlayers": "Total",
+    "matchEnded": "Match Ended ({winner})"
   },
   "playerStatusModal": {
     "title": "Adjust Player: {name}",

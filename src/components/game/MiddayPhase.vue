@@ -49,8 +49,10 @@
           </span>
           <h3 class="text-xl font-black text-white">{{ targetPlayer.name }}</h3>
           <p class="text-xs text-gray-300 font-semibold">
-            {{ $t('middayPhase.roleLabel') }}: {{ targetPlayer.role?.name || 'Unknown' }} ({{
-              targetPlayer.role?.sideId || 'town'
+            {{ $t('middayPhase.roleLabel') }}: {{ getRoleDisplayName(targetPlayer.role) }} ({{
+              $te('sides.' + targetPlayer.role?.sideId + '.name')
+                ? $t('sides.' + targetPlayer.role?.sideId + '.name')
+                : targetPlayer.role?.sideId || 'town'
             }})
           </p>
         </div>
@@ -203,11 +205,18 @@ import { useGameStore } from '../../stores/gameStore';
 import { useAudio } from '../../services/useAudioService';
 import PhaseHeroBanner from '../PhaseHeroBanner.vue';
 import RoleAvatar from '../RoleAvatar.vue';
-import type { LastWordCard } from '../../types';
+import type { LastWordCard, Role, HydratedRole } from '../../types';
 
 const store = useGameStore();
 const audio = useAudio();
-const { t } = useI18n();
+const { t, te } = useI18n();
+
+const getRoleDisplayName = (role?: Role | HydratedRole | null): string => {
+  if (!role) return t('gameModerator.unassignedRole');
+  if (role.nameKey && te(role.nameKey)) return t(role.nameKey);
+  if (role.id && te(`roles.${role.id}.name`)) return t(`roles.${role.id}.name`);
+  return role.name || role.id || t('gameModerator.unassignedRole');
+};
 
 const stage = ref<'speech' | 'card'>('speech');
 const speechTimeLeft = ref(45);
