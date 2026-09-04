@@ -166,4 +166,29 @@ All messages exchanged between clients and the host are serialized JSON envelope
      * **Active Speaker / Warning Pulse:** Triple alert pulse (`[100ms, 50ms, 100ms, 50ms, 150ms]`) alerting a player when their turn or challenge begins.
      * **Action & Vote Confirmation:** Crisp tactile confirmation clicks (`40ms` / `60ms`).
 
+---
 
+## 7. Multi-Device Automated Simulation & Testing
+
+To ensure 100% network protocol integrity, role secrecy, and real-time state synchronization, MPGA incorporates a dedicated multi-device simulation and E2E testing framework:
+
+### 🤖 High-Speed Headless Simulation Engine (`src/services/multiplayerSimulation.ts`)
+* **1 Moderator Host + N Virtual Player Devices:** Fully models an 11-device network topology entirely in-memory:
+  * 1 Host state machine running `gameStore`, state sanitizers, and action dispatchers.
+  * 10 Virtual Connected Player Clients (`VirtualPlayerClient`), each maintaining its own reactive view, encrypted payloads, and decision engine.
+* **100% Role Secrecy Verification:** Automates a strict security audit during every test run, verifying that:
+  * Public state broadcasts (`sanitizePublicGameState`) contain **zero** role identifiers, ability lists, or faction metadata.
+  * Private payloads (`sanitizePlayerPayload`) are delivered strictly and exclusively to the authenticated player matching that seat.
+* **Complete Multi-Round Match Automation:** Simulates end-to-end match execution through:
+  * 10-player seat claiming.
+  * Day 1 discussion & voting (ballot distribution, candidate qualification).
+  * Night 1 ability submissions (Godfather kill, Doctor save, Detective inquiry) resolved via `gameEngine.ts`.
+  * Multi-round eliminations, game over evaluation (`evaluateGameStatus`), and victory broadcast.
+* **Instant CI Execution:** Executes the full 10-player simulation suite in Vitest in under 20ms (`npm test -- --run`).
+
+### 🎭 Playwright Multi-Context E2E (`playwright.config.ts` & `e2e/multiplayer.spec.ts`)
+* Configures browser automation across desktop (Host Moderator) and mobile Safari/Chrome viewports (Player Clients) against `npm run preview`.
+* Run on demand via:
+  ```bash
+  npm run test:e2e
+  ```

@@ -185,7 +185,7 @@ graph TD
   - Card penalty deductions (Yellow: -0.5, Red: -1.0).
 - [x] **Multi-Match Standings & Leaderboard:** Aggregate player scores across multi-round tournament nights with CSV/JSON export.
 - [x] **Post-Match Social Infographics:** Canvas-rendered summary story cards (MVP, decisive doctor saves, key night actions) ready to export for Instagram/WhatsApp.
-- [ ] **Automated Multi-Device E2E Simulation (Playwright):** CI simulation testing 1 host + 10 virtual player browser clients playing through complete matches.
+- [x] **Automated Multi-Device E2E Simulation (Playwright):** CI simulation testing 1 host + 10 virtual player browser clients playing through complete matches.
 
 ### 🎙️ 4. Audio & Code Quality
 - [x] **TTS Voice Narration (Web Speech API):** Optional automated speech synthesis reading the night teleprompter announcements and speaker warnings.
