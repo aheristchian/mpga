@@ -518,33 +518,43 @@ const handlePackUpdated = () => {
   modeSelectionKey.value++;
 };
 
-// Auto-DJ watcher for phase transitions
+// Auto-DJ watcher for phase transitions (debounced to collapse rapid undo or phase skips)
+let phaseTransitionTimer: ReturnType<typeof setTimeout> | null = null;
+
 watch(
   [() => store.gamePhase, () => store.subPhase, () => store.isGameOver, () => store.winner],
   ([newPhase, newSubPhase, isGameOver, winner]) => {
     if (!audio.autoPlayOnPhaseChange.value || audio.isMuted.value) return;
 
-    if (isGameOver || newPhase === 'game-over') {
-      const evaluation = evaluateGameStatus(
-        store.livePlayers,
-        store.gameLogs,
-        store.nostradamusChoice
-      );
-      audio.playVictoryMusic(winner || evaluation.winner || 'town');
-    } else if (newPhase === 'playing' || newPhase === 'moderator') {
-      if (newSubPhase === 'day') {
-        audio.playPhaseMusic('day');
-      } else if (newSubPhase === 'voting') {
-        audio.playPhaseMusic('voting');
-      } else if (newSubPhase === 'midday') {
-        audio.playPhaseMusic('midday');
-      } else if (newSubPhase === 'night') {
-        audio.playPhaseMusic('night');
-      }
-    } else {
-      // The whole time during setup and pre-game windows is treated continuously as the Lobby theme
-      audio.playPhaseMusic('lobby');
+    if (phaseTransitionTimer) {
+      clearTimeout(phaseTransitionTimer);
     }
+
+    phaseTransitionTimer = setTimeout(() => {
+      phaseTransitionTimer = null;
+
+      if (isGameOver || newPhase === 'game-over') {
+        const evaluation = evaluateGameStatus(
+          store.livePlayers,
+          store.gameLogs,
+          store.nostradamusChoice
+        );
+        audio.playVictoryMusic(winner || evaluation.winner || 'town');
+      } else if (newPhase === 'playing' || newPhase === 'moderator') {
+        if (newSubPhase === 'day') {
+          audio.playPhaseMusic('day');
+        } else if (newSubPhase === 'voting') {
+          audio.playPhaseMusic('voting');
+        } else if (newSubPhase === 'midday') {
+          audio.playPhaseMusic('midday');
+        } else if (newSubPhase === 'night') {
+          audio.playPhaseMusic('night');
+        }
+      } else {
+        // The whole time during setup and pre-game windows is treated continuously as the Lobby theme
+        audio.playPhaseMusic('lobby');
+      }
+    }, 40);
   },
   { immediate: true }
 );
