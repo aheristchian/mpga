@@ -128,6 +128,12 @@ All messages exchanged between clients and the host are serialized JSON envelope
    * **Pre-Vote Stage:** Enforces at most 1 toggleable vote per candidate (`togglePreVote`). Voters cannot vote for themselves.
    * **Final Vote Stage:** Enforces at most 1 vote total across all defenders (`castFinalVote`), switching choices or retracting cleanly.
    * Dead players and self-voters are strictly filtered on both client and host.
+6. **Dynamic Role Payload Enrichment & Succession Delegation:**
+   * In `sanitizePlayerPayload(player, isGameLive, allLivePlayers)`:
+     * Transmits `isShieldBroken` and `abilityCharges` so the player's client accurately renders active/broken shield badges.
+     * When the Godfather is eliminated or absent, dynamically checks if the living player is the active Mafia successor via `getActiveMafiaShooter(allLivePlayers)`.
+     * If true, flags `isMafiaShooter: true` and appends `'mafia-shot'` to their role's active abilities array, enabling the mobile client to render the Mafia team shot control.
+     * When the successor submits a `mafia-shot`, the host listener maps the action into `${actorName}#mafia-shot` to prevent collisions with their personal ability.
 
 ---
 

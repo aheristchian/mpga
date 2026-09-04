@@ -235,6 +235,26 @@ graph TD
   * **Moderator Music Console (`SoundtrackConsole.vue`):** Dedicated UI for testing tracks, managing volume, toggling Auto-DJ, and previewing phase soundtracks on the fly.
 * **Persistent Preferences:** Reactive volume and mute states (`useAudio().musicVolume`, `useAudio().autoPlayOnPhaseChange`, `useAudio().isMuted`) synchronized with `localStorage`.
 
+### 9. Mafia Night Kill Succession & Finite Shield Engine
+* **Succession Hierarchy (`MAFIA_SHOOTER_SUCCESSION_ORDER`):**
+  * When the Godfather is eliminated or absent, night kill duty passes down an immutable priority hierarchy: Matador (`matador`) $\to$ Saul Goodman (`saul-goodman`) $\to$ Simple Mafia Grunt (`mafia`) $\to$ fallback surviving Mafia.
+  * Evaluated via pure function `getActiveMafiaShooter(players: Player[])` exported from `src/services/gameEngine.ts`.
+* **Compound Action Keys (`${ActorName}#${ActionId}`):**
+  * Enables a single actor (such as Matador) to submit multiple independent nocturnal operations in a single night round without state collisions:
+    - Base personal action: `actionMap['Matador'] = { target: 'Doctor', actionId: 'block' }`
+    - Team kill action: `actionMap['Matador#mafia-shot'] = { target: 'Citizen', actionId: 'mafia-shot' }`
+  * Action parsing strips the delimiter suffix (`baseName = actorKey.split('#')[0].trim()`) to resolve the actor's identity, while retaining the specified action ID.
+* **Cascading Night Blocks:**
+  * If the successor shooter is blocked by an opposing blocker (e.g. Guard or Botnet Op), the `blockedPlayers.has(baseName)` check catches both the base action and the compound action, cleanly aborting both.
+* **Finite Shield Quota & Sequential Attack Evaluation:**
+  * Godfather initializes with strictly 1 shield charge against fatal night attacks.
+  * In `resolveNight`, fatal attacks are collected in an ordered array (`killedThisNight: string[]`) and evaluated sequentially:
+    - **Hit 1:** Absorbed by the shield $\to$ logs `[SAVE]`, shatters shield (`isShieldBroken = true`), decrements charge to 0, and records player in `brokenShields`.
+    - **Hit 2 (same night):** Shield charge is exhausted ($0$) $\to$ fatal attack penetrates $\to$ logs `[DEATH]` and eliminates the Godfather.
+    - **Future nights:** Shield remains shattered $\to$ any lethal strike eliminates the Godfather.
+* **Client Synchronization & Role Enrichment:**
+  * `sanitizePlayerPayload` evaluates `getActiveMafiaShooter` across all living players. If the player is the designated shooter, `isMafiaShooter = true` is set and `'mafia-shot'` is injected into their abilities array, giving them mobile controls for the team kill.
+
 ---
 
 ## 4. License & Open-Source Terms

@@ -156,6 +156,22 @@ graph TD
 * **Universal Role Studio UI (`RoleStudioModal.vue`):** 6-tab comprehensive GUI editor (Rules & Timers, Factions, Abilities, Roles, Pipeline & Themes, Packs) with exportable and importable v2.0.0 JSON packages.
 * **100% Native Universal Scenario Presets (`src/data/presets/`):** All 7 scenarios converted into native `UniversalGamePack` v2.0.0 declarative blueprints (`cybersecurityPreset`, `godfatherPreset`, `classicMafiaPreset`, `zodiacPreset`, `vendettaPreset`, `tehranProPreset`, `speedBlitzPreset`) with dynamic faction hierarchies, primitive effects, quota ladders, and audio stem mappings.
 
+### 20. Mafia Night Kill Succession & Godfather Shield Finite Quota (v2.2.0)
+* **Tournament-Accurate Mafia Kill Succession Hierarchy:**
+  - Standardized Mafia team kill succession order when Godfather is eliminated: Matador (`matador`) $\to$ Saul Goodman (`saul-goodman`) $\to$ Simple Mafia Grunt (`mafia`) $\to$ surviving Mafia member.
+  - Pure helper `getActiveMafiaShooter(players: Player[])` exported from `gameEngine.ts`.
+* **Dual-Action Compound Key Resolution (`gameEngine.ts`):**
+  - Support for composite action keys (`${ActorName}#${ActionId}`) enabling a successor to execute both their individual active ability (e.g. Matador block) and the Mafia team kill (`mafia-shot`) without key collisions or race conditions.
+  - Opposing block cascading: if the successor shooter is blocked by Guard or Botnet Op, both their role ability and the Mafia shot are nullified.
+* **Godfather Bulletproof Shield Finite Quota:**
+  - Godfather initialized with strictly 1 shield charge against fatal night attacks (`charges.shield = 1`).
+  - Sequential hit evaluation: first hit shatters shield (`isShieldBroken = true`, charges drop to 0) and logs `[SAVE]`; second hit on the same night or any hit on subsequent nights eliminates the Godfather.
+* **Multiplayer & Mobile Client Integration:**
+  - Dynamic payload sanitization in `useMultiplayerService.ts`: when Godfather is eliminated, injects `isMafiaShooter = true` and appends `'mafia-shot'` to the successor's abilities.
+  - Revealed role card badges in `PlayerClient.vue`: `🛡️ Shield Active (N)`, `🛡️❌ Shield Broken`, and `🔫 Designated Mafia Shooter`.
+  - Moderator teleprompter wizard in `NightPhase.vue` automatically injects a dedicated **Mafia Team Shot** wake-up step with synthetic prompts and TTS narration when Godfather is eliminated.
+
+
 ---
 
 ## 🚀 Upcoming Roadmap & Master TODOs

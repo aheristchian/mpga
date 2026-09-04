@@ -62,6 +62,10 @@ graph TD
 | **Live Room Lobby** | لابی زنده اتاق | Interactive player connection lobby |
 | **Cloud Relay** | رله ابری | High-stability MQTT WebSocket connection |
 | **WebRTC P2P** | نظیر به نظیر (P2P) | Direct browser-to-browser connection |
+| **Mafia Team Shot** | شلیک گروه مافیا | Collective Mafia kill when Godfather is eliminated |
+| **Designated Mafia Shooter** | تک‌تیرانداز تعیین‌شده مافیا | Badge indicating current living Mafia shooter |
+| **Shield Active** | جلیقه فعال | Active bulletproof shield status badge |
+| **Shield Broken** | جلیقه شکسته | Shattered bulletproof shield status badge |
 
 ---
 
