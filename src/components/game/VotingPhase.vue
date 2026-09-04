@@ -330,33 +330,38 @@
             </p>
           </div>
 
-          <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
-            <!-- TIE BREAKER BUTTON -->
-            <button
-              v-if="hasTie"
-              class="w-full sm:w-auto bg-yellow-600 hover:bg-yellow-500 text-gray-950 px-6 py-3.5 rounded-xl font-black shadow-lg shadow-yellow-600/30 animate-pulse transition-all cursor-pointer min-h-[44px] select-none text-center"
-              @click="resolveTieSpin"
-            >
-              🎲 {{ $t('votingPhase.resolveTie') }}
-            </button>
+          <!-- TIE BREAKER BUTTON -->
+          <button
+            v-if="hasTie && tieResolutionStrategy === 'no_elimination'"
+            class="w-full sm:w-auto bg-gray-700 hover:bg-gray-600 text-white px-6 py-3.5 rounded-xl font-black shadow-lg transition-all cursor-pointer min-h-[44px] select-none text-center"
+            @click="confirmNobodyDies"
+          >
+            🤝 {{ $t('votingPhase.noEliminationTie') }}
+          </button>
+          <button
+            v-else-if="hasTie"
+            class="w-full sm:w-auto bg-yellow-600 hover:bg-yellow-500 text-gray-950 px-6 py-3.5 rounded-xl font-black shadow-lg shadow-yellow-600/30 animate-pulse transition-all cursor-pointer min-h-[44px] select-none text-center"
+            @click="resolveTieSpin"
+          >
+            🎲 {{ $t('votingPhase.resolveTie') }}
+          </button>
 
-            <!-- CONFIRM ELIMINATION / PROCEED -->
-            <button
-              v-else-if="eliminatedCandidate"
-              class="w-full sm:w-auto bg-red-600 hover:bg-red-500 text-white px-8 py-3.5 rounded-xl font-black shadow-lg shadow-red-600/30 transition-all cursor-pointer min-h-[44px] select-none text-center"
-              @click="confirmElimination(eliminatedCandidate)"
-            >
-              💀 {{ $t('votingPhase.eliminate', { name: eliminatedCandidate.name }) }}
-            </button>
+          <!-- CONFIRM ELIMINATION / PROCEED -->
+          <button
+            v-else-if="eliminatedCandidate"
+            class="w-full sm:w-auto bg-red-600 hover:bg-red-500 text-white px-8 py-3.5 rounded-xl font-black shadow-lg shadow-red-600/30 transition-all cursor-pointer min-h-[44px] select-none text-center"
+            @click="confirmElimination(eliminatedCandidate)"
+          >
+            💀 {{ $t('votingPhase.eliminate', { name: eliminatedCandidate.name }) }}
+          </button>
 
-            <button
-              v-else
-              class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-3.5 rounded-xl font-bold shadow-lg transition-all cursor-pointer min-h-[44px] select-none text-center"
-              @click="confirmNobodyDies"
-            >
-              🌙 {{ $t('votingPhase.proceedStraightToNight') }}
-            </button>
-          </div>
+          <button
+            v-else
+            class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-3.5 rounded-xl font-bold shadow-lg transition-all cursor-pointer min-h-[44px] select-none text-center"
+            @click="confirmNobodyDies"
+          >
+            🌙 {{ $t('votingPhase.proceedStraightToNight') }}
+          </button>
         </div>
       </div>
 
@@ -579,6 +584,16 @@ const tiedPlayers = computed(() => {
 
 const hasTie = computed(() => tiedPlayers.value.length > 1);
 
+const tieResolutionStrategy = computed(() => {
+  return store.activeUniversalPack?.pipeline?.tieResolution || 'roulette';
+});
+
+const shouldSkipMidday = computed(() => {
+  const pipeline = store.activeUniversalPack?.pipeline;
+  if (!pipeline) return false;
+  return pipeline.enableExitCards === false || !pipeline.enabledPhases.includes('midday');
+});
+
 const eliminatedCandidate = computed(() => {
   if (hasTie.value || maxVotes.value === 0) return null;
   return tiedPlayers.value[0];
@@ -590,10 +605,14 @@ const confirmElimination = (player) => {
   store.addLog(
     'voting',
     `Eliminated by Town Vote: ${player.name}`,
-    `Received ${finalVotes.value[player.name]} final votes. Proceeding to Midday Phase.`,
+    `Received ${finalVotes.value[player.name]} final votes. Proceeding to ${shouldSkipMidday.value ? 'Night' : 'Midday'} Phase.`,
     { player: player.name, role: player.role?.name }
   );
-  store.setSubPhase('midday');
+  if (shouldSkipMidday.value) {
+    store.setSubPhase('night');
+  } else {
+    store.setSubPhase('midday');
+  }
 };
 
 const confirmNobodyDies = () => {

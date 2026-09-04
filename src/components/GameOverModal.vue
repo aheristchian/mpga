@@ -10,34 +10,43 @@
       <div
         class="text-center p-5 sm:p-6 rounded-2xl border shadow-2xl relative overflow-hidden"
         :class="winnerBannerClasses"
+        :style="winnerBannerStyle"
       >
         <!-- Background Ambient Glow -->
         <div class="text-5xl sm:text-6xl mb-2 animate-bounce">
-          {{ isTownWin ? '🏆' : isMafiaWin ? '👑' : isThirdPartyWin ? '🏹' : '⚖️' }}
+          {{
+            winningFaction?.badgeIcon ||
+            (isTownWin ? '🏆' : isMafiaWin ? '👑' : isThirdPartyWin ? '🏹' : '⚖️')
+          }}
         </div>
 
         <h3 class="text-2xl sm:text-3xl font-black tracking-wide text-white mb-1.5">
           {{
-            isTownWin
-              ? $t('gameOver.townVictoryTitle')
-              : isMafiaWin
-                ? $t('gameOver.mafiaVictoryTitle')
-                : isThirdPartyWin
-                  ? $t('gameOver.thirdPartyVictoryTitle')
-                  : isDraw
-                    ? $t('gameOver.drawTitle')
-                    : 'Game Concluded'
+            winningFaction
+              ? $t('gameOver.customVictoryTitle', { faction: winningFaction.name })
+              : isTownWin
+                ? $t('gameOver.townVictoryTitle')
+                : isMafiaWin
+                  ? $t('gameOver.mafiaVictoryTitle')
+                  : isThirdPartyWin
+                    ? $t('gameOver.thirdPartyVictoryTitle')
+                    : isDraw
+                      ? $t('gameOver.drawTitle')
+                      : 'Game Concluded'
           }}
         </h3>
         <p class="text-xs sm:text-sm max-w-lg mx-auto opacity-90 font-medium">
           {{
-            isTownWin
-              ? $t('gameOver.townVictorySubtitle')
-              : isMafiaWin
-                ? $t('gameOver.mafiaVictorySubtitle')
-                : isThirdPartyWin
-                  ? $t('gameOver.thirdPartyVictorySubtitle')
-                  : ''
+            winningFaction
+              ? winningFaction.description ||
+                $t('gameOver.customVictorySubtitle', { faction: winningFaction.name })
+              : isTownWin
+                ? $t('gameOver.townVictorySubtitle')
+                : isMafiaWin
+                  ? $t('gameOver.mafiaVictorySubtitle')
+                  : isThirdPartyWin
+                    ? $t('gameOver.thirdPartyVictorySubtitle')
+                    : ''
           }}
         </p>
 
@@ -162,6 +171,13 @@
             {{ $t('gameOver.reviewBoard') }}
           </button>
           <button
+            class="w-full sm:w-auto px-4 py-2.5 bg-amber-600 hover:bg-amber-500 active:scale-95 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer min-h-[44px] select-none"
+            @click="showTournamentModal = true"
+          >
+            <span>🏆</span>
+            <span>{{ $t('tournament.matchScoringBtn') }}</span>
+          </button>
+          <button
             class="w-full sm:w-auto px-4 py-2.5 bg-indigo-700 hover:bg-indigo-600 active:scale-95 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer min-h-[44px] select-none"
             @click="showStoryModal = true"
           >
@@ -198,6 +214,19 @@
 
   <!-- POST-MATCH TIME TRAVEL REPLAY MODAL -->
   <MatchReplayModal :is-open="showReplayModal" @close="showReplayModal = false" />
+
+  <!-- TOURNAMENT SCORING & LEADERBOARD MODAL -->
+  <TournamentModal
+    :is-open="showTournamentModal"
+    initial-tab="current-match"
+    :current-players="store.players"
+    :game-logs="store.gameLogs"
+    :winner-faction="evaluation.winner"
+    :current-day="store.currentDay"
+    :game-mode="store.gameMode"
+    :nostradamus-choice="store.nostradamusChoice"
+    @close="showTournamentModal = false"
+  />
 </template>
 
 <script setup lang="ts">
@@ -206,12 +235,14 @@ import BaseModal from './BaseModal.vue';
 import RoleAvatar from './RoleAvatar.vue';
 import MatchStoryCardModal from './game/MatchStoryCardModal.vue';
 import MatchReplayModal from './game/MatchReplayModal.vue';
+import TournamentModal from './tournament/TournamentModal.vue';
 import { useGameStore } from '../stores/gameStore';
 import { useAudio } from '../services/useAudioService';
 import { evaluateGameStatus } from '../services/useWinCondition';
 
 const showStoryModal = ref(false);
 const showReplayModal = ref(false);
+const showTournamentModal = ref(false);
 
 const props = defineProps({
   isOpen: {
@@ -238,7 +269,16 @@ watch(
 );
 
 const evaluation = computed(() => {
-  return evaluateGameStatus(store.livePlayers, store.gameLogs, store.nostradamusChoice);
+  return evaluateGameStatus(
+    store.livePlayers,
+    store.gameLogs,
+    store.nostradamusChoice,
+    store.activeUniversalPack?.factions
+  );
+});
+
+const winningFaction = computed(() => {
+  return store.winningFaction || evaluation.value.winningFaction || null;
 });
 
 const isTownWin = computed(() => evaluation.value.winner === 'town');
@@ -250,6 +290,9 @@ const survivingPlayers = computed(() => evaluation.value.survivingPlayers || [])
 const stats = computed(() => evaluation.value.stats || {});
 
 const winnerBannerClasses = computed(() => {
+  if (winningFaction.value) {
+    return 'border text-white shadow-2xl';
+  }
   if (isTownWin.value) {
     return 'bg-gradient-to-r from-blue-950 via-gray-900 to-blue-900/60 border-blue-500 text-blue-100 shadow-blue-950/60';
   }
@@ -260,6 +303,17 @@ const winnerBannerClasses = computed(() => {
     return 'bg-gradient-to-r from-amber-950 via-gray-900 to-purple-900/60 border-amber-500 text-amber-100 shadow-amber-950/60';
   }
   return 'bg-gradient-to-r from-purple-950 via-gray-900 to-purple-900/60 border-purple-500 text-purple-100';
+});
+
+const winnerBannerStyle = computed(() => {
+  if (winningFaction.value?.color) {
+    return {
+      borderColor: winningFaction.value.color,
+      background: `linear-gradient(135deg, ${winningFaction.value.color}44, #111827 75%)`,
+      boxShadow: `0 0 30px ${winningFaction.value.color}33`,
+    };
+  }
+  return {};
 });
 
 const highlightLogs = computed(() => {

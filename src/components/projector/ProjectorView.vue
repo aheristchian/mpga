@@ -220,7 +220,15 @@
 
         <h2
           class="text-4xl sm:text-6xl font-black tracking-tight"
-          :class="isTownWin ? 'text-blue-400' : isMafiaWin ? 'text-red-400' : isThirdPartyWin ? 'text-amber-400' : 'text-purple-400'"
+          :class="
+            isTownWin
+              ? 'text-blue-400'
+              : isMafiaWin
+                ? 'text-red-400'
+                : isThirdPartyWin
+                  ? 'text-amber-400'
+                  : 'text-purple-400'
+          "
         >
           {{
             isTownWin

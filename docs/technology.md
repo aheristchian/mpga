@@ -63,6 +63,15 @@ mpga/
 │   │   └── studio/
 │   │       └── RoleStudioModal.vue # In-browser Rule Customizer, Character Studio & Pack Manager
 │   ├── data/                     # Flat, relational data definitions (JSON-ready)
+│   │   ├── presets/              # Universal Game Pack presets (v2.0.0 declarative schemas)
+│   │   │   ├── index.ts          # Central preset registry and mode-to-pack mapping
+│   │   │   ├── cybersecurity.ts  # Cybersecurity Incident Response preset
+│   │   │   ├── godfather.ts      # Tournament Standard / Godfather Mafia scenario
+│   │   │   ├── classic.ts        # Classic Town vs Mafia scenario
+│   │   │   ├── zodiac.ts         # Zodiac Conflict 3-way asymmetric scenario
+│   │   │   ├── vendetta.ts       # Vendetta Blood Feud scenario
+│   │   │   ├── tehranPro.ts      # Tehran Pro League tournament scenario
+│   │   │   └── speedBlitz.ts     # Speed Blitz 30s fast match scenario
 │   │   ├── abilities.ts          # Active/passive abilities and priority values
 │   │   ├── lastWordCards.ts      # Last Word cards data definitions
 │   │   ├── modeIllustrations.ts  # Vector SVG artwork for game modes
@@ -77,10 +86,11 @@ mpga/
 │   │   ├── en.json               # English translations (clean strings)
 │   │   └── fa.json               # Persian translations (authentic Mafia terminology)
 │   ├── services/                 # Core business logic and service layers
-│   │   ├── gameEngine.ts         # Pure Night Action Priority Resolution Engine
+│   │   ├── gameEngine.ts         # Pure Night Action Priority Resolution Engine & Quota Decrement
 │   │   ├── gameEngine.spec.ts    # Unit tests for resolution logic
-│   │   ├── useAudioService.ts    # Web Audio API procedural sound synthesizer & streaming
-│   │   ├── useGamePackService.ts # Game Pack schema validation, import/export & presets
+│   │   ├── universalGamePack.spec.ts # Unit tests for Universal Configurable Engine & Quotas
+│   │   ├── useAudioService.ts    # Web Audio API procedural sound synthesizer & dynamic theme audio
+│   │   ├── useGamePackService.ts # Universal Game Pack schema validation, import/export & presets
 │   │   ├── useGamePackService.spec.ts # Unit tests for game pack validation and storage
 │   │   ├── useGameService.ts     # Hydration composable connecting relational data
 │   │   ├── useHaptics.ts         # Tactile vibration feedback composable
@@ -90,15 +100,18 @@ mpga/
 │   │   ├── useVotingService.ts   # Voting calculations (threshold, clamping, pre-vote/final)
 │   │   ├── useVotingService.spec.ts # Unit tests for voting calculation service
 │   │   ├── useWakeLock.ts        # Screen Wake Lock API composable
-│   │   ├── useWinCondition.ts    # Win Condition Evaluation Engine & Match Statistics Aggregator
+│   │   ├── useWinCondition.ts    # Declarative Win Condition Engine ($N$-Faction Evaluation)
 │   │   └── useWinCondition.spec.ts # Unit tests for win condition calculation
 │   ├── stores/                   # Pinia store definitions
 │   │   ├── gameStore.ts          # Master state (phases, players, logs, card decks, win state)
 │   │   └── gameStore.spec.ts     # Unit tests for game store state & actions
 │   ├── types/                    # TypeScript domain interfaces & type definitions
+│   │   ├── ability.ts            # Universal Ability primitives, effects, timing & quotas
 │   │   ├── audio.ts              # Audio track and playlist types
 │   │   ├── cards.ts              # Last Word card and mode types
+│   │   ├── faction.ts            # Declarative Factions, alignments & win conditions
 │   │   ├── game.ts               # Game mode, log, voting, and engine types
+│   │   ├── gamePack.ts           # UniversalGamePack v2.0.0, theme & pipeline config
 │   │   ├── multiplayer.ts        # Network packet and connection state types
 │   │   ├── role.ts               # Role, side, ability, and hydration types
 │   │   └── index.ts              # Central export barrel

@@ -58,7 +58,9 @@ describe('useGamePackService', () => {
       expect(res.valid).toBe(false);
       expect(res.errors).toContain('Game pack must have a non-empty string "name".');
       expect(res.errors).toContain('Game pack must specify a "version" string (e.g. "1.0.0").');
-      expect(res.errors).toContain('Game pack must include at least one valid GameMode in "modes".');
+      expect(res.errors).toContain(
+        'Game pack must include at least one valid GameMode in "modes".'
+      );
     });
 
     it('validates a correct GamePack object and generates an ID if missing', () => {
@@ -181,6 +183,112 @@ describe('useGamePackService', () => {
       service.resetCustomizations();
       expect(service.getAllModes().some((m) => m.id === 'championship-mode')).toBe(false);
       expect(service.getAllRoles().some((r) => r.id === 'grand-master')).toBe(false);
+    });
+  });
+
+  describe('UniversalGamePack v2.0.0 validation & relational integrity', () => {
+    it('validates a complete universal game pack with custom factions and abilities', () => {
+      const validUniversal = {
+        version: '2.0.0',
+        name: 'Space Station Intrigue',
+        theme: { primaryColor: '#6366f1' },
+        pipeline: {
+          enabledPhases: ['day', 'voting', 'night'],
+          speakingOrder: 'sequential_shift',
+          votingThresholdFormula: 'ceil',
+          tieResolution: 'no_elimination',
+          enableExitCards: false,
+        },
+        factions: [
+          {
+            id: 'crew',
+            name: 'Station Crew',
+            color: '#3b82f6',
+            badgeIcon: '🚀',
+            alignment: 'uninformed_majority',
+            winCondition: { type: 'elimination', targetFactionIds: ['saboteurs'] },
+          },
+          {
+            id: 'saboteurs',
+            name: 'Alien Saboteurs',
+            color: '#ef4444',
+            badgeIcon: '👽',
+            alignment: 'informed_minority',
+            winCondition: { type: 'parity', parityAgainstFactionIds: ['crew'] },
+          },
+        ],
+        abilities: [
+          {
+            id: 'vent-travel',
+            name: 'Vent Travel',
+            description: 'Move through vents',
+            icon: '🕳️',
+            priority: 70,
+            executionPhase: 'night',
+            effects: [{ type: 'lethal_hit' }],
+          },
+        ],
+        roles: [
+          {
+            id: 'engineer',
+            name: 'Engineer',
+            factionId: 'crew',
+            limit: 1,
+            icon: 'wrench',
+            abilities: [],
+          },
+          {
+            id: 'infiltrator',
+            name: 'Infiltrator',
+            factionId: 'saboteurs',
+            limit: 1,
+            icon: 'alien',
+            abilities: ['vent-travel'],
+          },
+        ],
+      };
+
+      const res = validateGamePack(validUniversal);
+      expect(res.valid).toBe(true);
+      expect(res.pack?.universal).toBeDefined();
+      expect(res.pack?.universal?.factions).toHaveLength(2);
+    });
+
+    it('rejects a universal pack with broken relational integrity (unknown factionId or undeclared ability)', () => {
+      const invalidUniversal = {
+        version: '2.0.0',
+        name: 'Broken Universe',
+        factions: [
+          {
+            id: 'rebels',
+            name: 'Rebels',
+            color: '#10b981',
+            badgeIcon: '⚔️',
+            alignment: 'uninformed_majority',
+            winCondition: { type: 'elimination', targetFactionIds: ['empire'] },
+          },
+        ],
+        abilities: [],
+        roles: [
+          {
+            id: 'traitor',
+            name: 'Traitor',
+            factionId: 'non_existent_faction', // Broken!
+            limit: 1,
+            icon: 'mask',
+            abilities: ['undeclared_ability'], // Broken!
+          },
+        ],
+      };
+
+      const res = validateGamePack(invalidUniversal);
+      expect(res.valid).toBe(false);
+      expect(res.errors.some((e) => e.includes('unknown factionId "non_existent_faction"'))).toBe(
+        true
+      );
+      expect(res.errors.some((e) => e.includes('undeclared abilityId "undeclared_ability"'))).toBe(
+        true
+      );
     });
   });
 });

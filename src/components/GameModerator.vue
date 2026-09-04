@@ -19,10 +19,16 @@
               class="font-bold px-3 py-0.5 rounded-full text-xs uppercase tracking-wider"
               :class="getPhaseBadgeClass(store.subPhase)"
             >
-              {{ $te('phases.' + store.subPhase + '.name') ? $t('phases.' + store.subPhase + '.name') : store.subPhase }} {{ $t('gameModerator.phaseLabel') }}
+              {{
+                $te('phases.' + store.subPhase + '.name')
+                  ? $t('phases.' + store.subPhase + '.name')
+                  : store.subPhase
+              }}
+              {{ $t('gameModerator.phaseLabel') }}
             </span>
             <span class="text-xs text-gray-400 font-semibold">
-              ({{ aliveCount }} {{ $t('gameModerator.statusAlive') }} / {{ store.livePlayers.length }} {{ $t('gameModerator.totalPlayers') }})
+              ({{ aliveCount }} {{ $t('gameModerator.statusAlive') }} /
+              {{ store.livePlayers.length }} {{ $t('gameModerator.totalPlayers') }})
             </span>
           </div>
         </div>
@@ -115,7 +121,9 @@
             <h3 class="text-base font-bold text-white">{{ $t('gameModerator.seatedOrder') }}</h3>
             <span
               class="inline-flex items-center justify-center text-xs bg-gray-700/80 border border-gray-600/60 text-gray-200 px-2.5 py-1 rounded-full font-bold leading-none text-center shrink-0 shadow-sm"
-            >{{ aliveCount }} / {{ store.livePlayers.length }} {{ $t('gameModerator.statusAlive') }}</span>
+              >{{ aliveCount }} / {{ store.livePlayers.length }}
+              {{ $t('gameModerator.statusAlive') }}</span
+            >
           </div>
           <p class="text-[11px] text-gray-400 mt-1">{{ $t('gameModerator.seatedOrderHint') }}</p>
         </div>

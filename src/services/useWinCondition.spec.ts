@@ -216,6 +216,95 @@ describe('Win Condition Evaluator (useWinCondition.ts)', () => {
 
     expect(result.isGameOver).toBe(true);
     expect(result.winner).toBe('third-party');
-    expect(result.survivingPlayers.map((p) => p.name)).toEqual(['AutonomousWorm']);
+    expect(result.survivingPlayers?.map((p) => p.name)).toEqual(['AutonomousWorm']);
+  });
+
+  describe('Declarative Custom Factions Win Evaluation', () => {
+    const customFactions = [
+      {
+        id: 'blue_team',
+        name: 'Blue Team (SOC)',
+        color: '#3b82f6',
+        badgeIcon: '🛡️',
+        alignment: 'uninformed_majority' as const,
+        winCondition: {
+          type: 'elimination' as const,
+          targetFactionIds: ['red_team'],
+        },
+      },
+      {
+        id: 'red_team',
+        name: 'Red Team (APT)',
+        color: '#ef4444',
+        badgeIcon: '💀',
+        alignment: 'informed_minority' as const,
+        winCondition: {
+          type: 'parity' as const,
+          parityAgainstFactionIds: ['blue_team', 'insiders'],
+        },
+      },
+      {
+        id: 'insiders',
+        name: 'Rogue Insiders',
+        color: '#a855f7',
+        badgeIcon: '🕵️',
+        alignment: 'independent' as const,
+        winCondition: {
+          type: 'last_standing' as const,
+        },
+      },
+    ];
+
+    it('evaluates Blue Team elimination victory when all Red Team members are dead', () => {
+      const players: Player[] = [
+        {
+          name: 'SOC1',
+          isDead: false,
+          role: { id: 'analyst', name: 'Analyst', sideId: 'blue_team' },
+        },
+        {
+          name: 'SOC2',
+          isDead: false,
+          role: { id: 'incident_resp', name: 'IR', sideId: 'blue_team' },
+        },
+        {
+          name: 'APT1',
+          isDead: true,
+          role: { id: 'infiltrator', name: 'Infiltrator', sideId: 'red_team' },
+        },
+      ];
+
+      const result = evaluateGameStatus(players, [], null, customFactions);
+
+      expect(result.isGameOver).toBe(true);
+      expect(result.winner).toBe('blue_team');
+      expect(result.winningFaction?.name).toBe('Blue Team (SOC)');
+    });
+
+    it('evaluates Red Team parity victory when Red living >= Blue + Insiders living', () => {
+      const players: Player[] = [
+        {
+          name: 'SOC1',
+          isDead: false,
+          role: { id: 'analyst', name: 'Analyst', sideId: 'blue_team' },
+        },
+        {
+          name: 'APT1',
+          isDead: false,
+          role: { id: 'infiltrator', name: 'Infiltrator', sideId: 'red_team' },
+        },
+        {
+          name: 'APT2',
+          isDead: false,
+          role: { id: 'infiltrator', name: 'Infiltrator', sideId: 'red_team' },
+        },
+      ];
+
+      const result = evaluateGameStatus(players, [], null, customFactions);
+
+      expect(result.isGameOver).toBe(true);
+      expect(result.winner).toBe('red_team');
+      expect(result.winningFaction?.name).toBe('Red Team (APT)');
+    });
   });
 });

@@ -35,6 +35,8 @@ export interface Player {
   warnings?: number;
   isSilenced?: boolean;
   isShieldBroken?: boolean;
+  abilityCharges?: Record<string, number | 'unlimited'>;
+  customFactionId?: string;
 }
 
 export interface GameLog {

@@ -526,6 +526,47 @@ export function useAudio() {
     });
   };
 
+  const registerCustomSoundtrack = (
+    phase: AudioPhase | string,
+    trackUrl: string,
+    name: string = 'Custom Theme Stem'
+  ) => {
+    const pGroup = playlists.value as Record<string, SoundtrackTrack[]>;
+    if (!pGroup[phase]) {
+      pGroup[phase] = [];
+    }
+    const customTrack: SoundtrackTrack = {
+      id: `custom-${phase}-${Date.now()}`,
+      name,
+      url: trackUrl,
+      phase: phase as AudioPhase,
+      volumeMultiplier: 1.0,
+      loop: true,
+    };
+    pGroup[phase].unshift(customTrack);
+  };
+
+  const applyUniversalThemeSoundtracks = (themeSoundtracks?: {
+    dayStemUrl?: string;
+    nightStemUrl?: string;
+    votingStemUrl?: string;
+    ambientUrl?: string;
+  }) => {
+    if (!themeSoundtracks) return;
+    if (themeSoundtracks.dayStemUrl) {
+      registerCustomSoundtrack('day', themeSoundtracks.dayStemUrl, 'Day Theme');
+    }
+    if (themeSoundtracks.nightStemUrl) {
+      registerCustomSoundtrack('night', themeSoundtracks.nightStemUrl, 'Night Theme');
+    }
+    if (themeSoundtracks.votingStemUrl) {
+      registerCustomSoundtrack('voting', themeSoundtracks.votingStemUrl, 'Voting Theme');
+    }
+    if (themeSoundtracks.ambientUrl) {
+      registerCustomSoundtrack('lobby', themeSoundtracks.ambientUrl, 'Lobby Theme');
+    }
+  };
+
   const playVoteClick = () => {
     playTone(600, 0.04, 'sine', 0.08);
   };
@@ -550,6 +591,8 @@ export function useAudio() {
     stopMusic,
     nextTrack,
     previousTrack,
+    registerCustomSoundtrack,
+    applyUniversalThemeSoundtracks,
     // SFX
     playTick,
     playUrgentTick,

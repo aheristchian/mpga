@@ -139,11 +139,22 @@ graph TD
 * **Ergonomic One-Hand Action Pills & Cards:** Scaled night action selection, night target cards, pre-voting buttons, and final elimination voting buttons to thumb-friendly `min-h-[48px]` interactive touch targets with tactile haptic vibration confirmations (`useHaptics`) and active state scaling.
 
 ### 18. In-Browser Visual Role Studio & JSON Game Pack Architecture
-* **Visual Rule Customizer Modal (`RoleStudioModal.vue`):** 3-tab modal accessible from the app header and mode selection:
-  1. *Rules & Timers:* Speaking duration ($30\text{s} \dots 120\text{s}$), challenge time ($15\text{s} \dots 60\text{s}$), defense speech time ($30\text{s} \dots 120\text{s}$), challenges per day ($0 \dots 5$), daily speaker shift ($1 \dots 3$), and voting threshold formulas (`ceil`, `half`, `floor`).
-  2. *Role Studio:* Custom character creator with slug ID generation, emoji picker palette, faction alignment (`town`, `mafia`, `third-party`), inquiry status, abilities multi-select with icons, tactics, live role card preview, and custom role deletion management.
-  3. *Game Packs:* One-click JSON pack export, file upload / text paste JSON import with schema validation, community presets loader (`Tehran Pro League`, `Speed Blitz Mafia`), and factory reset.
+* **Visual Rule Customizer Modal (`RoleStudioModal.vue`):** Visual studio modal accessible from the app header and mode selection for rules, custom characters, and pack imports.
 * **Relational Game Pack Service (`useGamePackService.ts`):** Complete schema validation, Base64/JSON `localStorage` persistence, reactive integration with `useGameService.ts`, and full unit test coverage.
+
+### 19. Universal Configurable Game Engine & Multi-Domain Modding (v2.1.0)
+* **Universal Domain Modeling (`src/types/`):**
+  - Declarative Factions (`FactionDefinition`, `FactionWinCondition`, `FactionAlignment`): fully decoupled from hardcoded Town/Mafia.
+  - Primitive Action Effects (`UniversalAbilityDefinition`): composable primitives (`protect`, `lethal_hit`, `inquire`, `block`, `silence`, `absolve`, `revive`, `convert`, `status_effect`).
+  - Dynamic Quotas & Cooldowns (`AbilityUsageQuota`): support for `'unlimited'` usage or finite numeric charges per game / phase, with cooldown tracking.
+  - Universal Game Pack v2.0.0 (`UniversalGamePack`): self-contained pack bundling theme palettes, soundtracks, pipeline rules, factions, abilities, roles, and exit cards.
+* **Pure Universal Engines:**
+  - Primitive Action Engine (`gameEngine.ts`): dynamic shield absorption and charge decrementing with unlimited shield persistence.
+  - Declarative Win Condition Engine (`useWinCondition.ts`): supports `elimination`, `parity`, and `last_standing` checks for arbitrary $N$-faction topologies.
+  - Dynamic Theme & Audio Pipeline (`useAudioService.ts`): registers and plays custom theme soundtracks (night, day, voting, victory) per pack.
+  - Configurable Gameplay Pipeline: configurable tie resolution (`roulette` vs `no_elimination`), bypassable midday exit cards, and configurable penalty warning limits.
+* **Universal Role Studio UI (`RoleStudioModal.vue`):** 6-tab comprehensive GUI editor (Rules & Timers, Factions, Abilities, Roles, Pipeline & Themes, Packs) with exportable and importable v2.0.0 JSON packages.
+* **100% Native Universal Scenario Presets (`src/data/presets/`):** All 7 scenarios converted into native `UniversalGamePack` v2.0.0 declarative blueprints (`cybersecurityPreset`, `godfatherPreset`, `classicMafiaPreset`, `zodiacPreset`, `vendettaPreset`, `tehranProPreset`, `speedBlitzPreset`) with dynamic faction hierarchies, primitive effects, quota ladders, and audio stem mappings.
 
 ---
 
@@ -168,11 +179,11 @@ graph TD
 - [x] **Post-Match Time-Travel Replay:** Interactive step-by-step match timeline scrubber to replay every turn, vote, and night ability after match completion.
 
 ### 🏆 3. Tournament & Competitive League Features
-- [ ] **Official Tournament Point Calculator:** Automated match scoring per Iranian Mafia league rules:
+- [x] **Official Tournament Point Calculator:** Automated match scoring per Iranian Mafia league rules:
   - Faction victory points (Town vs. Mafia).
   - Individual MVP / Best Player points awarded by moderator or vote.
   - Card penalty deductions (Yellow: -0.5, Red: -1.0).
-- [ ] **Multi-Match Standings & Leaderboard:** Aggregate player scores across multi-round tournament nights with CSV/JSON export.
+- [x] **Multi-Match Standings & Leaderboard:** Aggregate player scores across multi-round tournament nights with CSV/JSON export.
 - [x] **Post-Match Social Infographics:** Canvas-rendered summary story cards (MVP, decisive doctor saves, key night actions) ready to export for Instagram/WhatsApp.
 - [ ] **Automated Multi-Device E2E Simulation (Playwright):** CI simulation testing 1 host + 10 virtual player browser clients playing through complete matches.
 

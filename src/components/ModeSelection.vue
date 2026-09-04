@@ -53,7 +53,17 @@
                   class="w-full h-full flex items-center justify-center"
                   v-html="getScenarioSvg(mode.id)"
                 ></div>
-                <span v-else class="text-2xl">{{ mode.id === 'godfather' ? '🎩' : mode.id === 'zodiac' ? '🏹' : mode.id === 'vendetta' ? '🤐' : mode.id === 'cyber-breach' ? '💻' : '⚖️' }}</span>
+                <span v-else class="text-2xl">{{
+                  mode.id === 'godfather'
+                    ? '🎩'
+                    : mode.id === 'zodiac'
+                      ? '🏹'
+                      : mode.id === 'vendetta'
+                        ? '🤐'
+                        : mode.id === 'cyber-breach'
+                          ? '💻'
+                          : '⚖️'
+                }}</span>
               </div>
 
               <!-- TITLE & BADGES -->
@@ -278,11 +288,15 @@ const getModeBadgeTextKey = (modeId: string) => {
 
 const getModeButtonGradientClass = (modeId: string) => {
   if (modeId === 'godfather') return 'from-red-600 via-rose-600 to-amber-600 shadow-red-600/30';
-  if (modeId === 'zodiac') return 'from-purple-600 via-fuchsia-600 to-indigo-600 shadow-purple-600/30';
+  if (modeId === 'zodiac')
+    return 'from-purple-600 via-fuchsia-600 to-indigo-600 shadow-purple-600/30';
   if (modeId === 'vendetta') return 'from-amber-600 via-orange-600 to-red-600 shadow-amber-600/30';
-  if (modeId === 'cyber-breach') return 'from-emerald-600 via-teal-600 to-cyan-600 shadow-emerald-600/30';
-  if (modeId === 'tehran-pro-league') return 'from-amber-600 via-yellow-600 to-orange-600 shadow-amber-600/30';
-  if (modeId === 'speed-blitz-mafia') return 'from-cyan-600 via-blue-600 to-indigo-600 shadow-cyan-600/30';
+  if (modeId === 'cyber-breach')
+    return 'from-emerald-600 via-teal-600 to-cyan-600 shadow-emerald-600/30';
+  if (modeId === 'tehran-pro-league')
+    return 'from-amber-600 via-yellow-600 to-orange-600 shadow-amber-600/30';
+  if (modeId === 'speed-blitz-mafia')
+    return 'from-cyan-600 via-blue-600 to-indigo-600 shadow-cyan-600/30';
   return 'from-blue-600 via-indigo-600 to-cyan-600 shadow-blue-600/30';
 };
 

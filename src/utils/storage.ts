@@ -6,7 +6,10 @@
 export const saveEncoded = <T>(key: string, data: T): void => {
   if (typeof localStorage === 'undefined') return;
   try {
-    const payload = { v: typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.0.0', d: data };
+    const payload = {
+      v: typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.0.0',
+      d: data,
+    };
     const stringified = JSON.stringify(payload);
     // encodeURIComponent ensures UTF-8 characters are safely converted to Base64
     const encoded = btoa(encodeURIComponent(stringified));
@@ -122,4 +125,3 @@ export const clearRecentPlayers = (): void => {
     localStorage.removeItem('mpga_recent_players');
   }
 };
-

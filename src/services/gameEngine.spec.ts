@@ -428,7 +428,12 @@ describe('Game Engine - resolveNight', () => {
 
     it('should eliminate target when Rogue AI executes malware-purge', () => {
       const players: Player[] = [
-        createMockPlayer('RogueAiPlayer', 'malware-purge', ['shield', 'clean-inquiry'], 'third-party'),
+        createMockPlayer(
+          'RogueAiPlayer',
+          'malware-purge',
+          ['shield', 'clean-inquiry'],
+          'third-party'
+        ),
         createMockPlayer('VictimNode', null, [], 'town'),
       ];
 
@@ -486,6 +491,236 @@ describe('Game Engine - resolveNight', () => {
         SecAnalystPlayer: { target: 'RogueAiPlayer', actionId: 'port-scan' },
       });
       expect(scanRogueAi.log.some((l) => l.includes('Innocent/Clean (Town)'))).toBe(true);
+    });
+  });
+
+  describe('Universal Primitive Effects & Dynamic Quotas', () => {
+    it('should resolve custom abilities defined purely with primitive effects', () => {
+      const customLaserHit = {
+        id: 'laser-strike',
+        name: 'Orbital Laser',
+        description: 'Fires high power beam',
+        icon: '🛰️',
+        priority: 70,
+        executionPhase: 'night' as const,
+        isPassive: false,
+        targeting: {
+          selfAllowed: false,
+          targetCount: { min: 1, max: 1 },
+          livingState: 'alive' as const,
+          factionScope: 'all' as const,
+        },
+        quota: { totalCharges: 'unlimited' as const },
+        effects: [{ type: 'lethal_hit' as const }],
+      };
+
+      const customEnergyShield = {
+        id: 'force-field',
+        name: 'Force Field',
+        description: 'Protects target node',
+        icon: '⚡',
+        priority: 80,
+        executionPhase: 'night' as const,
+        isPassive: false,
+        targeting: {
+          selfAllowed: true,
+          targetCount: { min: 1, max: 1 },
+          livingState: 'alive' as const,
+          factionScope: 'all' as const,
+        },
+        quota: { totalCharges: 'unlimited' as const },
+        effects: [{ type: 'protect' as const }],
+      };
+
+      const players: Player[] = [
+        {
+          name: 'Attacker',
+          isDead: false,
+          role: {
+            id: 'attacker',
+            name: 'Attacker',
+            sideId: 'red-team',
+            abilityIds: ['laser-strike'],
+            passiveAbilityIds: [],
+          },
+        },
+        {
+          name: 'Defender',
+          isDead: false,
+          role: {
+            id: 'defender',
+            name: 'Defender',
+            sideId: 'blue-team',
+            abilityIds: ['force-field'],
+            passiveAbilityIds: [],
+          },
+        },
+        {
+          name: 'TargetPlayer',
+          isDead: false,
+          role: {
+            id: 'worker',
+            name: 'Worker',
+            sideId: 'blue-team',
+            abilityIds: [],
+            passiveAbilityIds: [],
+          },
+        },
+      ];
+
+      // 1. Without shield -> Target dies
+      const resultNoShield = resolveNight(
+        players,
+        { Attacker: { target: 'TargetPlayer', abilityId: 'laser-strike' } },
+        [customLaserHit, customEnergyShield]
+      );
+      expect(resultNoShield.deaths).toContain('TargetPlayer');
+      expect(resultNoShield.log.some((l) => l.includes('[LETHAL_HIT]'))).toBe(true);
+
+      // 2. With force-field -> Target saved
+      const resultWithShield = resolveNight(
+        players,
+        {
+          Attacker: { target: 'TargetPlayer', abilityId: 'laser-strike' },
+          Defender: { target: 'TargetPlayer', abilityId: 'force-field' },
+        },
+        [customLaserHit, customEnergyShield]
+      );
+      expect(resultWithShield.deaths).not.toContain('TargetPlayer');
+      expect(resultWithShield.log.some((l) => l.includes('[SAVE]'))).toBe(true);
+    });
+
+    it('should correctly decrement finite shield quota charges across successive attacks', () => {
+      const customHit = {
+        id: 'kinetic-slug',
+        name: 'Kinetic Slug',
+        description: 'Hits target',
+        icon: '💥',
+        priority: 70,
+        executionPhase: 'night' as const,
+        isPassive: false,
+        targeting: {
+          selfAllowed: false,
+          targetCount: { min: 1, max: 1 },
+          livingState: 'alive' as const,
+          factionScope: 'all' as const,
+        },
+        quota: { totalCharges: 'unlimited' as const },
+        effects: [{ type: 'lethal_hit' as const }],
+      };
+
+      const shieldedPlayer: Player = {
+        name: 'Cyborg',
+        isDead: false,
+        abilityCharges: { shield: 2 }, // 2 shield charges
+        role: {
+          id: 'cyborg',
+          name: 'Cyborg',
+          sideId: 'blue-team',
+          abilityIds: [],
+          passiveAbilityIds: [],
+        },
+      };
+
+      const attacker: Player = {
+        name: 'Shooter',
+        isDead: false,
+        role: {
+          id: 'shooter',
+          name: 'Shooter',
+          sideId: 'red-team',
+          abilityIds: ['kinetic-slug'],
+          passiveAbilityIds: [],
+        },
+      };
+
+      // Hit 1: 2 charges -> 1 charge remaining, survives
+      const res1 = resolveNight(
+        [attacker, shieldedPlayer],
+        { Shooter: { target: 'Cyborg', abilityId: 'kinetic-slug' } },
+        [customHit]
+      );
+      expect(res1.deaths).not.toContain('Cyborg');
+      expect(res1.updatedAbilityCharges?.['Cyborg']?.['shield']).toBe(1);
+      expect(res1.brokenShields).not.toContain('Cyborg');
+
+      // Update charges for Hit 2
+      shieldedPlayer.abilityCharges = res1.updatedAbilityCharges?.['Cyborg'];
+
+      // Hit 2: 1 charge -> 0 charges remaining, survives, shield breaks
+      const res2 = resolveNight(
+        [attacker, shieldedPlayer],
+        { Shooter: { target: 'Cyborg', abilityId: 'kinetic-slug' } },
+        [customHit]
+      );
+      expect(res2.deaths).not.toContain('Cyborg');
+      expect(res2.updatedAbilityCharges?.['Cyborg']?.['shield']).toBe(0);
+      expect(res2.brokenShields).toContain('Cyborg');
+
+      // Update charges for Hit 3
+      shieldedPlayer.abilityCharges = res2.updatedAbilityCharges?.['Cyborg'];
+
+      // Hit 3: 0 charges -> dies
+      const res3 = resolveNight(
+        [attacker, shieldedPlayer],
+        { Shooter: { target: 'Cyborg', abilityId: 'kinetic-slug' } },
+        [customHit]
+      );
+      expect(res3.deaths).toContain('Cyborg');
+    });
+
+    it('should support unlimited shield quota without shattering', () => {
+      const customHit = {
+        id: 'kinetic-slug',
+        name: 'Kinetic Slug',
+        description: 'Hits target',
+        icon: '💥',
+        priority: 70,
+        executionPhase: 'night' as const,
+        isPassive: false,
+        targeting: {
+          selfAllowed: false,
+          targetCount: { min: 1, max: 1 },
+          livingState: 'alive' as const,
+          factionScope: 'all' as const,
+        },
+        quota: { totalCharges: 'unlimited' as const },
+        effects: [{ type: 'lethal_hit' as const }],
+      };
+
+      const titan: Player = {
+        name: 'Titan',
+        isDead: false,
+        abilityCharges: { shield: 'unlimited' },
+        role: {
+          id: 'titan',
+          name: 'Titan',
+          sideId: 'neutral',
+          abilityIds: [],
+          passiveAbilityIds: [],
+        },
+      };
+
+      const attacker: Player = {
+        name: 'Shooter',
+        isDead: false,
+        role: {
+          id: 'shooter',
+          name: 'Shooter',
+          sideId: 'red-team',
+          abilityIds: ['kinetic-slug'],
+          passiveAbilityIds: [],
+        },
+      };
+
+      const res = resolveNight(
+        [attacker, titan],
+        { Shooter: { target: 'Titan', abilityId: 'kinetic-slug' } },
+        [customHit]
+      );
+      expect(res.deaths).not.toContain('Titan');
+      expect(res.brokenShields).toHaveLength(0);
+      expect(res.log.some((l) => l.includes('unlimited shield'))).toBe(true);
     });
   });
 });

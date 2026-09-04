@@ -1,7 +1,9 @@
 import type { Player, GameLog } from '../types';
+import type { FactionDefinition } from '../types/faction';
 
 /**
  * Win condition evaluator and post-match statistics aggregator for Mafia Party Game Assistant.
+ * Supports arbitrary factions and declarative win conditions.
  */
 
 export interface GameStats {
@@ -14,10 +16,12 @@ export interface GameStats {
 
 export interface GameStatusEvaluation {
   isGameOver: boolean;
-  winner: 'town' | 'mafia' | 'draw' | 'third-party' | null;
+  winner: string | null; // e.g. 'town' | 'mafia' | 'draw' | 'third-party' | custom faction ID
+  winningFaction?: FactionDefinition | null;
   livingTown: Player[];
   livingMafia: Player[];
   livingThirdParty: Player[];
+  livingByFaction?: Record<string, Player[]>;
   nostradamusWins: boolean;
   survivingPlayers?: Player[];
   stats: GameStats;
@@ -25,11 +29,14 @@ export interface GameStatusEvaluation {
 
 /**
  * Pure function to evaluate current game status and win condition.
+ * If customFactions are supplied, evaluates declarative win rules for each faction.
+ * Otherwise, falls back to standard Mafia/Town balance rules.
  */
 export const evaluateGameStatus = (
   livePlayers: Player[] = [],
   gameLogs: GameLog[] = [],
-  nostradamusChoice: string | null = null
+  nostradamusChoice: string | null = null,
+  customFactions?: FactionDefinition[]
 ): GameStatusEvaluation => {
   if (!livePlayers || livePlayers.length === 0) {
     return {
@@ -52,29 +59,99 @@ export const evaluateGameStatus = (
   );
 
   let isGameOver = false;
-  let winner: 'town' | 'mafia' | 'draw' | 'third-party' | null = null;
+  let winner: string | null = null;
+  let winningFaction: FactionDefinition | null = null;
 
-  const livingNonMafia = livingPlayers.filter((p) => p.role?.sideId !== 'mafia');
+  // Group living players by faction ID
+  const livingByFaction: Record<string, Player[]> = {};
+  for (const player of livingPlayers) {
+    const side =
+      player.customFactionId || (player.role as any)?.factionId || player.role?.sideId || 'town';
+    if (!livingByFaction[side]) {
+      livingByFaction[side] = [];
+    }
+    livingByFaction[side].push(player);
+  }
 
-  // 1. Town Victory: All Mafia and hostile third-party killers (Zodiac) are eliminated, Town survives
-  if (livingMafia.length === 0 && livingHostileThirdParty.length === 0 && livingTown.length > 0) {
-    isGameOver = true;
-    winner = 'town';
+  // --- 1. DECLARATIVE EVALUATION (When custom factions are provided) ---
+  if (customFactions && customFactions.length > 0) {
+    if (livingPlayers.length === 0) {
+      isGameOver = true;
+      winner = 'draw';
+    } else {
+      // Evaluate each faction's win condition
+      for (const faction of customFactions) {
+        const factionLiving = livingByFaction[faction.id] || [];
+        if (factionLiving.length === 0) continue;
+
+        const cond = faction.winCondition;
+        if (!cond) continue;
+
+        if (
+          cond.type === 'elimination' &&
+          cond.targetFactionIds &&
+          cond.targetFactionIds.length > 0
+        ) {
+          // Win if all target factions have 0 living members
+          const targetsAlive = cond.targetFactionIds.some((targetId) => {
+            return (livingByFaction[targetId] || []).length > 0;
+          });
+          if (!targetsAlive) {
+            isGameOver = true;
+            winner = faction.id;
+            winningFaction = faction;
+            break;
+          }
+        } else if (cond.type === 'parity' && cond.parityAgainstFactionIds) {
+          // Win if this faction alive >= sum of alive members in parityAgainstFactionIds
+          let opposingCount = 0;
+          for (const opId of cond.parityAgainstFactionIds) {
+            opposingCount += (livingByFaction[opId] || []).length;
+          }
+          if (factionLiving.length >= opposingCount && factionLiving.length > 0) {
+            isGameOver = true;
+            winner = faction.id;
+            winningFaction = faction;
+            break;
+          }
+        } else if (cond.type === 'last_standing') {
+          // Win if only members of this faction are alive
+          const totalLiving = livingPlayers.length;
+          if (factionLiving.length === totalLiving) {
+            isGameOver = true;
+            winner = faction.id;
+            winningFaction = faction;
+            break;
+          }
+        }
+      }
+    }
   }
-  // 2. Mafia Victory: Living Mafia count >= Living Non-Mafia count (Town + Third-Party)
-  else if (livingMafia.length >= livingNonMafia.length && livingMafia.length > 0) {
-    isGameOver = true;
-    winner = 'mafia';
-  }
-  // 3. Third-party solo victory: All Town and Mafia are wiped out, Third-party survives
-  else if (livingTown.length === 0 && livingMafia.length === 0 && livingThirdParty.length > 0) {
-    isGameOver = true;
-    winner = 'third-party';
-  }
-  // 4. Mutual annihilation: Everyone eliminated
-  else if (livingTown.length === 0 && livingMafia.length === 0) {
-    isGameOver = true;
-    winner = 'draw';
+
+  // --- 2. FALLBACK DEFAULT EVALUATION (Standard Mafia/Town) ---
+  if (!isGameOver && (!customFactions || customFactions.length === 0)) {
+    const livingNonMafia = livingPlayers.filter((p) => p.role?.sideId !== 'mafia');
+
+    // Town Victory: All Mafia and hostile third-party killers (Zodiac) are eliminated, Town survives
+    if (livingMafia.length === 0 && livingHostileThirdParty.length === 0 && livingTown.length > 0) {
+      isGameOver = true;
+      winner = 'town';
+    }
+    // Mafia Victory: Living Mafia count >= Living Non-Mafia count (Town + Third-Party)
+    else if (livingMafia.length >= livingNonMafia.length && livingMafia.length > 0) {
+      isGameOver = true;
+      winner = 'mafia';
+    }
+    // Third-party solo victory: All Town and Mafia are wiped out, Third-party survives
+    else if (livingTown.length === 0 && livingMafia.length === 0 && livingThirdParty.length > 0) {
+      isGameOver = true;
+      winner = 'third-party';
+    }
+    // Mutual annihilation: Everyone eliminated
+    else if (livingTown.length === 0 && livingMafia.length === 0) {
+      isGameOver = true;
+      winner = 'draw';
+    }
   }
 
   // Check Nostradamus Win Condition
@@ -86,9 +163,11 @@ export const evaluateGameStatus = (
   return {
     isGameOver,
     winner,
+    winningFaction,
     livingTown,
     livingMafia,
     livingThirdParty,
+    livingByFaction,
     nostradamusWins,
     survivingPlayers: livingPlayers,
     stats,

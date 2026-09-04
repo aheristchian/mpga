@@ -2,7 +2,11 @@
   <div class="flex flex-col items-center select-none" :class="{ 'opacity-50 grayscale': isDead }">
     <div
       class="relative rounded-full flex items-center justify-center font-bold transition-all duration-300 shadow-xl overflow-hidden p-0.5"
-      :class="[sizeClasses, sideBorderClasses, sideBgClasses]"
+      :class="[
+        sizeClasses,
+        !matchedFaction ? [sideBorderClasses, sideBgClasses] : 'bg-gray-900 border-2',
+      ]"
+      :style="customStyle"
     >
       <!-- ROLE VECTOR ILLUSTRATION (SVG) -->
       <div
@@ -30,14 +34,19 @@
         class="font-bold text-white text-xs truncate max-w-[100px]"
         :class="{ 'line-through text-gray-500': isDead }"
       >
-        {{ (role?.nameKey && $te(role.nameKey)) ? $t(role.nameKey) : (role?.name || role?.id || $t('gameModerator.unassignedRole')) }}
+        {{
+          role?.nameKey && $te(role.nameKey)
+            ? $t(role.nameKey)
+            : role?.name || role?.id || $t('gameModerator.unassignedRole')
+        }}
       </p>
       <p
         v-if="showSide"
         class="text-[10px] font-semibold uppercase tracking-wider mt-0.5"
-        :class="sideTextClass"
+        :class="!matchedFaction ? sideTextClass : ''"
+        :style="matchedFaction?.color ? { color: matchedFaction.color } : {}"
       >
-        {{ role?.sideId || 'town' }}
+        {{ matchedFaction?.name || role?.sideId || 'town' }}
       </p>
     </div>
   </div>
@@ -45,6 +54,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import { useGameStore } from '../stores/gameStore';
 import { getRoleIllustration } from '../data/roleIllustrations';
 import type { Role } from '../types';
 
@@ -64,12 +74,31 @@ const props = withDefaults(defineProps<Props>(), {
   showSide: false,
 });
 
+const store = useGameStore();
+
+const matchedFaction = computed(() => {
+  return store.activeUniversalPack?.factions?.find((f) => f.id === props.role?.sideId);
+});
+
+const customStyle = computed(() => {
+  if (matchedFaction.value?.color) {
+    return {
+      borderColor: matchedFaction.value.color,
+      boxShadow: `0 0 15px ${matchedFaction.value.color}40`,
+    };
+  }
+  return {};
+});
+
 const svgContent = computed(() => {
   if (!props.role?.id) return null;
   return getRoleIllustration(props.role.id);
 });
 
 const roleIcon = computed(() => {
+  if (matchedFaction.value?.badgeIcon) {
+    return matchedFaction.value.badgeIcon;
+  }
   const roleId = props.role?.id;
   switch (roleId) {
     case 'godfather':

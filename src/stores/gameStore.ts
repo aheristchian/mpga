@@ -3,6 +3,7 @@ import { ref, computed } from 'vue';
 import { loadEncoded, saveEncoded, clearGameStorage, saveRecentPlayer } from '../utils/storage';
 import { mockLastWordCards } from '../data/lastWordCards';
 import { evaluateGameStatus } from '../services/useWinCondition';
+import { MODE_TO_UNIVERSAL_PACK_MAP } from '../data/presets';
 import type {
   GamePhase,
   GameMode,
@@ -14,6 +15,8 @@ import type {
   VotingState,
   GameStateSnapshot,
   WinResult,
+  UniversalGamePack,
+  FactionDefinition,
 } from '../types';
 
 export const useGameStore = defineStore('game', () => {
@@ -36,9 +39,15 @@ export const useGameStore = defineStore('game', () => {
   // Win Condition & Game Over State
   const isGameOver = ref<boolean>(loadEncoded<boolean>('mpga_isGameOver') || false);
   const winner = ref<string | null>(loadEncoded<string>('mpga_winner') || null);
+  const winningFaction = ref<FactionDefinition | null>(
+    loadEncoded<FactionDefinition>('mpga_winningFaction') || null
+  );
   const showGameOverModal = ref<boolean>(false);
   const nostradamusChoice = ref<string | null>(
     loadEncoded<string>('mpga_nostradamusChoice') || null
+  );
+  const activeUniversalPack = ref<UniversalGamePack | null>(
+    loadEncoded<UniversalGamePack>('mpga_activeUniversalPack') || null
   );
 
   // Active Voting State for Multiplayer Synchronization
@@ -203,15 +212,26 @@ export const useGameStore = defineStore('game', () => {
       return { isGameOver: false, winner: null };
     }
 
-    const result = evaluateGameStatus(livePlayers.value, gameLogs.value, nostradamusChoice.value);
+    const result = evaluateGameStatus(
+      livePlayers.value,
+      gameLogs.value,
+      nostradamusChoice.value,
+      activeUniversalPack.value?.factions
+    );
     if (result.isGameOver) {
       isGameOver.value = true;
       winner.value = result.winner;
+      winningFaction.value = result.winningFaction || null;
+      saveEncoded('mpga_isGameOver', isGameOver.value);
+      saveEncoded('mpga_winner', winner.value);
+      saveEncoded('mpga_winningFaction', winningFaction.value);
       showGameOverModal.value = true;
+      const winTitle =
+        result.winningFaction?.name || (result.winner ? result.winner.toUpperCase() : 'UNKNOWN');
       addLog(
         'system',
-        `Victory: ${result.winner ? result.winner.toUpperCase() : 'UNKNOWN'}`,
-        `The match has concluded with victory for ${result.winner ? result.winner.toUpperCase() : 'UNKNOWN'}!`
+        `Victory: ${winTitle}`,
+        `The match has concluded with victory for ${winTitle}!`
       );
     }
     return result;
@@ -220,6 +240,9 @@ export const useGameStore = defineStore('game', () => {
   const setGameMode = (mode: GameMode) => {
     gameMode.value = mode;
     gamePhase.value = 'setup';
+    if (MODE_TO_UNIVERSAL_PACK_MAP[mode.id]) {
+      setActiveUniversalPack(MODE_TO_UNIVERSAL_PACK_MAP[mode.id]);
+    }
     addLog('system', 'Game Mode Selected', `Ruleset set to ${mode.nameKey}`);
   };
 
@@ -262,19 +285,62 @@ export const useGameStore = defineStore('game', () => {
     }
   };
 
+  const setActiveUniversalPack = (pack: UniversalGamePack | null) => {
+    activeUniversalPack.value = pack;
+    saveEncoded('mpga_activeUniversalPack', pack);
+  };
+
+  const updatePlayerCharges = (
+    playerName: string,
+    charges: Record<string, number | 'unlimited'>
+  ) => {
+    const p = livePlayers.value.find((pl) => pl.name === playerName);
+    if (p) {
+      p.abilityCharges = { ...(p.abilityCharges || {}), ...charges };
+    }
+    const baseP = players.value.find((pl) => pl.name === playerName);
+    if (baseP) {
+      baseP.abilityCharges = { ...(baseP.abilityCharges || {}), ...charges };
+    }
+  };
+
+  const applyPlayerCharges = (
+    updatedCharges: Record<string, Record<string, number | 'unlimited'>>
+  ) => {
+    Object.entries(updatedCharges).forEach(([pName, charges]) => {
+      updatePlayerCharges(pName, charges);
+    });
+  };
+
   const startPlaying = (playersWithRoles: Player[]) => {
     players.value = playersWithRoles;
     playersWithRoles.forEach((p) => saveRecentPlayer(p.name));
-    livePlayers.value = playersWithRoles.map((p) => ({
-      ...p,
-      isDead: false,
-      warnings: 0,
-      isSilenced: false,
-    }));
+
+    const universalPack = activeUniversalPack.value;
+    const initialDeck =
+      universalPack?.pipeline?.enableExitCards === false
+        ? []
+        : universalPack?.exitCards && universalPack.exitCards.length > 0
+          ? [...universalPack.exitCards]
+          : [...mockLastWordCards];
+
+    livePlayers.value = playersWithRoles.map((p) => {
+      const initialCharges: Record<string, number | 'unlimited'> = {};
+      if (p.role?.passiveAbilityIds?.includes('shield')) {
+        initialCharges['shield'] = 1;
+      }
+      return {
+        ...p,
+        isDead: false,
+        warnings: 0,
+        isSilenced: false,
+        abilityCharges: { ...initialCharges, ...(p.abilityCharges || {}) },
+      };
+    });
     gamePhase.value = 'playing';
     subPhase.value = 'day';
     currentDay.value = 1;
-    lastWordDeck.value = [...mockLastWordCards];
+    lastWordDeck.value = initialDeck;
     drawnLastWordCards.value = [];
     eliminatedPlayer.value = null;
     isGameOver.value = false;
@@ -327,14 +393,16 @@ export const useGameStore = defineStore('game', () => {
     if (!p) return;
 
     takeSnapshot(`Penalty on ${playerName}`);
+    const maxWarnings = activeUniversalPack.value?.pipeline?.penaltyWarningLimit ?? 2;
 
     if (warningDelta !== 0) {
       p.warnings = Math.max(0, (p.warnings || 0) + warningDelta);
+      const isDisqualified = p.warnings >= maxWarnings;
       addLog(
         'moderator',
         `Penalty Warning: ${playerName}`,
-        `Warnings: ${p.warnings} (${warningDelta > 0 ? '+1' : '-1'}). ${reason ? 'Reason: ' + reason : ''}`,
-        { player: playerName, warnings: p.warnings }
+        `Warnings: ${p.warnings}/${maxWarnings} (${warningDelta > 0 ? '+1' : '-1'}). ${isDisqualified ? 'MAX PENALTY REACHED.' : ''} ${reason ? 'Reason: ' + reason : ''}`,
+        { player: playerName, warnings: p.warnings, isDisqualified }
       );
     }
 
@@ -497,6 +565,8 @@ export const useGameStore = defineStore('game', () => {
     eliminatedPlayer,
     isGameOver,
     winner,
+    winningFaction,
+    activeUniversalPack,
     showGameOverModal,
     nostradamusChoice,
     votingState,
@@ -512,6 +582,9 @@ export const useGameStore = defineStore('game', () => {
     addLog,
     checkWinCondition,
     setGameMode,
+    setActiveUniversalPack,
+    updatePlayerCharges,
+    applyPlayerCharges,
     setPlayers,
     addSetupPlayer,
     removeSetupPlayer,

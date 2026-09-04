@@ -13,14 +13,21 @@ This document provides a comprehensive reference for game mechanics, faction rul
 | **Third Party (Nostradamus)** | Align with a chosen faction on Night 1 and survive/assist them. | Wins alongside whichever team (`town` or `mafia`) they pledged allegiance to on Night 1. | `text-thirdParty` (Purple / `#A855F7`) |
 | **Third Party (Zodiac / Rogue AI)** | Solo elimination of all other factions. | Outlasts both Town and Mafia (`livingMafia === 0 && livingTown === 0 && livingHostileThirdParty > 0`). | `text-amber-400` (Amber / `#F59E0B` / Violet `#8B5CF6`) |
 
+### Declarative Universal Faction Engine (v2.1.0)
+MPGA is completely domain-agnostic. In addition to legacy Town/Mafia rules, the game engine supports arbitrary $N$-faction rulepacks with declarative win conditions:
+1. **Elimination Win Condition (`type: 'elimination'`):** Wins when all target factions in `targetFactionIds` have zero living members (e.g. Blue Team eliminating Red Team and Rogue AI).
+2. **Parity Win Condition (`type: 'parity'`):** Wins when living members of this faction meet or exceed the sum of living members in `parityAgainstFactionIds` according to the configured `parityRatio` (default $0.5$).
+3. **Last Standing Win Condition (`type: 'last_standing'`):** Wins when all players of other factions are eliminated and only this faction's members remain alive.
+
 ### Automatic Win Calculation Logic
 The calculation engine in [`src/services/useWinCondition.ts`](file:///Users/ali.heristchian/Documents/learning/mpga/src/services/useWinCondition.ts) evaluates live player states on every status change:
-1. **Town Victory (`winner: 'town'`):** Triggered when `livingMafiaCount === 0 && livingTownCount > 0 && livingHostileThirdPartyCount === 0`.
-2. **Mafia Victory (`winner: 'mafia'`):** Triggered when `livingMafiaCount >= livingNonMafiaCount && livingMafiaCount > 0 && livingHostileThirdPartyCount === 0`.
-3. **Third-Party Solo Victory (`winner: 'third-party'`):** Triggered when Town and Mafia have both been eliminated while a hostile third-party (Zodiac or Rogue AI) survives.
-4. **Draw / Stalemate (`winner: 'draw'`):** Triggered if both living counts reach `0`.
-5. **Nostradamus Co-Victory (`nostradamusWon: true`):** If a Nostradamus is in play and their recorded Night 1 choice matches the calculated `winner`, Nostradamus is credited with a co-victory.
-6. **Match Statistics Aggregation:** When game over occurs, the engine automatically collates metrics from `gameLogs` (total Doctor saves, Detective positive hits, total eliminations, total match days, and surviving player list).
+1. **Declarative Faction Evaluation:** When `activeUniversalPack.factions` or `customFactions` are present, evaluates declarative rules sequentially.
+2. **Town Victory (`winner: 'town'`):** Fallback when `livingMafiaCount === 0 && livingTownCount > 0 && livingHostileThirdPartyCount === 0`.
+3. **Mafia Victory (`winner: 'mafia'`):** Fallback when `livingMafiaCount >= livingNonMafiaCount && livingMafiaCount > 0 && livingHostileThirdPartyCount === 0`.
+4. **Third-Party Solo Victory (`winner: 'third-party'`):** Fallback when Town and Mafia have both been eliminated while a hostile third-party (Zodiac or Rogue AI) survives.
+5. **Draw / Stalemate (`winner: 'draw'`):** Triggered if both living counts reach `0`.
+6. **Nostradamus Co-Victory (`nostradamusWon: true`):** If a Nostradamus is in play and their recorded Night 1 choice matches the calculated `winner`, Nostradamus is credited with a co-victory.
+7. **Match Statistics Aggregation:** When game over occurs, the engine automatically collates metrics from `gameLogs` (total Doctor saves, Detective positive hits, total eliminations, total match days, and surviving player list).
 
 ---
 
@@ -247,3 +254,28 @@ Voting calculations and constraints are handled by [`src/services/useVotingServi
    * **One Challenge Per Player Per Day:** Once a player takes challenge time, they are marked as having used their challenge quota for that Day phase and cannot request or take challenge time again until the next day.
 4. **Speaker Resume:**
    * When the challenger's time expires or the moderator ends the challenge early, the spotlight returns to the original speaker who finishes their exact remaining paused seconds.
+
+---
+
+## 8. Official Tournament Scoring System & League Points
+
+MPGA implements the official competitive scoring rules standard in Iranian Mafia tournament leagues (such as the *Godfather League* and professional club circuits), with full configurability:
+
+### 8.1 Base Points & Victory Allocation
+* **Winning Faction:** All members of the victorious side (living or eliminated prior to endgame) receive base victory points ($+3.0$ pts by default).
+* **Losing Faction:** Members of the defeated faction receive $0$ base points.
+* **Nostradamus Alignment:** Nostradamus wins if their Day/Night 1 predicted faction (Town or Mafia) achieves victory.
+
+### 8.2 Survival & Individual Accolades
+* **Survival Bonus:** Living players who survive until the final whistle receive an individual survival bonus ($+1.0$ pt by default).
+* **MVP / Best Player (پدیده بازی):** Moderator or committee-awarded primary match MVP receives $+2.0$ pts.
+* **2nd MVP / Runner-up:** Secondary standout player receives $+1.0$ pt.
+* **Special Achievements:**
+  * Successful Doctor Save: $+0.5$ pts per save confirmed in event logs.
+  * Successful Detective Hit: $+0.5$ pts per positive inquiry on Mafia members.
+
+### 8.3 Disciplinary Penalties & Card Deductions
+* **Yellow Card / Warning (اخطار انضباطی):** Deducts $-0.5$ points per warning recorded on the player's profile during the match.
+* **Red Card / Disqualification (اخراج انضباطی):** Deducts $-2.0$ points upon receiving 3 warnings and results in immediate elimination.
+
+$$\text{Net Points} = \text{BaseWin} + \text{Survival} + \text{MVP} + \text{SpecialBonuses} - (\text{Warnings} \times 0.5) - \text{DisqualificationPenalty}$$

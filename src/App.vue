@@ -77,6 +77,16 @@
             <span>{{ $t('studio.button') }}</span>
           </button>
 
+          <!-- TOURNAMENT LEADERBOARD -->
+          <button
+            class="px-3 py-1.5 bg-gray-800 hover:bg-amber-950/80 active:scale-95 border border-gray-700 hover:border-amber-500/60 text-gray-300 hover:text-white rounded-xl transition-all text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow shrink-0"
+            :title="$t('tournament.navBtn')"
+            @click="showTournamentModal = true"
+          >
+            <span>🏆</span>
+            <span>{{ $t('tournament.navBtn') }}</span>
+          </button>
+
           <!-- MULTIPLAYER CONNECT PHONES -->
           <button
             class="px-3.5 py-1.5 bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 border border-blue-500/50 text-white rounded-xl transition-all text-xs font-bold flex items-center gap-1.5 shadow-md cursor-pointer shrink-0"
@@ -297,7 +307,22 @@
                 <span class="text-[10px] text-purple-400 font-bold rtl:rotate-180">↗</span>
               </button>
 
-              <!-- 7. START OVER / RESET -->
+              <!-- 7. TOURNAMENT LEADERBOARD -->
+              <button
+                class="w-full px-3.5 py-2.5 rounded-xl border border-amber-500/30 bg-amber-950/30 hover:bg-amber-900/40 text-amber-200 transition-all text-xs font-semibold flex items-center justify-between cursor-pointer active:scale-98"
+                @click="
+                  showMobileMenu = false;
+                  showTournamentModal = true;
+                "
+              >
+                <div class="flex items-center gap-2.5">
+                  <span class="text-base">🏆</span>
+                  <span>{{ $t('tournament.navBtn') }}</span>
+                </div>
+                <span class="text-[10px] text-amber-400 font-bold rtl:rotate-180">↗</span>
+              </button>
+
+              <!-- 8. START OVER / RESET -->
               <button
                 v-if="store.gamePhase !== 'mode-selection'"
                 class="w-full px-3.5 py-2.5 rounded-xl border border-red-500/30 bg-red-950/30 hover:bg-red-900/40 text-red-300 transition-all text-xs font-semibold flex items-center justify-between cursor-pointer active:scale-98"
@@ -438,6 +463,13 @@
       @close="showStudioModal = false"
       @pack-updated="handlePackUpdated"
     />
+
+    <!-- TOURNAMENT LEADERBOARD MODAL -->
+    <TournamentModal
+      :is-open="showTournamentModal"
+      initial-tab="leaderboard"
+      @close="showTournamentModal = false"
+    />
   </div>
 </template>
 
@@ -459,6 +491,7 @@ import LanguageSwitcher from './components/LanguageSwitcher.vue';
 import SoundtrackConsole from './components/SoundtrackConsole.vue';
 import GameGuideModal from './components/GameGuideModal.vue';
 import RoleStudioModal from './components/studio/RoleStudioModal.vue';
+import TournamentModal from './components/tournament/TournamentModal.vue';
 import { evaluateGameStatus } from './services/useWinCondition';
 import { getMpgaLogo } from './data/modeIllustrations';
 import { fisherYatesShuffle } from './utils/shuffle';
@@ -478,6 +511,7 @@ const showResetModal = ref(false);
 const showSoundtrackModal = ref(false);
 const showGuideModal = ref(false);
 const showStudioModal = ref(false);
+const showTournamentModal = ref(false);
 const modeSelectionKey = ref(0);
 
 const handlePackUpdated = () => {

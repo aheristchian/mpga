@@ -2,22 +2,250 @@ import { ref } from 'vue';
 import { mockModes } from '../data/modes';
 import { mockRoles } from '../data/roles';
 import { loadEncoded, saveEncoded } from '../utils/storage';
-import type { GameMode, Role, GamePack, GamePackValidationResult } from '../types';
+import {
+  cybersecurityPreset,
+  godfatherPreset,
+  classicMafiaPreset,
+  zodiacPreset,
+  vendettaPreset,
+  tehranProPreset,
+  speedBlitzPreset,
+} from '../data/presets';
+import type {
+  GameMode,
+  Role,
+  GamePack,
+  UniversalGamePack,
+  GamePackValidationResult,
+  UniversalRoleDefinition,
+} from '../types';
 
 export const STORAGE_CUSTOM_MODES_KEY = 'mpga_custom_modes';
 export const STORAGE_CUSTOM_ROLES_KEY = 'mpga_custom_roles';
 export const STORAGE_CUSTOM_PACKS_KEY = 'mpga_custom_game_packs';
+export const STORAGE_UNIVERSAL_PACKS_KEY = 'mpga_universal_game_packs';
 
 /**
- * Validates whether an unknown parsed JSON object adheres to the GamePack schema.
+ * Type guard to check if an unknown object is a UniversalGamePack v2.0.0
  */
-export const validateGamePack = (data: unknown): GamePackValidationResult => {
+export const isUniversalGamePack = (data: unknown): data is UniversalGamePack => {
+  if (!data || typeof data !== 'object') return false;
+  const obj = data as Record<string, unknown>;
+  return Array.isArray(obj.factions);
+};
+
+/**
+ * Validates a UniversalGamePack (v2.0.0) object, enforcing relational integrity.
+ */
+export const validateUniversalGamePack = (
+  data: unknown
+): { valid: boolean; errors: string[]; pack?: UniversalGamePack } => {
   const errors: string[] = [];
 
   if (!data || typeof data !== 'object' || Array.isArray(data)) {
     return { valid: false, errors: ['Invalid JSON: Expected a root object.'] };
   }
 
+  const obj = data as Record<string, unknown>;
+
+  if (typeof obj.name !== 'string' || !obj.name.trim()) {
+    errors.push('Game pack must have a non-empty string "name".');
+  }
+
+  if (typeof obj.version !== 'string' || !obj.version.trim()) {
+    errors.push('Game pack must specify a "version" string (e.g. "2.0.0").');
+  }
+
+  // 1. Factions validation
+  if (!Array.isArray(obj.factions) || obj.factions.length === 0) {
+    errors.push('Universal game pack must define at least one faction in "factions".');
+  } else {
+    obj.factions.forEach((f, idx) => {
+      if (!f || typeof f !== 'object') {
+        errors.push(`Faction at index ${idx} is not an object.`);
+      } else {
+        const fac = f as Record<string, unknown>;
+        if (typeof fac.id !== 'string' || !fac.id.trim()) {
+          errors.push(`Faction at index ${idx} is missing a string "id".`);
+        }
+        if (typeof fac.name !== 'string' || !fac.name.trim()) {
+          errors.push(`Faction at index ${idx} is missing a string "name".`);
+        }
+        if (typeof fac.color !== 'string' || !fac.color.trim()) {
+          errors.push(`Faction "${fac.id || idx}" is missing a "color".`);
+        }
+        if (!fac.winCondition || typeof fac.winCondition !== 'object') {
+          errors.push(`Faction "${fac.id || idx}" must specify a "winCondition" object.`);
+        }
+      }
+    });
+  }
+
+  // Known faction IDs for relational integrity
+  const factionIds = new Set<string>(
+    Array.isArray(obj.factions) ? obj.factions.map((f: any) => f?.id).filter(Boolean) : []
+  );
+
+  // 2. Abilities validation
+  const abilityIds = new Set<string>();
+  if (obj.abilities !== undefined) {
+    if (!Array.isArray(obj.abilities)) {
+      errors.push('"abilities" must be an array of Ability objects if provided.');
+    } else {
+      obj.abilities.forEach((a, idx) => {
+        if (!a || typeof a !== 'object') {
+          errors.push(`Ability at index ${idx} is not an object.`);
+        } else {
+          const ab = a as Record<string, unknown>;
+          if (typeof ab.id !== 'string' || !ab.id.trim()) {
+            errors.push(`Ability at index ${idx} is missing a string "id".`);
+          } else {
+            abilityIds.add(ab.id.trim());
+          }
+          if (!Array.isArray(ab.effects)) {
+            errors.push(`Ability "${ab.id || idx}" must define an array of "effects".`);
+          }
+        }
+      });
+    }
+  }
+
+  // 3. Roles validation & Relational Integrity
+  if (!Array.isArray(obj.roles) || obj.roles.length === 0) {
+    errors.push('Universal game pack must include at least one character in "roles".');
+  } else {
+    obj.roles.forEach((r, idx) => {
+      if (!r || typeof r !== 'object') {
+        errors.push(`Role at index ${idx} is not an object.`);
+      } else {
+        const role = r as Record<string, unknown>;
+        if (typeof role.id !== 'string' || !role.id.trim()) {
+          errors.push(`Role at index ${idx} is missing a string "id".`);
+        }
+        if (typeof role.factionId !== 'string' || !role.factionId.trim()) {
+          errors.push(`Role "${role.id || idx}" is missing "factionId".`);
+        } else if (!factionIds.has(role.factionId.trim())) {
+          errors.push(`Role "${role.id}" references unknown factionId "${role.factionId}".`);
+        }
+
+        // Relational check: abilities
+        if (Array.isArray(role.abilities) && obj.abilities !== undefined) {
+          role.abilities.forEach((abRef: any) => {
+            const abId = typeof abRef === 'string' ? abRef : abRef?.abilityId;
+            if (abId && !abilityIds.has(abId)) {
+              errors.push(`Role "${role.id}" references undeclared abilityId "${abId}".`);
+            }
+          });
+        }
+      }
+    });
+  }
+
+  if (errors.length > 0) {
+    return { valid: false, errors };
+  }
+
+  const universalPack: UniversalGamePack = {
+    $schema:
+      typeof obj.$schema === 'string'
+        ? obj.$schema
+        : 'https://mpga.app/schemas/universal-game-pack.v2.json',
+    version: '2.0.0',
+    id: typeof obj.id === 'string' && obj.id.trim() ? obj.id.trim() : `pack-${Date.now()}`,
+    name: (obj.name as string).trim(),
+    author: typeof obj.author === 'string' ? obj.author.trim() : undefined,
+    description: typeof obj.description === 'string' ? obj.description.trim() : undefined,
+    createdAt: typeof obj.createdAt === 'string' ? obj.createdAt : new Date().toISOString(),
+    theme: (obj.theme as any) || { primaryColor: '#ef4444' },
+    pipeline: (obj.pipeline as any) || {
+      enabledPhases: ['day', 'voting', 'midday', 'night'],
+      speakingOrder: 'sequential_shift',
+      dailySpeakerShift: 1,
+      allowChallenges: true,
+      challengesPerDay: 1,
+      speakingDurationSec: 60,
+      challengeDurationSec: 30,
+      defenseDurationSec: 60,
+      votingThresholdFormula: 'ceil',
+      tieResolution: 'roulette',
+      enableExitCards: true,
+      penaltyWarningLimit: 2,
+    },
+    factions: obj.factions as any[],
+    abilities: (obj.abilities as any[]) || [],
+    roles: obj.roles as UniversalRoleDefinition[],
+    exitCards: Array.isArray(obj.exitCards) ? (obj.exitCards as any[]) : undefined,
+  };
+
+  return { valid: true, errors: [], pack: universalPack };
+};
+
+/**
+ * Converts a UniversalGamePack (v2.0.0) into a backward-compatible GamePack (v1.0.0)
+ * so existing UI views and stores can consume it seamlessly.
+ */
+export const universalPackToLegacyPack = (uPack: UniversalGamePack): GamePack => {
+  const mode: GameMode = {
+    id: uPack.id,
+    nameKey: uPack.name,
+    minPlayers: 6,
+    timeToTalk: uPack.pipeline?.speakingDurationSec || 45,
+    borrowedTimeToTalk: 15,
+    defenseTimeToTalk: uPack.pipeline?.defenseDurationSec || 60,
+    challengesPerDay: uPack.pipeline?.challengesPerDay || 1,
+    nextDayShift: uPack.pipeline?.dailySpeakerShift || 1,
+    votingThresholdRounding: uPack.pipeline?.votingThresholdFormula || 'ceil',
+  };
+
+  const customRoles: Role[] = uPack.roles.map((r, idx) => ({
+    id: r.id,
+    nameKey: r.nameKey || r.name,
+    name: r.name,
+    descriptionKey: r.descriptionKey || r.description,
+    description: r.description,
+    sideId: r.factionId as any,
+    modeIds: [uPack.id],
+    limit: r.limit || 1,
+    order: idx + 1,
+    image: 'custom.svg',
+    svgKey: r.icon || 'custom',
+    abilityIds: r.abilities.map((a) => (typeof a === 'string' ? a : a.abilityId)),
+    passiveAbilityIds: [],
+    inquiryAppearsAs: r.inquiryAppearsAsFactionId as any,
+  }));
+
+  return {
+    id: uPack.id,
+    name: uPack.name,
+    version: uPack.version,
+    author: uPack.author,
+    description: uPack.description,
+    createdAt: uPack.createdAt,
+    modes: [mode],
+    customRoles,
+    universal: uPack,
+  };
+};
+
+/**
+ * Validates whether an unknown parsed JSON object adheres to the GamePack or UniversalGamePack schema.
+ */
+export const validateGamePack = (data: unknown): GamePackValidationResult => {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) {
+    return { valid: false, errors: ['Invalid JSON: Expected a root object.'] };
+  }
+
+  // Check if this is a Universal Game Pack v2.0.0
+  if (isUniversalGamePack(data)) {
+    const univRes = validateUniversalGamePack(data);
+    if (!univRes.valid || !univRes.pack) {
+      return { valid: false, errors: univRes.errors };
+    }
+    const legacyCompatiblePack = universalPackToLegacyPack(univRes.pack);
+    return { valid: true, errors: [], pack: legacyCompatiblePack, universalPack: univRes.pack };
+  }
+
+  const errors: string[] = [];
   const obj = data as Record<string, unknown>;
 
   if (typeof obj.name !== 'string' || !obj.name.trim()) {
@@ -71,7 +299,7 @@ export const validateGamePack = (data: unknown): GamePackValidationResult => {
   }
 
   const pack: GamePack = {
-    id: (typeof obj.id === 'string' && obj.id.trim()) ? obj.id.trim() : `pack-${Date.now()}`,
+    id: typeof obj.id === 'string' && obj.id.trim() ? obj.id.trim() : `pack-${Date.now()}`,
     name: (obj.name as string).trim(),
     version: (obj.version as string).trim(),
     author: typeof obj.author === 'string' ? obj.author.trim() : undefined,
@@ -85,87 +313,25 @@ export const validateGamePack = (data: unknown): GamePackValidationResult => {
 };
 
 /**
- * Built-in community rulepacks available for one-tap import.
+ * Built-in native Universal Game Pack presets (v2.0.0).
+ * Every scenario in MPGA is modeled declaratively through this schema.
  */
-export const communityPresets: GamePack[] = [
-  {
-    id: 'tehran-pro-league',
-    name: 'Official Tehran Tournament 2026',
-    version: '1.0.0',
-    author: 'MPGA Pro League',
-    description: 'Competitive ruleset with 45s speaking turns, 1 challenge per day, strict ceiling threshold, and balanced role limits.',
-    createdAt: '2026-09-01T00:00:00.000Z',
-    modes: [
-      {
-        id: 'tehran-pro',
-        nameKey: 'modes.tehranPro.name',
-        name: 'Tehran Pro League',
-        minPlayers: 10,
-        timeToTalk: 45,
-        borrowedTimeToTalk: 25,
-        defenseTimeToTalk: 60,
-        challengesPerDay: 1,
-        nextDayShift: 2,
-        votingThresholdRounding: 'ceil',
-        balanceRules: {
-          warnIfSideExceedsRatio: {
-            sideId: 'mafia',
-            maxRatio: 0.33,
-          },
-        },
-      },
-    ],
-    customRoles: [
-      {
-        id: 'judge',
-        nameKey: 'roles.judge.name',
-        name: 'Judge',
-        descriptionKey: 'roles.judge.description',
-        description: 'Independent arbiter who can absolve one accused defender from final execution once per tournament.',
-        tacticsKey: 'roles.judge.tactics',
-        badgeKey: 'roles.judge.badge',
-        sideId: 'third-party',
-        modeIds: ['tehran-pro'],
-        limit: 1,
-        order: 15,
-        image: 'judge.svg',
-        svgKey: 'judge',
-        abilityIds: ['absolve'],
-        passiveAbilityIds: [],
-        inquiryAppearsAs: 'town',
-      },
-    ],
-  },
-  {
-    id: 'speed-blitz-mafia',
-    name: 'Speed Blitz (Fast 30s)',
-    version: '1.0.0',
-    author: 'MPGA Fast Match',
-    description: 'High-octane quick rounds with 30s speaking turns and 2 daily challenges for rapid games.',
-    createdAt: '2026-09-01T00:00:00.000Z',
-    modes: [
-      {
-        id: 'speed-blitz',
-        nameKey: 'modes.speedBlitz.name',
-        name: 'Speed Blitz',
-        minPlayers: 6,
-        timeToTalk: 30,
-        borrowedTimeToTalk: 15,
-        defenseTimeToTalk: 45,
-        challengesPerDay: 2,
-        nextDayShift: 1,
-        votingThresholdRounding: 'half',
-        balanceRules: {
-          warnIfSideExceedsRatio: {
-            sideId: 'mafia',
-            maxRatio: 0.34,
-          },
-        },
-      },
-    ],
-    customRoles: [],
-  },
+export const communityUniversalPresets: UniversalGamePack[] = [
+  godfatherPreset,
+  classicMafiaPreset,
+  zodiacPreset,
+  vendettaPreset,
+  tehranProPreset,
+  speedBlitzPreset,
+  cybersecurityPreset,
 ];
+
+/**
+ * Built-in community rulepacks available for one-tap import,
+ * projected into legacy GamePack format for backward-compatible views.
+ */
+export const communityPresets: GamePack[] =
+  communityUniversalPresets.map(universalPackToLegacyPack);
 
 export function useGamePackService() {
   const customModes = ref<GameMode[]>(loadEncoded<GameMode[]>(STORAGE_CUSTOM_MODES_KEY) || []);
@@ -243,9 +409,9 @@ export function useGamePackService() {
   };
 
   /**
-   * Exports a GamePack object as a downloadable .json file.
+   * Exports a GamePack or UniversalGamePack object as a downloadable .json file.
    */
-  const exportPackAsJson = (pack: GamePack): void => {
+  const exportPackAsJson = (pack: GamePack | UniversalGamePack): void => {
     const jsonStr = JSON.stringify(pack, null, 2);
     if (typeof window === 'undefined') return;
 
@@ -300,7 +466,7 @@ export function useGamePackService() {
     }
 
     refreshState();
-    return { valid: true, errors: [], pack };
+    return { valid: true, errors: [], pack, universalPack: validation.universalPack };
   };
 
   /**
@@ -320,6 +486,7 @@ export function useGamePackService() {
     customRoles,
     customPacks,
     communityPresets,
+    communityUniversalPresets,
     getAllModes,
     getAllRoles,
     saveCustomMode,

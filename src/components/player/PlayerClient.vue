@@ -899,10 +899,7 @@
 
     <!-- SLIDE-OVER MOBILE DRAWER -->
     <Teleport to="body">
-      <div
-        v-if="isDrawerOpen"
-        class="fixed inset-0 z-[100] flex justify-end"
-      >
+      <div v-if="isDrawerOpen" class="fixed inset-0 z-[100] flex justify-end">
         <!-- BACKDROP -->
         <div
           class="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
@@ -934,7 +931,9 @@
             <!-- ROOM & NETWORK TELEMETRY -->
             <div class="p-3 bg-gray-850 border border-gray-750 rounded-xl space-y-2">
               <div class="flex items-center justify-between text-xs">
-                <span class="text-gray-400 font-medium">{{ $t('playerClientDrawer.pinCode') }}</span>
+                <span class="text-gray-400 font-medium">{{
+                  $t('playerClientDrawer.pinCode')
+                }}</span>
                 <span class="font-mono font-black text-amber-400 text-sm">
                   {{ multiplayer.roomCode.value || inputRoomCode || '---' }}
                 </span>
@@ -942,7 +941,9 @@
               <div class="flex items-center justify-between text-xs">
                 <span class="text-gray-400 font-medium">{{ $t('multiplayer.transport') }}</span>
                 <span class="font-mono text-xs font-bold text-indigo-300">
-                  {{ multiplayer.transportMode.value === 'cloud' ? '☁️ Cloud MQTT' : '⚡ WebRTC P2P' }}
+                  {{
+                    multiplayer.transportMode.value === 'cloud' ? '☁️ Cloud MQTT' : '⚡ WebRTC P2P'
+                  }}
                 </span>
               </div>
               <div
@@ -1009,7 +1010,11 @@
                 </div>
                 <span
                   class="w-9 h-5 rounded-full p-0.5 transition-colors flex items-center shrink-0"
-                  :class="wakeLock.isActive.value ? 'bg-amber-500 justify-end' : 'bg-gray-700 justify-start'"
+                  :class="
+                    wakeLock.isActive.value
+                      ? 'bg-amber-500 justify-end'
+                      : 'bg-gray-700 justify-start'
+                  "
                 >
                   <span class="w-4 h-4 rounded-full bg-white block shadow"></span>
                 </span>
@@ -1037,7 +1042,9 @@
                 </div>
                 <span
                   class="w-9 h-5 rounded-full p-0.5 transition-colors flex items-center shrink-0"
-                  :class="!audio.isMuted.value ? 'bg-indigo-500 justify-end' : 'bg-gray-700 justify-start'"
+                  :class="
+                    !audio.isMuted.value ? 'bg-indigo-500 justify-end' : 'bg-gray-700 justify-start'
+                  "
                 >
                   <span class="w-4 h-4 rounded-full bg-white block shadow"></span>
                 </span>
@@ -1062,7 +1069,9 @@
               </button>
 
               <!-- LANGUAGE SWITCHER -->
-              <div class="p-3 bg-gray-850/80 border border-gray-700/80 rounded-xl flex items-center justify-between">
+              <div
+                class="p-3 bg-gray-850/80 border border-gray-700/80 rounded-xl flex items-center justify-between"
+              >
                 <span class="text-xs font-bold text-gray-300 flex items-center gap-2">
                   <span>🌐</span>
                   <span>{{ $t('playerClientDrawer.changeLanguage') }}</span>

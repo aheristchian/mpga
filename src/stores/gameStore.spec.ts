@@ -246,4 +246,94 @@ describe('Game Store (gameStore.ts)', () => {
     expect(store.livePlayers[0].isDead).toBe(false);
     expect(store.canUndo).toBe(false);
   });
+
+  describe('UniversalGamePack store integration', () => {
+    it('initializes deck as empty when universal pipeline disables exit cards', () => {
+      const store = useGameStore();
+      store.setActiveUniversalPack({
+        version: '2.0.0',
+        id: 'no-cards-pack',
+        name: 'No Cards Game',
+        theme: { primaryColor: '#ef4444' },
+        pipeline: {
+          enabledPhases: ['day', 'voting', 'night'],
+          speakingOrder: 'sequential_shift',
+          votingThresholdFormula: 'ceil',
+          tieResolution: 'no_elimination',
+          enableExitCards: false,
+        },
+        factions: [],
+        abilities: [],
+        roles: [],
+      });
+
+      store.startPlaying([{ name: 'Alice', role: { id: 'p1', name: 'P1', sideId: 'f1' } }]);
+
+      expect(store.lastWordDeck).toEqual([]);
+    });
+
+    it('evaluates declarative faction victory when activeUniversalPack factions are set', () => {
+      const store = useGameStore();
+      store.setActiveUniversalPack({
+        version: '2.0.0',
+        id: 'cyber-pack',
+        name: 'Cyber War',
+        theme: { primaryColor: '#3b82f6' },
+        pipeline: {
+          enabledPhases: ['day', 'voting', 'night'],
+          speakingOrder: 'sequential_shift',
+          votingThresholdFormula: 'ceil',
+          tieResolution: 'no_elimination',
+          enableExitCards: false,
+        },
+        factions: [
+          {
+            id: 'blue_team',
+            name: 'Blue Team (SOC)',
+            color: '#3b82f6',
+            badgeIcon: '🛡️',
+            alignment: 'uninformed_majority',
+            winCondition: { type: 'elimination', targetFactionIds: ['red_team'] },
+          },
+          {
+            id: 'red_team',
+            name: 'Red Team (APT)',
+            color: '#ef4444',
+            badgeIcon: '💀',
+            alignment: 'informed_minority',
+            winCondition: { type: 'parity', parityAgainstFactionIds: ['blue_team'] },
+          },
+        ],
+        abilities: [],
+        roles: [],
+      });
+
+      store.startPlaying([
+        { name: 'SOC1', role: { id: 'analyst', name: 'Analyst', sideId: 'blue_team' } },
+        { name: 'APT1', role: { id: 'infiltrator', name: 'Infiltrator', sideId: 'red_team' } },
+      ]);
+
+      expect(store.isGameOver).toBe(false);
+
+      // Kill the only APT member -> Blue Team achieves elimination victory
+      store.setPlayerDeathStatus('APT1', true, 'Purged');
+
+      expect(store.isGameOver).toBe(true);
+      expect(store.winner).toBe('blue_team');
+      expect(store.winningFaction?.name).toBe('Blue Team (SOC)');
+    });
+
+    it('mutates player ability charges with applyPlayerCharges', () => {
+      const store = useGameStore();
+      store.startPlaying([
+        { name: 'Alice', role: { id: 'shield_bearer', name: 'Knight', sideId: 'town' } },
+      ]);
+
+      store.applyPlayerCharges({
+        Alice: { shield: 2, heal: 1 },
+      });
+
+      expect(store.livePlayers[0].abilityCharges).toEqual({ shield: 2, heal: 1 });
+    });
+  });
 });

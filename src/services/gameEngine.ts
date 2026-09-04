@@ -1,10 +1,11 @@
 import { mockAbilities } from '../data/abilities';
-import type { Player, Ability } from '../types';
+import type { Player, Ability, UniversalAbilityDefinition, EffectPrimitive } from '../types';
 
 export interface ActionPayload {
   target?: string;
   actionId?: string;
   abilityId?: string;
+  targets?: string[];
   [key: string]: any;
 }
 
@@ -23,28 +24,35 @@ export interface NightResolutionResult {
   brokenShields: string[];
   converted: ConvertedPlayer[];
   log: string[];
+  updatedAbilityCharges?: Record<string, Record<string, number | 'unlimited'>>;
 }
 
 interface QueuedAction {
   actor: Player;
   target: Player;
-  ability: Ability;
+  ability: Ability | UniversalAbilityDefinition;
   priority: number;
+  payload?: ActionPayload;
 }
 
 /**
  * Resolves all night actions based on their priority in descending order (highest executes first).
+ * Supports both legacy hardcoded role behaviors and universal declarative Effect Primitives.
  *
  * Standardized Priority Scale:
  * - 99: Passive Immunity & Sixth Sense (Shields, Unlimited Shields)
- * - 90: Blocks, Buys & Silences (Matador Block, Saul Goodman Bribe, Silencer Silence)
- * - 85: Cleansing & Absolutions (Priest Absolve)
- * - 80: Medical Treatments & Bodyguard Saves (Doctor Treat, Bodyguard Protect)
- * - 70: Lethal Night Shots (Godfather Shot, Leon Vigilante Shot, Zodiac Shot)
- * - 50: Inquiries & Allegiances (Detective Inquiry, Nostradamus Choice)
- * - 10: Revivals (Constantine Revival)
+ * - 90: Blocks, Buys & Silences (Block, Bribe, Silence)
+ * - 85: Cleansing & Absolutions (Absolve, Fortify)
+ * - 80: Medical Treatments & Saves (Treat, Protect, Patch Sandbox)
+ * - 70: Lethal Night Shots (Kills, Hits, Exploit)
+ * - 50: Inquiries & Allegiances (Inquiries, Scans, Allegiances)
+ * - 10: Revivals (Revive)
  */
-export const resolveNight = (players: Player[], actionMap: ActionMap): NightResolutionResult => {
+export const resolveNight = (
+  players: Player[],
+  actionMap: ActionMap,
+  customAbilities: (Ability | UniversalAbilityDefinition)[] = []
+): NightResolutionResult => {
   const log: string[] = [];
   const killedThisNight = new Set<string>();
   const unpreventableDeaths = new Set<string>();
@@ -54,6 +62,17 @@ export const resolveNight = (players: Player[], actionMap: ActionMap): NightReso
   const treatedPlayers = new Set<string>(); // Saved from kills
   const brokenShields: string[] = [];
   const converted: ConvertedPlayer[] = [];
+  const updatedAbilityCharges: Record<string, Record<string, number | 'unlimited'>> = {};
+
+  // Clone player charges so we can track and return changes immutably
+  for (const player of players) {
+    if (player.abilityCharges) {
+      updatedAbilityCharges[player.name] = { ...player.abilityCharges };
+    }
+  }
+
+  // Combined ability lookup pool (custom definitions take priority over default mockAbilities)
+  const allAbilities = [...customAbilities, ...mockAbilities];
 
   // Extract and enrich actions with priority data
   const actions: QueuedAction[] = [];
@@ -73,12 +92,17 @@ export const resolveNight = (players: Player[], actionMap: ActionMap): NightReso
     const specifiedActionId =
       typeof rawPayload === 'object' ? rawPayload.actionId || rawPayload.abilityId : undefined;
 
-    let ability: Ability | undefined;
+    let ability: (Ability | UniversalAbilityDefinition) | undefined;
     if (specifiedActionId) {
-      ability = mockAbilities.find((a) => a.id === specifiedActionId);
+      ability = allAbilities.find((a) => a.id === specifiedActionId);
     }
     if (!ability && actor.role?.abilityIds?.length) {
-      ability = mockAbilities.find((a) => actor.role?.abilityIds.includes(a.id));
+      ability = allAbilities.find((a) => {
+        return actor.role?.abilityIds.some((aid: any) => {
+          const id = typeof aid === 'string' ? aid : aid?.abilityId;
+          return id === a.id;
+        });
+      });
     }
 
     if (ability) {
@@ -87,6 +111,7 @@ export const resolveNight = (players: Player[], actionMap: ActionMap): NightReso
         target,
         ability,
         priority: ability.priority || 50,
+        payload: typeof rawPayload === 'object' ? rawPayload : undefined,
       });
     }
   }
@@ -95,12 +120,100 @@ export const resolveNight = (players: Player[], actionMap: ActionMap): NightReso
   actions.sort((a, b) => b.priority - a.priority);
 
   // Execute actions
-  for (const { actor, target, ability } of actions) {
+  for (const { actor, target, ability, payload } of actions) {
     if (blockedPlayers.has(actor.name)) {
       log.push(`[BLOCKED] ${actor.name} tried to use ${ability.id}, but was blocked.`);
       continue;
     }
 
+    const universalEffects: EffectPrimitive[] = (ability as any).effects || [];
+
+    // --- 1. DECLARATIVE PRIMITIVE RESOLUTION (If effects are defined) ---
+    if (universalEffects.length > 0) {
+      for (const effect of universalEffects) {
+        switch (effect.type) {
+          case 'block':
+            blockedPlayers.add(target.name);
+            log.push(`[BLOCKED] ${actor.name} blocked ${target.name}'s action.`);
+            break;
+
+          case 'silence':
+            silencedPlayers.add(target.name);
+            log.push(`[SILENCE] ${actor.name} silenced ${target.name} for the upcoming day.`);
+            break;
+
+          case 'absolve':
+            if (silencedPlayers.has(target.name)) {
+              silencedPlayers.delete(target.name);
+              log.push(`[ABSOLVE] ${actor.name} restored ${target.name}'s status.`);
+            } else {
+              log.push(`[ABSOLVE] ${actor.name} cleansed ${target.name}.`);
+            }
+            break;
+
+          case 'protect':
+            treatedPlayers.add(target.name);
+            log.push(`[PROTECT] ${actor.name} shielded ${target.name} against attacks.`);
+            break;
+
+          case 'lethal_hit':
+            if (effect.isUnpreventable) {
+              unpreventableDeaths.add(target.name);
+            }
+            killedThisNight.add(target.name);
+            log.push(`[LETHAL_HIT] ${actor.name} launched a lethal strike on ${target.name}.`);
+            break;
+
+          case 'convert': {
+            const newSide = String(effect.value || 'mafia');
+            converted.push({
+              playerName: target.name,
+              newSideId: newSide,
+              reason: `${actor.name} recruited ${target.name}`,
+            });
+            log.push(`[CONVERT] ${actor.name} converted ${target.name} to ${newSide}!`);
+            break;
+          }
+
+          case 'inquire': {
+            const apparentSide =
+              target.role?.inquiryAppearsAs ||
+              (target.role as any)?.inquiryAppearsAsFactionId ||
+              target.role?.sideId ||
+              'town';
+            log.push(`[INQUIRY] ${actor.name} scanned ${target.name}. Result: ${apparentSide}.`);
+            break;
+          }
+
+          case 'count_faction_inquiry': {
+            const targetNames = payload?.targets || [target.name];
+            const targetSide = String(effect.value || 'mafia');
+            const matchCount = targetNames.filter((tName) => {
+              const p = players.find((x) => x.name === tName);
+              return p?.role?.sideId === targetSide;
+            }).length;
+            log.push(
+              `[COUNT_INQUIRY] ${actor.name} scanned ${targetNames.length} targets: ${matchCount} match ${targetSide}.`
+            );
+            break;
+          }
+
+          case 'revive':
+            revivedThisNight.add(target.name);
+            log.push(`[REVIVE] ${actor.name} revived ${target.name}!`);
+            break;
+
+          case 'status_effect':
+            log.push(
+              `[STATUS] ${actor.name} applied ${effect.value || 'effect'} on ${target.name}.`
+            );
+            break;
+        }
+      }
+      continue;
+    }
+
+    // --- 2. BACKWARD-COMPATIBLE FALLBACK (Legacy hardcoded role behaviors) ---
     switch (ability.id) {
       case 'side-with':
         log.push(`[INFO] ${actor.name} sided with ${target.name}.`);
@@ -124,9 +237,7 @@ export const resolveNight = (players: Player[], actionMap: ActionMap): NightReso
             `[CREDENTIAL_LOCK] ${actor.name} (Phisher) locked ${target.name}'s credentials for the upcoming day.`
           );
         } else {
-          log.push(
-            `[SILENCE] ${actor.name} (Silencer) muted ${target.name} for the upcoming day.`
-          );
+          log.push(`[SILENCE] ${actor.name} (Silencer) muted ${target.name} for the upcoming day.`);
         }
         break;
 
@@ -139,9 +250,7 @@ export const resolveNight = (players: Player[], actionMap: ActionMap): NightReso
               `[AUTH_RESTORE] ${actor.name} restored credentials and unblocked ${target.name}!`
             );
           } else {
-            log.push(
-              `[ABSOLVE] ${actor.name} absolved and restored ${target.name}'s voice!`
-            );
+            log.push(`[ABSOLVE] ${actor.name} absolved and restored ${target.name}'s voice!`);
           }
         } else {
           if (ability.id === 'auth-restore') {
@@ -149,9 +258,7 @@ export const resolveNight = (players: Player[], actionMap: ActionMap): NightReso
               `[AUTH_RESTORE] ${actor.name} verified and fortified ${target.name}'s access.`
             );
           } else {
-            log.push(
-              `[ABSOLVE] ${actor.name} blessed ${target.name}, but they were not silenced.`
-            );
+            log.push(`[ABSOLVE] ${actor.name} blessed ${target.name}, but they were not silenced.`);
           }
         }
         break;
@@ -181,9 +288,7 @@ export const resolveNight = (players: Player[], actionMap: ActionMap): NightReso
             `[PATCH_SANDBOX] ${actor.name} (Firewall) isolated ${target.name} in a secure sandbox.`
           );
         } else {
-          log.push(
-            `[PROTECT] ${actor.name} (Bodyguard) guarded ${target.name} against attacks.`
-          );
+          log.push(`[PROTECT] ${actor.name} (Bodyguard) guarded ${target.name} against attacks.`);
         }
         break;
 
@@ -220,9 +325,7 @@ export const resolveNight = (players: Player[], actionMap: ActionMap): NightReso
         // If shooting Town citizen, shooter dies from penalty/guilt and the innocent target survives
         if (target.role?.sideId === 'town') {
           const penaltyTag =
-            ability.id === 'counter-hack'
-              ? '[COUNTER_HACK_PENALTY]'
-              : '[LEON_PENALTY]';
+            ability.id === 'counter-hack' ? '[COUNTER_HACK_PENALTY]' : '[LEON_PENALTY]';
           log.push(
             `${penaltyTag} ${actor.name} compromised innocent node ${target.name}. Fatal authorization revoke triggered; ${target.name} survives.`
           );
@@ -230,10 +333,7 @@ export const resolveNight = (players: Player[], actionMap: ActionMap): NightReso
           unpreventableDeaths.add(actor.name); // Guilt penalty cannot be saved by heal
         } else {
           // Neutralized Mafia or Third-Party
-          const hitTag =
-            ability.id === 'counter-hack'
-              ? '[COUNTER_HACK_HIT]'
-              : '[VIGILANTE_HIT]';
+          const hitTag = ability.id === 'counter-hack' ? '[COUNTER_HACK_HIT]' : '[VIGILANTE_HIT]';
           log.push(
             `${hitTag} ${actor.name} successfully neutralized malicious node ${target.name} (${target.role?.sideId || 'mafia'}).`
           );
@@ -252,6 +352,7 @@ export const resolveNight = (players: Player[], actionMap: ActionMap): NightReso
             target.role?.id === 'zero-day' ||
             target.role?.id === 'rogue-ai' ||
             target.role?.inquiryAppearsAs === 'town' ||
+            (target.role as any)?.inquiryAppearsAsFactionId === 'town' ||
             target.role?.passiveAbilityIds?.includes('clean-inquiry')
           ) {
             log.push(
@@ -278,15 +379,44 @@ export const resolveNight = (players: Player[], actionMap: ActionMap): NightReso
     }
   }
 
-  // Final Death Calculation
+  // --- 3. FINAL DEATH & SHIELD CALCULATION ---
   const actualDeaths: string[] = [];
   for (const name of killedThisNight) {
     if (treatedPlayers.has(name) && !unpreventableDeaths.has(name)) {
       log.push(`[SAVE] ${name} was shot, but saved by medical treatment or bodyguard protection.`);
     } else {
-      // Check passive shields
       const targetPlayer = players.find((p) => p.name === name);
       const passives = targetPlayer?.role?.passiveAbilityIds || [];
+      const charges = updatedAbilityCharges[name] || targetPlayer?.abilityCharges || {};
+      const shieldKey = Object.keys(charges).find(
+        (k) =>
+          k === 'shield' ||
+          k.toLowerCase().includes('shield') ||
+          k.toLowerCase().includes('firewall') ||
+          k.toLowerCase().includes('armor') ||
+          k.toLowerCase().includes('invulnerable')
+      );
+      const shieldCharges = shieldKey ? charges[shieldKey] : undefined;
+
+      // Check dynamic quota charges first
+      if (!unpreventableDeaths.has(name) && shieldCharges !== undefined && shieldKey) {
+        if (shieldCharges === 'unlimited') {
+          log.push(`[SAVE] ${name} was attacked, but their unlimited shield absorbed the strike.`);
+          continue;
+        } else if (typeof shieldCharges === 'number' && shieldCharges > 0) {
+          const nextCharges = shieldCharges - 1;
+          charges[shieldKey] = nextCharges;
+          updatedAbilityCharges[name] = charges;
+          log.push(`[SAVE] ${name}'s shield absorbed the attack (${nextCharges} charge(s) left).`);
+          if (nextCharges === 0) {
+            brokenShields.push(name);
+            log.push(`[SHIELD_BROKEN] ${name}'s shield has completely shattered.`);
+          }
+          continue;
+        }
+      }
+
+      // Fallback to legacy passive flags
       const hasShield = passives.includes('shield') && !targetPlayer?.isShieldBroken;
       const hasUnlimitedShield = passives.includes('unlimited-shield');
 
@@ -310,5 +440,7 @@ export const resolveNight = (players: Player[], actionMap: ActionMap): NightReso
     brokenShields,
     converted,
     log,
+    updatedAbilityCharges:
+      Object.keys(updatedAbilityCharges).length > 0 ? updatedAbilityCharges : undefined,
   };
 };

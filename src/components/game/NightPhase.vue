@@ -973,7 +973,11 @@ const nextRole = () => {
 };
 
 const executeNightResolution = () => {
-  resolution.value = resolveNight(store.livePlayers, actionMap.value);
+  resolution.value = resolveNight(
+    store.livePlayers,
+    actionMap.value,
+    store.activeUniversalPack?.abilities
+  );
   stage.value = 'morning';
   audio.playDawnRise();
   narrateCurrentStep();
@@ -987,6 +991,11 @@ const executeNightResolution = () => {
 
 const startNextDay = () => {
   if (!resolution.value) return;
+
+  // Commit updated ability quotas / charges
+  if (resolution.value.updatedAbilityCharges) {
+    store.applyPlayerCharges(resolution.value.updatedAbilityCharges);
+  }
 
   // Commit broken shields
   resolution.value.brokenShields?.forEach((name) => {

@@ -47,9 +47,11 @@
       >
         <div class="flex items-center mb-6 border-b border-gray-700 pb-2">
           <h3
-            class="text-2xl font-bold uppercase tracking-widest"
+            class="text-2xl font-bold uppercase tracking-widest flex items-center gap-2"
             :class="getTextColorClass(group.side.id)"
+            :style="getSideHeaderStyle(group.side)"
           >
+            <span v-if="group.side.badgeIcon" class="text-xl">{{ group.side.badgeIcon }}</span>
             {{
               $te('sides.' + group.side.id + '.name')
                 ? $t('sides.' + group.side.id + '.name')
@@ -67,6 +69,7 @@
             :key="role.id"
             class="relative transition-all duration-300 rounded-xl p-4 border-4 select-none flex flex-col justify-between active:scale-95"
             :class="getCardClasses(role)"
+            :style="getCardStyle(role)"
             @click="incrementRole(role)"
           >
             <div>
@@ -217,8 +220,31 @@ const getCount = (roleId: string) => {
   return roleCounts.value[roleId] || 0;
 };
 
-// Filter roles strictly by the selected game mode
+// Computed effective sides (either universal pack factions or classic sides)
+const effectiveSides = computed(() => {
+  if (store.activeUniversalPack?.factions && store.activeUniversalPack.factions.length > 0) {
+    return store.activeUniversalPack.factions.map((f) => ({
+      id: f.id,
+      name: f.name,
+      nameKey: f.nameKey,
+      color: f.color,
+      badgeIcon: f.badgeIcon,
+    }));
+  }
+  return sides.value;
+});
+
+// Filter roles strictly by the selected game mode or active universal pack
 const availableRoles = computed(() => {
+  if (store.activeUniversalPack?.roles && store.activeUniversalPack.roles.length > 0) {
+    return store.activeUniversalPack.roles.map((r) => ({
+      id: r.id,
+      name: r.name,
+      description: r.description,
+      sideId: r.factionId,
+      limit: r.limit ?? 1,
+    }));
+  }
   if (!roles.value.length) return [];
   const activeModeId = store.gameMode?.id || 'godfather';
   return roles.value.filter((role) => {
@@ -233,8 +259,8 @@ const totalSelected = computed(() => {
 
 // COMPUTED: Group the available roles by their Side for rendering
 const rolesGroupedBySide = computed(() => {
-  if (!availableRoles.value.length || !sides.value.length) return [];
-  const groups = sides.value.map((side) => {
+  if (!availableRoles.value.length || !effectiveSides.value.length) return [];
+  const groups = effectiveSides.value.map((side) => {
     return {
       side: side,
       roles: availableRoles.value.filter((role) => role.sideId === side.id),
@@ -277,17 +303,36 @@ const clearRole = (roleId: string) => {
 const getTextColorClass = (sideId?: string) => {
   if (sideId === 'town') return 'text-town';
   if (sideId === 'mafia') return 'text-mafia';
-  return 'text-thirdParty';
+  if (sideId === 'third-party') return 'text-thirdParty';
+  return 'text-white';
+};
+
+const getSideHeaderStyle = (side: any) => {
+  if (side?.color) {
+    return { color: side.color };
+  }
+  return {};
+};
+
+const getCardStyle = (role: Role | HydratedRole) => {
+  const fac = store.activeUniversalPack?.factions?.find((f) => f.id === role.sideId);
+  if (fac?.color) {
+    return {
+      borderColor: fac.color,
+      backgroundColor: `${fac.color}20`,
+    };
+  }
+  return {};
 };
 
 const getCardClasses = (role: Role | HydratedRole) => {
   const count = getCount(role.id);
   const isGlobalMaxed = totalSelected.value >= props.playerCount;
 
-  let baseClass: string;
+  let baseClass = 'bg-gray-800/80 border-gray-700';
   if (role.sideId === 'town') baseClass = 'bg-town border-town';
   else if (role.sideId === 'mafia') baseClass = 'bg-mafia border-mafia';
-  else baseClass = 'bg-thirdParty border-thirdParty';
+  else if (role.sideId === 'third-party') baseClass = 'bg-thirdParty border-thirdParty';
 
   if (count > 0) {
     return `${baseClass} opacity-100 shadow-xl ring-2 ring-white scale-[1.02] cursor-pointer`;
@@ -305,7 +350,7 @@ const confirmRoles = () => {
   // Prepare the raw array
   const finalRolesArray = [];
   for (const [roleId, count] of Object.entries(roleCounts.value)) {
-    const fullRoleObject = roles.value.find((r) => r.id === roleId);
+    const fullRoleObject = availableRoles.value.find((r) => r.id === roleId);
     if (fullRoleObject) {
       for (let i = 0; i < count; i++) {
         finalRolesArray.push(fullRoleObject);
