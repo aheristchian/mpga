@@ -225,18 +225,30 @@
           <div
             class="flex items-center gap-4 bg-gray-900/70 p-4 rounded-xl border border-gray-700 mb-6"
           >
-            <RoleAvatar :role="currentActor.role" size="lg" />
+            <RoleAvatar
+              :role="
+                currentActor.isMafiaTeamShot
+                  ? { id: 'mafia-shot', name: 'Mafia Shot', badgeKey: 'roleGuide.factions.mafiaLeader' }
+                  : currentActor.role
+              "
+              size="lg"
+            />
             <div>
               <h3 class="text-2xl font-black text-white">
                 {{
-                  $te('roles.' + currentActor.role?.id + '.name')
-                    ? $t('roles.' + currentActor.role?.id + '.name')
-                    : currentActor.role?.name
+                  currentActor.isMafiaTeamShot
+                    ? $t('nightPhase.mafiaTeamShotTitle')
+                    : $te('roles.' + currentActor.role?.id + '.name')
+                      ? $t('roles.' + currentActor.role?.id + '.name')
+                      : currentActor.role?.name
                 }}
               </h3>
               <p class="text-sm text-gray-300">
                 {{ $t('common.player') }}:
                 <span class="font-bold text-white">{{ currentActor.name }}</span>
+                <span v-if="currentActor.isMafiaTeamShot" class="text-xs text-red-400 font-semibold ml-1 rtl:mr-1">
+                  ({{ $te('roles.' + currentActor.role?.id + '.name') ? $t('roles.' + currentActor.role?.id + '.name') : currentActor.role?.name }})
+                </span>
               </p>
             </div>
           </div>
@@ -250,12 +262,14 @@
               >
               <p class="text-sm text-gray-200 italic">
                 {{
-                  $t('nightPhase.wakeRolePrompt', {
-                    role: $te('roles.' + currentActor.role?.id + '.name')
-                      ? $t('roles.' + currentActor.role?.id + '.name')
-                      : currentActor.role?.name,
-                    player: currentActor.name,
-                  })
+                  currentActor.isMafiaTeamShot
+                    ? $t('nightPhase.mafiaTeamShotPrompt', { name: currentActor.name })
+                    : $t('nightPhase.wakeRolePrompt', {
+                        role: $te('roles.' + currentActor.role?.id + '.name')
+                          ? $t('roles.' + currentActor.role?.id + '.name')
+                          : currentActor.role?.name,
+                        player: currentActor.name,
+                      })
                 }}
               </p>
             </div>
@@ -390,7 +404,7 @@
           <div v-else class="space-y-6 mb-6 text-left">
             <!-- MOBILE ACTION SYNCED BADGE -->
             <div
-              v-if="mobileActionSyncMap[currentActor.name]"
+              v-if="mobileActionSyncMap[getActorActionKey(currentActor)]"
               class="p-3 bg-indigo-950/70 border border-indigo-500/50 rounded-xl flex items-center justify-between gap-2 shadow-inner"
             >
               <div class="flex items-center gap-2.5">
@@ -398,10 +412,10 @@
                 <div>
                   <span class="text-xs font-bold text-indigo-300 block">
                     {{
-                      mobileActionSyncMap[currentActor.name].target
+                      mobileActionSyncMap[getActorActionKey(currentActor)].target
                         ? $t('nightPhase.mobileActionSynced', {
                             player: currentActor.name,
-                            target: mobileActionSyncMap[currentActor.name].target,
+                            target: mobileActionSyncMap[getActorActionKey(currentActor)].target,
                           })
                         : $t('nightPhase.mobileActionPass', { player: currentActor.name })
                     }}
@@ -433,11 +447,11 @@
                   type="button"
                   class="p-3.5 rounded-xl border text-left transition-all cursor-pointer select-none active:scale-98 flex items-start gap-3 min-h-[56px]"
                   :class="
-                    getSelectedActionId(currentActor.name) === action.id
+                    getSelectedActionId(getActorActionKey(currentActor)) === action.id
                       ? 'bg-indigo-950/80 border-indigo-400 ring-2 ring-indigo-500/50 shadow-lg shadow-indigo-950/40 text-white'
                       : 'bg-gray-800/80 border-gray-700 hover:bg-gray-750 text-gray-300 hover:text-white'
                   "
-                  @click="selectActorAction(currentActor.name, action.id)"
+                  @click="selectActorAction(getActorActionKey(currentActor), action.id)"
                 >
                   <span class="text-2xl p-1.5 bg-gray-900/80 rounded-lg shrink-0">{{
                     action.icon
@@ -448,7 +462,7 @@
                         $t(action.nameKey)
                       }}</span>
                       <span
-                        v-if="getSelectedActionId(currentActor.name) === action.id"
+                        v-if="getSelectedActionId(getActorActionKey(currentActor)) === action.id"
                         class="text-xs text-indigo-400 font-black bg-indigo-900/60 px-1.5 py-0.5 rounded"
                         >✓</span
                       >
@@ -463,7 +477,7 @@
 
             <!-- STEP 2: CHOOSE TARGET (IF ACTION REQUIRES TARGET) -->
             <div
-              v-if="getSelectedActionId(currentActor.name) === 'pass'"
+              v-if="getSelectedActionId(getActorActionKey(currentActor)) === 'pass'"
               class="p-4 bg-gray-900/80 border border-dashed border-gray-700 rounded-xl text-center space-y-1"
             >
               <span class="text-2xl block">🚫</span>
@@ -471,7 +485,7 @@
             </div>
 
             <div
-              v-else-if="getSelectedActionId(currentActor.name) === 'treat-self'"
+              v-else-if="getSelectedActionId(getActorActionKey(currentActor)) === 'treat-self'"
               class="p-4 bg-emerald-950/40 border border-emerald-500/50 rounded-xl flex items-center gap-3"
             >
               <span class="text-3xl">🛡️</span>
@@ -497,12 +511,12 @@
                   <span>🎯</span> {{ $t('nightPhase.step2Target') }}
                 </label>
                 <span
-                  v-if="getCurrentTargetName(currentActor.name)"
+                  v-if="getCurrentTargetName(getActorActionKey(currentActor))"
                   class="text-xs text-indigo-300 font-bold bg-indigo-950/80 px-2.5 py-0.5 rounded-full border border-indigo-700"
                 >
                   {{ $t('nightPhase.selectedTarget') }}:
                   <strong class="text-white ml-1">{{
-                    getCurrentTargetName(currentActor.name)
+                    getCurrentTargetName(getActorActionKey(currentActor))
                   }}</strong>
                 </span>
               </div>
@@ -510,8 +524,10 @@
               <!-- CANDIDATE PLAYER CARDS GRID -->
               <div
                 v-if="
-                  getValidTargetsForAction(currentActor, getSelectedActionId(currentActor.name))
-                    .length === 0
+                  getValidTargetsForAction(
+                    currentActor,
+                    getSelectedActionId(getActorActionKey(currentActor))
+                  ).length === 0
                 "
                 class="text-center py-6 bg-gray-900/60 border border-dashed border-gray-700 rounded-xl p-4"
               >
@@ -522,17 +538,17 @@
                 <button
                   v-for="target in getValidTargetsForAction(
                     currentActor,
-                    getSelectedActionId(currentActor.name)
+                    getSelectedActionId(getActorActionKey(currentActor))
                   )"
                   :key="target.name"
                   type="button"
                   class="p-3 rounded-xl border text-left transition-all cursor-pointer select-none active:scale-95 flex items-center gap-2.5 min-h-[52px]"
                   :class="
-                    getCurrentTargetName(currentActor.name) === target.name
+                    getCurrentTargetName(getActorActionKey(currentActor)) === target.name
                       ? 'bg-gradient-to-r from-indigo-600 to-purple-600 border-indigo-300 text-white shadow-lg shadow-indigo-600/30 ring-2 ring-indigo-400'
                       : 'bg-gray-800/90 border-gray-700 text-gray-200 hover:bg-gray-750 hover:border-gray-600'
                   "
-                  @click="selectActorTarget(currentActor.name, target.name)"
+                  @click="selectActorTarget(getActorActionKey(currentActor), target.name)"
                 >
                   <RoleAvatar :role="target.role" :is-dead="target.isDead" size="sm" />
                   <div class="min-w-0 flex-1">
@@ -546,7 +562,7 @@
                     </span>
                   </div>
                   <span
-                    v-if="getCurrentTargetName(currentActor.name) === target.name"
+                    v-if="getCurrentTargetName(getActorActionKey(currentActor)) === target.name"
                     class="text-sm font-black text-white shrink-0"
                     >✓</span
                   >
@@ -557,7 +573,10 @@
 
           <!-- DETECTIVE INSTANT FEEDBACK -->
           <div
-            v-if="currentActor.role?.id === 'detective' && getCurrentTargetName(currentActor.name)"
+            v-if="
+              currentActor.role?.id === 'detective' &&
+              getCurrentTargetName(getActorActionKey(currentActor))
+            "
             class="bg-blue-950/50 border border-blue-500/50 p-4 rounded-xl space-y-2 mb-6 text-left"
           >
             <span class="text-xs text-blue-400 font-bold uppercase tracking-wider block">
@@ -592,11 +611,13 @@
             class="bg-gray-900/60 p-3.5 rounded-xl border border-gray-700 text-xs text-gray-400 italic mb-6"
           >
             {{
-              $t('nightPhase.putToSleepPrompt', {
-                role: $te('roles.' + currentActor.role?.id + '.name')
-                  ? $t('roles.' + currentActor.role?.id + '.name')
-                  : currentActor.role?.name,
-              })
+              currentActor.isMafiaTeamShot
+                ? $t('nightPhase.mafiaTeamSleepPrompt', { name: currentActor.name })
+                : $t('nightPhase.putToSleepPrompt', {
+                    role: $te('roles.' + currentActor.role?.id + '.name')
+                      ? $t('roles.' + currentActor.role?.id + '.name')
+                      : currentActor.role?.name,
+                  })
             }}
           </div>
 
@@ -717,7 +738,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { mockAbilities } from '../../data/abilities';
-import { resolveNight } from '../../services/gameEngine';
+import { resolveNight, getActiveMafiaShooter } from '../../services/gameEngine';
 import { useGameStore } from '../../stores/gameStore';
 import { useGameService } from '../../services/useGameService';
 import { useAudio } from '../../services/useAudioService';
@@ -727,7 +748,7 @@ import PhaseHeroBanner from '../PhaseHeroBanner.vue';
 import RoleAvatar from '../RoleAvatar.vue';
 import type { Player, NightAction, NightResolution } from '../../types';
 
-const { locale } = useI18n();
+const { locale, t, te } = useI18n();
 const store = useGameStore();
 const gameService = useGameService();
 const audio = useAudio();
@@ -765,11 +786,19 @@ const narrateCurrentStep = () => {
         : 'Mafia members, open your eyes and identify each other.';
     narration.speak(text, lang);
   } else if (stage.value === 'wizard' && currentActor.value) {
-    const actorRole = currentActor.value.role?.name || '';
-    const text =
-      locale.value === 'fa'
-        ? `${actorRole}، بیدار شو و اقدام خود را انتخاب کن.`
-        : `${actorRole}, wake up and choose your action.`;
+    let text = '';
+    if (currentActor.value.isMafiaTeamShot) {
+      text =
+        locale.value === 'fa'
+          ? `شلیک شب مافیا. ${currentActor.value.name}، هدف شلیک مافیا را انتخاب کن.`
+          : `Mafia night shot. ${currentActor.value.name}, choose the Mafia's target.`;
+    } else {
+      const actorRole = currentActor.value.role?.name || '';
+      text =
+        locale.value === 'fa'
+          ? `${actorRole}، بیدار شو و اقدام خود را انتخاب کن.`
+          : `${actorRole}, wake up and choose your action.`;
+    }
     narration.speak(text, lang);
   } else if (stage.value === 'morning') {
     const text =
@@ -789,24 +818,43 @@ const livingMafiaMembers = computed(() =>
   alivePlayers.value.filter((p) => p.role?.sideId === 'mafia')
 );
 
+const getActorActionKey = (actor: any) => {
+  return actor?.actionKey || actor?.name;
+};
+
 const actorsWithAbilities = computed(() => {
   const hasAliveGodfather = alivePlayers.value.some((p) => p.role?.id === 'godfather');
-  let mafiaTeamAdded = false;
+  const activeShooter = getActiveMafiaShooter(alivePlayers.value);
 
-  const list = [];
+  const list: Array<Player & { isMafiaTeamShot?: boolean; actionKey?: string }> = [];
   for (const p of alivePlayers.value) {
     const roleId = p.role?.id;
     const abilities = p.role?.abilityIds || [];
 
-    if (roleId === 'mafia') {
-      // In Classic mode or when Godfather is absent/dead, include one Mafia team actor for the night shot
-      if (!hasAliveGodfather && !mafiaTeamAdded && abilities.includes('mafia-shot')) {
-        list.push(p);
-        mafiaTeamAdded = true;
-      }
+    if (roleId === 'mafia' || roleId === 'simple_mafia') {
+      // In Classic mode or when only simple mafia exist, handled via activeShooter below
+      continue;
     } else if (abilities.length > 0) {
-      list.push(p);
+      list.push({ ...p, actionKey: p.name });
     }
+  }
+
+  // If Godfather is absent/dead and living Mafia exist, add the designated Mafia Team Shot step
+  if (!hasAliveGodfather && activeShooter) {
+    list.push({
+      ...activeShooter,
+      isMafiaTeamShot: true,
+      actionKey: `${activeShooter.name}#mafia-shot`,
+      role: {
+        id: 'mafia-shot',
+        name: `${activeShooter.name} (${t('roles.mafia.name')} Shot)`,
+        nameKey: 'nightPhase.mafiaTeamShotTitle',
+        sideId: 'mafia',
+        abilityIds: ['mafia-shot'],
+        badgeKey: 'roleGuide.factions.mafiaLeader',
+        descriptionKey: 'roles.mafia.description',
+      } as any,
+    });
   }
 
   return list.sort((a, b) => {
@@ -828,26 +876,48 @@ const getAbilityPriority = (player) => {
 
 const getAvailableActionsForActor = (actor: Player | any) => {
   if (!actor || !actor.role) return [];
+  if (actor.isMafiaTeamShot) {
+    return [
+      {
+        id: 'mafia-shot',
+        nameKey: 'abilities.mafiaShot.name',
+        descriptionKey: 'abilities.mafiaShot.desc',
+        icon: '🔫',
+        priority: 70,
+        quota: { totalCharges: 'unlimited' },
+      },
+      {
+        id: 'pass',
+        nameKey: 'nightPhase.actionPass',
+        descriptionKey: 'nightPhase.actionPassDesc',
+        icon: '🚫',
+        priority: 0,
+      },
+    ];
+  }
   return gameService.getAvailableNightActions(actor.role);
 };
 
-const getSelectedActionId = (actorName) => {
-  if (selectedActionTypeMap.value[actorName]) {
-    return selectedActionTypeMap.value[actorName];
+const getSelectedActionId = (actorKey: string) => {
+  if (selectedActionTypeMap.value[actorKey]) {
+    return selectedActionTypeMap.value[actorKey];
   }
-  const actor = store.livePlayers.find((p) => p.name === actorName);
+  const baseName = actorKey.includes('#') ? actorKey.split('#')[0] : actorKey;
+  const actor =
+    actorsWithAbilities.value.find((p) => getActorActionKey(p) === actorKey) ||
+    store.livePlayers.find((p) => p.name === baseName);
   const actions = getAvailableActionsForActor(actor);
   return actions[0]?.id || 'pass';
 };
 
-const getCurrentTargetName = (actorName) => {
-  const val = actionMap.value[actorName];
+const getCurrentTargetName = (actorKey: string) => {
+  const val = actionMap.value[actorKey];
   if (!val) return null;
   if (typeof val === 'string') return val;
   return val.target || null;
 };
 
-const getValidTargetsForAction = (actor, actionId) => {
+const getValidTargetsForAction = (actor: any, actionId: string) => {
   if (!actor) return [];
   if (actionId === 'revive') {
     return store.livePlayers.filter((p) => p.isDead);
@@ -858,41 +928,49 @@ const getValidTargetsForAction = (actor, actionId) => {
   if (actionId === 'treat') {
     return alivePlayers.value.filter((p) => p.name !== actor.name);
   }
+  if (actionId === 'mafia-shot') {
+    return alivePlayers.value.filter((p) => p.role?.sideId !== 'mafia');
+  }
   return alivePlayers.value.filter((p) => p.name !== actor.name);
 };
 
-const getValidTargets = (actor) => {
-  const actionId = getSelectedActionId(actor?.name);
+const getValidTargets = (actor: any) => {
+  const actorKey = getActorActionKey(actor);
+  const actionId = getSelectedActionId(actorKey);
   return getValidTargetsForAction(actor, actionId);
 };
 
-const selectActorAction = (actorName, actionId) => {
-  selectedActionTypeMap.value[actorName] = actionId;
+const selectActorAction = (actorKey: string, actionId: string) => {
+  selectedActionTypeMap.value[actorKey] = actionId;
   if (actionId === 'pass') {
-    actionMap.value[actorName] = null;
+    actionMap.value[actorKey] = null;
   } else if (actionId === 'treat-self') {
-    actionMap.value[actorName] = { target: actorName, actionId: 'treat' };
+    const baseName = actorKey.includes('#') ? actorKey.split('#')[0] : actorKey;
+    actionMap.value[actorKey] = { target: baseName, actionId: 'treat' };
   } else {
-    const currentTarget = getCurrentTargetName(actorName);
-    const actor = store.livePlayers.find((p) => p.name === actorName);
+    const currentTarget = getCurrentTargetName(actorKey);
+    const baseName = actorKey.includes('#') ? actorKey.split('#')[0] : actorKey;
+    const actor =
+      actorsWithAbilities.value.find((p) => getActorActionKey(p) === actorKey) ||
+      store.livePlayers.find((p) => p.name === baseName);
     const validTargets = getValidTargetsForAction(actor, actionId).map((p) => p.name);
     if (currentTarget && validTargets.includes(currentTarget)) {
-      actionMap.value[actorName] = { target: currentTarget, actionId };
+      actionMap.value[actorKey] = { target: currentTarget, actionId };
     } else {
-      actionMap.value[actorName] = null;
+      actionMap.value[actorKey] = null;
     }
   }
 };
 
-const selectActorTarget = (actorName, targetName) => {
-  const actionId = getSelectedActionId(actorName);
+const selectActorTarget = (actorKey: string, targetName: string) => {
+  const actionId = getSelectedActionId(actorKey);
   if (actionId === 'pass') return;
-  actionMap.value[actorName] = { target: targetName, actionId };
+  actionMap.value[actorKey] = { target: targetName, actionId };
 };
 
 const detectiveInquiryResult = computed(() => {
   if (!currentActor.value || currentActor.value.role?.id !== 'detective') return null;
-  const targetName = getCurrentTargetName(currentActor.value.name);
+  const targetName = getCurrentTargetName(getActorActionKey(currentActor.value));
   if (!targetName) return null;
 
   const targetPlayer = store.livePlayers.find((p) => p.name === targetName);
@@ -1049,28 +1127,37 @@ onMounted(() => {
       );
       const resolvedActorName = actor ? actor.name : actorName;
 
-      mobileActionSyncMap.value[resolvedActorName] = {
+      const isMafiaShotAction = actionId === 'mafia-shot';
+      const isGodfather = actor?.role?.id === 'godfather';
+      const targetActionKey =
+        isMafiaShotAction && !isGodfather ? `${resolvedActorName}#mafia-shot` : resolvedActorName;
+
+      mobileActionSyncMap.value[targetActionKey] = {
         actionId: actionId || 'ability',
         target: targetName || null,
         timestamp: Date.now(),
       };
 
       if (actionId) {
-        selectedActionTypeMap.value[resolvedActorName] = actionId;
+        selectedActionTypeMap.value[targetActionKey] = actionId;
       }
 
       if (actionId === 'treat-self') {
-        actionMap.value[resolvedActorName] = { target: resolvedActorName, actionId: 'treat' };
+        actionMap.value[targetActionKey] = { target: resolvedActorName, actionId: 'treat' };
       } else if (actionId === 'pass' || !targetName) {
-        actionMap.value[resolvedActorName] = null;
+        actionMap.value[targetActionKey] = null;
       } else {
-        actionMap.value[resolvedActorName] = {
+        actionMap.value[targetActionKey] = {
           target: targetName,
-          actionId: actionId || selectedActionTypeMap.value[resolvedActorName] || 'ability',
+          actionId: actionId || selectedActionTypeMap.value[targetActionKey] || 'ability',
         };
       }
 
-      if (currentActor.value && currentActor.value.name === resolvedActorName) {
+      if (
+        currentActor.value &&
+        (currentActor.value.name === resolvedActorName ||
+          getActorActionKey(currentActor.value) === targetActionKey)
+      ) {
         audio.playVoteClick();
       }
     }

@@ -108,6 +108,7 @@ The voting phase consists of three structured stages:
      * **Step 2 (Select Candidate Player):** Tap the target candidate from a dynamically filtered visual player card grid (e.g., self-only for Doctor emergency save, living opponents for shots/blocks/investigations, dead players for Constantine revive).
    * **Nostradamus (Night 1 only):** Selects up to 3 living players. The app calculates how many are Mafia, prompting the moderator to show the number on fingers. Nostradamus also secretly chooses their allegiance (Town or Mafia).
    * **Detective Inquiry:** When investigating a target, instant visual feedback (`👍 Guilty Mafia` / `👎 Innocent Town`) appears immediately on screen.
+   * **Mafia Team Shot Succession (Godfather Eliminated):** When the Godfather is eliminated, the wizard automatically identifies the living Mafia successor (Matador $\to$ Saul Goodman $\to$ Simple Mafia $\to$ living Mafia) and presents a dedicated **Mafia Team Shot** step in the moderator teleprompter. The successor executes their individual action and the Mafia team shot without collision.
 4. **Night Resolution Engine:** The app resolves all actions according to priority order, accounting for shields, blocks, saves, and Leon guilt penalties.
 5. **Morning Report:** The moderator wakes the town, announces the night's public outcome (who died, or "Nobody died"), and advances to Day $N+1$.
 

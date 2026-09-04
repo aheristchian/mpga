@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { resolveNight } from './gameEngine';
+import { resolveNight, getActiveMafiaShooter } from './gameEngine';
 import type { Player } from '../types';
 
 describe('Game Engine - resolveNight', () => {
@@ -721,6 +721,278 @@ describe('Game Engine - resolveNight', () => {
       expect(res.deaths).not.toContain('Titan');
       expect(res.brokenShields).toHaveLength(0);
       expect(res.log.some((l) => l.includes('unlimited shield'))).toBe(true);
+    });
+  });
+
+  describe('Mafia Shooter Succession (getActiveMafiaShooter)', () => {
+    it('returns Godfather as the shooter when alive', () => {
+      const players: Player[] = [
+        { name: 'GF', isDead: false, role: { id: 'godfather', name: 'Godfather', sideId: 'mafia', abilityIds: ['mafia-shot'], passiveAbilityIds: [] } },
+        { name: 'Mat', isDead: false, role: { id: 'matador', name: 'Matador', sideId: 'mafia', abilityIds: ['block'], passiveAbilityIds: [] } },
+        { name: 'Saul', isDead: false, role: { id: 'saul-goodman', name: 'Saul Goodman', sideId: 'mafia', abilityIds: ['buy'], passiveAbilityIds: [] } },
+      ];
+      expect(getActiveMafiaShooter(players)?.name).toBe('GF');
+    });
+
+    it('returns Matador when Godfather is eliminated', () => {
+      const players: Player[] = [
+        { name: 'GF', isDead: true, role: { id: 'godfather', name: 'Godfather', sideId: 'mafia', abilityIds: ['mafia-shot'], passiveAbilityIds: [] } },
+        { name: 'Mat', isDead: false, role: { id: 'matador', name: 'Matador', sideId: 'mafia', abilityIds: ['block'], passiveAbilityIds: [] } },
+        { name: 'Saul', isDead: false, role: { id: 'saul-goodman', name: 'Saul Goodman', sideId: 'mafia', abilityIds: ['buy'], passiveAbilityIds: [] } },
+      ];
+      expect(getActiveMafiaShooter(players)?.name).toBe('Mat');
+    });
+
+    it('returns Saul Goodman when Godfather and Matador are eliminated', () => {
+      const players: Player[] = [
+        { name: 'GF', isDead: true, role: { id: 'godfather', name: 'Godfather', sideId: 'mafia', abilityIds: ['mafia-shot'], passiveAbilityIds: [] } },
+        { name: 'Mat', isDead: true, role: { id: 'matador', name: 'Matador', sideId: 'mafia', abilityIds: ['block'], passiveAbilityIds: [] } },
+        { name: 'Saul', isDead: false, role: { id: 'saul-goodman', name: 'Saul Goodman', sideId: 'mafia', abilityIds: ['buy'], passiveAbilityIds: [] } },
+        { name: 'Simp', isDead: false, role: { id: 'mafia', name: 'Simple Mafia', sideId: 'mafia', abilityIds: [], passiveAbilityIds: [] } },
+      ];
+      expect(getActiveMafiaShooter(players)?.name).toBe('Saul');
+    });
+
+    it('returns Simple Mafia when Godfather, Matador, and Saul Goodman are eliminated', () => {
+      const players: Player[] = [
+        { name: 'GF', isDead: true, role: { id: 'godfather', name: 'Godfather', sideId: 'mafia', abilityIds: ['mafia-shot'], passiveAbilityIds: [] } },
+        { name: 'Mat', isDead: true, role: { id: 'matador', name: 'Matador', sideId: 'mafia', abilityIds: ['block'], passiveAbilityIds: [] } },
+        { name: 'Saul', isDead: true, role: { id: 'saul-goodman', name: 'Saul Goodman', sideId: 'mafia', abilityIds: ['buy'], passiveAbilityIds: [] } },
+        { name: 'Simp', isDead: false, role: { id: 'mafia', name: 'Simple Mafia', sideId: 'mafia', abilityIds: [], passiveAbilityIds: [] } },
+      ];
+      expect(getActiveMafiaShooter(players)?.name).toBe('Simp');
+    });
+
+    it('returns any surviving mafia member if specific hierarchy roles are dead', () => {
+      const players: Player[] = [
+        { name: 'Hacker', isDead: false, role: { id: 'black-hat', name: 'Black Hat', sideId: 'mafia', abilityIds: [], passiveAbilityIds: [] } },
+        { name: 'Townie', isDead: false, role: { id: 'citizen', name: 'Citizen', sideId: 'town', abilityIds: [], passiveAbilityIds: [] } },
+      ];
+      expect(getActiveMafiaShooter(players)?.name).toBe('Hacker');
+    });
+
+    it('returns null if no living mafia players remain', () => {
+      const players: Player[] = [
+        { name: 'GF', isDead: true, role: { id: 'godfather', name: 'Godfather', sideId: 'mafia', abilityIds: [], passiveAbilityIds: [] } },
+        { name: 'Townie', isDead: false, role: { id: 'citizen', name: 'Citizen', sideId: 'town', abilityIds: [], passiveAbilityIds: [] } },
+      ];
+      expect(getActiveMafiaShooter(players)).toBeNull();
+    });
+  });
+
+  describe('Godfather Bulletproof Shield (1-Usage Limit)', () => {
+    it('absorbs 1 fatal night shot and shatters shield (charge decrements 1 -> 0)', () => {
+      const gf: Player = {
+        name: 'Vito',
+        isDead: false,
+        role: {
+          id: 'godfather',
+          name: 'Godfather',
+          sideId: 'mafia',
+          abilityIds: ['mafia-shot'],
+          passiveAbilityIds: ['shield'],
+        },
+      };
+      const leon: Player = {
+        name: 'Leon',
+        isDead: false,
+        role: {
+          id: 'leon',
+          name: 'Leon',
+          sideId: 'town',
+          abilityIds: ['vigillante-shot'],
+          passiveAbilityIds: [],
+        },
+      };
+
+      const result = resolveNight([gf, leon], {
+        Leon: 'Vito',
+      });
+
+      expect(result.deaths).not.toContain('Vito');
+      expect(result.brokenShields).toContain('Vito');
+      expect(result.updatedAbilityCharges?.['Vito']?.['shield']).toBe(0);
+      expect(result.log.some((l) => l.includes('[SAVE]') && l.includes('shield absorbed'))).toBe(true);
+      expect(result.log.some((l) => l.includes('[SHIELD_BROKEN]'))).toBe(true);
+    });
+
+    it('eliminates Godfather on 2nd lethal hit in the same night after shield breaks on 1st hit', () => {
+      const gf: Player = {
+        name: 'Vito',
+        isDead: false,
+        role: {
+          id: 'godfather',
+          name: 'Godfather',
+          sideId: 'mafia',
+          abilityIds: ['mafia-shot'],
+          passiveAbilityIds: ['shield'],
+        },
+      };
+      const leon: Player = {
+        name: 'Leon',
+        isDead: false,
+        role: {
+          id: 'leon',
+          name: 'Leon',
+          sideId: 'town',
+          abilityIds: ['vigillante-shot'],
+          passiveAbilityIds: [],
+        },
+      };
+      const zodiac: Player = {
+        name: 'Zodiac',
+        isDead: false,
+        role: {
+          id: 'zodiac',
+          name: 'Zodiac',
+          sideId: 'town',
+          abilityIds: ['zodiac-shot'],
+          passiveAbilityIds: [],
+        },
+      };
+
+      const result = resolveNight([gf, leon, zodiac], {
+        Leon: 'Vito',
+        Zodiac: 'Vito',
+      });
+
+      expect(result.deaths).toContain('Vito');
+      expect(result.brokenShields).toContain('Vito');
+      expect(result.updatedAbilityCharges?.['Vito']?.['shield']).toBe(0);
+      expect(result.log.some((l) => l.includes('[DEATH] Vito was killed.'))).toBe(true);
+    });
+
+    it('eliminates Godfather on subsequent night if shield was already shattered', () => {
+      const gf: Player = {
+        name: 'Vito',
+        isDead: false,
+        isShieldBroken: true,
+        abilityCharges: { shield: 0 },
+        role: {
+          id: 'godfather',
+          name: 'Godfather',
+          sideId: 'mafia',
+          abilityIds: ['mafia-shot'],
+          passiveAbilityIds: [],
+        },
+      };
+      const leon: Player = {
+        name: 'Leon',
+        isDead: false,
+        role: {
+          id: 'leon',
+          name: 'Leon',
+          sideId: 'town',
+          abilityIds: ['vigillante-shot'],
+          passiveAbilityIds: [],
+        },
+      };
+
+      const result = resolveNight([gf, leon], {
+        Leon: 'Vito',
+      });
+
+      expect(result.deaths).toContain('Vito');
+      expect(result.log.some((l) => l.includes('[DEATH] Vito was killed.'))).toBe(true);
+    });
+  });
+
+  describe('Mafia Successor Compound Action Execution', () => {
+    it('resolves both personal ability and mafia team shot when performed by successor', () => {
+      const matador: Player = {
+        name: 'MatadorPlayer',
+        isDead: false,
+        role: {
+          id: 'matador',
+          name: 'Matador',
+          sideId: 'mafia',
+          abilityIds: ['block'],
+          passiveAbilityIds: [],
+        },
+      };
+      const doctor: Player = {
+        name: 'DoctorPlayer',
+        isDead: false,
+        role: {
+          id: 'doctor',
+          name: 'Doctor',
+          sideId: 'town',
+          abilityIds: ['treat'],
+          passiveAbilityIds: [],
+        },
+      };
+      const victim: Player = {
+        name: 'VictimPlayer',
+        isDead: false,
+        role: {
+          id: 'citizen',
+          name: 'Citizen',
+          sideId: 'town',
+          abilityIds: [],
+          passiveAbilityIds: [],
+        },
+      };
+
+      const actionMap = {
+        MatadorPlayer: { target: 'DoctorPlayer', actionId: 'block' },
+        'MatadorPlayer#mafia-shot': { target: 'VictimPlayer', actionId: 'mafia-shot' },
+        DoctorPlayer: { target: 'VictimPlayer', actionId: 'treat' },
+      };
+
+      const result = resolveNight([matador, doctor, victim], actionMap);
+
+      // Doctor is blocked by Matador, so cannot save Victim
+      expect(result.log.some((l) => l.includes('[BLOCKED] DoctorPlayer tried to use treat, but was blocked.'))).toBe(true);
+      expect(result.deaths).toContain('VictimPlayer');
+      expect(result.log.some((l) => l.includes('[DEATH] VictimPlayer was killed.'))).toBe(true);
+    });
+
+    it('blocks both personal action and mafia-shot if the successor shooter is blocked', () => {
+      const matador: Player = {
+        name: 'MatadorPlayer',
+        isDead: false,
+        role: {
+          id: 'matador',
+          name: 'Matador',
+          sideId: 'mafia',
+          abilityIds: ['block'],
+          passiveAbilityIds: [],
+        },
+      };
+      const blocker: Player = {
+        name: 'TownBlocker',
+        isDead: false,
+        role: {
+          id: 'guard',
+          name: 'Guard',
+          sideId: 'town',
+          abilityIds: ['block'],
+          passiveAbilityIds: [],
+        },
+      };
+      const victim: Player = {
+        name: 'VictimPlayer',
+        isDead: false,
+        role: {
+          id: 'citizen',
+          name: 'Citizen',
+          sideId: 'town',
+          abilityIds: [],
+          passiveAbilityIds: [],
+        },
+      };
+
+      const actionMap = {
+        TownBlocker: { target: 'MatadorPlayer', actionId: 'block' },
+        MatadorPlayer: { target: 'VictimPlayer', actionId: 'block' },
+        'MatadorPlayer#mafia-shot': { target: 'VictimPlayer', actionId: 'mafia-shot' },
+      };
+
+      const result = resolveNight([matador, blocker, victim], actionMap);
+
+      expect(result.deaths).not.toContain('VictimPlayer');
+      expect(result.log.some((l) => l.includes('[BLOCKED] MatadorPlayer tried to use block, but was blocked.'))).toBe(true);
+      expect(result.log.some((l) => l.includes('[BLOCKED] MatadorPlayer tried to use mafia-shot, but was blocked.'))).toBe(true);
     });
   });
 });

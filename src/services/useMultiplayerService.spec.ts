@@ -163,6 +163,73 @@ describe('useMultiplayerService', () => {
     expect(inGamePayload?.role?.id).toBe('detective');
   });
 
+  it('includes shield state and ability charges in sanitizePlayerPayload', () => {
+    const gf: Player = {
+      name: 'Vito',
+      isDead: false,
+      isShieldBroken: true,
+      abilityCharges: { shield: 0 },
+      role: {
+        id: 'godfather',
+        name: 'Godfather',
+        sideId: 'mafia',
+        abilities: ['mafia-shot'],
+      },
+    };
+
+    const payload = sanitizePlayerPayload(gf, true, [gf]);
+    expect(payload?.isShieldBroken).toBe(true);
+    expect(payload?.abilityCharges).toEqual({ shield: 0 });
+    expect(payload?.isMafiaShooter).toBe(true);
+  });
+
+  it('delegates mafia-shot to living successor when Godfather is dead', () => {
+    const deadGf: Player = {
+      name: 'DeadVito',
+      isDead: true,
+      role: {
+        id: 'godfather',
+        name: 'Godfather',
+        sideId: 'mafia',
+        abilities: ['mafia-shot'],
+      },
+    };
+    const matador: Player = {
+      name: 'MatadorPlayer',
+      isDead: false,
+      role: {
+        id: 'matador',
+        name: 'Matador',
+        sideId: 'mafia',
+        abilities: ['block'],
+      },
+    };
+    const saul: Player = {
+      name: 'SaulPlayer',
+      isDead: false,
+      role: {
+        id: 'saul-goodman',
+        name: 'Saul Goodman',
+        sideId: 'mafia',
+        abilities: ['buy'],
+      },
+    };
+
+    const roster = [deadGf, matador, saul];
+
+    // Matador is 1st in line after Godfather dies
+    const matadorPayload = sanitizePlayerPayload(matador, true, roster);
+    expect(matadorPayload?.isMafiaShooter).toBe(true);
+    expect(matadorPayload?.role?.abilities).toContain('mafia-shot');
+    expect(matadorPayload?.role?.abilities).toContain('block');
+
+    // Saul is 2nd in line, so when Matador is alive Saul is NOT the shooter
+    const saulPayload = sanitizePlayerPayload(saul, true, roster);
+    expect(saulPayload?.isMafiaShooter).toBe(false);
+    expect(saulPayload?.role?.abilities).not.toContain('mafia-shot');
+    expect(saulPayload?.role?.abilities).toContain('buy');
+  });
+
   it('marks isClaimed accurately in sanitizePublicGameState based on claimed player roster', () => {
     const store: any = {
       gamePhase: 'setup',

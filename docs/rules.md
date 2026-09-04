@@ -75,7 +75,7 @@ The calculation engine in [`src/services/useWinCondition.ts`](file:///Users/ali.
 
 * **Godfather (`godfather`)**
   * *Active Ability (`mafia-shot`):* Directs the Mafia's deadly night shot. Cannot target themselves.
-  * *Passive Ability (`shield`):* Possesses a single-use bulletproof shield. Upon taking a deadly night shot, the shield absorbs the attack and shatters (`isShieldBroken = true`). On all subsequent nights, the Godfather's shield is broken and they are vulnerable to lethal shots.
+  * *Passive Ability (`shield`):* Possesses a strict single-use bulletproof shield (starts with 1 charge). Upon taking a deadly night shot, the shield absorbs the attack, logs a save, and shatters (`isShieldBroken = true`, charges drop to 0). If the Godfather takes multiple lethal shots in the same night (e.g., from Leon and Zodiac), the first hit shatters the shield and the second hit eliminates them. On all subsequent nights after shattering, the shield offers zero protection.
 * **Matador (`matador`)**
   * *Active Ability (`block`):* Blocks one player per night, preventing them from using their active night ability. Cannot target themselves.
   * *Rules:* If the Matador blocks a Doctor, Detective, or Vigilante, their action for that night fails.
@@ -86,6 +86,18 @@ The calculation engine in [`src/services/useWinCondition.ts`](file:///Users/ali.
 * **Mafia Grunt (`mafia`)**
   * *Description:* Regular Mafia member who participates in team deliberations and voting during the day.
   * *Night 1 Familiarization:* On Night 1, all Mafia members wake up together silently to recognize their teammates.
+
+#### Mafia Night Kill Succession & Delegation (Godfather Scenario)
+In Iranian Mafia tournament rules (Godfather scenario), the living Mafia team holds **one collective lethal shot per night (`mafia-shot`)**:
+* **Godfather Alive:** The Godfather holds the weapon and selects the Mafia team's target.
+* **Godfather Eliminated (Succession Order):** When the Godfather is killed or exiled, leadership of the night kill passes down the hierarchy to the next surviving Mafia member:
+  1. **Matador (`matador`)** (1st successor)
+  2. **Saul Goodman (`saul-goodman`)** (2nd successor)
+  3. **Simple Mafia Grunt (`mafia`)** (3rd successor)
+  4. **Fallback:** Any surviving living Mafia member.
+* **Dual Action Execution:** The designated successor executes **both** their personal active role ability (e.g., Matador blocks an opponent, Saul Goodman recruits/bribes) **and** the Mafia team kill (`mafia-shot`). The teleprompter wizard prompts the moderator with a dedicated step, and mobile clients expose the `mafia-shot` action.
+* **Blocking Rule:** If the successor shooter is blocked by an opposing blocker (e.g., Guard or Botnet Op), **both** their personal ability and the Mafia team shot are nullified for that night.
+
 * **Zero-Day (`zero-day`)**
   * *Active Ability (`zero-day-exploit`):* Syndicate mastermind directing fatal remote code execution payloads.
   * *Passive Abilities:* Single-use cryptographic shield (`shield`) and clean telemetry inquiry (`clean-inquiry`).

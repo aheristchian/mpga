@@ -35,8 +35,33 @@ interface QueuedAction {
   payload?: ActionPayload;
 }
 
+export const MAFIA_SHOOTER_SUCCESSION_ORDER = [
+  'godfather',
+  'matador',
+  'saul-goodman',
+  'saul_goodman',
+  'mafia',
+  'simple_mafia',
+];
+
 /**
- * Resolves all night actions based on their priority in descending order (highest executes first).
+ * Resolves the living Mafia member holding the gun for the nightly Mafia team shot.
+ * Succession: Godfather -> Matador -> Saul Goodman -> Simple Mafia -> Any living Mafia member.
+ */
+export function getActiveMafiaShooter(players: Player[]): Player | null {
+  const livingMafia = players.filter((p) => !p.isDead && p.role?.sideId === 'mafia');
+  if (livingMafia.length === 0) return null;
+
+  for (const roleId of MAFIA_SHOOTER_SUCCESSION_ORDER) {
+    const found = livingMafia.find((p) => p.role?.id === roleId);
+    if (found) return found;
+  }
+
+  return livingMafia[0] || null;
+}
+
+/**
+ * Executes full Night Phase resolution in a single pure functional step.
  * Supports both legacy hardcoded role behaviors and universal declarative Effect Primitives.
  *
  * Standardized Priority Scale:
@@ -54,7 +79,7 @@ export const resolveNight = (
   customAbilities: (Ability | UniversalAbilityDefinition)[] = []
 ): NightResolutionResult => {
   const log: string[] = [];
-  const killedThisNight = new Set<string>();
+  const killedThisNight: string[] = [];
   const unpreventableDeaths = new Set<string>();
   const revivedThisNight = new Set<string>();
   const silencedPlayers = new Set<string>();
@@ -76,10 +101,23 @@ export const resolveNight = (
 
   // Extract and enrich actions with priority data
   const actions: QueuedAction[] = [];
-  for (const [actorName, rawPayload] of Object.entries(actionMap)) {
+  for (const [actorKey, rawPayload] of Object.entries(actionMap)) {
     if (!rawPayload) continue;
 
-    const actor = players.find((p) => p.name === actorName);
+    const baseName = actorKey.includes('#') ? actorKey.split('#')[0].trim() : actorKey;
+    let actor = players.find((p) => p.name === baseName);
+
+    // If key is team-based or alias for mafia shot (e.g. 'mafia-shot', 'mafia_shot', 'mafia_team')
+    if (
+      !actor &&
+      (actorKey === 'mafia-shot' ||
+        actorKey === 'mafia_shot' ||
+        actorKey === 'mafia_team' ||
+        actorKey.startsWith('mafia_'))
+    ) {
+      actor = getActiveMafiaShooter(players) || undefined;
+    }
+
     if (!actor || actor.isDead) continue;
 
     const targetName = typeof rawPayload === 'string' ? rawPayload : rawPayload.target;
@@ -90,7 +128,11 @@ export const resolveNight = (
 
     // Determine the specific ability being used
     const specifiedActionId =
-      typeof rawPayload === 'object' ? rawPayload.actionId || rawPayload.abilityId : undefined;
+      typeof rawPayload === 'object'
+        ? rawPayload.actionId || rawPayload.abilityId
+        : actorKey.includes('#')
+          ? actorKey.split('#')[1].trim()
+          : undefined;
 
     let ability: (Ability | UniversalAbilityDefinition) | undefined;
     if (specifiedActionId) {
@@ -160,7 +202,7 @@ export const resolveNight = (
             if (effect.isUnpreventable) {
               unpreventableDeaths.add(target.name);
             }
-            killedThisNight.add(target.name);
+            killedThisNight.push(target.name);
             log.push(`[LETHAL_HIT] ${actor.name} launched a lethal strike on ${target.name}.`);
             break;
 
@@ -303,7 +345,7 @@ export const resolveNight = (
             `[ZERO_DAY_EXPLOIT] ${actor.name} (Black-Hat) deployed zero-day payload against ${target.name}.`
           );
         }
-        killedThisNight.add(target.name);
+        killedThisNight.push(target.name);
         break;
 
       case 'zodiac-shot':
@@ -317,7 +359,7 @@ export const resolveNight = (
             `[ZODIAC_SHOT] ${actor.name} (Zodiac) unleashed a lethal night strike on ${target.name}.`
           );
         }
-        killedThisNight.add(target.name);
+        killedThisNight.push(target.name);
         break;
 
       case 'vigillante-shot':
@@ -329,7 +371,7 @@ export const resolveNight = (
           log.push(
             `${penaltyTag} ${actor.name} compromised innocent node ${target.name}. Fatal authorization revoke triggered; ${target.name} survives.`
           );
-          killedThisNight.add(actor.name);
+          killedThisNight.push(actor.name);
           unpreventableDeaths.add(actor.name); // Guilt penalty cannot be saved by heal
         } else {
           // Neutralized Mafia or Third-Party
@@ -337,7 +379,7 @@ export const resolveNight = (
           log.push(
             `${hitTag} ${actor.name} successfully neutralized malicious node ${target.name} (${target.role?.sideId || 'mafia'}).`
           );
-          killedThisNight.add(target.name);
+          killedThisNight.push(target.name);
         }
         break;
 
@@ -382,10 +424,13 @@ export const resolveNight = (
   // --- 3. FINAL DEATH & SHIELD CALCULATION ---
   const actualDeaths: string[] = [];
   for (const name of killedThisNight) {
+    if (actualDeaths.includes(name)) continue;
+
     if (treatedPlayers.has(name) && !unpreventableDeaths.has(name)) {
       log.push(`[SAVE] ${name} was shot, but saved by medical treatment or bodyguard protection.`);
     } else {
       const targetPlayer = players.find((p) => p.name === name);
+      const isGodfather = targetPlayer?.role?.id === 'godfather';
       const passives = targetPlayer?.role?.passiveAbilityIds || [];
       const charges = updatedAbilityCharges[name] || targetPlayer?.abilityCharges || {};
       const shieldKey = Object.keys(charges).find(
@@ -396,34 +441,47 @@ export const resolveNight = (
           k.toLowerCase().includes('armor') ||
           k.toLowerCase().includes('invulnerable')
       );
-      const shieldCharges = shieldKey ? charges[shieldKey] : undefined;
+      let shieldCharges = shieldKey ? charges[shieldKey] : undefined;
+
+      // If player is Godfather or has godfather shield ability, enforce 1-usage shield limit
+      if (
+        shieldCharges === undefined &&
+        (isGodfather || (targetPlayer?.role as any)?.abilities?.includes('godfather_shield'))
+      ) {
+        shieldCharges = targetPlayer?.isShieldBroken ? 0 : 1;
+        charges['shield'] = shieldCharges;
+      }
 
       // Check dynamic quota charges first
-      if (!unpreventableDeaths.has(name) && shieldCharges !== undefined && shieldKey) {
+      if (!unpreventableDeaths.has(name) && shieldCharges !== undefined) {
         if (shieldCharges === 'unlimited') {
           log.push(`[SAVE] ${name} was attacked, but their unlimited shield absorbed the strike.`);
           continue;
-        } else if (typeof shieldCharges === 'number' && shieldCharges > 0) {
+        } else if (typeof shieldCharges === 'number' && shieldCharges > 0 && !targetPlayer?.isShieldBroken) {
           const nextCharges = shieldCharges - 1;
-          charges[shieldKey] = nextCharges;
+          const keyToUpdate = shieldKey || 'shield';
+          charges[keyToUpdate] = nextCharges;
           updatedAbilityCharges[name] = charges;
           log.push(`[SAVE] ${name}'s shield absorbed the attack (${nextCharges} charge(s) left).`);
           if (nextCharges === 0) {
-            brokenShields.push(name);
-            log.push(`[SHIELD_BROKEN] ${name}'s shield has completely shattered.`);
+            if (!brokenShields.includes(name)) brokenShields.push(name);
+            log.push(`[SHIELD_BROKEN] ${name}'s bulletproof shield has shattered.`);
           }
           continue;
+        } else if (typeof shieldCharges === 'number' && shieldCharges <= 0) {
+          log.push(`[SHIELD_EXHAUSTED] ${name}'s bulletproof shield was already shattered.`);
         }
       }
 
       // Fallback to legacy passive flags
-      const hasShield = passives.includes('shield') && !targetPlayer?.isShieldBroken;
       const hasUnlimitedShield = passives.includes('unlimited-shield');
+      const hasShield =
+        passives.includes('shield') && !targetPlayer?.isShieldBroken && shieldCharges === undefined;
 
       if (!unpreventableDeaths.has(name) && (hasShield || hasUnlimitedShield)) {
         log.push(`[SAVE] ${name} was shot, but their shield saved them.`);
         if (hasShield && !hasUnlimitedShield) {
-          brokenShields.push(name);
+          if (!brokenShields.includes(name)) brokenShields.push(name);
           log.push(`[SHIELD_BROKEN] ${name}'s bulletproof shield has shattered.`);
         }
       } else {

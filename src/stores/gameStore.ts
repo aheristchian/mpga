@@ -326,7 +326,9 @@ export const useGameStore = defineStore('game', () => {
 
     livePlayers.value = playersWithRoles.map((p) => {
       const initialCharges: Record<string, number | 'unlimited'> = {};
-      if (p.role?.passiveAbilityIds?.includes('shield')) {
+      const isGodfather = p.role?.id === 'godfather';
+      const hasGodfatherShield = (p.role as any)?.abilities?.includes('godfather_shield');
+      if (isGodfather || hasGodfatherShield || p.role?.passiveAbilityIds?.includes('shield')) {
         initialCharges['shield'] = 1;
       }
       return {
@@ -425,6 +427,10 @@ export const useGameStore = defineStore('game', () => {
     const p = livePlayers.value.find((player) => player.name === playerName);
     if (!p) return;
     p.isShieldBroken = true;
+    if (p.abilityCharges) {
+      p.abilityCharges['shield'] = 0;
+      p.abilityCharges['godfather_shield'] = 0;
+    }
     if (p.role?.passiveAbilityIds) {
       p.role.passiveAbilityIds = p.role.passiveAbilityIds.filter((id) => id !== 'shield');
     }

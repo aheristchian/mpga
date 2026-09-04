@@ -16,6 +16,9 @@ export interface ClientPlayerIdentity {
   isDead: boolean;
   isSilenced: boolean;
   warnings: number;
+  isShieldBroken?: boolean;
+  abilityCharges?: Record<string, number | 'unlimited'>;
+  isMafiaShooter?: boolean;
 }
 
 export interface PublicPlayerInfo {

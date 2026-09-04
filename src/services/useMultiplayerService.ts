@@ -2,6 +2,7 @@ import { ref, computed } from 'vue';
 import Peer, { type DataConnection } from 'peerjs';
 import mqtt, { type MqttClient } from 'mqtt';
 import { encryptPayload, decryptPayload, isEncryptedMessage } from '../utils/crypto';
+import { getActiveMafiaShooter } from './gameEngine';
 import type {
   TransportMode,
   ConnectionStatus,
@@ -78,9 +79,34 @@ export const CLOUD_BROKER_URL = CLOUD_BROKER_URLS[0];
 
 export function sanitizePlayerPayload(
   player: Player | null | undefined,
-  isGameLive: boolean = true
+  isGameLive: boolean = true,
+  allLivePlayers?: Player[]
 ): ClientPlayerIdentity | null {
   if (!player) return null;
+
+  let isMafiaShooter = false;
+  let abilities = (player.role as any)?.abilities || player.role?.abilityIds;
+
+  if (isGameLive && player.role?.sideId === 'mafia' && !player.isDead) {
+    if (player.role.id === 'godfather') {
+      isMafiaShooter = true;
+    } else if (allLivePlayers && allLivePlayers.length > 0) {
+      const living = allLivePlayers.filter((p) => !p.isDead);
+      const hasAliveGodfather = living.some((p) => p.role?.id === 'godfather');
+      if (!hasAliveGodfather) {
+        const activeShooter = getActiveMafiaShooter(living);
+        if (activeShooter && activeShooter.name === player.name) {
+          isMafiaShooter = true;
+          const currentAbilities = Array.isArray(abilities) ? [...abilities] : [];
+          if (!currentAbilities.includes('mafia-shot')) {
+            currentAbilities.push('mafia-shot');
+          }
+          abilities = currentAbilities;
+        }
+      }
+    }
+  }
+
   return {
     name: player.name,
     role:
@@ -90,12 +116,16 @@ export function sanitizePlayerPayload(
             name: player.role.name,
             sideId: player.role.sideId,
             description: player.role.description,
-            abilities: (player.role as any).abilities,
+            abilities,
+            abilityIds: abilities,
           }
         : null,
     isDead: !!player.isDead,
     isSilenced: !!player.isSilenced,
     warnings: player.warnings || 0,
+    isShieldBroken: !!player.isShieldBroken,
+    abilityCharges: player.abilityCharges,
+    isMafiaShooter,
   };
 }
 
@@ -1049,7 +1079,7 @@ export function useMultiplayer() {
           const rawPlayer = rawPlayers.find(
             (rp) => rp.name && p.playerName && rp.name.toLowerCase() === p.playerName.toLowerCase()
           );
-          const privateIdentity = rawPlayer ? sanitizePlayerPayload(rawPlayer, isGameLive) : null;
+          const privateIdentity = rawPlayer ? sanitizePlayerPayload(rawPlayer, isGameLive, rawPlayers) : null;
           let playerPayload: any = privateIdentity;
           if (privateIdentity) {
             try {
@@ -1071,7 +1101,7 @@ export function useMultiplayer() {
         const rawPlayer = rawPlayers.find(
           (rp) => rp.name && p.playerName && rp.name.toLowerCase() === p.playerName.toLowerCase()
         );
-        const privateIdentity = rawPlayer ? sanitizePlayerPayload(rawPlayer, isGameLive) : null;
+        const privateIdentity = rawPlayer ? sanitizePlayerPayload(rawPlayer, isGameLive, rawPlayers) : null;
         let playerPayload: any = privateIdentity;
         if (privateIdentity) {
           try {

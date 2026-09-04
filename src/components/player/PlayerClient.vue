@@ -486,6 +486,29 @@
                     : playerIdentity.role?.sideId || 'Town'
                 }}
               </span>
+
+              <!-- Shield Badge -->
+              <span
+                v-if="playerIdentity.isShieldBroken"
+                class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-950/80 border border-red-700 text-red-300 ml-1.5 rtl:mr-1.5"
+              >
+                🛡️❌ {{ $t('playerClient.shieldBroken') }}
+              </span>
+              <span
+                v-else-if="playerIdentity.role?.id === 'godfather' || (playerIdentity.abilityCharges && playerIdentity.abilityCharges['shield'] !== undefined)"
+                class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-950/80 border border-blue-600 text-blue-300 ml-1.5 rtl:mr-1.5"
+              >
+                🛡️ {{ $t('playerClient.shieldActive', { count: playerIdentity.abilityCharges?.shield ?? 1 }) }}
+              </span>
+
+              <!-- Mafia Shooter Badge -->
+              <span
+                v-if="playerIdentity.isMafiaShooter && playerIdentity.role?.id !== 'godfather'"
+                class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-950/80 border border-amber-600 text-amber-300 ml-1.5 rtl:mr-1.5"
+              >
+                🔫 {{ $t('playerClient.designatedMafiaShooter') }}
+              </span>
+
               <h2 class="text-2xl font-black text-white mt-1.5">
                 {{
                   $te('roles.' + playerIdentity.role?.id + '.name')
